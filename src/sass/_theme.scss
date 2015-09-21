@@ -1,0 +1,1749 @@
+$big-footer-height: 250px;
+$small-footer-height: 50px;
+
+$appBorderRadius: 8px;
+
+html {
+    height: 100%;
+}
+
+body {
+    position: relative;
+    background-color: $pageBG;
+    padding-bottom: $big-footer-height;
+
+    &.state-app_wallet {
+        height: 100%;
+        overflow: hidden;
+        padding-bottom: $small-footer-height;
+    }
+
+    &.state-app_setup {
+        @extend .fill-height-or-more;
+    }
+}
+
+.bodyViewContainer {
+    height: 100%;
+}
+
+.row-no-padding {
+    @for $i from 0 through 12 {
+        .col-xs-#{$i} {
+            padding-left: 0px;
+            padding-right: 0px;
+        }
+        .col-sm-#{$i} {
+            padding-left: 0px;
+            padding-right: 0px;
+        }
+        .col-md-#{$i} {
+            padding-left: 0px;
+            padding-right: 0px;
+        }
+        .col-lg-#{$i} {
+            padding-left: 0px;
+            padding-right: 0px;
+        }
+    }
+}
+
+.height-100 {
+    height: 100%;
+}
+
+.flex-container {
+    @include display-flex();
+}
+
+.fill-height-or-more {
+    @include display-flex();
+    @include flex-direction(column);
+
+    min-height: 100%;
+
+    > div {
+        // these are flex items
+
+        // flex: 1; same as:
+        // flex-grow: 1;
+        // flex-shrink: 1;
+        // flex-basis: auto;
+        // flex: 1 1 auto;
+        flex: 1;
+
+        @include display-flex();
+        @include flex(1);
+        @include flex-direction(column);
+        @include justify-content(flex-start);
+
+        > div {
+            // also flex items
+        }
+    }
+}
+
+.footer {
+    height: $big-footer-height;
+    clear: both;
+    padding-top: 20px;
+    background: none;
+    background-color: $black-light;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 2;
+    overflow: hidden;
+
+    h4 {
+        color: $white;
+        font-size: 14px;
+        font-weight: $semi-bold;
+    }
+    ul.nav {
+        & > li {
+            & > a {
+                color: $muted;
+                background-color: transparent;
+                padding: 0px;
+            }
+        }
+    }
+}
+
+.state-app_wallet {
+    .footer {
+        height: $small-footer-height;
+        overflow: hidden;
+
+        -webkit-transition: height 0.5s ease;
+        -moz-transition: height 0.5s ease;
+        -o-transition: height 0.5s ease;
+        transition: height 0.5s ease;
+
+        &:hover {
+            height: $big-footer-height;
+        }
+    }
+}
+
+.mainMenu {
+    position: relative;
+    // background-color: $black-light;
+    background-color: $black-light;
+
+    height: 100%;
+
+    /*
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    //*/
+
+    ///*
+    -webkit-border-top-left-radius: $appBorderRadius;
+    -webkit-border-bottom-left-radius: $appBorderRadius;
+    -moz-border-radius-topleft: $appBorderRadius;
+    -moz-border-radius-bottomleft: $appBorderRadius;
+    border-top-left-radius: $appBorderRadius;
+    border-bottom-left-radius: $appBorderRadius;
+    //*/
+
+    /*
+    z-index: 1000;
+    position: fixed;
+    left:0px;
+    bottom:0px;
+    top:0px;
+    height:100%;
+    padding:0px;
+    width: $menu-width;
+    */
+
+    ul {
+        padding-left: 0px;
+        list-style: none;
+        width: 100%;
+        height: 100%;
+        box-shadow: -11px 0 10px -9px $darkgray-light;
+        li {
+            //  line-height: 40px;
+            a {
+                display: block;
+                text-decoration: none;
+                color: $lightgray-light;
+                padding: 20px 20px 20px 30px;
+                font-weight: $normal;
+                font-size: 18px;
+                position: relative;
+                border: 0px;
+                &:hover, &:active, &:focus {
+                    text-decoration: none;
+                    color: $white;
+                    background: none;
+                    background-color: $grey;
+                }
+                &:hover {
+                    text-decoration: none;
+                }
+                .bticon {
+                    width: auto;
+                    margin: 0px;
+                    padding: 0px;
+                    display: inline;
+                }
+
+            }
+            &.sidebar-brand {
+                //margin-bottom: 20px;
+                text-align: left;
+                padding: 20px;
+                a {
+                    padding: 0px;
+                    height: 80px;
+                    font-size: 18px;
+                    line-height: 60px;
+                    background: none;
+                    // background-color: $black-light;
+                    img {
+                        border: 1px solid $darkgray-light;
+                    }
+                }
+
+            }
+            &.active {
+                a {
+                    background-color: $emerald;
+                    box-shadow: 0px 2px 5px -1px $muted;
+                    font-weight: $bold;
+                }
+            }
+        }
+    }
+
+    .appStoreButtons {
+        position: absolute;
+        bottom: 0px;
+        left: 0px;
+        width: 100%;
+        padding: 0px 0px 25px 25px;
+        a {
+            color: $muted;
+            padding: 4px 6px;
+            display: block;
+        }
+    }
+}
+
+.stick-to-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+$appHeaderHeight: 120px;
+.appWrapper {
+    @extend .height-100;
+    padding: 20px 0px;
+
+    .appContainer {
+        -webkit-border-radius: $appBorderRadius;
+        -moz-border-radius: $appBorderRadius;
+        border-radius: $appBorderRadius;
+        border: 1px solid $emerald;
+        background-color: $lightgray-dark;
+
+        height: 100%;
+        // @extend .container;
+        padding: 0px;
+
+        position: relative;
+
+        .appLeftCol, .appRightCol {
+            height: 100%;
+            float: left;
+            position: relative;
+        }
+
+        .appLeftCol {
+            width: 25%;
+        }
+
+        .appRightCol {
+            width: 75%;
+            padding-top: $appHeaderHeight;
+        }
+
+        .appBody {
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background-color: $white;
+
+            .appBodyContainer {
+                position: relative;
+                //min-height: 100%;
+
+                .appPage {
+                    padding: 10px 40px 20px 40px;
+                }
+            }
+        }
+
+        .appHeader {
+            border-bottom: 1px solid $muted;
+            padding: 0px;
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            left: 0px;
+            height: $appHeaderHeight;
+
+            .appHeaderContent {
+                padding: 0px 40px;
+            }
+
+            .dropdown {
+                margin-bottom: 20px;
+                border-radius: 0px;
+
+                .btn-alt {
+                    padding: 6px 20px;
+                    border-radius: 0px;
+                    font-size: 20px;
+                    background: none;
+                    background-color: transparent;
+                    border: 0px;
+                    box-shadow: none;
+                    text-align: right;
+                    color: $darkgray-light;
+                }
+                &.open {
+                    .btn-alt {
+                        background: none;
+                        background-color: $muted;
+                    }
+                }
+            }
+
+            h1 {
+                font-size: 24px;
+                font-weight: $bold;
+                padding: 10px 0px 20px 0px;
+                margin: 0px;
+                color: $darkgray-dark;
+
+                small {
+                    color: $text-muted;
+                    font-size: 20px;
+                }
+                &.pageTitle {
+                    color: $emerald;
+                }
+            }
+
+            span {
+                font-size: 14px;
+                font-weight: $normal;
+                color: $darkgray-light;
+            }
+        }
+    }
+}
+
+//--- navbar ---
+
+.navbar {
+    margin: 0px;
+    border-radius: 0px;
+    background-color: $emerald;
+    border: 0px;
+    position: relative;
+    z-index: 10;
+
+    .navbar-brand {
+        padding: 16px 0px 16px 0px;
+        height: auto;
+        margin: 0px 30px 0px 15px;
+
+        img {
+            border: 3px solid $white;
+            margin: 0px;
+            padding: 0px 0px 0px 2px;
+        }
+    }
+
+    .navbar-nav {
+        margin-top: 0px;
+
+        li {
+            margin: 0px 10px;
+
+            a {
+                padding: 34px 10px 34px 10px;
+                background: transparent;
+                color: $white;
+                font-size: 18px;
+                border-bottom: 2px solid transparent;
+                font-weight: $normal;
+                text-shadow: none;
+
+                .bticon {
+                    font-size: 12px;
+                    margin: 0px 6px;
+                    color: inherit;
+                }
+
+                &:active, &:focus, &:hover {
+                    color: $white;
+                    background-color: transparent;
+                    background: none;
+                }
+
+                &:hover {
+                    color: $white;
+                    border-bottom: 2px solid $lemon;
+                    background: none;
+                    background-color: transparent;
+                }
+            }
+            &.active {
+                a {
+                    border-bottom: 2px solid $neon;
+                    color: $white;
+                    background: none;
+                    &:active, &:focus, &:hover {
+                        background: none;
+                        background-color: transparent;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.appNav {
+    //height:64px;
+    .btn {
+        height: 64px;
+        border: 0px;
+        border-radius: 0px;
+        font-weight: $semi-bold;
+        font-size: 16px;
+    }
+}
+
+//--- Scaffolding ---
+.opacity-50 {
+    opacity: 0.5;
+}
+
+.opacity-30 {
+    opacity: 0.3;
+}
+
+.margin-t {
+    margin-top: 0.5rem;
+}
+
+.margin-b {
+    margin-bottom: 0.5rem;
+}
+
+.padding-t {
+    padding-top: 0.5rem;
+}
+
+.padding-b {
+    padding-bottom: 0.5rem;
+}
+
+.no-padding {
+    padding: 0;
+}
+
+.no-margin {
+    margin: 0;
+}
+
+.blur-me {
+    -webkit-filter: blur(3px);
+    -moz-filter: blur(3px);
+    filter: blur(3px);
+
+    transition: filter 0.8s linear;
+    -webkit-transition: -webkit-filter 0.8s linear;
+}
+
+.spin-me {
+    -webkit-animation: spin 1s infinite linear;
+    -moz-animation: spin 1s infinite linear;
+    -o-animation: spin 1s infinite linear;
+    animation: spin 1s infinite linear;
+}
+
+.capitalise {
+    text-transform: capitalize;
+}
+
+.uppercase {
+    text-transform: uppercase;
+}
+
+.lowercase {
+    text-transform: lowercase;
+}
+
+.sentence-case {
+    display: inline-block; // required for ::first-letter to work
+
+    &::first-letter {
+        text-transform: uppercase;
+    }
+}
+
+.text-bad {
+    color: $bad-red;
+}
+
+.text-good {
+    color: $good-green;
+}
+
+.text-neutral {
+    color: #666;
+}
+
+.text-white {
+    color: $white;
+}
+
+.text-ellipsis {
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+
+}
+
+.alert-default {
+    background-color: $lightgray-light;
+    border: 1px solid $border-color;
+}
+
+.password-mask {
+    -webkit-text-security: disc;
+}
+
+//ng-animate is enabled by default on EVERYTHING...any transition on an element will defer ng-if/ng-show
+//when this is giving issues (like with buttons that have a transition for the active state), add this class to bypass
+.no-animate {
+    @include transition(none 0s !important);
+    &.ng-animate {
+        @include transition(none 0s !important);
+    }
+}
+
+.item-no-border {
+    border: none;
+}
+
+.item-no-border-b {
+    border-bottom: none;
+}
+
+//remove the number spinner (to help with UI dev in browser)
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.sectionTop {
+    background-color: $pageBG;
+    border-bottom: 4px solid $neon;
+    padding: 40px 0px;
+}
+
+.sectionTitle {
+    padding: 20px 20px 0px 20px;
+    background-color: $white;
+    h1 {
+        padding: 25px 0px 25px 0px;
+        //  border-bottom:1px solid #dadada;
+        margin: 0px;
+        color: $darkgray-light;
+        font-size: 26px;
+        font-weight: $semi-bold;
+    }
+}
+
+$display-token-size: 50px;
+.display-token {
+    position: relative;
+    display: inline-block;
+    width: $display-token-size;
+    height: $display-token-size;
+    border-radius: 100%;
+    //   overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.13);
+    text-decoration: none;
+
+    &.contact-token {
+        background-color: #bcbcbc;
+        text-align: center;
+        font-size: $display-token-size/2;
+        line-height: $display-token-size;
+        text-transform: uppercase;
+        font-weight: 200;
+        overflow: hidden;
+        color: transparent;
+        text-shadow: 0 0 0px $white, 0 -1px 1px rgba(0, 0, 0, 0.35);
+
+        .avatar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-position: 50% 50%;
+            background-size: cover;
+        }
+    }
+    &.anon-token {
+        //   background-color: $white;
+        color: $darkgray-light;
+        text-align: center;
+        font-size: $display-token-size/1.5;
+        line-height: $display-token-size;
+        img {
+            max-width: 50px;
+            vertical-align: top;
+
+        }
+    }
+
+    &.anon-token, &.contact-token {
+        img, span {
+            &.received {
+                border: 2px solid $emerald;
+                border-radius: 50%;
+            }
+            &.sent {
+                border: 2px solid $red;
+                border-radius: 50%;
+            }
+        }
+    }
+}
+
+.form {
+    .form-group {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        .control-label {
+            &::first-letter {
+                text-transform: uppercase;
+            }
+            font-weight: $semi-bold;
+            font-size: 16px;
+        }
+        .form-control {
+            box-shadow: none;
+            border-radius: 1px;
+        }
+        .input-group {
+            position: relative;
+            .form-control {
+                border-right: 0px;
+            }
+            .input-group-addon {
+                &.currency {
+                    background: none;
+                    background-color: $white;
+                    border: 0px;
+                    border-top: 1px solid inherit;
+                    border-bottom: 1px solid inherit;
+                    background: transparent;
+                    position: absolute;
+                    right: 70px;
+                    width: auto;
+                    text-align: right;
+                    top: 0px;
+                    z-index: 999;
+                    padding: 0px;
+                    margin: 0px;
+                    //height:46px;
+                    line-height: 40px;
+                }
+
+                .altCurrency {
+                    margin: 0px;
+                    font-weight: $normal;
+                    font-size: 14px;
+                    padding-right: 10px;
+                    color: $darkgray-light;
+                    text-align: right;
+                }
+            }
+            .dropdown {
+                border-left: 1px solid $border-color;
+                .btn-alt {
+                    border: 0px;
+                    border: 1px solid $border-color;
+                    border-left: 0;
+                    border-radius: 0;
+                    background: none;
+                    padding: 0px 15px;
+                    background-color: transparent;
+                    color: $darkgray-dark;
+                }
+
+            }
+        }
+
+        p {
+            margin: 0px;
+            font-size: 16px;
+        }
+    }
+    .form-group-buttons {
+        margin-top: 0px;
+        // background-color: $lightgray-light;
+        // border: 1px solid $lightgray-dark;
+        padding: 0px;
+        margin-bottom: 0px;
+        .btn-alt, a {
+            margin-right: 20px;
+        }
+    }
+}
+
+.progress {
+    margin: 20px 0px;
+    .progress-bar {
+        background: none;
+        background-color: $sunflower-light;
+    }
+}
+
+.state-app_setup {
+    &.state-app_setup_wallet,
+    &.state-app_setup_backup {
+        h1 {
+            margin-top: 120px;
+            font-weight: $normal;
+            font-size: 32px;
+        }
+        hr {
+            border-color: #ccc;
+        }
+        h4 {
+            font-size: 18px;
+            font-weight: $semi-bold;
+            color: $black-light;
+        }
+        p {
+            font-size: 18px;
+            font-weight: $normal;
+        }
+        .progress {
+            margin-top: 0px;
+        }
+    }
+
+    .base-view {
+        @extend .fill-height-or-more;
+    }
+
+    .appWrapper {
+        padding: 80px 0px;
+    }
+
+    .pageTitle {
+        margin-top: 0px;
+    }
+
+    .formContainer {
+        background-color: $white;
+        padding: 0px 20px 20px 20px;
+        margin: 10px 0px;
+        border: 1px solid $muted;
+
+        .form {
+            padding: 0px 0px;
+            margin-top: 20px;
+            display: block;
+            .smallButtons {
+                padding-top: 10px;
+                a {
+                    display: block;
+                    padding: 0px 0px 4px 0px;
+                }
+            }
+        }
+    }
+
+    .backupWrapper {
+        margin-top: 20px;
+        background-color: $white;
+        padding: 20px 40px;
+        border: 1px solid $muted;
+        h1 {
+            margin: 0px;
+            padding-bottom: 15px;
+        }
+        h2 {
+            margin: 0px;
+        }
+        p {
+            padding: 0px;
+            font-size: 16px;
+            font-weight: $normal;
+            text-shadow: none;
+            margin: 0px;
+            .label {
+                font-weight: $semi-bold;
+                display: inline-block;
+                padding: 0px 4px;
+                font-size: 12px;
+                line-height: 19px;
+                margin-right: 4px;
+            }
+        }
+        .downloadBackupBtn {
+            margin-top: 20px;
+            width: 100%;
+        }
+        form {
+            border-top: 1px solid $border-color;
+            margin-top: 0px;
+            padding: 0px 0px;
+            .checkbox {
+                font-weight: $semi-bold;
+                font-size: 16px;
+            }
+        }
+        /*
+                .backupCodes {
+                    padding: 20px;
+                    margin-top: 10px;
+                    border: 1px dashed $bad-red;
+                    .exportControls {
+                        margin-top: 20px;
+                        text-align: center;
+                        .btn {
+                            display: block;
+                        }
+                    }
+
+
+                }
+                */
+    }
+}
+
+.state-app_wallet {
+    .base-view {
+        @extend .height-100;
+    }
+
+    .topSummary {
+        background-color: #999;
+        background-color: $sunflower-light;
+        box-shadow: inset 0px -9px 22px -13px #888;
+        .profile {
+            //height: 300px;
+            padding: 20px 0px 20px 0px;
+
+            .profile-img-container {
+                height: 100%;
+                .profile-img {
+                    height: 100%;
+                    width: auto;
+                    max-height: 84px;
+                    max-width: 84px;
+                    border: 1px solid #999;
+                }
+            }
+
+            h1 {
+                font-size: 28px;
+                font-weight: 400;
+                margin: 0px;
+                padding: 0px;
+                line-height: 34px;
+                margin-top: 20px;
+            }
+            .subheading {
+                font-size: 14px;
+                color: #666;
+            }
+            .balance {
+                margin-top: 15px;
+                h1 {
+                    font-size: 28px;
+                    font-weight: $semi-bold;
+                    color: $black-light;
+                    margin: 0px;
+                    padding: 0px;
+                    line-height: 42px;
+                }
+                h2 {
+                    font-size: 22px;
+                    color: #333;
+
+                    font-weight: $bluejeans-dark;
+                    margin: 0px;
+                    padding: 0px;
+                    line-height: 24px;
+                }
+            }
+        }
+    }
+
+    .summaryControls {
+
+        padding: 30px 0px 30px 0px;
+        //   border-bottom:1px solid #999;
+        //       background-color:$state-bg;
+
+        .nav-pills {
+            padding: 0px 0px 0px 0px;
+            margin: 0px;
+            li {
+
+                border-radius: 0px;
+                a {
+                    border-radius: 0px;
+                    //  background-color:$lightgray-dark;
+                    border: 1px solid #dadada;
+                    border-bottom: 2px solid #ccc;
+                    // border-left:0px;
+                    // border-right:0px;
+                    background: none;
+                    color: $black-light;
+
+                    text-transform: capitalize;
+                    font-size: 14px;
+                    line-height: 18px;
+                    font-weight: $semi-bold;
+                    background-color: $white;
+                    border-radius: 0px;
+                }
+                &.active {
+                    a {
+                        background-color: $darkgray-dark;
+                        //background-color:$sunflower-dark;
+                        color: $white;
+
+                    }
+                }
+            }
+        }
+    }
+
+    &.state-app_wallet_summary {
+        $divider-height: 35px;
+
+        .noTransactions {
+            display: block;
+            padding-top: 100px;
+            padding-bottom: 100px;
+            color: $darkgray-light;
+            text-align: center;
+            width: 100%;
+
+            i {
+                font-size: 35px;
+            }
+
+            h1 {
+                font-size: 28px;
+                line-height: 32px;
+            }
+
+            h2 {
+                margin-top: 20px;
+                font-size: 22px;
+                line-height: 26px;
+
+                a {
+                    font-weight: $semi-bold;
+                }
+            }
+        }
+
+        .loadingSpinner {
+            display: block;
+            padding: 60px 0px 100px 0px;
+        }
+        .txList {
+            .item-transaction {
+                padding: 10px 30px;
+
+                .transaction-info {
+                    position: relative;
+                    display: inline-block;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    color: $darkgray-light;
+                    font-size: 18px;
+                    line-height: 21px;
+                    margin: 10px 0px;
+                    // padding-left: 20px;
+                    font-weight: $normal;
+
+                    .tx-type {
+                        display: block;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        padding: 8px 0px 0px 0px;
+                    }
+                    .timestamp {
+                        font-size: 14px;
+                        color: $text-muted;
+                        padding: 0px 0px 0px 0px;
+                    }
+
+                }
+                .pending {
+                    font-size: 14px;
+                    color: #aaa;
+                    padding: 20px 0px;
+                }
+                .value {
+                    font-size: 18px;
+                    line-height: 38px;
+                    padding: 20px 0px;
+                    font-weight: $normal;
+                    &.received {
+                        color: $green;
+                    }
+                    &.sent {
+                        color: $darkgray-light;
+                    }
+                }
+
+                &:hover, &:active, &:focus {
+                    background-color: #f7f7f7;
+                    cursor: pointer;
+                }
+            }
+
+            .item-divider {
+                &.isFirst {
+                    padding-top: 10px;
+                }
+                .date-group {
+
+                    display: block;
+                    width: 100%;
+                    padding: 10px 30px;
+                    font-weight: $normal;
+                    color: $text-muted;
+                    font-size: 16px;
+                    border-bottom: 0px;
+                }
+            }
+        }
+
+    }
+
+    //--- send screens ---
+    &.state-app_wallet_send, &.state-app_wallet_receive {
+
+        form {
+            background-color: $white;
+            padding: 0px 0px 0px 0px;
+            border-radius: 8px;
+        }
+
+        .qrcode-display-section {
+            background-color: $white;
+            //   padding: 10px;
+            padding: 20px 0px;
+        }
+        .receivePaymentStatus {
+            float: right;
+            padding-top: 10px;
+            color: #999;
+            &.text-success {
+                color: $green;
+            }
+        }
+        .address {
+            font-size: 16px;
+            font-weight: $semi-bold;
+            background-color: $lightgray-light;
+            border: 1px solid $muted;
+            padding: 10px;
+        }
+        .amount {
+            //    font-size: 18px;
+        }
+    }
+
+    //--- settings screens ---
+    &.state-app_wallet_settings {
+        .checkbox {
+            padding: 20px 0px;
+        }
+        .contact-token {
+            width: 60px;
+            height: 60px;
+            line-height: 60px;
+            font-size: 20px;
+        }
+
+        .phone-status {
+            display: block;
+            color: #666;
+            //margin-top: 5px;
+            font-size: 14px;
+        }
+        .spin-me {
+            display: inline-block;
+            -webkit-transform-origin: 74% 46%;
+            transform-origin: 74% 46%;
+        }
+
+        //profile image select and crop
+        .profile-image.contact-token {
+            top: -2px;
+            width: 120px;
+            height: 120px;
+            margin-right: 20px;
+            line-height: 120px;
+            font-size: 60px;
+            float: left;
+        }
+
+        .photo-crop-screen {
+            position: absolute;
+            top: 100%;
+            width: 100%;
+            height: 100%;
+            padding-top: $bar-height;
+            margin-top: -1px;
+            background: #000;
+            z-index: 101;
+            transition: top 1s cubic-bezier(.13, .87, .42, .96);
+            -webkit-transition: top 1s cubic-bezier(.13, .87, .42, .96);
+            text-align: center;
+
+            &.displayed {
+                top: 0 !important;
+                transition: top 0.8s cubic-bezier(.4, .1, .11, .98);
+                -webkit-transition: top 0.8s cubic-bezier(.4, .1, .11, .98);
+            }
+
+            .confirm-button {
+                @include squareButton(#666, rgba(255, 255, 255, 0.5));
+                transition: none;
+                -webkit-transition: none;
+                min-width: 8rem;
+
+                position: absolute;
+                bottom: 1.5rem;
+                margin: 0 auto;
+                left: 0;
+                right: 0;
+            }
+
+            .img-crop {
+                height: 100%;
+                width: 100%;
+                background: #000;
+                box-shadow: $app-default-shadow;
+
+                canvas {
+                    //@TODO gotta work on this...issues with landscape images, and the touch detection on iOS also seems to suffer
+                    //height: 100%;
+                    //width: auto;
+                }
+            }
+            .loading {
+                color: $white;
+                position: absolute;
+                top: 45%;
+                width: 100%;
+
+                h3 {
+                    color: $white;
+                }
+                .spinner svg {
+                    color: $white;
+                    width: 60px;
+                    height: 60px;
+                }
+            }
+        }
+
+        &.state-phone {
+            label.item-input {
+                background: $lightgray-dark;
+
+                i.placeholder-icon {
+                    font-size: 18px;
+                    margin-left: -5px;
+                    padding-right: 8px;
+                }
+            }
+            .tabs {
+                background-image: none; //for some reason they've used a gradient to create a thin line instead of border....very annoying to discover and remove >:(
+            }
+            .country-code {
+                padding: 0 0 5px 0;
+                p {
+                    padding-top: 8px;
+                }
+            }
+            .country-select-screen {
+                margin-top: 0;
+                padding: 0;
+                padding-top: $bar-height;
+                text-align: left;
+
+                .clear-input {
+                    position: absolute;
+                    right: 22px;
+                    font-size: 20px;
+                    line-height: 29px;
+                    height: 29px;
+                    z-index: 10;
+                }
+
+                .filter-input {
+                    position: absolute;
+                    background: #bbb;
+                    border-bottom: 1px solid #e1e1e1;
+                    width: 100%;
+                    height: 50px;
+                    top: $bar-height;
+                    z-index: 100;
+                }
+            }
+        }
+    }
+
+    &.state-app_wallet_feedback {
+        background: $lightgray-dark;
+        .msg {
+            &.item-input {
+                -webkit-align-items: baseline;
+                -moz-align-items: baseline;
+                align-items: baseline;
+
+                padding-left: 0px;
+            }
+            i {
+                margin-top: -6px;
+                font-size: 20px;
+            }
+        }
+        .email {
+            i {
+                margin-top: 3px;
+                font-size: 20px;
+            }
+        }
+
+        .send-button-group {
+
+            .button {
+                @include squareButton($darkgray-light);
+                border-width: 1px;
+            }
+        }
+    }
+}
+
+//Add opacity animation states for everything...ng-animate is active on all elements so meerly adding a transition will activate this animation
+&.ng-enter {
+    opacity: 0;
+}
+
+&.ng-enter-active {
+    opacity: 1;
+}
+
+&.ng-leave {
+    opacity: 1;
+}
+
+&.ng-leave-active {
+    opacity: 0;
+}
+
+.bounce.ng-enter, .bounce.ng-leave {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    animation-duration: 5s;
+    -webkit-animation-duration: 5s;
+}
+
+.bounce.ng-enter {
+    animation-name: bounceInDown;
+    -webkit-animation-name: bounceInDown;
+}
+
+.bounce.ng-leave {
+    animation-name: bounceOutDown;
+    -webkit-animation-name: bounceOutDown;
+}
+
+.animate-slide {
+    position: absolute;
+    top: 100%;
+    width: 100%;
+    height: 100%;
+    padding-top: 50%;
+    background: $app-default-color;
+    z-index: 101;
+    transition: top 1s cubic-bezier(.13, .87, .42, .96);
+    -webkit-transition: top 1s cubic-bezier(.13, .87, .42, .96);
+
+    &.ng-leave {
+
+        top: 100%;
+    }
+
+    &.displayed, &.ng-enter {
+        top: 0 !important;
+        transition: top 0.8s cubic-bezier(.4, .1, .11, .98);
+        -webkit-transition: top 0.8s cubic-bezier(.4, .1, .11, .98);
+    }
+
+    .confirm-button {
+        margin-top: 2rem;
+        color: $white;
+        color: rgba(0, 0, 0, 0.5);
+        border-color: $white;
+        background-color: rgba(255, 255, 255, 0.4);
+    }
+}
+
+.loading-page {
+    padding-top: 10%;
+    text-align: center;
+}
+
+.loading-spinner {
+    .loading {
+        display: inline-block;
+        *zoom: 1;
+        *display: inline;
+        width: 10px;
+        height: 10px;
+        background: $white;
+        border-radius: 100%;
+        margin-right: 5px;
+        opacity: 0.0;
+    }
+
+    &.loading-spinner-sm {
+        .loading {
+            width: 5px;
+            height: 5px;
+        }
+    }
+
+    &.loading-spinner-lg {
+        .loading {
+            width: 30px;
+            height: 30px;
+        }
+    }
+
+    .loading-0 {
+        -webkit-animation: bounce 1s 0.0s infinite;
+        -moz-animation: bounce 1s 0.0s infinite;
+        -o-animation: bounce 1s 0.0s infinite;
+        animation: bounce 1s 0.0s infinite;
+        background: #009DC6;
+    }
+    .loading-1 {
+        -webkit-animation: bounce 1s 0.2s infinite;
+        -moz-animation: bounce 1s 0.2s infinite;
+        -o-animation: bounce 1s 0.2s infinite;
+        animation: bounce 1s 0.2s infinite;
+        background: #e8b440;
+    }
+    .loading-2 {
+        -webkit-animation: bounce 1s 0.4s infinite;
+        -moz-animation: bounce 1s 0.4s infinite;
+        -o-animation: bounce 1s 0.4s infinite;
+        animation: bounce 1s 0.4s infinite;
+        background: #b62327;
+    }
+}
+
+/*--- Modals ---*/
+.modal-open {
+    .content {
+        @extend .blur-me;
+    }
+}
+
+.modal-max-height {
+    .modal-dialog {
+        height: calc(100% - 130px);
+
+        .modal-content {
+            height: 100%;
+
+            .modal-body {
+                height: calc(100% - 70px - 70px); // reduce height for header + footer
+            }
+        }
+    }
+}
+
+.modal-dialog {
+    margin-top: 100px;
+    .modal-header {
+        background-color: $emerald;
+        padding: 20px 30px;
+        -webkit-border-top-left-radius: 6px;
+        -webkit-border-top-right-radius: 6px;
+        -moz-border-radius-topleft: 6px;
+        -moz-border-radius-topright: 6px;
+        border-top-left-radius: 6px;
+        border-top-right-radius: 6px;
+
+        h3 {
+            font-weight: 400;
+            font-size: 20px;
+            color: $white;
+        }
+    }
+    .modal-body {
+        padding: 20px 25px;
+        .alert-default {
+            padding:10px;
+            margin:0px;
+        }
+        .title {
+            font-size: 18px;
+            font-weight: $normal;
+            padding: 0px 0px;
+            display: block;
+            width: 100%;
+            text-align: center;
+            line-height: 50px;
+
+            .address, .amount {
+                // font-weight: $semi-bold;
+                padding: 4px 10px;
+                border-radius: 4px;
+                background-color: $lightgray-light;
+                border: 1px solid $muted;
+            }
+        }
+
+        .value {
+            color: $black-light;
+            display: block;
+            font-size: 14px;
+            text-align: left;
+        }
+        .label {
+            color: $black-light;
+            font-weight: $semi-bold;
+            display: block;
+            font-size: 14px;
+            text-align: left;
+            margin:0px;
+            padding:10px 0px 0px 0px;
+        }
+        .transaction-ok {
+            color: $good-green;
+            font-size: 80px;
+        }
+    }
+    .modal-footer {
+        padding: 20px 25px;
+        background-color: $lightgray-light;
+    }
+    .table {
+        background-color: $lightgray-light;
+        margin: 0px;
+        border-bottom: 1px solid $muted;
+        tr {
+            th {
+                font-weight: $bold;
+            }
+            td, th {
+                border: 0px;
+                padding: 15px 30px;
+                font-size: 16px;
+            }
+        }
+    }
+}
+
+/*--- Cool Buttons ---*/
+
+/*--- Cool Buttons ---*/
+.btn-alt-actions {
+    border: 0 none;
+    background-color: $sunflower-light;
+    font-weight: $semi-bold;
+    text-transform: capitalize;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    font-size: 14px;
+    padding: 8px 14px;
+    border: 1px solid #999;
+    text-align: center;
+    color: $black-light;
+    width: 130px;
+    display: inline-block;
+    text-shadow: -1px 1px $muted;
+    border-radius: 0px;
+
+    background: -moz-linear-gradient(top, $white 0%, #dadada 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, $white), color-stop(100%, #dadada)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, $white 0%, #dadada 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, $white 0%, #dadada 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, $white 0%, #dadada 100%); /* IE10+ */
+    background: linear-gradient(to bottom, $white 0%, #dadada 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$white', endColorstr='#dadada', GradientType=0); /* IE6-9 */
+
+    box-shadow: 2px 2px 2px -1px #999;
+    &:hover, &:active, &:focus, &.active {
+        background: none;
+        background-color: #dadada;
+        //box-shadow: inset 0 0px 6px 0px #999;
+        color: $black-light;
+        text-decoration: none;
+    }
+    &.active {
+        box-shadow: none;
+        border-bottom: 2px solid $dark-green;
+    }
+}
+
+.btn-alt {
+    border: 0 none;
+    font-weight: $semi-bold;
+    text-transform: capitalize;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    font-size: 16px;
+    padding: 12px 44px;
+    line-height: 20px;
+    border: 1px solid #999;
+    text-align: center;
+    color: $black-light;
+    display: inline-block;
+    text-shadow: none;
+
+    background: $sunflower-light; /* Old browsers */
+    background: -moz-linear-gradient(top, $white 0%, #dadada 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, $white), color-stop(100%, #dadada)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, $white 0%, #dadada 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, $white 0%, #dadada 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, $white 0%, #dadada 100%); /* IE10+ */
+    background: linear-gradient(to bottom, $white 0%, #dadada 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$white', endColorstr='#dadada', GradientType=0); /* IE6-9 */
+    cursor: hand;
+    &:hover, &:active, &:focus, &.active {
+        background: none;
+        background-color: #dadada;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    &.btn-success {
+        background: $dark-green;
+        border: 1px solid #777;
+        background: -moz-linear-gradient(top, $good-green 0%, $dark-green 100%); /* FF3.6+ */
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, $good-green), color-stop(100%, $dark-green)); /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(top, $good-green 0%, $dark-green 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-linear-gradient(top, $good-green 0%, $dark-green 100%); /* Opera 11.10+ */
+        background: -ms-linear-gradient(top, $good-green 0%, $dark-green 100%); /* IE10+ */
+        background: linear-gradient(to bottom, $good-green 0%, $dark-green 100%); /* W3C */
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$good-green', endColorstr='$dark-green', GradientType=0); /* IE6-9 */
+
+        color: $white;
+        text-shadow: none;
+
+        &:hover, &:active, &:focus, &.active {
+            background: $dark-green;
+            box-shadow: none;
+            text-decoration: none;
+        }
+    }
+
+    &.btn-danger {
+        background: $bad-red;
+        color: $white;
+        &:hover, &:active, &:focus, &.active {
+            //    background:$dark-green;
+            box-shadow: none;
+            text-decoration: none;
+            background: darken($bad-red, 10%);
+        }
+    }
+
+    &.btn-warning {
+        background: $sunflower-dark;
+        border: 1px solid #777;
+        color: $black-light;
+        background: -moz-linear-gradient(top, $sunflower-light 0%, $sunflower-dark 100%); /* FF3.6+ */
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, $sunflower-light), color-stop(100%, $sunflower-dark)); /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(top, $sunflower-light 0%, $sunflower-dark 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-linear-gradient(top, $sunflower-light 0%, $sunflower-dark 100%); /* Opera 11.10+ */
+        background: -ms-linear-gradient(top, $sunflower-light 0%, $sunflower-dark 100%); /* IE10+ */
+        background: linear-gradient(to bottom, $sunflower-light 0%, $sunflower-dark 100%); /* W3C */
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$sunflower-light', endColorstr='$sunflower-dark', GradientType=0); /* IE6-9 */
+
+        text-shadow: none;
+
+        &:hover, &:active, &:focus, &.active {
+            background: $sunflower-dark;
+            box-shadow: none;
+            text-decoration: none;
+        }
+    }
+}
+
+.input-group {
+    .input-group-btn {
+        .btn-alt {
+            height: auto;
+            border-radius: 0px;
+            height: 46px;
+        }
+    }
+}
+
+.progress-spinner {
+    width: 20px;
+    height: 22px;
+    display: inline-block;
+
+    @extend .spin-me;
+}
+
+/*--- Animations ---*/
+@-webkit-keyframes bounce {
+    0%, 100% {
+        opacity: 0.0;
+    }
+    60% {
+        opacity: 1;
+    }
+}
+
+@-moz-keyframes bounce {
+    0%, 100% {
+        opacity: 0.0;
+    }
+    60% {
+        opacity: 1;
+    }
+}
+
+@-o-keyframes bounce {
+    0%, 100% {
+        opacity: 0.0;
+    }
+    60% {
+        opacity: 1;
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        opacity: 0.0;
+    }
+    60% {
+        opacity: 1;
+    }
+}
+
+///*
+@-moz-keyframes spin {
+    0% {
+        -moz-transform: rotate(0deg);
+    }
+    100% {
+        -moz-transform: rotate(359deg);
+    }
+}
+
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+    }
+}
+
+@-o-keyframes spin {
+    0% {
+        -o-transform: rotate(0deg);
+    }
+    100% {
+        -o-transform: rotate(359deg);
+    }
+}
+
+@-ms-keyframes spin {
+    0% {
+        -ms-transform: rotate(0deg);
+    }
+    100% {
+        -ms-transform: rotate(359deg);
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(359deg);
+    }
+}
+
+//*/
+
+/*
+@-ms-keyframes spin {
+    from { -ms-transform: rotate(0deg); }
+    to { -ms-transform: rotate(360deg); }
+}
+@-moz-keyframes spin {
+    from { -moz-transform: rotate(0deg); }
+    to { -moz-transform: rotate(360deg); }
+}
+@-webkit-keyframes spin {
+    from { -webkit-transform: rotate(0deg); }
+    to { -webkit-transform: rotate(360deg); }
+}
+@keyframes spin {
+    from {
+        transform:rotate(0deg);
+    }
+    to {
+        transform:rotate(360deg);
+    }
+}
+//*/

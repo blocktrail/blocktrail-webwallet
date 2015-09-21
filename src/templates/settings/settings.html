@@ -1,0 +1,138 @@
+<div class="appPage">
+    <form class="form">
+
+        <div ng-if="error" class="alert" ng-class="{'alert-success': error.type=='success', 'alert-danger' : error.type=='danger'}">
+            {{ errMsg }}
+        </div>
+
+        <div class="form-group form-group-lg">
+            <div class="row">
+                <div class="col-xs-6">
+                    <label class="control-label">
+                        {{ 'SETTINGS_PROFILE_PICTURE' | translate }}
+                    </label>
+                    <div ng-show="profilePic.saved" class="alert alert-success capitalise">
+                        <i class="bticon bticon-ok"></i> {{ 'SETTINGS_PROFILE_PIC_SAVED' | translate }}
+                    </div>
+                    <div class="text-center" ng-show="profilePic.working">
+                        <loading-spinner></loading-spinner>
+                    </div>
+                    <div class="media" ng-show="!profilePic.working">
+                        <div class="media-left media-middle">
+                            <div class="display-token contact-token">
+                                {{ settings.displayName | contactInitials }}
+                                <span class="avatar" style="background-image: url('{{ settings.profilePic }}'); background-position-x: {{ settings.profilePosX }}%; background-position-y: {{ settings.profilePosY }}%;"></span>
+                            </div>
+                        </div>
+                        <div class="media-body media-middle">
+                            <div class="form-group">
+                                <input type="file" bt-file-upload="profilePic" />
+
+                                <div class="small help-block">
+                                    <b class="sentence-case">{{ 'SETTINGS_CROP_ALLOWED_FILE_TYPES' | translate }}:</b> pdf, jpg, jpeg, bmp, gif, tif, tiff, png.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <label class="control-label">
+                        {{ 'SETTINGS_2FA' | translate }}
+                        <span ng-if="!requires2FA" class="sentence-case text-success">&mdash; {{ 'SETTINGS_RECOMMENDED' | translate }}</span>
+                    </label>
+
+                    <toggle-switch ng-hide="enabled2faToggle === null" id="enabled_2fa" class="switch-success"
+                                   ng-model="enabled2faToggle" on-change="modifyTwoFactorAuth()" style="margin-top:24px;width:100%;"></toggle-switch>
+                    <span class="help help-block sentence-case"> {{ 'SETTINGS_2FA_HELP' | translate }}</span>
+                </div>
+            </div>
+        </div>
+
+        <hr style="margin:0px;" />
+
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group form-group-lg">
+                    <label class="control-label">
+                        {{ 'USERNAME' | translate }}
+                    </label>
+                    <input ng-model="settings.username" type="text" class="form-control" id="settings.username" autocomplete="off">
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group form-group-lg">
+                    <label class="control-label">
+                        {{ 'EMAIL' | translate }}
+                    </label>
+                    <input ng-model="settings.email" type="text" class="form-control" id="settings.email" autocomplete="off">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group form-group-lg">
+            <div class="row">
+                <div class="col-xs-6">
+                    <label class="control-label sentence-case">
+                        {{ 'SETTINGS_CURRENCY' | translate }}
+                    </label>
+                    <div class="">
+                        <label class="radio-inline" ng-repeat="currency in currencies">
+                            <input type="radio" name="groupCurrency" ng-model="settings.localCurrency" value="{{ currency.code }}" >
+                            {{ currency.code }}
+                        </label>
+                    </div>
+                </div>
+                <!--
+                <div class="col-xs-6">
+                    <label class="control-label sentence-case">
+                        {{ 'SETTINGS_LANGUAGE' | translate }}
+                    </label>
+                    <div class="">
+                        <label class="radio-inline capitalise" ng-repeat="language in languages">
+                            <input type="radio" name="groupLang" ng-model="settings.language" value="{{ language.code }}">
+                            {{ language.name | translate }}
+                        </label>
+                    </div>
+                </div>
+                -->
+            </div>
+        </div>
+
+        <div class="form-group form-group-lg">
+            <label class="control-label">
+                {{ 'PASSWORD' | translate }}
+            </label>
+            <p>
+                <a ng-href class="capitalise btn btn-default" ng-click="changePassword()">
+                    {{ 'SETTINGS_CHANGE_PASSWORD' | translate }}
+                </a>
+            </p>
+        </div>
+
+
+        <div class="form-group form-group-lg">
+            <div class="checkbox">
+                <label>
+                    <input ng-model="settings.receiveNewsletter" ng-true-value="1" ng-false-value="0" type="checkbox" />
+                    {{ 'SETTINGS_NEWSLETTER' | translate }}
+                </label>
+            </div>
+        </div>
+
+
+        <div class="form-group form-group-lg form-group-buttons">
+            <button class="btn btn-alt btn-success" ng-click="updateSettings()">
+                {{ 'SETTINGS_SAVE' | translate }}
+            </button>
+            <loading-spinner style="display: inline-block; line-height: 30px;" ng-if="savingSettings"></loading-spinner>
+            <div ng-if="settingsSaved === true" class="alert alert-success" style="display: inline-block;">
+                {{ 'OK' | translate }}
+            </div>
+            <div ng-if="settingsSaved === false" class="alert alert-danger" style="display: inline-block;">
+                {{ 'FAIL' | translate }}
+            </div>
+        </div>
+    </form>
+
+
+</div>

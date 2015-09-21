@@ -1,0 +1,22 @@
+{
+    "DEBUG": false,
+    "MINIFY": true,
+    "TESTNET": true,
+    "POUCHDB_DRIVER": null,
+    "API_HOST": "api.blocktrail.com",
+    "API_HTTPS": true,
+
+    // default ionic apps keys for usage stats logging in development
+    "IO_CONFIG": {
+        "app_id": "dabf7ade",
+        "api_key": "d4f14e6e6070392557e813ad03219cdbfcd9b17a13e870aa"
+    },
+
+    "HOMEPAGE_URL": "https://www.blocktrail.com",
+    "EXPLORER_URL": "https://www.blocktrail.com/BTC",
+    "DEVELOPERS_URL": "https://www.blocktrail.com/api",
+
+    "DEFAULT_IDENTIFIER": "blocktrail-wallet",
+    
+    "NULL": null // just here so we can have a trailing , on every line
+}

@@ -1,0 +1,84 @@
+<div class="appPage">
+    <div class="receivePaymentStatus" ng-class="{'text-success': paymentReceived}">
+        <div ng-if="!paymentReceived">
+            <span class="progress-spinner"><span class="bticon bticon-progress"></span></span> Waiting for payment
+        </div>
+        <div ng-if="paymentReceived">
+            <span class="bticon bticon-ok"></span> Payment Received
+        </div>
+    </div>
+
+    <h1>Receive Bitcoin</h1>
+
+    <form class="form"  name="sendInputForm" novalidate ng-init="showQR=false">
+        <div class="row">
+            <div class="col-md-8 col-sm-12 col-xs-12 pull-right">
+                <div class="form-group form-group-lg">
+                    <label class="control-label capitalise">{{ 'BITCOIN_ADDRESS' | translate }}</label>
+                    <p class="address">{{ newRequest.address }}</p>
+                    <span class="help-block">
+                        {{ 'BITCOIN_ADDRESS_RECEIVE_HELP' | translate }}
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-12 col-xs-12">
+                <div class="qrcode-display-section">
+                    <qr ng-if="newRequest.bitcoinUri" text="newRequest.bitcoinUri" type-number="qrSettings.typeNumber" correction-level="qrSettings.correctionLevel" size="qrSettings.SIZE" input-mode="qrSettings.inputMode" image="qrSettings.image"></qr>
+                    <loading-spinner loading-spinner-size="lg" ng-if="!newRequest.address"></loading-spinner>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+        <!--
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group form-group-lg"  ng-class="{'has-error':errors.amount}">
+                    <label class="control-label capitalise">{{ 'AMOUNT' | translate }}</label>
+                    <div class="input-group input-group-lg">
+                        <input ng-model="newRequest.btcValue" ng-change="setAltCurrency()" type="text" class="form-control"  name="amount" placeholder="0.00000000" autocomplete="off" type="number" min="0" required />
+                        <span class="input-group-addon currency">
+                            <span class="altCurrency pull-right">
+                               {{ altCurrency.code | toCurrencySymbol }}
+                               {{ altCurrency.amount }}
+                            </span>
+                        </span>
+                        <span class="input-group-btn">
+                            <div class="btn-group" dropdown>
+                                <button type="button" class="btn btn-alt btn-default btn-lg" dropdown-toggle>
+                                    {{ currencyType }} <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li ng-repeat="currency in currencies"><a ng-click="updateCurrentType(currency.code)">{{ currency.code }}</a></li>
+                                </ul>
+                            </div>
+                        </span>
+                    </div>
+                    <span class="help help-block">
+                        <span class="text-danger" ng-if="errors.amount">
+                            {{ errors.amount | translate }}
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        //-->
+
+
+
+
+<!--
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group form-group-lg">
+                    <p class="amount">
+                        {{ newRequest.qrValue  * 100000000 | satoshiToCurrency: 'BTC' : bitcoinPrices : 8}}
+                        <small>≃ {{ newRequest.qrValue * 100000000 | satoshiToCurrency:settings.localCurrency : bitcoinPrices }}</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+        //-->
+

@@ -1,0 +1,28 @@
+<div on-swipe-down="dismiss()">
+    <div class="modal-header" ng-class="message.header_class">
+        <h3 class="modal-title capitalise">{{ message.title | translate }}</h3>
+    </div>
+    <div class="modal-body" ng-class="message.body_class">
+        <p ng-if="message.body">{{ message.body | translate }}</p>
+        <p ng-if="message.bodyHtml" ng-bind-html="message.bodyHtml"></p>
+
+        <p ng-if="message.showSpinner">
+            <loading-spinner></loading-spinner>
+        </p>
+
+        <p ng-if="message.qr" class="text-center">
+            <qr text="message.qr.text"
+                type-number="message.qr.typeNumber"
+                correction-level="message.qr.correctionLevel"
+                size="message.qr.SIZE"
+                input-mode="message.qr.inputMode"
+                image="message.qr.image"></qr>
+        </p>
+
+        <p ng-if="message.bodyExtra">{{ message.bodyExtra | translate }}</p>
+    </div>
+    <div class="modal-footer" ng-class="message.footer_class">
+        <a ng-if="message.cancel !== false" class="btn btn-alt btn-danger" ng-click="dismiss()">{{ (message.cancel || 'CANCEL') | translate }}</a>
+        <a ng-if="message.ok !== false" class="btn btn-alt btn-success" ng-click="close()">{{ (message.ok || 'OK') | translate }}</a>
+    </div>
+</div>

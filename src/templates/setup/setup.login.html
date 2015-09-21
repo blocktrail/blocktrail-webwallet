@@ -1,0 +1,58 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3 col-sm-12 col-xs-12">
+            <div class="appWrapper">
+                <h1 class="pageTitle capitalise">{{ 'SETUP_LOGIN' | translate }}</h1>
+                <div class="formContainer">
+                    <form name="loginForm" class="form" novalidate>
+                        <div ng-if="error" class="alert alert-danger">
+                            {{ error | translate }}
+                        </div>
+
+                        <div class="form-group form-group-lg" ng-class="{'has-error': loginForm.username.$dirty && loginForm.username.$invalid}">
+                            <label class="control-label">{{ 'SETUP_LOGIN_PLACEHOLDER' | translate }}</label>
+                            <input class="form-control" type="text" placeholder="{{ 'SETUP_LOGIN_PLACEHOLDER' | translate }}"
+                                   name="username"
+                                   ng-model="form.username"
+                                   required="true"
+                                   required
+                                />
+
+                            <div class="help-block" ng-if="loginForm.username.$dirty && loginForm.username.$invalid">
+                                <div ng-if="loginForm.username.$error.required">{{ 'MSG_MISSING_LOGIN' | translate }}</div>
+                                <div ng-if="!loginForm.username.$error.required && loginForm.username.$error.funky">
+                                    {{ 'REAL FUNKY' | translate }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-lg" ng-class="{'has-error': loginForm.password.$dirty && loginForm.password.$invalid}">
+                            <label class="control-label">{{ 'SETUP_PASSWORD_PLACEHOLDER' | translate }}</label>
+                            <input class="form-control" type="password" placeholder="{{ 'SETUP_PASSWORD_PLACEHOLDER' | translate }}"
+                                   name="password"
+                                   ng-model="form.password"
+                                   required="true"
+                                   required
+                                />
+                            <div class="help-block"
+                                 ng-if="loginForm.password.$dirty && loginForm.password.$invalid">
+                                <div ng-if="loginForm.password.$error.required">{{ 'MSG_MISSING_PASSWORD' | translate }}</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-group-lg form-group-buttons" ng-if="!working">
+                            <button class="form-control btn btn-alt btn-success capitalise" ng-disabled="working" ng-click="doLogin(loginForm)">{{ 'SETUP_LOGIN' | translate }}</button>
+                        </div>
+                        <div ng-if="working">
+                            <loading-spinner></loading-spinner>
+                            {{ 'LOGGING_IN' | translate }}
+                        </div>
+                        <div class="smallButtons">
+                            <a class="sentence-case" ui-sref="app.setup.register">{{ 'LAUNCH_NEW_ACCOUNT' | translate }}</a>
+                            <!-- <div><a class="sentence-case" ui-sref="app.setup.forgotpass">{{ 'SETUP_FORGOT_PASSWORD_Q' | translate }}</a></div> -->
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

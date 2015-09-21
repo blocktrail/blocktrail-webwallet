@@ -1,0 +1,19 @@
+<div class="modal-header">
+    <h3 class="modal-title capitalise">{{ 'SETTINGS_CROP_PROFILE_PIC' | translate }}</h3>
+</div>
+<div class="modal-body">
+    <div class="height-100">
+        <img-crop image="profilePic.newProfileImage"
+                  result-image="profilePic.croppedProfileImage"
+                  area-type="circle"
+                  area-min-size="100"
+                  result-image-size="500"
+                  result-image-format="image/jpeg"
+                  result-image-quality="0.8">
+        </img-crop>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn-alt btn-danger" ng-click="dismiss()">{{ 'CANCEL' | translate }}</button>
+    <button ng-click="ok()" class="btn-alt btn-success" ng-disabled="{{ profilePic.croppedProfileImage }}">{{ 'OK' | translate }}</button>
+</div>

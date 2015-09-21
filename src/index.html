@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+        <title>Blocktrail Bitcoin Wallet - putting you in control of your bitcoin</title>
+
+        <link rel='icon' href='favicon.ico' type='image/x-icon'>
+        <link rel='shortcut icon' href='favicon.ico' type='image/x-icon'>
+
+        <link href="css/app.css?v=<%= VERSION %>" rel="stylesheet">
+    </head>
+
+    <body ng-app="blocktrail.wallet" ng-class="bodyClassStr">
+        <div class="bodyViewContainer" ui-view>
+            <nav class="navbar">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse"
+                                data-target="#blocktrail-webwallet-nav">
+                            <i class="bticon  bticon-arrow-down-circle-o"></i>
+                        </button>
+                        <a class="navbar-brand" href="https://www.blocktrail.com">
+                            <img class="img-circle" src="/img/b.png" />
+                        </a>
+                    </div>
+                    <div class="collapse navbar-collapse" id="blocktrail-webwallet-nav">
+                        <div>
+                            <ul class="nav navbar-nav">
+                                <li class="active">
+                                    <a href class="capitalise">
+                                        Wallet
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://www.blocktrail.com/BTC" class="capitalise">
+                                        Explorer
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://www.blocktrail.com/api" class="capitalise">
+                                        Developer
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="loading-page">
+                <div class="loading-spinner loading-spinner-lg">
+                        <div class="loading loading-0"></div>
+                        <div class="loading loading-1"></div>
+                        <div class="loading loading-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <script src="js/libs.js?v=<%= VERSION %>"></script>
+        <script src="js/sdk.js?v=<%= VERSION %>"></script>
+
+        <script>
+            angular.module('blocktrail.config', []).constant('CONFIG', <%= APPCONFIG_JSON %>);
+        </script>
+
+        <script src="js/app.js?v=<%= VERSION %>"></script>
+    </body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "name": "blocktrail-wallet",
+  "private": "true",
+  "dependencies": {
+    "blocktrail-sdk": "git@github.com:blocktrail/blocktrail-sdk-nodejs.git#988b1eff9f86f631b00bcf1f917abbcbd715cdac",
+    "pouchdb": "git@github.com:blocktrail/pouchdb.git#blocktrail",
+    "q": "1.2.0",
+    "angular-moment": "~0.10.0",
+    "browserify-cryptojs": "~0.3.1",
+    "angular-qr": "0.2.0",
+    "angular-translate": "~2.7.0",
+    "libphonenumber": "~0.9.0",
+    "ngImgCrop": "~0.3.2",
+    "intl-tel-input": "~6.0.5",
+    "bootstrap-sass": "3.3.5",
+    "angular-bootstrap": "0.13.2",
+    "angular": "~1.3.13",
+    "angular-ui-router": "~0.2.15",
+    "ng-infinite-scroller-origin": "~1.2.1",
+    "angular-toggle-switch": "~1.3.0",
+    "ionic-service-core": "~0.1.10",
+    "ionic-service-analytics": "~0.2.5"
+  },
+  "resolutions": {
+    "angular": ">= 1.3.13"
+  }
+}

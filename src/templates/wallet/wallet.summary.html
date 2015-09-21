@@ -1,0 +1,87 @@
+<div class="txList">
+
+    <div class="text-center loadingSpinner" ng-if="isFirstLoad || loading">
+        <loading-spinner></loading-spinner>
+    </div>
+
+    <div ng-if="!isFirstLoad">
+        <div infinite-scroll="loadMoreTransactions()" infinite-scroll-container="'#appBody'" infinite-scroll-distance="0.3">
+            <div ng-repeat="transaction in transactionsDisplayList track by $index">
+
+                <div ng-if="transaction.isHeader" class="row">
+                    <div class="col-xs-12">
+                        <div class="item-divider" ng-class="{'isFirst':$first}">
+                            <div class="date-group">
+                                {{ transaction.date | amCalendar }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-if="transaction.hash" ng-click="showTransaction(transaction)" class="item-transaction">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="transaction-info">
+                                <div class="media">
+                                    <div class="media-left media-media">
+                                        <div ng-if="transaction.contact" class="display-token contact-token">
+                                            {{ transaction.contactInitials }}
+                                            <span class="avatar" style="background-image: url('data:image/jpeg;base64, {{ transaction.contact.avatarUrl }}');" ng-class="{received: transaction.wallet_value_change > 0, sent: transaction.wallet_value_change <= 0}"></span>
+                                        </div>
+                                        <div ng-if="!transaction.contact" class="display-token anon-token">
+                                            <img class="avatar img-circle" ng-src="img/blank_profile.png" ng-class="{received: transaction.wallet_value_change > 0, sent: transaction.wallet_value_change <= 0}" />
+                                        </div>
+                                    </div>
+                                    <div class="media-body media-top">
+                                        <div class="tx-type">
+                                            <span ng-if="transaction.contact && transaction.contact.displayName" class="sentence-case">
+                                                <span ng-if="transaction.wallet_value_change <= 0">{{ 'TX_INFO_SENT_TO' | translate }}</span>
+                                                <span ng-if="transaction.wallet_value_change > 0">{{ 'TX_INFO_RECEIVED_FROM' | translate }}</span>
+                                                <span class="capitalise">{{ transaction.contact.displayName }}</span>
+                                            </span>
+                                            <span ng-if="!transaction.contact || !transaction.contact.displayName" class="sentence-case">{{ transaction.altDisplay }}</span>
+                                        </div>
+                                        <div class="timestamp">
+                                            {{ transaction.time | amDateFormat: 'h:mm a' : 'unix' }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-2 text-center">
+                            <div class="pending capitalise"  ng-if="!transaction.block_height">
+                               <i class="bticon bticon-clock"></i><br/><em>{{ 'TX_INFO_PENDING' | translate}}</em>
+                           </div>
+                        </div>
+                        <div class="col-xs-4 text-right">
+                            <div class="value" ng-class="{received: transaction.wallet_value_change > 0, sent: transaction.wallet_value_change <= 0}">
+                                {{ transaction.wallet_value_change | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center" ng-if="!canLoadMoreTransactions && !loading">
+                <div ng-if="transactionsDisplayList.length==0">
+                    <div class="noTransactions ">
+                        <i class="bticon bticon-doc-text"></i>
+                        <h1 class="capitalise">
+                            {{ 'WALLET_NO_TXS' | translate }}
+                        </h1>
+                        <h2 class="sentence-case">
+                            {{ 'WALLET_ACTION_PRE' | translate }}
+                            <a ui-sref="app.wallet.receive">
+                                {{ 'WALLET_ACTION_LINK' | translate }}
+                            </a>
+                        </h2>
+                    </div>
+                </div>
+                <div ng-if="transactionsDisplayList.length>0">
+                    {{ 'WALLET_NO_MORE_TXS' | translate }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
