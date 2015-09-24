@@ -260,7 +260,8 @@ angular.module('blocktrail.wallet')
                                                                 .then(function(encryptedWalletSecret) {
                                                                     return sdkService.sdk().then(function(sdk) {
 
-                                                                        var encryptedSecret = CryptoJS.AES.encrypt(accountInfo.secret, newPassword).toString();
+                                                                        // don't submit new encrypted secret if we don't have a secret
+                                                                        var encryptedSecret = accountInfo.secret ? CryptoJS.AES.encrypt(accountInfo.secret, newPassword).toString() : null;
 
                                                                         var passwordChange = function() {
                                                                             return sdk.passwordChange(
