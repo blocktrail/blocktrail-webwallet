@@ -241,14 +241,10 @@ angular.module('blocktrail.wallet')
         });
 
         $scope.$on('ORPHAN', function() {
-            $scope.$apply(function() {
+            $timeout(function() {
                 $log.debug('WalletCtrl.ORPHAN');
 
-                $scope.transactionData = [];
-                $scope.transactionsDisplayList = [];
-                $scope.paginationOptions.from = 0;
-
-                $scope.loadMoreTransactions();
+                $scope.refreshTransactions();
             });
         });
 
