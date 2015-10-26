@@ -100,22 +100,36 @@ angular.module('blocktrail.wallet')
 
             //refresh transactions, block height and wallet balance
             $q.all([
-                $q.when(Wallet.pollTransactions()),
+                $q.when($rootScope.getBalance()),
+                $q.when($rootScope.getPrice()),
                 $q.when($rootScope.getBlockHeight()),
-                $q.when($rootScope.getBalance())
+                $q.when(Wallet.pollTransactions())
             ]).then(function() {
+                // remove all previously unconfirmed txs
+                $scope.transactionsList.forEach(function(tx, index) {
+                    if (!tx.block_height) {
+                        delete $scope.transactionsList[index];
+                    }
+                });
+
                 $scope.paginationOptions.from = 0;
-                $scope.getTransactions($scope.paginationOptions.from, $scope.paginationOptions.limit).then(function() {
+                $scope.getTransactions($scope.paginationOptions.from, $scope.paginationOptions.limit, true).then(function() {
                     $scope.loading = false;
                     $scope.isFirstLoad = false;
                 });
             });
         };
 
-        $scope.getTransactions = function(from, limit) {
+        $scope.getTransactions = function(from, limit, reset) {
             $log.debug('getTransactions', from, limit);
             //get cached transactions
             return Wallet.transactions(from, limit).then(function(result) {
+                if (reset) {
+                    $scope.lastDateHeader = 0;
+                    $scope.transactionsList = [];
+                    $scope.transactionsDisplayList = [];
+                }
+
                 $scope.transactionsList = $scope.transactionsList.concat(result);
 
                 $scope.transactionsDisplayList = $scope.groupTransactions($scope.transactionsList);
@@ -210,9 +224,19 @@ angular.module('blocktrail.wallet')
         $scope.$on('new_transactions', function(event, transactions) {
             $log.debug('New Transaction have been found!!!', transactions);
 
+            // remove all previously unconfirmed txs
+            console.log($scope.transactionsList);
+            $scope.transactionsList.forEach(function(tx, index) {
+
+                if (!tx.block_height) {
+                    delete $scope.transactionsList[index];
+                }
+            });
+
             transactions.forEach(function(transaction) {
                 $scope.transactionsList.unshift(transaction);
             });
+
             $scope.$apply(function() {
                 $scope.transactionsDisplayList = $scope.groupTransactions($scope.transactionsList);
                 $scope.$broadcast('scroll.infiniteScrollComplete');

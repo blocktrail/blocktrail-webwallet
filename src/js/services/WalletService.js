@@ -12,8 +12,6 @@ angular.module('blocktrail.wallet').factory(
             self.isRefilling = null;
             self.addressRefillPromise = null;
 
-            self.historyUpdating = $q.when();
-
             self.sdk = sdkService.sdk();
 
             self.wallet = self.sdk.then(function(sdk) {
@@ -26,17 +24,29 @@ angular.module('blocktrail.wallet').factory(
                         });
                     },
                     function(e) {
+                        $state.go('app.launch');
                         throw e;
                     });
             })
-            // use a .then because a .done would break the promise chains that rely on self.wallet
-            .then(function(wallet) { $log.debug('initWallet'); return wallet; }, function(e) { $log.debug('initWallet.ERR'); throw e; });
+                // use a .then because a .done would break the promise chains that rely on self.wallet
+                .then(function(wallet) { $log.debug('initWallet'); return wallet; }, function(e) { $log.debug('initWallet.ERR'); throw e; });
+
+            // attempt a small refill every 3 minutes
+            $interval(function() {
+                self.refillOfflineAddresses(1);
+            }, 3 * 60 * 1000);
         };
 
         Wallet.OFFLINE_ADDRESSES = 30;
 
         Wallet.prototype.validateAddress = function(address) {
             var self = this;
+
+            /* @TODO: use this once added to the SDK
+             return self.sdk.then(function(sdk) {
+             return sdk.validateAddress(address);
+             });
+             */
 
             return self.sdk.then(function(sdk) {
                 var addr, err;
@@ -57,28 +67,49 @@ angular.module('blocktrail.wallet').factory(
             });
         };
 
+        Wallet.prototype.unlockData = function(pin) {
+            var self = this;
+
+            return launchService.getWalletInfo().then(function(walletInfo) {
+                var password, secret;
+
+                try {
+                    // legacy; storing encrypted password instead of secret
+                    if (walletInfo.encryptedPassword) {
+                        password = CryptoJS.AES.decrypt(walletInfo.encryptedPassword, pin).toString(CryptoJS.enc.Utf8);
+                    } else {
+                        secret = CryptoJS.AES.decrypt(walletInfo.encryptedSecret, pin).toString(CryptoJS.enc.Utf8);
+                    }
+                } catch (e) {
+                    throw new blocktrail.WalletPinError(e.message);
+                }
+
+                if (!password && !secret) {
+                    throw new blocktrail.WalletPinError("Bad PIN");
+                }
+
+                var unlockData = {};
+                if (password) {
+                    unlockData.password = password;
+                } else {
+                    unlockData.secret = secret;
+                }
+
+                return unlockData;
+            });
+        };
+
         Wallet.prototype.unlock = function(pin) {
             var self = this;
 
             return self.wallet.then(function(wallet) {
-                return launchService.getWalletInfo().then(function (walletInfo) {
-                    try {
-                        var password = CryptoJS.AES.decrypt(walletInfo.encryptedPassword, pin).toString(CryptoJS.enc.Utf8);
-
-                        if (!password) {
-                            throw new blocktrail.WalletPinError("Bad PIN");
-                        }
-                    } catch (e) {
-                        throw new blocktrail.WalletPinError(e.message);
-                    }
-
-                    return wallet.unlock({password: password}).then(function() {
+                return self.unlockData(pin).then(function(unlock) {
+                    return wallet.unlock(unlock).then(function() {
                         return wallet;
                     });
                 });
             });
         };
-
 
         Wallet.prototype.unlockWithPassword = function(password) {
             var self = this;
@@ -93,21 +124,23 @@ angular.module('blocktrail.wallet').factory(
         Wallet.prototype.initDB = function() {
             var self = this;
 
-            self.historyCache = self.historyCache || storageService.db('history');
-            self.walletCache = self.walletCache || storageService.db('wallet-cache');
+            self.historyCache = storageService.db('history');
+            self.walletCache = storageService.db('wallet-cache');
         };
 
         Wallet.prototype.reset = function() {
             var self = this;
 
-            return storageService.destroy('history')
+            return self.historyCache.destroy()
                 .then(function() {
                     self.historyCache = null;
                 })
                 .then(function() {
                     self.initDB();
                 })
-            ;
+                .then(function() {
+                    return self.pollTransactions();
+                });
         };
 
         Wallet.prototype.disablePolling = function(){
@@ -231,9 +264,9 @@ angular.module('blocktrail.wallet').factory(
                             });
                     }
                 },
-                function(e) { 
-                    $log.error("no offline addresses available yet. " + e); 
-                    throw e; 
+                function(e) {
+                    $log.error("no offline addresses available yet. " + e);
+                    throw e;
                 }
             );
         };
@@ -254,26 +287,26 @@ angular.module('blocktrail.wallet').factory(
             }
 
             $log.debug('Wallet.pollTransactions');
+
+            var t = (new Date).getTime();
+
             return self.poll = $q.when(self.wallet)
                 .then(function(wallet) {
-                    var t = (new Date).getTime();
-
                     return self.historyCache.get('lastBlockHash')
                         .then(function(lastBlockHashDoc) {
-                            return lastBlockHashDoc;
+                            return $q.when(lastBlockHashDoc);
                         }, function(err) {  //@TODO should we check the type of error (only 404 is relevant, anything else is baaaaad)
-                            return {_id: "lastBlockHash", hash: null};
+                            return $q.when({_id: "lastBlockHash", hash: null});
                         })
                         .then(function(lastBlockHashDoc) {
                             $log.debug('retrieve transactions ... lastBlockHash[' + lastBlockHashDoc.lastBlockHash + ']');
                             asyncData.lastBlockHashDoc = lastBlockHashDoc;
-                            t = (new Date).getTime();
                             return wallet.transactions({sort_dir: 'desc', lastBlockHash: lastBlockHashDoc.lastBlockHash});
                         })
                         .then(function(results) {
                             asyncData.newTransactions = results.data;
                             asyncData.lastBlockHashDoc.lastBlockHash = results.lastBlockHash;
-                            $log.debug("[" + (asyncData.newTransactions.length) + "] new transactions found in [" + ((new Date).getTime() - t) + "ms]");
+                            $log.debug("[" + (asyncData.newTransactions.length) + "] new transactions found");
 
                             if (!asyncData.newTransactions.length) {
                                 //no new transactions...break out
@@ -282,16 +315,15 @@ angular.module('blocktrail.wallet').factory(
 
                             //get the cached list of all tx hashes (confirmed and unconfirmed)
                             return self.historyCache.get('history').then(function(historyDoc) {
-                                return historyDoc;
+                                return $q.when(historyDoc);
                             }, function(err) {
-                                return {_id: "history", confirmed: [], unconfirmed: []};
+                                return $q.when({_id: "history", confirmed: [], unconfirmed: []});
                             });
                         })
                         .then(function(historyDoc) {
                             asyncData.historyDoc = historyDoc;
-                            asyncData.historyDoc.unconfirmed = asyncData.historyDoc.unconfirmed || [];
-
-                            t = (new Date).getTime();
+                            asyncData.historyDoc.old_unconfirmed = asyncData.historyDoc.unconfirmed || [];
+                            asyncData.historyDoc.unconfirmed = [];  //clear old list of unctxs to update against current mempool
 
                             var newTransactions = [];
 
@@ -308,10 +340,9 @@ angular.module('blocktrail.wallet').factory(
                                         isNew = true;
                                     }
 
-                                    // check if previously unconfirmed and remove from unconfirmed list
-                                    var uncIdx = asyncData.historyDoc.unconfirmed.indexOf(transaction.hash);
+                                    // check if previously saved as unconfirmed and mark for "updating"
+                                    var uncIdx = asyncData.historyDoc.old_unconfirmed.indexOf(transaction.hash);
                                     if (uncIdx !== -1) {
-                                        asyncData.historyDoc.unconfirmed[uncIdx] = null;
                                         isUpdated = true;
                                         isNew = false;
                                     }
@@ -340,69 +371,66 @@ angular.module('blocktrail.wallet').factory(
                                 transaction.isUpdated = isUpdated;
                             });
 
-                            // store transactions in historyCache
                             // use QforEachLimit to avoid blocking when storing docs
-                            // if this fails or exits early we have a fallback for it in self.transaction
-                            self.historyUpdating = self.historyUpdating.then(function() {
-                                return QforEachLimit(
-                                    asyncData.newTransactions,
-                                    function(transaction) {
-                                        var isNew = transaction.isNew;
-                                        var isUpdated = transaction.isUpdated;
-
-                                        // strip isNew/isUpdated properties because we don't want to store them
-                                        delete transaction.isNew;
-                                        delete transaction.isUpdated;
-
-                                        return $q.when(transaction)
-                                            .then(function(transaction) {
-                                                if (isUpdated && !isNew) {
-                                                    // if the tx was previously unconfirmed, update the cache data and add to separate list of updated txs
-                                                    return self.historyCache.get(transaction.hash)
-                                                        .then(function(txRow) {
-                                                            txRow.data = transaction;   //will update the block height
-                                                            return self.historyCache.put(txRow);
-                                                        }, function(err) {
-                                                            return self.historyCache.put({
-                                                                _id: transaction.hash,
-                                                                data: transaction
-                                                            });
-                                                        })
-                                                } else if (isNew) {
-                                                    // add the new tx data to the cache and return the tx merged with contact info
-                                                    return self.historyCache.get(transaction.hash)
-                                                        .then(function(txRow) {
-                                                            return $q.when(transaction);
-                                                        }, function(err) {
-                                                            return self.historyCache.put({
-                                                                _id: transaction.hash,
-                                                                data: transaction
-                                                            });
-                                                        })
-                                                } else {
-                                                    // this tx is old and will be cleaned out in the next step
-                                                    return null;
-                                                }
-                                            })
-                                            ;
-                                    })
-                                ;
-                            });
-
-                            // use QforEachLimit to avoid blocking when merging contacts
                             return QforEachLimit(
                                 asyncData.newTransactions,
                                 function(transaction) {
-                                    return self.mergeContact(transaction);
+                                    var isNew = transaction.isNew;
+                                    var isUpdated = transaction.isUpdated;
+
+                                    // strip isNew/isUpdated properties because we don't want to store them
+                                    delete transaction.isNew;
+                                    delete transaction.isUpdated;
+
+                                    return $q.when(transaction)
+                                        .then(function(transaction) {
+                                            if (isUpdated && !isNew) {
+                                                // if the tx was previously unconfirmed, update the cache data and add to separate list of updated txs
+                                                return self.historyCache.get(transaction.hash)
+                                                    .then(function(txRow) {
+                                                        txRow.data = transaction;   //will update the block height
+                                                        return self.historyCache.put(txRow);
+                                                    }, function(err) {
+                                                        return self.historyCache.put({
+                                                            _id: transaction.hash,
+                                                            data: transaction
+                                                        });
+                                                    })
+                                                    .then(function() {
+                                                        return self.mergeContact(transaction);
+                                                    });
+                                            } else if (isNew) {
+                                                // add the new tx data to the cache and return the tx merged with contact info
+                                                return self.historyCache.get(transaction.hash)
+                                                    .then(function(txRow) {
+                                                        return $q.when(transaction);
+                                                    }, function(err) {
+                                                        return self.historyCache.put({
+                                                            _id: transaction.hash,
+                                                            data: transaction
+                                                        });
+                                                    })
+                                                    .then(function() {
+                                                        return self.mergeContact(transaction);
+                                                    });
+                                            } else {
+                                                // this tx is old and will be cleaned out in the next step
+                                                return null;
+                                            }
+                                        })
+                                        .then(function() {
+                                            // put properties back on
+                                            transaction.isNew = isNew;
+                                            transaction.isUpdated = isUpdated;
+                                        })
+                                        ;
                                 })
                                 .then(function() {
                                     return newTransactions;
                                 })
-                            ;
+                                ;
                         })
                         .then(function(newTransactions) {
-                            $log.debug(newTransactions.length + " newTransactions in [" + ((new Date).getTime() - t) + "ms]");
-
                             // clean out null values (txs that are not new)
                             asyncData.historyDoc.unconfirmed = asyncData.historyDoc.unconfirmed.clean();
                             asyncData.newTransactions = newTransactions.clean();
@@ -414,7 +442,6 @@ angular.module('blocktrail.wallet').factory(
                             if (asyncData.confirmedTransactions.length) {
                                 $rootScope.$broadcast('confirmed_transactions', asyncData.confirmedTransactions);
                             }
-
                             return self.historyCache.put(asyncData.historyDoc);
                         })
                         .then(function() {
@@ -422,10 +449,10 @@ angular.module('blocktrail.wallet').factory(
                             return self.historyCache.put(asyncData.lastBlockHashDoc);
                         })
                         .then(function(result) {
-                            $log.debug('TX polling done');
+                            $log.debug('TX polling done in [' + ((new Date).getTime() - t) + 'ms]');
                             self.poll = null;
                             return $q.when(result);
-                        })
+                        });
                 })
                 .catch(function(err) {
                     $log.debug('TX polling stopped', err);
@@ -436,9 +463,7 @@ angular.module('blocktrail.wallet').factory(
                     } else if (err.message === 'ORPHAN') {
                         // ORPHAN means we need to resync (completely)
                         $rootScope.$broadcast('ORPHAN');
-                        return self.reset().then(function() {
-                            return self.pollTransactions();
-                        });
+                        return self.reset();
                     } else {
                         throw err;
                     }
@@ -447,6 +472,8 @@ angular.module('blocktrail.wallet').factory(
 
         Wallet.prototype.mergeContact = function(transaction) {
             var self = this;
+
+            transaction.contact = null;
 
             if (transaction.contacts) {
                 return Q.any(transaction.contacts.map(function(hash) {
@@ -495,50 +522,15 @@ angular.module('blocktrail.wallet').factory(
                     $log.debug('Wallet.transactions.history[' + historyDoc.confirmed.length + '][' + historyDoc.unconfirmed.length + ']');
                     //combine the un/confirmed txs, get their full data and merge contact info for each
                     return Q.all(historyDoc.unconfirmed.concat(historyDoc.confirmed).slice(from, to).map(function(hash) {
-                        return self.transaction(hash);
+                        return self.historyCache.get(hash).then(function(row) {
+                            return self.mergeContact(row.data);
+                        });
                     }));
                 })
                 .then(function(transactions) {
                     $log.debug('Wallet.transactions.done', transactions.length, ((new Date).getTime() - t) / 1000);
                     return transactions;
                 });
-        };
-
-        /**
-         * get transaction data from cache
-         *  or fallback to fetching it from the server if for w/e reason it's not there (should be)
-         *
-         * and merge with contacts
-         *
-         * @param txHash
-         */
-        Wallet.prototype.transaction = function(txHash) {
-            var self = this;
-
-            return self.historyUpdating.then(function() {
-                return self.historyCache.get(txHash).then(
-                    function(doc) {
-                        return doc.data;
-                    },
-                    function(err) {
-                        return self.wallet.then(function(wallet) {
-                            return self.sdk.then(function(sdk) {
-                                return sdk.walletTransaction(wallet.identifier, txHash);
-                            }).then(function(transaction) {
-                                return self.historyCache.put({
-                                    _id: transaction.hash,
-                                    data: transaction
-                                }).then(function() {
-                                    return transaction;
-                                });
-                            });
-                        });
-                    })
-                    .then(function(transaction) {
-                        return self.mergeContact(transaction);
-                    })
-                ;
-            });
         };
 
         /**
