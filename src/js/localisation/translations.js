@@ -148,6 +148,8 @@ angular.module('blocktrail.localisation', [
             TX_INFO_SENT_TO: 'sent to',
             TX_INFO_RECEIVED_FROM: 'received from',
             TX_INFO_MESSAGE_TITLE: 'message/reference',
+            TX_INFO_MORE_TITLE: "more info",
+            TX_INFO_MORE_LINK: "see on blocktrail.com",
 
             //Sending screens
             QR: 'QR',

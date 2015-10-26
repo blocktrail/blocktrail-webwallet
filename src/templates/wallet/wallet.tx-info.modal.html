@@ -51,6 +51,15 @@
             <div class="value text-ellipsis">{{ data.contact && data.contact.displayName || data.altDisplay }}</div>
         </div>
 
+        <div class="more-info">
+            <div class="label capitalise">
+                {{ 'TX_INFO_MORE_TITLE' | translate }} <i class="ion-android-open"></i>
+            </div>
+            <div class="value">
+                <a href="https://www.blocktrail.com/BTC/tx/{{ data.hash }}" target="_blank">{{ 'TX_INFO_MORE_LINK' | translate }}</a>
+            </div>
+        </div>
+
     </div>
 
     <div class="modal-footer">
