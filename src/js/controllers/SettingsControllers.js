@@ -134,6 +134,8 @@ angular.module('blocktrail.wallet')
                     return settingsService.$syncSettingsUp();
                 })
                 .then(function() {
+                    $translate.use(settingsService.language);
+
                     $scope.savingSettings = false;
                     $scope.settingsSaved = true;
                     $timeout(function() {

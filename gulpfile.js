@@ -62,10 +62,32 @@ gulp.task('appconfig', function() {
 gulp.task('templates:index', ['appconfig'], function(done) {
 
     appConfig.then(function(APPCONFIG) {
+        var readTranslations = function(filename) {
+            var raw = fs.readFileSync(filename);
+
+            if (!raw) {
+                throw new Error("Missing translations!");
+            }
+
+            return JSON.parse(stripJsonComments(raw.toString('utf8')));
+        };
+
+        var translations = {
+            english: readTranslations('./src/translations/translations/english.json'),
+            americanEnglish: readTranslations('./src/translations/translations/americanEnglish.json'),
+            french: readTranslations('./src/translations/translations/french.json'),
+
+            mobile: {
+                english: readTranslations('./src/translations/translations/mobile/english.json'),
+                french: readTranslations('./src/translations/translations/mobile/french.json')
+            }
+        };
+
         gulp.src("./src/index.html")
             .pipe(template({
                 VERSION: APPCONFIG.VERSION,
-                APPCONFIG_JSON: JSON.stringify(APPCONFIG)
+                APPCONFIG_JSON: JSON.stringify(APPCONFIG),
+                TRANSLATIONS: JSON.stringify(translations)
             }))
             .pipe(gulp.dest("./www"))
             .on('end', done);
