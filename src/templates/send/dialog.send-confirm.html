@@ -9,7 +9,11 @@
                 {{ 'SENDING_CONFIRM_MSG' | translate }} <b>{{ sendData.amount }} BTC</b> {{ 'TO' | translate }} <b>{{ sendData.recipientAddress }}</b>
             </div>
         </div>
-
+        <div class="alert alert-warning" ng-if="sendData.lowPriority">
+            <div class="sentence-case">
+                <b class="uppercase">{{ 'WARNING' | translate }}!</b> <span class="sentence-case">{{ 'LOW_PRIORITY_SEND_WARNING' | translate }}</span>
+            </div>
+        </div>
 
         <div ng-if="error" class="has-error">
             <div class="help-block">
@@ -76,8 +80,7 @@
             <div>
                 <h4 class="text-center text-success capitalise"> {{ 'TRANSACTION_SEND_SUCCESS' | translate }}.</h4>
                 <p class="text-center text-success capitalise">{{ 'TX_INFO_HASH' | translate }}:
-                    <a href="https://www.blocktrail.com/BTC/tx/{{txHash}}" target="_blank" class="text-ellipsis">{{ txHash
-                        | characters:8 }}
+                    <a href="https://www.blocktrail.com/BTC/tx/{{txHash}}" target="_blank" class="text-ellipsis">{{ txHash | characters:8 }}
                     </a>
                 </p>
             </div>

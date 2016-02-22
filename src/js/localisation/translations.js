@@ -13,6 +13,7 @@ angular.module('blocktrail.localisation', [
         var defaultLanguage = availableLocales.indexOf(navigator.language) > -1 ? navigator.language : 'en-GB';
         var english = {
             //general
+            WARNING: 'warning',
             LOGOUT: 'logout',
             SEND: 'send',
             RECEIVE: 'receive',
@@ -170,6 +171,11 @@ angular.module('blocktrail.localisation', [
             SENDING_CONFIRM_TITLE:'Confirm your password',
             SENDING_CONFIRM_MSG: 'You are sending',
             ESITIMATED_FEE: 'Network fee: ',
+
+            ADVANCED_SEND_OPTIONS: 'advanced settings',
+            LOW_PRIORITY_LABEL: 'low priority bitcoin fee',
+            LOW_PRIORITY_WARNING: 'using low priority fees can result in significantly SLOWER confirmation times! this is still experimental!',
+            LOW_PRIORITY_SEND_WARNING: 'you are using low priority fees, this can result in significantly SLOWER confirmation times! this is still experimental!',
 
             //messages
             MSG_GET_CONTACT_ADDR: 'getting contact address...',

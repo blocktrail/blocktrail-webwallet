@@ -7,8 +7,11 @@ angular.module('blocktrail.wallet')
             recipientAddress: "",
             referenceMessage: "",
             pin: null,
-            amount: ""
+            amount: "",
+            lowPriority: false
         };
+
+        $scope.showAdvanced = false;
 
         $scope.working = false;
         $scope.complete = false;
@@ -113,6 +116,7 @@ angular.module('blocktrail.wallet')
                         resolve: {
                             sendData: function() {
                                 return {
+                                    lowPriority: $scope.sendInput.lowPriority,
                                     recipientAddress: $scope.sendInput.recipientAddress,
                                     amount: sendAmount,
                                     requires2FA: $scope.requires2FA
@@ -122,7 +126,7 @@ angular.module('blocktrail.wallet')
                     });
                 },
                 function(err) {
-                    $scope.$apply(function() {
+                    $timeout(function() {
                         $scope.errors.recipient = 'MSG_INVALID_RECIPIENT';
                     });
                 })
@@ -179,7 +183,7 @@ angular.module('blocktrail.wallet')
         };
 
         Wallet.wallet.then(function(wallet) {
-            return wallet.coinSelection($scope.pay, false, $scope.useZeroConf)
+            return wallet.coinSelection($scope.pay, false, $scope.useZeroConf, $scope.sendData.lowPriority ? 'low_priority' : null)
                 .spread(function(utxos, fee, change, feeOptions) {
                     $scope.$apply(function() {
                         $scope.fee = fee;
@@ -221,7 +225,7 @@ angular.module('blocktrail.wallet')
                         source: 'NaN'
                     });
 
-                    return $q.when(wallet.pay($scope.pay, false, $scope.useZeroConf, false, null, $scope.form.two_factor_token)).then(function(txHash) {
+                    return $q.when(wallet.pay($scope.pay, false, $scope.useZeroConf, false, $scope.sendData.lowPriority ? 'low_priority' : null, $scope.form.two_factor_token)).then(function(txHash) {
                         wallet.lock();
                         return $q.when(txHash);
                     }, function(err) {
