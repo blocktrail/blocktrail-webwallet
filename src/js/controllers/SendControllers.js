@@ -269,6 +269,9 @@ angular.module('blocktrail.wallet')
 
                     } else if (err instanceof blocktrail.WalletInvalid2FAError) {
                         FormHelper.setValidityOnce(sendForm.two_factor_token, 'invalid');
+
+                    } else if (err instanceof blocktrail.WalletFeeError) {
+                        $scope.error = 'MSG_LOW_BALANCE_FOR_FEE';
                     } else {
                         $log.error(err);
                         // other error

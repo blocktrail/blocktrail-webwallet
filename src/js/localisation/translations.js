@@ -189,6 +189,7 @@ angular.module('blocktrail.localisation', [
             MSG_BAD_PWD: 'incorrect password',
             MSG_BAD_ADDRESS: 'invalid bitcoin address',
             MSG_BAD_CONTACT: 'unable to get an address for that contact',
+            MSG_LOW_BALANCE_FOR_FEE: 'wallet balance to low to pay the fee',
             MSG_BAD_CLIPBOARD: 'no valid address found in clipboard',
             MSG_CLIPBOARD_ADDRESS: 'an address was found in your clipboard',
             MSG_SEND_FAIL_UNKNOWN: 'there was a problem sending your transaction',
