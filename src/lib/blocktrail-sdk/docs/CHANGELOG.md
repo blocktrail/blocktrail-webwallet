@@ -1,7 +1,7 @@
 BlockTrail NodeJS SDK Changelog
 ===============================
 
-v1.4.0
+v2.0.0
 ------
  - New [Default] Wallet Version 2
  - `BackupGenerator` now supports `extra` to be printed on document for extra notes

@@ -69,6 +69,8 @@ var Wallet = function(
     self.encryptedPrimarySeed = encryptedPrimarySeed;
     self.encryptedSecret = encryptedSecret;
 
+    self.primaryPrivateKey = null;
+    self.backupPrivateKey = null;
 
     self.backupPublicKey = backupPublicKey;
     self.blocktrailPublicKeys = blocktrailPublicKeys;
@@ -95,6 +97,7 @@ Wallet.PAY_PROGRESS_DONE = 100;
 
 Wallet.FEE_STRATEGY_BASE_FEE = blocktrail.FEE_STRATEGY_BASE_FEE;
 Wallet.FEE_STRATEGY_OPTIMAL = blocktrail.FEE_STRATEGY_OPTIMAL;
+Wallet.FEE_STRATEGY_LOW_PRIORITY = blocktrail.FEE_STRATEGY_LOW_PRIORITY;
 
 Wallet.prototype.unlock = function(options, cb) {
     var self = this;
@@ -164,6 +167,7 @@ Wallet.prototype.unlockV2 = function(options, cb) {
     deferred.promise.nodeify(cb);
 
     deferred.resolve(q.fcall(function() {
+        /* jshint -W071, -W074 */
         options.encryptedPrimarySeed = typeof options.encryptedPrimarySeed !== "undefined" ? options.encryptedPrimarySeed : self.encryptedPrimarySeed;
         options.encryptedSecret = typeof options.encryptedSecret !== "undefined" ? options.encryptedSecret : self.encryptedSecret;
 
@@ -182,10 +186,10 @@ Wallet.prototype.unlockV2 = function(options, cb) {
         } else if (options.secret) {
             try {
                 self.primarySeed = new Buffer(CryptoJS.AES.decrypt(options.encryptedPrimarySeed, self.secret).toString(CryptoJS.enc.Utf8), 'base64');
-                if (!self.primarySeed) {
+                if (!self.primarySeed.length) {
                     throw new Error();
                 }
-            } catch(e) {
+            } catch (e) {
                 throw new blocktrail.WalletDecryptError("Failed to decrypt primarySeed");
             }
 
@@ -199,18 +203,18 @@ Wallet.prototype.unlockV2 = function(options, cb) {
 
             try {
                 self.secret = CryptoJS.AES.decrypt(options.encryptedSecret, options.passphrase).toString(CryptoJS.enc.Utf8);
-                if (!self.secret) {
+                if (!self.secret.length) {
                     throw new Error();
                 }
-            } catch(e) {
+            } catch (e) {
                 throw new blocktrail.WalletDecryptError("Failed to decrypt secret");
             }
             try {
                 self.primarySeed = new Buffer(CryptoJS.AES.decrypt(options.encryptedPrimarySeed, self.secret).toString(CryptoJS.enc.Utf8), 'base64');
-                if (!self.primarySeed) {
+                if (!self.primarySeed.length) {
                     throw new Error();
                 }
-            } catch(e) {
+            } catch (e) {
                 throw new blocktrail.WalletDecryptError("Failed to decrypt primarySeed");
             }
         }
@@ -227,6 +231,7 @@ Wallet.prototype.lock = function() {
     self.secret = null;
     self.primarySeed = null;
     self.primaryPrivateKey = null;
+    self.backupPrivateKey = null;
 
     self.locked = true;
 };
@@ -842,12 +847,21 @@ Wallet.prototype.buildTransaction = function(pay, changeAddress, allowZeroConf, 
                          * @param cb
                          */
                         function(cb) {
-                            var i;
+                            var i, privKey, path;
 
                             deferred.notify(Wallet.PAY_PROGRESS_SIGN);
 
                             for (i = 0; i < utxos.length; i++) {
-                                var privKey = Wallet.deriveByPath(self.primaryPrivateKey, utxos[i]['path'].replace("M", "m"), "m").privKey;
+                                path = utxos[i]['path'].replace("M", "m");
+
+                                if (self.primaryPrivateKey) {
+                                    privKey = Wallet.deriveByPath(self.primaryPrivateKey, path, "m").privKey;
+                                } else if (self.backupPrivateKey) {
+                                    privKey = Wallet.deriveByPath(self.backupPrivateKey, path.replace(/^m\/(\d+)\'/, 'm/$1'), "m").privKey;
+                                } else {
+                                    throw new Error("No master privateKey present");
+                                }
+
                                 var redeemScript = bitcoin.Script.fromHex(utxos[i]['redeem_script']);
 
                                 txb.sign(i, privKey, redeemScript);
@@ -1029,6 +1043,42 @@ Wallet.prototype.transactions = function(params, cb) {
     var self = this;
 
     return self.sdk.walletTransactions(self.identifier, params, cb);
+};
+
+Wallet.prototype.maxSpendable = function(allowZeroConf, feeStrategy, options, cb) {
+    var self = this;
+
+    if (typeof allowZeroConf === "function") {
+        cb = allowZeroConf;
+        allowZeroConf = false;
+    } else if (typeof feeStrategy === "function") {
+        cb = feeStrategy;
+        feeStrategy = null;
+    } else if (typeof options === "function") {
+        cb = options;
+        options = {};
+    }
+
+    if (typeof allowZeroConf === "object") {
+        options = allowZeroConf;
+        allowZeroConf = false;
+    } else if (typeof feeStrategy === "object") {
+        options = feeStrategy;
+        feeStrategy = null;
+    }
+
+    options = options || {};
+
+    if (typeof options.allowZeroConf !== "undefined") {
+        allowZeroConf = options.allowZeroConf;
+    }
+    if (typeof options.feeStrategy !== "undefined") {
+        feeStrategy = options.feeStrategy;
+    }
+
+    feeStrategy = feeStrategy || Wallet.FEE_STRATEGY_OPTIMAL;
+
+    return self.sdk.walletMaxSpendable(self.identifier, allowZeroConf, feeStrategy, options, cb);
 };
 
 /**

@@ -14,12 +14,12 @@
     "test",
     "tests"
   ],
-  "_release": "988b1eff9f",
+  "_release": "d20f800",
   "_resolution": {
     "type": "commit",
-    "commit": "988b1eff9f86f631b00bcf1f917abbcbd715cdac"
+    "commit": "d20f800"
   },
   "_source": "git@github.com:blocktrail/blocktrail-sdk-nodejs.git",
-  "_target": "988b1eff9f86f631b00bcf1f917abbcbd715cdac",
+  "_target": "d20f800",
   "_originalSource": "git@github.com:blocktrail/blocktrail-sdk-nodejs.git"
 }

@@ -47,7 +47,7 @@
     "promise": "^6.1.0",
     "q": "1.0.1",
     "qrcode-canvas": "~0.0.1",
-    "qrcode-js": "0.0.*",
+    "qrcode-js": "git://github.com/blocktrail/qrcode-js.git#master",
     "randombytes": "^2.0.1",
     "superagent": "^0.21.0",
     "superagent-http-signature": "0.1.3",
