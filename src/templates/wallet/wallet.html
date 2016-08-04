@@ -3,11 +3,7 @@
         <div class="appLeftCol" style="padding-right: 0px;">
             <div class="mainMenu">
                 <ul class="sidebar-nav">
-                    <li class="sidebar-brand">
-                        <a ng-href="{{ CONFIG.HOMEPAGE_URL }}" target="_self">
-                            <img class="img-circle" src="/img/b.png"/>
-                        </a>
-                    </li>
+
                     <li ng-class="{'active':$state.includes('app.wallet.summary')}">
                         <a ui-sref="app.wallet.summary">
                             <i class="bticon bticon-doc-text"></i>
@@ -48,16 +44,17 @@
         </div>
         <div class="appRightCol" style="padding-left:0px;">
             <div class="appHeader">
+                <!--
                 <div class="dropdown text-right" dropdown is-open="status.isopen">
                     <button class="btn btn-alt dropdown-toggle" type="button" dropdown-toggle>
                         <span class="bticon bticon-cog"></span>
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu pull-right" role="menu">
-                        <li><a ui-sref="app.logout" >Logout</a></li>
+                        <li></li>
                     </ul>
                 </div>
-
+                //-->
                 <div class="appHeaderContent">
                     <div class="row">
                         <div class="col-xs-4">
@@ -82,4 +79,6 @@
     </div>
 </div>
 
+<!--
 <div ng-include="'templates/common/footer.html'"></div>
+//-->

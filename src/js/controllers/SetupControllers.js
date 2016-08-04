@@ -594,7 +594,7 @@ angular.module('blocktrail.wallet')
                         dialogService.alert(err, $translate.instant('ERROR'), $translate.instant('OK'));
                     } else {
                         $scope.backupPDF = pdf;
-                        $scope.backupPDF.save("BlockTrail Recovery Data Sheet - " + $scope.setupInfo.identifier + ".pdf");
+                        $scope.backupPDF.save("BTC.com Wallet Recovery Backup Sheet - " + $scope.setupInfo.identifier + ".pdf");
                     }
                 });
             } catch(error) {
