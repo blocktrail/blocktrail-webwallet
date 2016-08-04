@@ -190,6 +190,11 @@ angular.module('blocktrail.wallet').config(
                     }
                 }
             })
+            .state('app.setup.rebrand', {
+                url: "/rebrand?goto",
+                controller: "RebrandCtrl",
+                templateUrl: "templates/setup/setup.rebrand.html"
+            })
             .state('app.setup.register', {
                 url: "/register",
                 cache: false,
