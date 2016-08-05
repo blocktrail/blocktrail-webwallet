@@ -7,25 +7,25 @@
                     <li ng-class="{'active':$state.includes('app.wallet.summary')}">
                         <a ui-sref="app.wallet.summary">
                             <i class="bticon bticon-doc-text"></i>
-                            Transactions
+                            <span class="capitalise">{{ 'MY_WALLET' | translate }}</span>
                         </a>
                     </li>
                     <li ng-class="{'active':$state.includes('app.wallet.send')}">
                         <a ui-sref="app.wallet.send">
                             <i class="bticon bticon-forward-outline"></i>
-                            Send
+                            <span class="capitalise">{{ 'SEND' | translate }}</span>
                         </a>
                     </li>
                     <li ng-class="{'active':$state.includes('app.wallet.receive')}">
                         <a ui-sref="app.wallet.receive">
                             <i class="bticon bticon-reply-outline"></i>
-                            Receive
+                            <span class="capitalise">{{ 'RECEIVE' | translate }}</span>
                         </a>
                     </li>
                     <li ng-class="{'active':$state.includes('app.wallet.settings')}">
                         <a ui-sref="app.wallet.settings">
                             <i class="bticon bticon-cog"></i>
-                            Settings
+                            <span class="capitalise">{{ 'SETTINGS' | translate }}</span>
                         </a>
                     </li>
                 </ul>
@@ -33,11 +33,11 @@
                 <div class="appStoreButtons">
                     <a href="https://play.google.com/store/apps/details?id=com.blocktrail.mywallet" class="btn-appstore">
                         <i class="bticon bticon-android"></i>
-                        Get it on <b>Android</b>
+                        <span class="sentence-case">{{ 'APP_DOWNLOAD_ON' | translate }}</span> <b>Android</b>
                     </a>
                     <a href="https://itunes.apple.com/us/app/blocktrail-bitcoin-wallet/id1019614423" class="btn-appstore">
                         <i class="bticon bticon-apple"></i>
-                        Get it on <b>IOS</b>
+                        <span class="sentence-case">{{ 'APP_DOWNLOAD_ON' | translate }}</span> <b>IOS</b>
                     </a>
                 </div>
             </div>
@@ -58,8 +58,7 @@
                 <div class="appHeaderContent">
                     <div class="row">
                         <div class="col-xs-4">
-                           <!-- <h1 class="capitalise pageTitle">{{ pageTitle | translate }}</h1> //-->
-                            <h1 class="capitalise pageTitle">My Wallet</h1>
+                            <h1 class="capitalise pageTitle">{{ pageTitle | translate }}</h1>
                         </div>
                         <div class="col-xs-8">
                             <div class="text-right">
