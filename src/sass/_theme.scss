@@ -1536,6 +1536,13 @@ $display-token-size: 50px;
     }
 }
 
+.btn-hidden {
+    background: transparent !important;
+    border: none !important;
+    font-size: 0px !important;
+    min-width: 50px;
+}
+
 .btn-alt {
     border: 0 none;
     font-weight: $semi-bold;
