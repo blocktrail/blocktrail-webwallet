@@ -26,6 +26,7 @@ For the Mobile Wallet see; https://github.com/blocktrail/blocktrail-wallet
 ```
 npm install -g gulp
 npm install
+git submodule update --init --recursive # for translations package
 cp appconfig.example.json appconfig.json
 gulp
 ```
@@ -36,6 +37,14 @@ npm install -g serve # one time
 cd www
 serve # now you can visit http://localhost:3000
 ```
+
+## Translations
+Translations for both Web and Mobile Wallet are kept in: https://github.com/blocktrail/blocktrail-wallet-translations  
+And then submoduled into the projects.  
+
+Keep this in mind when adding / updating translations, don't forget to commit them to the translations repo.  
+
+It's okay to do PRs without bumping the translations submodule, we'll handle that before doing releases!
 
 ## License
 The Blocktrail Wallet source code is released under the GNU Affero General Public License.  

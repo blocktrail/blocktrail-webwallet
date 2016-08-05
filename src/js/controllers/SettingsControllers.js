@@ -4,6 +4,12 @@ angular.module('blocktrail.wallet')
                                          CONFIG, $modal) {
         $rootScope.pageTitle = 'SETTINGS';
 
+        $scope.translationsEnabled = false;
+
+        $scope.$on('translationsEnabled', function(n, o) {
+            console.log('translationsEnabled', n, v);
+        });
+
         $scope.profilePic = {
             newProfileImage: null,
             croppedProfileImage: null,
@@ -81,7 +87,7 @@ angular.module('blocktrail.wallet')
         });
 
         $scope.languages = [
-            //{code: 'nl-NL', name: 'DUTCH'},
+            {code: 'nl-NL', name: 'DUTCH'},
             {code: 'en-GB', name: 'ENGLISH'},
             {code: 'en-US', name: 'ENGLISH_US'},
             {code: 'fr-FR', name: 'FRENCH'}
@@ -134,6 +140,8 @@ angular.module('blocktrail.wallet')
                     return settingsService.$syncSettingsUp();
                 })
                 .then(function() {
+                    $translate.use(settingsService.language);
+
                     $scope.savingSettings = false;
                     $scope.settingsSaved = true;
                     $timeout(function() {
