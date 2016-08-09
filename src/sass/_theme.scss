@@ -9,7 +9,8 @@ html {
 
 body {
     position: relative;
-    background-color: $pageBG;
+    //background-color: $pageBG;
+    $background-color: $white;
     padding-bottom: $big-footer-height;
 
     &.state-app_wallet {
@@ -143,7 +144,7 @@ body {
     bottom: 0px;
     //*/
 
-    ///*
+    /*
     -webkit-border-top-left-radius: $appBorderRadius;
     -webkit-border-bottom-left-radius: $appBorderRadius;
     -moz-border-radius-topleft: $appBorderRadius;
@@ -168,7 +169,8 @@ body {
         list-style: none;
         width: 100%;
         height: 100%;
-        box-shadow: -11px 0 10px -9px $darkgray-light;
+        //box-shadow: -11px 0 10px -9px $darkgray-light;
+        padding:100px 0px 0px 0px;
         li {
             //  line-height: 40px;
             a {
@@ -216,8 +218,8 @@ body {
             }
             &.active {
                 a {
-                    background-color: $emerald;
-                    box-shadow: 0px 2px 5px -1px $muted;
+                    background-color: $blue;
+                //    box-shadow: 0px 2px 5px -1px $muted;
                     font-weight: $bold;
                 }
             }
@@ -245,17 +247,16 @@ body {
     right: 0;
 }
 
-$appHeaderHeight: 120px;
+$appHeaderHeight: 80px;
 .appWrapper {
     @extend .height-100;
-    padding: 20px 0px;
 
     .appContainer {
-        -webkit-border-radius: $appBorderRadius;
-        -moz-border-radius: $appBorderRadius;
-        border-radius: $appBorderRadius;
-        border: 1px solid $emerald;
-        background-color: $lightgray-dark;
+     //   -webkit-border-radius: $appBorderRadius;
+     //   -moz-border-radius: $appBorderRadius;
+      //  border-radius: $appBorderRadius;
+      //  border: 1px solid $blue;
+      //  background-color: $lightgray-dark;
 
         height: 100%;
         // @extend .container;
@@ -275,7 +276,8 @@ $appHeaderHeight: 120px;
 
         .appRightCol {
             width: 75%;
-            padding-top: $appHeaderHeight;
+            //padding-top: $appHeaderHeight;
+            padding-bottom: $appHeaderHeight;
         }
 
         .appBody {
@@ -283,11 +285,12 @@ $appHeaderHeight: 120px;
             overflow-y: auto;
             overflow-x: hidden;
             background-color: $white;
+            border-right:1px solid $muted;
 
             .appBodyContainer {
                 position: relative;
                 //min-height: 100%;
-
+                padding-bottom:20px;
                 .appPage {
                     padding: 10px 40px 20px 40px;
                 }
@@ -297,16 +300,18 @@ $appHeaderHeight: 120px;
         .appHeader {
             border-bottom: 1px solid $muted;
             padding: 0px;
+         /*
             position: absolute;
             top: 0px;
             right: 0px;
             left: 0px;
+            */
             height: $appHeaderHeight;
-
+            border-right:1px solid $muted;
             .appHeaderContent {
-                padding: 0px 40px;
+                padding: 20px 40px;
             }
-
+/*
             .dropdown {
                 margin-bottom: 20px;
                 border-radius: 0px;
@@ -329,11 +334,11 @@ $appHeaderHeight: 120px;
                     }
                 }
             }
-
+*/
             h1 {
                 font-size: 24px;
                 font-weight: $bold;
-                padding: 10px 0px 20px 0px;
+                padding: 10px 0px 10px 0px;
                 margin: 0px;
                 color: $darkgray-dark;
 
@@ -342,7 +347,7 @@ $appHeaderHeight: 120px;
                     font-size: 20px;
                 }
                 &.pageTitle {
-                    color: $emerald;
+                    color: $blue;
                 }
             }
 
@@ -360,20 +365,21 @@ $appHeaderHeight: 120px;
 .navbar {
     margin: 0px;
     border-radius: 0px;
-    background-color: $emerald;
+    background-color: $blue;
     border: 0px;
     position: relative;
     z-index: 10;
 
     .navbar-brand {
-        padding: 16px 0px 16px 0px;
+        padding: 16px 0px 0px 0px;
         height: auto;
         margin: 0px 30px 0px 15px;
 
         img {
-            border: 3px solid $white;
+            border: 0px;
             margin: 0px;
-            padding: 0px 0px 0px 2px;
+            width:159px;
+            height:37px;
         }
     }
 
@@ -384,7 +390,7 @@ $appHeaderHeight: 120px;
             margin: 0px 10px;
 
             a {
-                padding: 34px 10px 34px 10px;
+                padding: 19px 10px 19px 10px;
                 background: transparent;
                 color: $white;
                 font-size: 18px;
@@ -634,7 +640,7 @@ $display-token-size: 50px;
     &.anon-token, &.contact-token {
         img, span {
             &.received {
-                border: 2px solid $emerald;
+                border: 2px solid $blue;
                 border-radius: 50%;
             }
             &.sent {
@@ -1234,6 +1240,13 @@ $display-token-size: 50px;
                 }
             }
         }
+
+        .toggle-switch {
+            .switch-left {
+                color: #fff;
+                background: $green;
+            }
+        }
     }
 
     &.state-app_wallet_feedback {
@@ -1413,7 +1426,7 @@ $display-token-size: 50px;
 .modal-dialog {
     margin-top: 100px;
     .modal-header {
-        background-color: $emerald;
+        background-color: $blue;
         padding: 20px 30px;
         -webkit-border-top-left-radius: 6px;
         -webkit-border-top-right-radius: 6px;

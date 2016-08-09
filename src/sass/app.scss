@@ -62,7 +62,7 @@ $app-default-shadow:          0 1px 4px rgba(0,0,0,0.15);
 $navbar-start: #383b40;
 $navbar-end: #494c53;
 $red-blocktrail-brand: #D23027;
-
+$btccom:#3C78C2;
 
 $border-color:#ccc;
 
@@ -76,8 +76,8 @@ $mint: #91CC8E;
 $lemon: #E7E27D;
 $neon: #ebe70d;
 $pageBG:#B8DEC5;
+$blue:$btccom;
 /* overrides */
-
 
 
 
@@ -98,7 +98,7 @@ $body-bg:$white;
 // Base
 // -------------------------------
 
-$font-family-sans-serif:          "Neo Sans Pro", "Open Sans", "Helvetica Neue", sans-serif !default;
+$font-family-sans-serif:          "Roboto", "Neo Sans Pro", "Open Sans", "Helvetica Neue", sans-serif !default;
 $font-family-monospace:           "Ubuntu Mono", monospace !default;
 
 $font-family-base:                "Lato", "Open Sans", "Helvetica Neue", sans-serif !default;
