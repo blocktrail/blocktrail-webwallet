@@ -3,12 +3,12 @@
         <div class="col-md-6 col-md-offset-3 col-sm-12 col-xs-12">
             <div class="appWrapper">
                 <h1 class="pageTitle capitalise">{{ 'PSA_REBRAND_TITLE' | translate }}</h1>
-                <div class="formContainer">
-                    {{ 'PSA_REBRAND_BODY' | translate }}
+                <div class="formContainer"style="padding: 20px;">
+                    <div ng-bind-html="'PSA_REBRAND_BODY' | translate | nl2br"></div>
 
                     <br />
 
-                    <button class="form-control btn btn-alt capitalise" ui-sref="{{ goto || 'app.setup.register' }}">{{ 'PSD_REBRAND_OK' | translate }}</button>
+                    <button class="btn-block btn btn-alt capitalise" ui-sref="{{ goto || 'app.setup.register' }}">{{ 'PSA_REBRAND_OK' | translate }}</button>
                 </div>
             </div>
         </div>
