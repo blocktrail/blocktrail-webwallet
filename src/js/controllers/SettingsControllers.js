@@ -87,11 +87,13 @@ angular.module('blocktrail.wallet')
         });
 
         $scope.languages = [
-            {code: 'nl-NL', name: 'DUTCH'},
-            {code: 'en-GB', name: 'ENGLISH'},
-            {code: 'en-US', name: 'ENGLISH_US'},
-            {code: 'fr-FR', name: 'FRENCH'}
-            //{code: 'de-DE', name: 'GERMAN'}
+            {code: 'nl', name: 'DUTCH'},
+            {code: 'en', name: 'ENGLISH'},
+            {code: 'en_US', name: 'ENGLISH_US'},
+            {code: 'fr', name: 'FRENCH'},
+            {code: 'es', name: 'FRENCH'},
+            {code: 'cn', name: 'CHINESE'},
+            {code: 'ru', name: 'RUSSIAN'}
         ];
 
         // this automatically updates an already open modal instead of popping a new one open
@@ -140,7 +142,7 @@ angular.module('blocktrail.wallet')
                     return settingsService.$syncSettingsUp();
                 })
                 .then(function() {
-                    $translate.use(settingsService.language);
+                    $rootScope.changeLanguage(settingsService.language);
 
                     $scope.savingSettings = false;
                     $scope.settingsSaved = true;

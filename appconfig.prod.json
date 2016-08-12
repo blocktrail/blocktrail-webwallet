@@ -8,5 +8,7 @@
         "api_key": "29ce4ef725adda974cc124b8eb5e55b91ead141777f3277d"
     },
 
+    "FALLBACK_LANGUAGE": "en",
+
     "NULL": null // just here so we can have a trailing , on every line
 }

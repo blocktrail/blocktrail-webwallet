@@ -57,7 +57,7 @@ angular.module('blocktrail.wallet').config(function() {
 });
 
 angular.module('blocktrail.wallet').run(
-    function($rootScope, $state, $ionicUser, $ionicAnalytics, $log, $interval, $timeout, settingsService, CONFIG, $locale, $translate) {
+    function($rootScope, $state, $ionicUser, $ionicAnalytics, $log, $interval, $timeout, settingsService, CONFIG, $locale, $translate, amMoment) {
         $rootScope.CONFIG       = CONFIG || {};
         $rootScope.$state       = $state;
         $rootScope.appVersion   = CONFIG.VERSION;
@@ -71,12 +71,19 @@ angular.module('blocktrail.wallet').run(
             {code: 'GBP', symbol: '£'}
         ];
 
+        $rootScope.changeLanguage = function(language) {
+            settingsService.language = language || $translate.preferredLanguage() || CONFIG.FALLBACK_LANGUAGE || 'en';
+
+            amMoment.changeLocale(settingsService.language);
+            $translate.use(settingsService.language);
+        };
+
         // start loading settings
         settingsService.$isLoaded().then(function() {
             $rootScope.settings = settingsService;
 
             // set the preferred/detected language
-            $translate.use(settingsService.language);
+            $rootScope.changeLanguage(settingsService.language);
         });
 
         // register for usage data tracking @TODO: make configurable just like in mobile app

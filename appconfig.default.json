@@ -12,6 +12,8 @@
         "api_key": "d4f14e6e6070392557e813ad03219cdbfcd9b17a13e870aa"
     },
 
+    "FALLBACK_LANGUAGE": false,
+
     "HOMEPAGE_URL": "https://btc.com",
     "EXPLORER_URL": "https://btc.com",
     "DEVELOPERS_URL": "https://www.blocktrail.com/api",
