@@ -91,7 +91,7 @@ angular.module('blocktrail.wallet')
             {code: 'en', name: 'ENGLISH'},
             {code: 'en_US', name: 'ENGLISH_US'},
             {code: 'fr', name: 'FRENCH'},
-            {code: 'es', name: 'FRENCH'},
+            {code: 'es', name: 'SPANISH'},
             {code: 'cn', name: 'CHINESE'},
             {code: 'ru', name: 'RUSSIAN'}
         ];

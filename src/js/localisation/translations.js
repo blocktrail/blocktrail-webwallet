@@ -23,7 +23,7 @@ angular.module('blocktrail.localisation', [
         var russian = angular.extend({}, TRANSLATIONS.russian);
         var chinese = angular.extend({}, TRANSLATIONS.chinese);
 
-        // $translateProvider.translations('en_US', processTranslations(americanEnglish));
+        $translateProvider.translations('en_US', processTranslations(americanEnglish));
         $translateProvider.translations('en', processTranslations(english));
         $translateProvider.translations('fr', processTranslations(french));
         $translateProvider.translations('nl', processTranslations(dutch));
