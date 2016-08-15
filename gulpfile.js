@@ -13,6 +13,7 @@ var gitRev = require('git-rev');
 var template = require('gulp-template');
 var uglify = require('gulp-uglify');
 var fs = require('fs');
+var path = require('path');
 var Q = require('q');
 var gulpif = require('gulp-if');
 var notifier = require('node-notifier');
@@ -56,66 +57,83 @@ var buildAppConfig = function() {
 var appConfig = Q.fcall(buildAppConfig);
 
 gulp.task('appconfig', function() {
-    appConfig = Q.fcall(buildAppConfig);
+    appConfig = Q.fcall(buildAppConfig); // refresh the promise with a new build
+    return appConfig;
 });
 
-gulp.task('templates:index', ['appconfig'], function(done) {
+gulp.task('templates:index', ['appconfig'], function() {
+    var readTranslations = function(filename) {
+        var def = Q.defer();
 
-    appConfig.then(function(APPCONFIG) {
-        var readTranslations = function(filename) {
-            var raw = fs.readFileSync(filename);
-
+        fs.readFile(filename, function(err, raw) {
             if (!raw) {
                 throw new Error("Missing translations!");
             }
 
-            return JSON.parse(stripJsonComments(raw.toString('utf8')));
-        };
+            def.resolve(JSON.parse(stripJsonComments(raw.toString('utf8'))));
+        });
 
+        return def.promise;
+    };
+
+    return appConfig.then(function(APPCONFIG) {
         var translations = {
-            english: readTranslations('./src/translations/translations/english.json'),
-            americanEnglish: readTranslations('./src/translations/translations/americanEnglish.json'),
-            french: readTranslations('./src/translations/translations/french.json'),
-            dutch: readTranslations('./src/translations/translations/dutch.json'),
-            chinese: readTranslations('./src/translations/translations/chinese.json'),
-            spanish: readTranslations('./src/translations/translations/spanish.json'),
-            russian: readTranslations('./src/translations/translations/russian.json'),
-
-            mobile: {
-                english: readTranslations('./src/translations/translations/mobile/english.json'),
-                americanEnglish: readTranslations('./src/translations/translations/mobile/americanEnglish.json'),
-                french: readTranslations('./src/translations/translations/mobile/french.json'),
-                dutch: readTranslations('./src/translations/translations/mobile/dutch.json'),
-                chinese: readTranslations('./src/translations/translations/mobile/chinese.json'),
-                spanish: readTranslations('./src/translations/translations/mobile/spanish.json'),
-                russian: readTranslations('./src/translations/translations/mobile/russian.json')
-            }
+            'mobile': {}
         };
 
-        gulp.src("./src/index.html")
-            .pipe(template({
-                VERSION: APPCONFIG.VERSION,
-                APPCONFIG_JSON: JSON.stringify(APPCONFIG),
-                TRANSLATIONS: JSON.stringify(translations)
-            }))
-            .pipe(gulp.dest("./www"))
-            .on('end', done);
+        return Q.all(_.map([
+            './src/translations/translations/english.json',
+            './src/translations/translations/americanEnglish.json',
+            './src/translations/translations/french.json',
+            './src/translations/translations/dutch.json',
+            './src/translations/translations/chinese.json',
+            './src/translations/translations/spanish.json',
+            './src/translations/translations/russian.json',
+
+            './src/translations/translations/mobile/english.json',
+            './src/translations/translations/mobile/americanEnglish.json',
+            './src/translations/translations/mobile/french.json',
+            './src/translations/translations/mobile/dutch.json',
+            './src/translations/translations/mobile/chinese.json',
+            './src/translations/translations/mobile/spanish.json',
+            './src/translations/translations/mobile/russian.json'
+        ], function(filename) {
+            var language = path.basename(filename, '.json');
+            var isMobile = filename.indexOf('mobile/') !== -1;
+
+            return readTranslations(filename).then(function(result) {
+                if (isMobile) {
+                    translations['mobile'][language] = result;
+                } else {
+                    translations[language] = result;
+                }
+            })
+        })).then(function() {
+            return gulp.src("./src/index.html")
+                .pipe(template({
+                    VERSION: APPCONFIG.VERSION,
+                    APPCONFIG_JSON: JSON.stringify(APPCONFIG),
+                    TRANSLATIONS: JSON.stringify(translations)
+                }))
+                .pipe(gulp.dest("./www"))
+            ;
+        });
     });
 });
 
-gulp.task('templates:rest', ['appconfig'], function(done) {
+gulp.task('templates:rest', ['appconfig'], function() {
 
-    appConfig.then(function(APPCONFIG) {
-        gulp.src("./src/templates/**/*")
+    return appConfig.then(function(APPCONFIG) {
+        return gulp.src("./src/templates/**/*")
             .pipe(gulp.dest("./www/templates"))
-            .on('end', done);
+        ;
     });
 });
 
-gulp.task('js:libs', ['appconfig'], function(done) {
+gulp.task('js:libs', ['appconfig'], function() {
 
-    appConfig.then(function(APPCONFIG) {
-        gulp.src([
+    return appConfig.then(function(APPCONFIG) {
+        return gulp.src([
             "./src/lib/q/q.js",
             "./src/lib/angular/angular.js",
             "./src/lib/ionic-service-core/ionic-core.js",
@@ -143,14 +161,14 @@ gulp.task('js:libs', ['appconfig'], function(done) {
             .pipe(concat('libs.js'))
             .pipe(gulpif(APPCONFIG.MINIFY, uglify()))
             .pipe(gulp.dest('./www/js/'))
-            .on('end', done);
+        ;
     });
 });
 
-gulp.task('js:app', ['appconfig'], function(done) {
+gulp.task('js:app', ['appconfig'], function() {
 
-    appConfig.then(function(APPCONFIG) {
-        gulp.src([
+    return appConfig.then(function(APPCONFIG) {
+        return gulp.src([
             './src/js/**/*.js',
             '!./src/js/workers/*.js'
         ])
@@ -170,27 +188,26 @@ gulp.task('js:app', ['appconfig'], function(done) {
             })
             .pipe(gulpif(APPCONFIG.MINIFY, uglify()))
             .pipe(gulp.dest('./www/js/'))
-            .on('end', done)
         ;
     });
 });
 
-gulp.task('js:webworkers', ['appconfig'], function(done) {
+gulp.task('js:webworkers', ['appconfig'], function() {
 
-    appConfig.then(function(APPCONFIG) {
-        gulp.src([
+    return appConfig.then(function(APPCONFIG) {
+        return gulp.src([
             "./src/js/workers/*.js"
         ])
-        .pipe(gulpif(APPCONFIG.MINIFY, uglify()))
-        .pipe(gulp.dest('./www/js/'))
-        .on('end', done);
+            .pipe(gulpif(APPCONFIG.MINIFY, uglify()))
+            .pipe(gulp.dest('./www/js/'))
+        ;
     });
 });
 
-gulp.task('js:sdk', ['appconfig'], function(done) {
+gulp.task('js:sdk', ['appconfig'], function() {
 
-    appConfig.then(function(APPCONFIG) {
-        gulp.src([
+    return appConfig.then(function(APPCONFIG) {
+        return gulp.src([
             "./src/lib/blocktrail-sdk/build/blocktrail-sdk-full.js"
         ])
             .pipe(concat('sdk.js'))
@@ -200,19 +217,19 @@ gulp.task('js:sdk', ['appconfig'], function(done) {
                 }
             })))
             .pipe(gulp.dest('./www/js/'))
-            .on('end', done);
+        ;
     });
 });
 
-var sassTask = function(done) {
+var sassTask = function() {
 
-    appConfig.then(function(APPCONFIG) {
-        gulp.src('./src/sass/app.scss')
+    return appConfig.then(function(APPCONFIG) {
+        return gulp.src('./src/sass/app.scss')
             .pipe(sass({errLogToConsole: true}))
             .pipe(gulp.dest('./www/css/'))
             .pipe(gulpif(APPCONFIG.MINIFY, minifyCss({keepSpecialComments: 0})))
             .pipe(gulp.dest('./www/css/'))
-            .on('end', done);
+        ;
     });
 };
 
@@ -223,9 +240,9 @@ gulp.task('sassfontello', ['appconfig', 'fontello', 'css-rename'], sassTask);
 /**
  * css-rename to change .css to .sass extensions because we want the css imported :/
  */
-gulp.task('css-rename', function(done) {
+gulp.task('css-rename', function() {
 
-    gulp.src([
+    return gulp.src([
         './src/lib/angular-toggle-switch/angular-toggle-switch.css',
         './src/lib/angular-toggle-switch/angular-toggle-switch-bootstrap.css'
     ], { base: process.cwd() })
@@ -233,30 +250,30 @@ gulp.task('css-rename', function(done) {
             extname: ".scss"
         }))
         .pipe(gulp.dest('./')) // back where you came from
-        .on('end', done);
+    ;
 });
 
-gulp.task('fontello-dl', function(done) {
+gulp.task('fontello-dl', function() {
 
-    gulp.src('./fontello.json')
+    return gulp.src('./fontello.json')
         .pipe(fontello())
         .pipe(gulp.dest('./www/fontello/'))
-        .on('end', done);
+    ;
 });
 
-gulp.task('fontello-rename', ['fontello-dl'], function(done) {
+gulp.task('fontello-rename', ['fontello-dl'], function() {
 
-    gulp.src(['./www/fontello/css/fontello.css'])
+    return gulp.src(['./www/fontello/css/fontello.css'])
         .pipe(rename('_fontello.scss'))
         .pipe(gulp.dest('./www/fontello/css'))
-        .on('end', done);
+    ;
 });
 
-gulp.task('fontello', ['fontello-dl', 'fontello-rename'], function(done) {
+gulp.task('fontello', ['fontello-dl', 'fontello-rename'], function() {
 
-    gulp.src('./www/fontello/font/*')
+    return gulp.src('./www/fontello/font/*')
         .pipe(gulp.dest('./www/font'))
-        .on('end', done);
+    ;
 });
 
 gulp.task('watch', function() {
