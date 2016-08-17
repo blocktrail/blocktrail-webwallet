@@ -1,8 +1,7 @@
-var unspentOutputFinder = require('./unspent_output_finder')
+var UnspentOutputFinder = require('./unspent_output_finder');
 var bitcoin = require('bitcoinjs-lib');
 var bip39 = require("bip39");
 var CryptoJS = require('crypto-js');
-var blocktrailSDK = require('./api_client');
 var blocktrail = require('./blocktrail');
 var walletSDK = require('./wallet');
 var _ = require('lodash');
@@ -16,7 +15,8 @@ var async = require('async');
  * @param options
  * @constructor
  */
-var WalletSweeper = function (backupData, bitcoinDataClient, options) {
+var WalletSweeper = function(backupData, bitcoinDataClient, options) {
+    /* jshint -W071, -W074 */
     var self = this;
     this.defaultSettings = {
         network: 'btc',
@@ -26,7 +26,7 @@ var WalletSweeper = function (backupData, bitcoinDataClient, options) {
     };
     this.settings = _.merge({}, this.defaultSettings, options);
     this.bitcoinDataClient = bitcoinDataClient;
-    this.utxoFinder = new unspentOutputFinder(bitcoinDataClient, this.settings);
+    this.utxoFinder = new UnspentOutputFinder(bitcoinDataClient, this.settings);
     this.sweepData = null;
 
     // set the bitcoinlib network
@@ -34,42 +34,50 @@ var WalletSweeper = function (backupData, bitcoinDataClient, options) {
 
     backupData.walletVersion = backupData.walletVersion || 2;   //default to version 2 wallets
 
+    var usePassword = false;
+
     // validate backup data, cleanup input, and prepare seeds
     if (!Array.isArray(backupData.blocktrailKeys)) {
         throw new Error('blocktrail pub keys are required (must be type Array)');
     }
-    if (backupData.walletVersion == 1) {
-        if (typeof backupData.primaryMnemonic == "undefined" || !backupData.primaryMnemonic) {
+    if (1 === backupData.walletVersion) {
+        if (typeof backupData.primaryMnemonic === "undefined" || !backupData.primaryMnemonic) {
             throw new Error('missing primary mnemonic for version 1 wallet');
         }
-        if (typeof backupData.backupMnemonic == "undefined" || !backupData.backupMnemonic) {
+        if (typeof backupData.backupMnemonic === "undefined" || !backupData.backupMnemonic) {
             throw new Error('missing backup mnemonic for version 1 wallet');
         }
-        if (typeof backupData.primaryPassphrase == "undefined") {
+        if (typeof backupData.primaryPassphrase === "undefined") {
             throw new Error('missing primary passphrase for version 1 wallet');
         }
 
         // cleanup copy paste errors from mnemonics
-        backupData.primaryMnemonic = backupData.primaryMnemonic.trim().replace(new RegExp("\r\n", 'g'), " ").replace(new RegExp("\n", 'g'), " ").replace(/\s+/g, " ");
-        backupData.backupMnemonic = backupData.backupMnemonic.trim().replace(new RegExp("\r\n", 'g'), " ").replace(new RegExp("\n", 'g'), " ").replace(/\s+/g, " ");
+        backupData.primaryMnemonic = backupData.primaryMnemonic.trim()
+                                        .replace(new RegExp("\r\n", 'g'), " ")
+                                        .replace(new RegExp("\n", 'g'), " ")
+                                        .replace(/\s+/g, " ");
+        backupData.backupMnemonic = backupData.backupMnemonic.trim()
+                                        .replace(new RegExp("\r\n", 'g'), " ")
+                                        .replace(new RegExp("\n", 'g'), " ")
+                                        .replace(/\s+/g, " ");
     } else {
-        if (typeof backupData.encryptedPrimaryMnemonic == "undefined" || !backupData.encryptedPrimaryMnemonic) {
+        if (typeof backupData.encryptedPrimaryMnemonic === "undefined" || !backupData.encryptedPrimaryMnemonic) {
             throw new Error('missing encrypted primary seed for version 2 wallet');
         }
-        if (typeof backupData.backupMnemonic == "undefined" || !backupData.backupMnemonic) {
+        if (typeof backupData.backupMnemonic === "undefined" || !backupData.backupMnemonic) {
             throw new Error('missing backup seed for version 2 wallet');
         }
         //can either recover with password and password encrypted secret, or with encrypted recovery secret and a decryption key
-        var usePassword = typeof backupData.password != "undefined" && backupData.password != null;
+        usePassword = typeof backupData.password !== "undefined" && backupData.password !== null;
         if (usePassword) {
-            if (typeof backupData.passwordEncryptedSecretMnemonic == "undefined" || !backupData.passwordEncryptedSecretMnemonic) {
+            if (typeof backupData.passwordEncryptedSecretMnemonic === "undefined" || !backupData.passwordEncryptedSecretMnemonic) {
                 throw new Error('missing password encrypted secret for version 2 wallet');
             }
-            if (typeof backupData.password == "undefined") {
+            if (typeof backupData.password === "undefined") {
                 throw new Error('missing primary passphrase for version 2 wallet');
             }
         } else {
-            if (typeof backupData.encryptedRecoverySecretMnemonic == "undefined" || !backupData.encryptedRecoverySecretMnemonic) {
+            if (typeof backupData.encryptedRecoverySecretMnemonic === "undefined" || !backupData.encryptedRecoverySecretMnemonic) {
                 throw new Error('missing encrypted recovery secret for version 2 wallet (recovery without password)');
             }
             if (!backupData.recoverySecretDecryptionKey) {
@@ -78,25 +86,33 @@ var WalletSweeper = function (backupData, bitcoinDataClient, options) {
         }
 
         // cleanup copy paste errors from mnemonics
-        backupData.encryptedPrimaryMnemonic = backupData.encryptedPrimaryMnemonic.trim().replace(new RegExp("\r\n", 'g'), " ").replace(new RegExp("\n", 'g'), " ").replace(/\s+/g, " ");
-        backupData.backupMnemonic = backupData.backupMnemonic.trim().replace(new RegExp("\r\n", 'g'), " ").replace(new RegExp("\n", 'g'), " ").replace(/\s+/g, " ");
+        backupData.encryptedPrimaryMnemonic = backupData.encryptedPrimaryMnemonic.trim()
+                                                .replace(new RegExp("\r\n", 'g'), " ")
+                                                .replace(new RegExp("\n", 'g'), " ")
+                                                .replace(/\s+/g, " ");
+        backupData.backupMnemonic = backupData.backupMnemonic.trim()
+                                    .replace(new RegExp("\r\n", 'g'), " ")
+                                    .replace(new RegExp("\n", 'g'), " ")
+                                    .replace(/\s+/g, " ");
         if (usePassword) {
-            backupData.passwordEncryptedSecretMnemonic = backupData.passwordEncryptedSecretMnemonic.trim().replace(new RegExp("\r\n", 'g'), " ").replace(new RegExp("\n", 'g'), " ").replace(/\s+/g, " ");
+            backupData.passwordEncryptedSecretMnemonic = backupData.passwordEncryptedSecretMnemonic.trim()
+                .replace(new RegExp("\r\n", 'g'), " ").replace(new RegExp("\n", 'g'), " ").replace(/\s+/g, " ");
         } else {
-            backupData.encryptedRecoverySecretMnemonic = backupData.encryptedRecoverySecretMnemonic.trim().replace(new RegExp("\r\n", 'g'), " ").replace(new RegExp("\n", 'g'), " ").replace(/\s+/g, " ");
+            backupData.encryptedRecoverySecretMnemonic = backupData.encryptedRecoverySecretMnemonic.trim()
+                .replace(new RegExp("\r\n", 'g'), " ").replace(new RegExp("\n", 'g'), " ").replace(/\s+/g, " ");
         }
     }
 
 
     // create BIP32 HDNodes for the Blocktrail public keys
     this.blocktrailPublicKeys = {};
-    _.each(backupData.blocktrailKeys, function(blocktrailKey, index) {
+    _.each(backupData.blocktrailKeys, function(blocktrailKey) {
         self.blocktrailPublicKeys[blocktrailKey['keyIndex']] = bitcoin.HDNode.fromBase58(blocktrailKey['pubkey'], self.network);
     });
 
     // convert the primary and backup mnemonics to seeds (using BIP39)
     var primarySeed, backupSeed;
-    if (backupData.walletVersion == 1) {
+    if (1 === backupData.walletVersion) {
         primarySeed = bip39.mnemonicToSeed(backupData.primaryMnemonic, backupData.primaryPassphrase);
         backupSeed = bip39.mnemonicToSeed(backupData.backupMnemonic, "");
     } else {
@@ -105,9 +121,11 @@ var WalletSweeper = function (backupData, bitcoinDataClient, options) {
         // convert mnemonics to hex (bip39) and then base64 for decryption
         backupData.encryptedPrimaryMnemonic = blocktrail.convert(bip39.mnemonicToEntropy(backupData.encryptedPrimaryMnemonic), 'hex', 'base64');
         if (usePassword) {
-            backupData.passwordEncryptedSecretMnemonic = blocktrail.convert(bip39.mnemonicToEntropy(backupData.passwordEncryptedSecretMnemonic), 'hex', 'base64');
+            backupData.passwordEncryptedSecretMnemonic = blocktrail.convert(
+                bip39.mnemonicToEntropy(backupData.passwordEncryptedSecretMnemonic), 'hex', 'base64');
         } else {
-            backupData.encryptedRecoverySecretMnemonic = blocktrail.convert(bip39.mnemonicToEntropy(backupData.encryptedRecoverySecretMnemonic), 'hex', 'base64');
+            backupData.encryptedRecoverySecretMnemonic = blocktrail.convert(
+                bip39.mnemonicToEntropy(backupData.encryptedRecoverySecretMnemonic), 'hex', 'base64');
         }
 
         // decrypt encryption secret
@@ -157,6 +175,7 @@ WalletSweeper.prototype.getBitcoinNetwork =  function(network, testnet) {
             } else {
                 return bitcoin.networks.bitcoin;
             }
+        break;
         case 'tbtc':
         case 'bitcoin-testnet':
             return bitcoin.networks.testnet;
@@ -171,7 +190,7 @@ WalletSweeper.prototype.getBitcoinNetwork =  function(network, testnet) {
  * @param path
  * @returns {boolean}
  */
-WalletSweeper.prototype.getBlocktrailPublicKey = function (path) {
+WalletSweeper.prototype.getBlocktrailPublicKey = function(path) {
     path = path.replace("m", "M");
     var keyIndex = path.split("/")[1].replace("'", "");
 
@@ -188,7 +207,7 @@ WalletSweeper.prototype.getBlocktrailPublicKey = function (path) {
  * @param path
  * @returns {{address: *, redeemScript: *}}
  */
-WalletSweeper.prototype.createAddress = function (path) {
+WalletSweeper.prototype.createAddress = function(path) {
     //ensure a public path is used
     path = path.replace("m", "M");
     var keyIndex = path.split("/")[1].replace("'", "");
@@ -222,14 +241,14 @@ WalletSweeper.prototype.createAddress = function (path) {
  * @param keyIndex
  * @returns {{}}
  */
-WalletSweeper.prototype.createBatchAddresses = function (start, count, keyIndex) {
+WalletSweeper.prototype.createBatchAddresses = function(start, count, keyIndex) {
     var self = this;
     var addresses = {};
     var chain = 0;
 
     return q.all(_.range(0, count).map(function(i) {
         //create a path subsequent address
-        var path =  "M/" + keyIndex + "'/" + chain + "/" + (start+i);
+        var path =  "M/" + keyIndex + "'/" + chain + "/" + (start + i);
         var multisig = self.createAddress(path);
         addresses[multisig['address']] = {
             redeem: multisig['redeem'],
@@ -240,13 +259,13 @@ WalletSweeper.prototype.createBatchAddresses = function (start, count, keyIndex)
     });
 };
 
-WalletSweeper.prototype.discoverWalletFunds = function (increment, cb) {
+WalletSweeper.prototype.discoverWalletFunds = function(increment, cb) {
     var self = this;
     var totalBalance = 0;
     var totalUTXOs = 0;
     var totalAddressesGenerated = 0;
     var addressUTXOs = {};    //addresses and their utxos, paths and redeem scripts
-    if (typeof increment == "undefined") {
+    if (typeof increment === "undefined") {
         increment = this.settings.sweepBatchSize;
     }
 
@@ -255,7 +274,7 @@ WalletSweeper.prototype.discoverWalletFunds = function (increment, cb) {
 
     async.nextTick(function() {
         //for each blocktrail pub key, do fund discovery on batches of addresses
-        async.eachSeries(Object.keys(self.blocktrailPublicKeys), function (keyIndex, done) {
+        async.eachSeries(Object.keys(self.blocktrailPublicKeys), function(keyIndex, done) {
             var i = 0;
             var hasTransactions = false;
 
@@ -277,7 +296,7 @@ WalletSweeper.prototype.discoverWalletFunds = function (increment, cb) {
 
                 async.nextTick(function() {
                     self.createBatchAddresses(i, increment, keyIndex)
-                        .then(function (batch) {
+                        .then(function(batch) {
                             totalAddressesGenerated += Object.keys(batch).length;
 
                             if (self.settings.logging) {
@@ -296,22 +315,22 @@ WalletSweeper.prototype.discoverWalletFunds = function (increment, cb) {
                             });
 
                             //get the unspent outputs for this batch of addresses
-                            return self.bitcoinDataClient.batchAddressHasTransactions(_.keys(batch)).then(function (_hasTransactions) {
+                            return self.bitcoinDataClient.batchAddressHasTransactions(_.keys(batch)).then(function(_hasTransactions) {
                                 hasTransactions = _hasTransactions;
                                 if (self.settings.logging) {
                                     console.log("batch " + (hasTransactions ? "has" : "does not have") + " transactions...");
                                 }
 
                                 return q.when(hasTransactions)
-                                    .then(function (hasTransactions) {
+                                    .then(function(hasTransactions) {
                                         if (!hasTransactions) {
                                             return;
                                         }
 
                                         //get the unspent outputs for this batch of addresses
-                                        return self.utxoFinder.getUTXOs(_.keys(batch)).then(function (utxos) {
+                                        return self.utxoFinder.getUTXOs(_.keys(batch)).then(function(utxos) {
                                             // save the address utxos, along with relevant path and redeem script
-                                            _.each(utxos, function (outputs, address) {
+                                            _.each(utxos, function(outputs, address) {
                                                 addressUTXOs[address] = {
                                                     path: batch[address]['path'],
                                                     redeem: batch[address]['redeem'],
@@ -320,7 +339,7 @@ WalletSweeper.prototype.discoverWalletFunds = function (increment, cb) {
                                                 totalUTXOs += outputs.length;
 
                                                 //add up the total utxo value for all addresses
-                                                totalBalance = _.reduce(outputs, function (carry, output) {
+                                                totalBalance = _.reduce(outputs, function(carry, output) {
                                                     return carry + output['value'];
                                                 }, totalBalance);
 
@@ -344,7 +363,7 @@ WalletSweeper.prototype.discoverWalletFunds = function (increment, cb) {
                             });
                         })
                         .then(
-                            function () {
+                            function() {
                                 //ready for the next batch
                                 i += increment;
                                 async.nextTick(done);
@@ -388,7 +407,8 @@ WalletSweeper.prototype.discoverWalletFunds = function (increment, cb) {
             }
 
             if (self.settings.logging) {
-                console.log("finished fund discovery: "+totalBalance+" Satoshi (in "+totalUTXOs+" outputs) found when searching "+totalAddressesGenerated+" addresses");
+                console.log("finished fund discovery: " + totalBalance + " Satoshi (in " + totalUTXOs + " outputs) " +
+                    "found when searching " + totalAddressesGenerated + " addresses");
             }
 
             self.sweepData = {
@@ -406,7 +426,7 @@ WalletSweeper.prototype.discoverWalletFunds = function (increment, cb) {
     return deferred.promise;
 };
 
-WalletSweeper.prototype.sweepWallet = function (destinationAddress, cb) {
+WalletSweeper.prototype.sweepWallet = function(destinationAddress, cb) {
     var self = this;
     var deferred = q.defer();
     deferred.promise.nodeify(cb);
@@ -420,7 +440,7 @@ WalletSweeper.prototype.sweepWallet = function (destinationAddress, cb) {
             .progress(function(progress) {
                 deferred.notify(progress);
             })
-            .done(function(sweepData) {
+            .done(function() {
                 if (self.sweepData['balance'] === 0) {
                     //no funds found
                     deferred.reject("No funds found after searching through " + self.sweepData['addressesSearched'] + " addresses");
@@ -460,7 +480,7 @@ WalletSweeper.prototype.sweepWallet = function (destinationAddress, cb) {
  * @param fee                       a specific transaction fee to use (optional: if null, fee will be estimated)
  * @param deferred                  a deferred promise object, used for giving progress updates (optional)
  */
-WalletSweeper.prototype.createTransaction = function (destinationAddress, fee, deferred) {
+WalletSweeper.prototype.createTransaction = function(destinationAddress, fee, deferred) {
     var self = this;
     if (this.settings.logging) {
         console.log("Creating transaction to address destinationAddress");
@@ -475,17 +495,17 @@ WalletSweeper.prototype.createTransaction = function (destinationAddress, fee, d
     var rawTransaction = new bitcoin.TransactionBuilder();
     var inputs = [];
     _.each(this.sweepData['utxos'], function(data, address) {
-        _.each(data.utxos, function(utxo, index) {
+        _.each(data.utxos, function(utxo) {
             rawTransaction.addInput(utxo['hash'], utxo['index']);
             inputs.push({
-                 txid:         utxo['hash'],
-                 vout:         utxo['index'],
-                 scriptPubKey: utxo['script_hex'],
-                 value:        utxo['value'],
-                 address:      address,
-                 path:         data['path'],
-                 redeemScript: data['redeem']
-             });
+                txid:         utxo['hash'],
+                vout:         utxo['index'],
+                scriptPubKey: utxo['script_hex'],
+                value:        utxo['value'],
+                address:      address,
+                path:         data['path'],
+                redeemScript: data['redeem']
+            });
         });
     });
     if (!rawTransaction) {
@@ -495,7 +515,7 @@ WalletSweeper.prototype.createTransaction = function (destinationAddress, fee, d
     var sendAmount = self.sweepData['balance'];
     var outputIdx = rawTransaction.addOutput(destinationAddress, sendAmount);
 
-    if (typeof fee == "undefined" || fee == null) {
+    if (typeof fee === "undefined" || fee === null) {
         //estimate the fee and reduce it's value from the output
         if (deferred) {
             deferred.notify({
@@ -515,7 +535,7 @@ WalletSweeper.prototype.createTransaction = function (destinationAddress, fee, d
     return this.signTransaction(rawTransaction, inputs);
 };
 
-WalletSweeper.prototype.signTransaction = function (rawTransaction, inputs) {
+WalletSweeper.prototype.signTransaction = function(rawTransaction, inputs) {
     var self = this;
     if (this.settings.logging) {
         console.log("Signing transaction");

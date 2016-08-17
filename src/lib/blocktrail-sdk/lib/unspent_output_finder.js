@@ -7,7 +7,7 @@ var async = require('async');
  * @param options
  * @constructor
  */
-var UnspentOutputFinder = function (bitcoinDataClient, options) {
+var UnspentOutputFinder = function(bitcoinDataClient, options) {
     this.defaultSettings = {
         logging: false,
         batchChunkSize: 200
@@ -22,14 +22,14 @@ var UnspentOutputFinder = function (bitcoinDataClient, options) {
  * @param addresses         an array of addresses to find unspent output for
  * @returns {q.Promise}     resolves with an object (associative array) of unspent outputs for each address with a spendable balance
  */
-UnspentOutputFinder.prototype.getUTXOs = function (addresses) {
+UnspentOutputFinder.prototype.getUTXOs = function(addresses) {
     var self = this;
     var results = {};
 
     var deferred = q.defer();
 
     //do batch if the bitcoin service supports it...
-    async.eachSeries(_.chunk(addresses, self.settings.batchChunkSize), function (addressBatch, done) {
+    async.eachSeries(_.chunk(addresses, self.settings.batchChunkSize), function(addressBatch, done) {
         if (self.settings.logging) {
             console.log("checking batch of " + addressBatch.length + " addresses for UTXOs", addressBatch.join(","));
         }

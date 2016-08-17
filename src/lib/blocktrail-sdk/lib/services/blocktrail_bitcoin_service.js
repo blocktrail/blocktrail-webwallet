@@ -1,4 +1,4 @@
-var blocktrailSDK = require('../api_client');
+var BlocktrailSDK = require('../api_client');
 var _ = require('lodash');
 var q = require('q');
 var async = require('async');
@@ -8,7 +8,7 @@ var async = require('async');
  * @param options
  * @constructor
  */
-var BlocktrailBitcoinService = function (options) {
+var BlocktrailBitcoinService = function(options) {
     this.defaultSettings = {
         apiKey:      null,
         apiSecret:   null,
@@ -27,7 +27,7 @@ var BlocktrailBitcoinService = function (options) {
     this.settings.network = networkSettings.network;
     this.settings.testnet = networkSettings.testnet;
 
-    this.client = new blocktrailSDK(this.settings);
+    this.client = new BlocktrailSDK(this.settings);
 };
 
 BlocktrailBitcoinService.prototype.normaliseNetwork =  function(network, testnet) {
@@ -39,6 +39,7 @@ BlocktrailBitcoinService.prototype.normaliseNetwork =  function(network, testnet
             } else {
                 return {network: "BTC", testnet: false};
             }
+        break;
         case 'tbtc':
         case 'bitcoin-testnet':
             return {network: "BTC", testnet: true};
@@ -52,12 +53,14 @@ BlocktrailBitcoinService.prototype.setPaginationLimit = function(limit) {
 };
 
 /**
- * gets unspent outputs for a batch of addresses, returning an array of outputs with hash, index, value, and script pub hex mapped to each corresponding address
+ * gets unspent outputs for a batch of addresses, returning an array of outputs with hash, index,
+ * value, and script pub hex mapped to each corresponding address
  *
- * @param {array} addresses   array of addresses
- * @returns {q.Promise}     promise resolves with array of unspent outputs mapped to addresses as { address: [{"hash": hash, "index": index, "value": value, "script_hex": scriptHex}]}
+ * @param {array} addresses array of addresses
+ * @returns {q.Promise}     promise resolves with array of unspent outputs mapped to addresses as
+ *                          { address: [{"hash": hash, "index": index, "value": value, "script_hex": scriptHex}]}
  */
-BlocktrailBitcoinService.prototype.getBatchUnspentOutputs = function (addresses) {
+BlocktrailBitcoinService.prototype.getBatchUnspentOutputs = function(addresses) {
     var self = this;
     var deferred = q.defer();
 
@@ -85,16 +88,16 @@ BlocktrailBitcoinService.prototype.getBatchUnspentOutputs = function (addresses)
         return results && results['data'].length > 0;
     }, function(err) {
         //all done
-        if(err) {
+        if (err) {
             console.log("complete, but with errors", err.message);
         }
 
         var batchResults = {};  //utxos mapped to addresses
         //reduce the returned data into the values we're interested in, and map to the relevant addresses
-        utxos.forEach(function(utxo, index) {
+        utxos.forEach(function(utxo) {
             var address = utxo['address'];
 
-            if (typeof batchResults[address] == "undefined") {
+            if (typeof batchResults[address] === "undefined") {
                 batchResults[address] = [];
             }
 
@@ -115,7 +118,7 @@ BlocktrailBitcoinService.prototype.getBatchUnspentOutputs = function (addresses)
  * @param {array} addresses   array of addresses
  * @returns {q.Promise}
  */
-BlocktrailBitcoinService.prototype.batchAddressHasTransactions = function (addresses) {
+BlocktrailBitcoinService.prototype.batchAddressHasTransactions = function(addresses) {
     var self = this;
 
     return self.client.batchAddressHasTransactions(addresses)

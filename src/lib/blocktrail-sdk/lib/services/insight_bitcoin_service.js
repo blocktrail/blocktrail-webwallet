@@ -2,14 +2,13 @@ var blocktrail = require('../blocktrail');
 var request = require('superagent');
 var _ = require('lodash');
 var q = require('q');
-var async = require('async');
 
 /**
  *
  * @param options
  * @constructor
  */
-var InsightBitcoinService = function (options) {
+var InsightBitcoinService = function(options) {
     this.defaultSettings = {
         testnet:    false,
 
@@ -17,22 +16,17 @@ var InsightBitcoinService = function (options) {
         retryDelay:  20
     };
     this.settings = _.merge({}, this.defaultSettings, options);
-
-    var httpOptions = {
-        https: true,
-        host: '',
-        port: '',
-        endpoint: (this.settings.testnet ? 'test-' : '') + 'insight.bitpay.com/api/'
-    };
 };
 
 /**
- * gets unspent outputs for a batch of addresses, returning an array of outputs with hash, index, value, and script pub hex mapped to each corresponding address
+ * gets unspent outputs for a batch of addresses, returning an array of outputs with hash, index, value,
+ * and script pub hex mapped to each corresponding address
  *
- * @param {array} addresses   array of addresses
- * @returns {q.Promise}     promise resolves with array of unspent outputs mapped to addresses as { address: [{"hash": hash, "index": index, "value": value, "script_hex": scriptHex}]}
+ * @param {array} addresses array of addresses
+ * @returns {q.Promise}     promise resolves with array of unspent outputs mapped to addresses as
+ *                          { address: [{"hash": hash, "index": index, "value": value, "script_hex": scriptHex}]}
  */
-InsightBitcoinService.prototype.getBatchUnspentOutputs = function (addresses) {
+InsightBitcoinService.prototype.getBatchUnspentOutputs = function(addresses) {
     var self = this;
     var deferred = q.defer();
 
@@ -42,10 +36,10 @@ InsightBitcoinService.prototype.getBatchUnspentOutputs = function (addresses) {
         var batchResults = {};  //utxos mapped to addresses
 
         //reduce the returned data into the values we're interested in, and map to the relevant addresses
-        results.forEach(function(utxo, index) {
+        results.forEach(function(utxo) {
             var address = utxo['address'];
 
-            if (typeof batchResults[address] == "undefined") {
+            if (typeof batchResults[address] === "undefined") {
                 batchResults[address] = [];
             }
 
@@ -72,7 +66,7 @@ InsightBitcoinService.prototype.getBatchUnspentOutputs = function (addresses) {
  * @param {array} addresses   array of addresses
  * @returns {q.Promise}
  */
-InsightBitcoinService.prototype.batchAddressHasTransactions = function (addresses) {
+InsightBitcoinService.prototype.batchAddressHasTransactions = function(addresses) {
     var self = this;
 
     var data = {"addrs": addresses.join(',')};
@@ -83,7 +77,7 @@ InsightBitcoinService.prototype.batchAddressHasTransactions = function (addresse
     ;
 };
 
-InsightBitcoinService.prototype.postRequest = function (url, data) {
+InsightBitcoinService.prototype.postRequest = function(url, data) {
     var deferred = q.defer();
     request
         .post(url)
