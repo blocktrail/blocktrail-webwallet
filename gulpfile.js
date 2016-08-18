@@ -23,6 +23,31 @@ var fontello = require('gulp-fontello');
 var isWatch = false;
 var isLiveReload = process.argv.indexOf('--live-reload') !== -1 || process.argv.indexOf('--livereload') !== -1;
 
+/**
+ * helper to wrap a stream with a promise for easy chaining
+ * @param stream
+ * @returns {Q.Promise}
+ */
+var streamAsPromise = function(stream) {
+    var def = Q.defer();
+
+    stream
+        .on('end', function() {
+            def.resolve();
+        })
+        .on('error', function(e) {
+            def.reject(e);
+        })
+    ;
+
+    return def.promise;
+};
+
+/**
+ * build appconfig from .json files
+ *
+ * @returns {Q.Promise}
+ */
 var buildAppConfig = function() {
     var def = Q.defer();
 
@@ -109,14 +134,14 @@ gulp.task('templates:index', ['appconfig'], function() {
                 }
             })
         })).then(function() {
-            return gulp.src("./src/index.html")
+            return streamAsPromise(gulp.src("./src/index.html")
                 .pipe(template({
                     VERSION: APPCONFIG.VERSION,
                     APPCONFIG_JSON: JSON.stringify(APPCONFIG),
                     TRANSLATIONS: JSON.stringify(translations)
                 }))
                 .pipe(gulp.dest("./www"))
-            ;
+            );
         });
     });
 });
@@ -124,16 +149,16 @@ gulp.task('templates:index', ['appconfig'], function() {
 gulp.task('templates:rest', ['appconfig'], function() {
 
     return appConfig.then(function(APPCONFIG) {
-        return gulp.src("./src/templates/**/*")
+        return streamAsPromise(gulp.src("./src/templates/**/*")
             .pipe(gulp.dest("./www/templates"))
-        ;
+        );
     });
 });
 
 gulp.task('js:libs', ['appconfig'], function() {
 
     return appConfig.then(function(APPCONFIG) {
-        return gulp.src([
+        return streamAsPromise(gulp.src([
             "./src/lib/q/q.js",
             "./src/lib/angular/angular.js",
             "./src/lib/ionic-service-core/ionic-core.js",
@@ -161,14 +186,14 @@ gulp.task('js:libs', ['appconfig'], function() {
             .pipe(concat('libs.js'))
             .pipe(gulpif(APPCONFIG.MINIFY, uglify()))
             .pipe(gulp.dest('./www/js/'))
-        ;
+        );
     });
 });
 
 gulp.task('js:app', ['appconfig'], function() {
 
     return appConfig.then(function(APPCONFIG) {
-        return gulp.src([
+        return streamAsPromise(gulp.src([
             './src/js/**/*.js',
             '!./src/js/workers/*.js'
         ])
@@ -188,26 +213,26 @@ gulp.task('js:app', ['appconfig'], function() {
             })
             .pipe(gulpif(APPCONFIG.MINIFY, uglify()))
             .pipe(gulp.dest('./www/js/'))
-        ;
+        );
     });
 });
 
 gulp.task('js:webworkers', ['appconfig'], function() {
 
     return appConfig.then(function(APPCONFIG) {
-        return gulp.src([
+        return streamAsPromise(gulp.src([
             "./src/js/workers/*.js"
         ])
             .pipe(gulpif(APPCONFIG.MINIFY, uglify()))
             .pipe(gulp.dest('./www/js/'))
-        ;
+        );
     });
 });
 
 gulp.task('js:sdk', ['appconfig'], function() {
 
     return appConfig.then(function(APPCONFIG) {
-        return gulp.src([
+        return streamAsPromise(gulp.src([
             "./src/lib/blocktrail-sdk/build/blocktrail-sdk-full.js"
         ])
             .pipe(concat('sdk.js'))
@@ -217,19 +242,19 @@ gulp.task('js:sdk', ['appconfig'], function() {
                 }
             })))
             .pipe(gulp.dest('./www/js/'))
-        ;
+        );
     });
 });
 
 var sassTask = function() {
 
     return appConfig.then(function(APPCONFIG) {
-        return gulp.src('./src/sass/app.scss')
+        return streamAsPromise(gulp.src('./src/sass/app.scss')
             .pipe(sass({errLogToConsole: true}))
             .pipe(gulp.dest('./www/css/'))
             .pipe(gulpif(APPCONFIG.MINIFY, minifyCss({keepSpecialComments: 0})))
             .pipe(gulp.dest('./www/css/'))
-        ;
+        );
     });
 };
 
@@ -242,7 +267,7 @@ gulp.task('sassfontello', ['appconfig', 'fontello', 'css-rename'], sassTask);
  */
 gulp.task('css-rename', function() {
 
-    return gulp.src([
+    return streamAsPromise(gulp.src([
         './src/lib/angular-toggle-switch/angular-toggle-switch.css',
         './src/lib/angular-toggle-switch/angular-toggle-switch-bootstrap.css'
     ], { base: process.cwd() })
@@ -250,30 +275,30 @@ gulp.task('css-rename', function() {
             extname: ".scss"
         }))
         .pipe(gulp.dest('./')) // back where you came from
-    ;
+    );
 });
 
 gulp.task('fontello-dl', function() {
 
-    return gulp.src('./fontello.json')
+    return streamAsPromise(gulp.src('./fontello.json')
         .pipe(fontello())
         .pipe(gulp.dest('./www/fontello/'))
-    ;
+    );
 });
 
 gulp.task('fontello-rename', ['fontello-dl'], function() {
 
-    return gulp.src(['./www/fontello/css/fontello.css'])
+    return streamAsPromise(gulp.src(['./www/fontello/css/fontello.css'])
         .pipe(rename('_fontello.scss'))
         .pipe(gulp.dest('./www/fontello/css'))
-    ;
+    );
 });
 
 gulp.task('fontello', ['fontello-dl', 'fontello-rename'], function() {
 
-    return gulp.src('./www/fontello/font/*')
+    return streamAsPromise(gulp.src('./www/fontello/font/*')
         .pipe(gulp.dest('./www/font'))
-    ;
+    );
 });
 
 gulp.task('watch', function() {
@@ -327,3 +352,4 @@ gulp.task('default:livereload', ['default'], function() {
 gulp.task('js', ['js:libs', 'js:app', 'js:sdk', 'js:webworkers']);
 gulp.task('templates', ['templates:index', 'templates:rest']);
 gulp.task('default', ['sassfontello', 'templates', 'js']);
+gulp.task('nofontello', ['sass', 'templates', 'js']);
