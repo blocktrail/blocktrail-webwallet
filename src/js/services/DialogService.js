@@ -1,6 +1,6 @@
 angular.module('blocktrail.wallet').factory(
     'dialogService',
-    function($modal, $rootScope) {
+    function($modal, $rootScope, CONFIG) {
         var DialogService = function() {
             var self = this;
 
@@ -31,7 +31,7 @@ angular.module('blocktrail.wallet').factory(
 
             var modalInstance = $modal.open({
                 controller: 'DialogAlertCtrl',
-                templateUrl: 'templates/dialog/dialog.alert.html',
+                templateUrl: CONFIG.STATICSDIR + '/templates/dialog/dialog.alert.html',
                 size: typeof message.size || 'md',
                 backdrop: typeof message.backdrop !== "undefined" ? message.backdrop : defaultBackdrop,
                 resolve: {
@@ -115,7 +115,7 @@ angular.module('blocktrail.wallet').factory(
 
             var modalInstance = $modal.open({
                 controller: 'DialogPromptCtrl',
-                templateUrl: 'templates/dialog/dialog.prompt.html',
+                templateUrl: CONFIG.STATICSDIR + '/templates/dialog/dialog.prompt.html',
                 size: typeof message.size || 'md',
                 backdrop: typeof message.backdrop !== "undefined" ? message.backdrop : defaultBackdrop,
                 resolve: {

@@ -7,6 +7,7 @@
     "bower": "^1.3.3",
     "git-rev": "^0.2.1",
     "gulp": "^3.9.0",
+    "gulp-clean": "^0.3.2",
     "gulp-concat": "^2.5.2",
     "gulp-fontello": "git://github.com/blocktrail/gulp-fontello.git#blocktrail",
     "gulp-if": "^1.2.5",

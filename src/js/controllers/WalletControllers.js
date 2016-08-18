@@ -81,7 +81,7 @@ angular.module('blocktrail.wallet')
 );
 
 angular.module('blocktrail.wallet')
-    .controller('WalletSummaryCtrl', function($scope, $rootScope, $state, $log, $filter, $http, $q, $timeout, Wallet, $translate, $modal) {
+    .controller('WalletSummaryCtrl', function($scope, $rootScope, $state, $log, $filter, $http, $q, $timeout, Wallet, $translate, $modal, CONFIG) {
         $rootScope.pageTitle = 'TRANSACTIONS';
         // update balance from cache
         $scope.transactionsList         = [];   //original list of transactions
@@ -212,7 +212,7 @@ angular.module('blocktrail.wallet')
         $scope.showTransaction = function(transaction) {
             $modal.open({
                 controller: 'WalletTxInfoCtrl',
-                templateUrl: 'templates/wallet/wallet.tx-info.modal.html',
+                templateUrl: CONFIG.STATICSDIR + '/templates/wallet/wallet.tx-info.modal.html',
                 resolve: {
                     data: function() {
                         return transaction
