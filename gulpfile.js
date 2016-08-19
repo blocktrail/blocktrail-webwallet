@@ -18,8 +18,8 @@ var Q = require('q');
 var gulpif = require('gulp-if');
 var notifier = require('node-notifier');
 var livereload = require('gulp-livereload');
-var clean = require('gulp-clean');
 var fontello = require('gulp-fontello');
+var del = require('del');
 
 var isWatch = false;
 var isLiveReload = process.argv.indexOf('--live-reload') !== -1 || process.argv.indexOf('--livereload') !== -1;
@@ -287,9 +287,9 @@ gulp.task('fontello-rename', ['fontello-dl'], function() {
 
 gulp.task('fontello-clean', ['fontello-rename'], function() {
 
-    return streamAsPromise(gulp.src(['./www/fontello/css/*.css'])
-        .pipe(clean())
-    );
+    return del([
+        './www/fontello/css/*.css'
+    ]);
 });
 
 gulp.task('fontello', ['fontello-dl', 'fontello-rename', 'fontello-clean'], function() {
