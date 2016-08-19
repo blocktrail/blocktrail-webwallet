@@ -110,7 +110,7 @@ angular.module('blocktrail.wallet')
                 .then(function() {
                     var modalInstance = $modal.open({
                         controller: 'SendConfirmCtrl',
-                        templateUrl: CONFIG.STATICSDIR + '/templates/send/dialog.send-confirm.html',
+                        templateUrl: CONFIG.STATICSURL + '/templates/send/dialog.send-confirm.html',
                         size: 'md',
                         backdrop: 'static',
                         resolve: {

@@ -212,7 +212,7 @@ angular.module('blocktrail.wallet')
         $scope.showTransaction = function(transaction) {
             $modal.open({
                 controller: 'WalletTxInfoCtrl',
-                templateUrl: CONFIG.STATICSDIR + '/templates/wallet/wallet.tx-info.modal.html',
+                templateUrl: CONFIG.STATICSURL + '/templates/wallet/wallet.tx-info.modal.html',
                 resolve: {
                     data: function() {
                         return transaction
