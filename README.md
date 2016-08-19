@@ -46,6 +46,12 @@ Keep this in mind when adding / updating translations, don't forget to commit th
 
 It's okay to do PRs without bumping the translations submodule, we'll handle that before doing releases!
 
+## Statics & CDN
+Statics are compiled with `gulp` and with default config into `www/dev`, 
+if `STATICSDIR` in `appconfig.json` is set to `NULL` however it will use `www/${branch}-${commit}` to keep statics versioned.
+
+with `./scripts/upload_to_oss.sh` statics are pushed to the CDN backend.
+
 ## License
 The Blocktrail Wallet source code is released under the GNU Affero General Public License.  
 The Blocktrail Logo and any other images / graphics are not part of this.  
