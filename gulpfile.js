@@ -74,6 +74,13 @@ var buildAppConfig = function() {
             }
 
             config.STATICSDIR = config.STATICSDIR || config.VERSION.replace(":", "-");
+            if (config.CDN) {
+                if (config.CDN.substr(-1) != "/") throw new Error("CDN should have trailing /");
+                config.STATICSURL = config.CDN + config.STATICSDIR;
+            } else {
+                config.STATICSURL = config.STATICSDIR;
+            }
+
 
             def.resolve(config);
         });
@@ -87,6 +94,12 @@ var appConfig = Q.fcall(buildAppConfig);
 gulp.task('appconfig', function() {
     appConfig = Q.fcall(buildAppConfig); // refresh the promise with a new build
     return appConfig;
+});
+
+gulp.task('appconfig:print', ['appconfig'], function() {
+    return appConfig.then(function(APPCONFIG) {
+        console.log(JSON.stringify(APPCONFIG));
+    });
 });
 
 gulp.task('templates:index', ['appconfig'], function() {
@@ -141,6 +154,7 @@ gulp.task('templates:index', ['appconfig'], function() {
                 .pipe(template({
                     VERSION: APPCONFIG.VERSION,
                     STATICSDIR: APPCONFIG.STATICSDIR,
+                    STATICSURL: APPCONFIG.STATICSURL,
                     APPCONFIG_JSON: JSON.stringify(APPCONFIG),
                     TRANSLATIONS: JSON.stringify(translations)
                 }))

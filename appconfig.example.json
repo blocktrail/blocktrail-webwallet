@@ -1,5 +1,10 @@
 {
     "DEBUG": true,
     "MINIFY": false,
-    "TESTNET": true
+    "TESTNET": true,
+
+    "STATICSDIR": null, // auto detect
+    // "CDN": "https://btcstatic.oss-cn-hangzhou.aliyuncs.com/wallet/www/",
+
+    "NULL": null // just here so we can have a trailing , on every line
 }
