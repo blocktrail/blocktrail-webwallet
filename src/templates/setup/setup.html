@@ -1,64 +1,7 @@
 <div class="fill-height-or-more">
-    <nav class="navbar">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse"
-                        data-target="#blocktrail-webwallet-nav">
-                    <i class="bticon  bticon-arrow-down-circle-o"></i>
-                </button>
-                <a class="navbar-brand" ng-href="{{ CONFIG.HOMEPAGE_URL }}" target="_self"><img src="{{ CONFIG.STATICSURL }}/img/btccom-logo.png"/></a>
-            </div>
-            <div class="collapse navbar-collapse" id="blocktrail-webwallet-nav">
-                <div>
-                    <ul class="nav navbar-nav">
-                        <li class="active">
-                            <a ng-if="!$state.includes('app.wallet')" href class="capitalise">
-                                Wallet
-                            </a>
-                            <a ng-if="$state.includes('app.wallet')" ui-sref="app.wallet.summary" class="capitalise">
-                                Wallet
-                            </a>
-                        </li>
-                        <li>
-                            <a ng-href="{{ CONFIG.EXPLORER_URL }}" target="_self" class="capitalise">
-                                Explorer
-                            </a>
-                        </li>
-                        <li>
-                            <a ng-href="{{ CONFIG.DEVELOPERS_URL }}" target="_self" class="capitalise">
-                                Developer
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="navbar-right">
-                    <ul ng-if="$state.includes('app.wallet')" class="nav navbar-nav navbar-right">
-                        <li>
-                            <a ui-sref="app.logout" class="capitalise">
-                                {{ 'LOGOUT' | translate }}
-                            </a>
-                        </li>
-                    </ul>
+    <div ng-include="'templates/common/navbar.html'"></div>
 
-                    <ul ng-if="!$state.includes('app.wallet')" class="nav navbar-nav navbar-right">
-                        <li ng-class="{'active' : $state.is('app.setup.register')}">
-                            <a ui-sref="app.setup.register">
-                                Sign Up
-                            </a>
-                        </li>
-                        <li ng-class="{'active' : $state.is('app.setup.login')}">
-                            <a ui-sref="app.setup.login">
-                                Login
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-            </div>
-        </div>
-    </nav>
-
-    <div ui-view></div>
+    <div class="fill-height-or-more" ui-view></div>
 
     <div ng-include="'templates/common/footer.html'"></div>
 </div>
