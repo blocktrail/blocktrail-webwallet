@@ -19,6 +19,7 @@ var gulpif = require('gulp-if');
 var notifier = require('node-notifier');
 var livereload = require('gulp-livereload');
 var fontello = require('gulp-fontello');
+var del = require('del');
 
 var isWatch = false;
 var isLiveReload = process.argv.indexOf('--live-reload') !== -1 || process.argv.indexOf('--livereload') !== -1;
@@ -72,6 +73,15 @@ var buildAppConfig = function() {
                 config.API_URL = "https://" + config.API_HOST;
             }
 
+            config.STATICSDIR = config.STATICSDIR || config.VERSION.replace(":", "-");
+            if (config.CDN) {
+                if (config.CDN.substr(-1) != "/") throw new Error("CDN should have trailing /");
+                config.STATICSURL = config.CDN + config.STATICSDIR;
+            } else {
+                config.STATICSURL = config.STATICSDIR;
+            }
+
+
             def.resolve(config);
         });
     });
@@ -84,6 +94,12 @@ var appConfig = Q.fcall(buildAppConfig);
 gulp.task('appconfig', function() {
     appConfig = Q.fcall(buildAppConfig); // refresh the promise with a new build
     return appConfig;
+});
+
+gulp.task('appconfig:print', ['appconfig'], function() {
+    return appConfig.then(function(APPCONFIG) {
+        console.log(JSON.stringify(APPCONFIG));
+    });
 });
 
 gulp.task('templates:index', ['appconfig'], function() {
@@ -137,6 +153,8 @@ gulp.task('templates:index', ['appconfig'], function() {
             return streamAsPromise(gulp.src("./src/index.html")
                 .pipe(template({
                     VERSION: APPCONFIG.VERSION,
+                    STATICSDIR: APPCONFIG.STATICSDIR,
+                    STATICSURL: APPCONFIG.STATICSURL,
                     APPCONFIG_JSON: JSON.stringify(APPCONFIG),
                     TRANSLATIONS: JSON.stringify(translations)
                 }))
@@ -150,7 +168,7 @@ gulp.task('templates:rest', ['appconfig'], function() {
 
     return appConfig.then(function(APPCONFIG) {
         return streamAsPromise(gulp.src("./src/templates/**/*")
-            .pipe(gulp.dest("./www/templates"))
+            .pipe(gulp.dest("./www/" + APPCONFIG.STATICSDIR + "/templates"))
         );
     });
 });
@@ -185,7 +203,7 @@ gulp.task('js:libs', ['appconfig'], function() {
         ])
             .pipe(concat('libs.js'))
             .pipe(gulpif(APPCONFIG.MINIFY, uglify()))
-            .pipe(gulp.dest('./www/js/'))
+            .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
         );
     });
 });
@@ -194,8 +212,7 @@ gulp.task('js:app', ['appconfig'], function() {
 
     return appConfig.then(function(APPCONFIG) {
         return streamAsPromise(gulp.src([
-            './src/js/**/*.js',
-            '!./src/js/workers/*.js'
+            './src/js/**/*.js'
         ])
             .pipe(concat('app.js'))
             .pipe(ngAnnotate())
@@ -212,19 +229,7 @@ gulp.task('js:app', ['appconfig'], function() {
                 }
             })
             .pipe(gulpif(APPCONFIG.MINIFY, uglify()))
-            .pipe(gulp.dest('./www/js/'))
-        );
-    });
-});
-
-gulp.task('js:webworkers', ['appconfig'], function() {
-
-    return appConfig.then(function(APPCONFIG) {
-        return streamAsPromise(gulp.src([
-            "./src/js/workers/*.js"
-        ])
-            .pipe(gulpif(APPCONFIG.MINIFY, uglify()))
-            .pipe(gulp.dest('./www/js/'))
+            .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
         );
     });
 });
@@ -241,7 +246,7 @@ gulp.task('js:sdk', ['appconfig'], function() {
                     except: ['Buffer', 'BigInteger', 'Point', 'Script', 'ECPubKey', 'ECKey']
                 }
             })))
-            .pipe(gulp.dest('./www/js/'))
+            .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
         );
     });
 });
@@ -251,9 +256,9 @@ var sassTask = function() {
     return appConfig.then(function(APPCONFIG) {
         return streamAsPromise(gulp.src('./src/sass/app.scss')
             .pipe(sass({errLogToConsole: true}))
-            .pipe(gulp.dest('./www/css/'))
+            .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/css/'))
             .pipe(gulpif(APPCONFIG.MINIFY, minifyCss({keepSpecialComments: 0})))
-            .pipe(gulp.dest('./www/css/'))
+            .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/css/'))
         );
     });
 };
@@ -294,11 +299,20 @@ gulp.task('fontello-rename', ['fontello-dl'], function() {
     );
 });
 
-gulp.task('fontello', ['fontello-dl', 'fontello-rename'], function() {
+gulp.task('fontello-clean', ['fontello-rename'], function() {
 
-    return streamAsPromise(gulp.src('./www/fontello/font/*')
-        .pipe(gulp.dest('./www/font'))
-    );
+    return del([
+        './www/fontello/css/*.css'
+    ]);
+});
+
+gulp.task('fontello', ['fontello-dl', 'fontello-rename', 'fontello-clean'], function() {
+
+    return appConfig.then(function(APPCONFIG) {
+        return streamAsPromise(gulp.src('./www/fontello/font/*')
+            .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/font'))
+        );
+    });
 });
 
 gulp.task('watch', function() {
@@ -310,8 +324,7 @@ gulp.task('watch', function() {
 
     gulp.watch(['./fontello.json'], ['fontello:livereload']);
     gulp.watch(['./src/sass/**/*.scss', './www/fontello/**/*'], ['sass:livereload']);
-    gulp.watch(['./src/js/**/*.js', '!./src/js/workers/*.js'], ['js:app:livereload']);
-    gulp.watch(['./src/js/workers/*.js'], ['js:webworkers:livereload']);
+    gulp.watch(['./src/js/**/*.js'], ['js:app:livereload']);
     gulp.watch(['./src/lib/**/*.js'], ['js:libs:livereload', 'js:sdk:livereload']);
     gulp.watch(['./src/templates/**/*', './src/index.html'], ['templates:livereload']);
     gulp.watch(['./appconfig.json', './appconfig.default.json'], ['default:livereload']);
@@ -326,10 +339,6 @@ gulp.task('sass:livereload', ['sass'], function() {
 });
 
 gulp.task('js:app:livereload', ['js:app'], function() {
-    livereload.reload();
-});
-
-gulp.task('js:webworkers:livereload', ['js:webworkers'], function() {
     livereload.reload();
 });
 
@@ -349,7 +358,7 @@ gulp.task('default:livereload', ['default'], function() {
     livereload.reload();
 });
 
-gulp.task('js', ['js:libs', 'js:app', 'js:sdk', 'js:webworkers']);
+gulp.task('js', ['js:libs', 'js:app', 'js:sdk']);
 gulp.task('templates', ['templates:index', 'templates:rest']);
 gulp.task('default', ['sassfontello', 'templates', 'js']);
 gulp.task('nofontello', ['sass', 'templates', 'js']);

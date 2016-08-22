@@ -1,6 +1,6 @@
 angular.module('blocktrail.wallet')
     .controller('SendCtrl', function($scope, $log, $modal, CurrencyConverter, Contacts, Wallet, $timeout, dialogService,
-                                     QR, $q, $state, $rootScope, $translate, launchService) {
+                                     QR, $q, $state, $rootScope, $translate, launchService, CONFIG) {
         //$scope.fiatFirst = false;
         $rootScope.pageTitle = 'SEND';
         $scope.sendInput = {
@@ -110,7 +110,7 @@ angular.module('blocktrail.wallet')
                 .then(function() {
                     var modalInstance = $modal.open({
                         controller: 'SendConfirmCtrl',
-                        templateUrl: 'templates/send/dialog.send-confirm.html',
+                        templateUrl: CONFIG.STATICSURL + '/templates/send/dialog.send-confirm.html',
                         size: 'md',
                         backdrop: 'static',
                         resolve: {

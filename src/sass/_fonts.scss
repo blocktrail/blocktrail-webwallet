@@ -10,25 +10,25 @@ $bold: 700;
     font-family: 'Open Sans';
     font-style: normal;
     font-weight: $light;
-    src: url(../font/Open-Sans-300.woff) format('woff');
+    src: url(#{$wwwdir}/font/Open-Sans-300.woff) format('woff');
 }
 @font-face {
     font-family: 'Open Sans';
     font-style: normal;
     font-weight: $normal;
-    src: local('Open Sans'), local('OpenSans'), url(../font/Open-Sans-400.woff) format('woff');
+    src: local('Open Sans'), local('OpenSans'), url(#{$wwwdir}/font/Open-Sans-400.woff) format('woff');
 }
 @font-face {
     font-family: 'Open Sans';
     font-style: normal;
     font-weight: $semi-bold;
-    src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(../font/Open-Sans-600.woff) format('woff');
+    src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(#{$wwwdir}/font/Open-Sans-600.woff) format('woff');
 }
 @font-face {
     font-family: 'Open Sans';
     font-style: normal;
     font-weight: $bold;
-    src: local('Open Sans'), local('OpenSans'), url(../font/Open-Sans-700.woff) format('woff');
+    src: local('Open Sans'), local('OpenSans'), url(#{$wwwdir}/font/Open-Sans-700.woff) format('woff');
 }
 
 /*
@@ -41,25 +41,25 @@ $bold: 700;
     font-family: 'Neo Sans Pro';
     font-style: normal;
     font-weight: $light;
-    src: url(../font/Open-Sans-300.woff) format('woff');
+    src: url(#{$wwwdir}/font/Open-Sans-300.woff) format('woff');
 }
 @font-face {
     font-family: 'Neo Sans Pro';
     font-style: normal;
     font-weight: $normal;
-    src: local('Neo Sans Pro'), local('Neo Sans Pro Regular'), local('Neo-Sans-Pro-Regular'), local('NeoSansPro'), url(../font/Neo-Sans-Pro.ttf) format('truetype');
+    src: local('Neo Sans Pro'), local('Neo Sans Pro Regular'), local('Neo-Sans-Pro-Regular'), local('NeoSansPro'), url(#{$wwwdir}/font/Neo-Sans-Pro.ttf) format('truetype');
 }
 @font-face {
     font-family: 'Neo Sans Pro';
     font-style: normal;
     font-weight: $semi-bold;
-    src: local('Neo Sans Pro Medium'), local('Neo-Sans-Pro-Medium'), local('NeoSansProMedium'), url(../font/Neo-Sans-Pro-Medium.ttf) format('truetype');
+    src: local('Neo Sans Pro Medium'), local('Neo-Sans-Pro-Medium'), local('NeoSansProMedium'), url(#{$wwwdir}/font/Neo-Sans-Pro-Medium.ttf) format('truetype');
 }
 @font-face {
     font-family: 'Neo Sans Pro';
     font-style: normal;
     font-weight: $bold;
-    src: local('Neo Sans Pro Bold'), local('Neo-Sans-Pro-Bold'), local('NeoSansProBold'), url(../font/Neo-Sans-Pro-Bold.ttf) format('truetype');
+    src: local('Neo Sans Pro Bold'), local('Neo-Sans-Pro-Bold'), local('NeoSansProBold'), url(#{$wwwdir}/font/Neo-Sans-Pro-Bold.ttf) format('truetype');
 }
 
 /*
@@ -69,20 +69,20 @@ $bold: 700;
     font-family: 'Lato';
     font-style: normal;
     font-weight: $light;
-    src: local('Lato Light'), local('Lato-Light'), local('LatoLight'), url(../font/Lato-Light.woff2) format('woff2'), url(../font/Lato-Light.woff) format('woff');
+    src: local('Lato Light'), local('Lato-Light'), local('LatoLight'), url(#{$wwwdir}/font/Lato-Light.woff2) format('woff2'), url(#{$wwwdir}/font/Lato-Light.woff) format('woff');
 }
 @font-face {
     font-family: 'Lato';
     font-style: normal;
     font-weight: $normal;
-    src: local('Lato'), local('Lato Regular'), local('Lato-Regular'), local('LatoRegular'), url(../font/Lato-Regular.woff2) format('woff2'), url(../font/Lato-Regular.woff) format('woff');
+    src: local('Lato'), local('Lato Regular'), local('Lato-Regular'), local('LatoRegular'), url(#{$wwwdir}/font/Lato-Regular.woff2) format('woff2'), url(#{$wwwdir}/font/Lato-Regular.woff) format('woff');
 }
 // NO SEMI BOLD
 @font-face {
     font-family: 'Lato';
     font-style: normal;
     font-weight: $bold;
-    src: local('Lato'), local('Lato Bold'), local('Lato-Bold'), local('LatoBold'), url(../font/Lato-Bold.woff2) format('woff2'), url(../font/Lato-Bold.woff) format('woff');
+    src: local('Lato'), local('Lato Bold'), local('Lato-Bold'), local('LatoBold'), url(#{$wwwdir}/font/Lato-Bold.woff2) format('woff2'), url(#{$wwwdir}/font/Lato-Bold.woff) format('woff');
 }
 
 /*
@@ -92,11 +92,11 @@ $bold: 700;
     font-family: 'Roboto';
     font-style: normal;
     font-weight: 400;
-    src: local('Roboto'), local('Roboto-Regular'), url(../font/Roboto-400.woff2) format('woff2');
+    src: local('Roboto'), local('Roboto-Regular'), url(#{$wwwdir}/font/Roboto-400.woff2) format('woff2');
 }
 @font-face {
     font-family: 'Roboto';
     font-style: normal;
     font-weight: 700;
-    src: local('Roboto Bold'), local('Roboto-Bold'), url(../font/Roboto-700.woff2) format('woff2');
+    src: local('Roboto Bold'), local('Roboto-Bold'), url(#{$wwwdir}/font/Roboto-700.woff2) format('woff2');
 }
