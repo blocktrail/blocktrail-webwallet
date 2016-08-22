@@ -21,7 +21,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-6 col-xs-12">
+            <div class="col-xs-12">
                 <div class="form-group form-group-lg" ng-class="{'has-error':errors.amount}">
 
                     <label class="control-label capitalise" for="recipient">{{ 'AMOUNT' | translate }}</label>
@@ -52,14 +52,17 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-6 col-xs-12">
-                <div class="form-group form-group-lg">
-                    <label ng-click="showAdvanced = !showAdvanced" class="control-label" for="recipient">
-                        <i class="bticon bticon-cog"></i>
+        <div class="row advancedOptions">
+            <div class="col-xs-12">
+                <div>
+                    <a ng-href="#" ng-click="showAdvanced = !showAdvanced">
+                        <span class="bticon bticon-right-open" ng-if="!showAdvanced"></span>
+                        <i class="caret"  ng-if="showAdvanced"></i>
                         <span class="sentence-case">{{ 'ADVANCED_SEND_OPTIONS' | translate }}</span>
-                    </label>
-                    <div ng-show="showAdvanced">
+                    </a>
+                </div>
+                <div class="form-group form-group-lg" ng-show="showAdvanced">
+                    <div class="checkbox">
                         <label>
                             <input id="low_priority"
                                    type="checkbox"
@@ -70,23 +73,28 @@
                                 {{ 'LOW_PRIORITY_LABEL' | translate }}
                             </span>
                         </label>
-
-                        <span class="text-warning sentence-case">
-                            <b class="uppercase">{{ 'WARNING' | translate }}!</b> {{ 'LOW_PRIORITY_WARNING' | translate }}
+                        <span class="help-block">
+                            <span class=" text-warning sentence-case">
+                                <b class="uppercase">{{ 'WARNING' | translate }}!</b> {{ 'LOW_PRIORITY_WARNING' | translate }}
+                            </span>
                         </span>
                     </div>
                 </div>
+
             </div>
         </div>
-
-        <div class="form-group form-group-lg form-group-buttons">
-            <button class="btn btn-lg btn-primary" ng-click="confirmSend()">
-                <span class="capitalise">&nbsp;&nbsp; {{ 'SEND' | translate }} &nbsp;&nbsp;</span>
-            </button>
-            &nbsp;
-            <a ui-sref="app.wallet.summary">
-                <span class="capitalise">{{ 'CANCEL' | translate }}</span>
-            </a>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group form-group-lg form-group-buttons">
+                    <button class="btn btn-lg btn-primary" ng-click="confirmSend()">
+                        <span class="capitalise">&nbsp;&nbsp; {{ 'SEND' | translate }} &nbsp;&nbsp;</span>
+                    </button>
+                    &nbsp;
+                    <a ui-sref="app.wallet.summary">
+                        <span class="capitalise">{{ 'CANCEL' | translate }}</span>
+                    </a>
+                </div>
+            </div>
         </div>
     </form>
 

@@ -197,6 +197,12 @@
             "css": "android",
             "code": 59418,
             "src": "zocial"
+        },
+        {
+            "uid": "2adb5fa922bd92ebeef498ec7dbcae6d",
+            "css": "mobile",
+            "code": 59424,
+            "src": "iconic"
         }
     ]
 }

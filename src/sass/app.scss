@@ -61,11 +61,16 @@ $app-default-shadow:          0 1px 4px rgba(0,0,0,0.15);
 $navbar-start: #383b40;
 $navbar-end: #494c53;
 $red-blocktrail-brand: #D23027;
-$btccom:#3C78C2;
+
 
 $border-color:#ccc;
 
-/*--- ilana colors ---*/
+/* btccom */
+$btccom:#3C78C2;
+$btccom-active:#508AD3;
+$pagebg: #E6E9EE;
+
+/*--- blocktrail ---*/
 $red: #E2224B;
 $black: #191919;
 $grey: #414443;
@@ -76,7 +81,7 @@ $lemon: #E7E27D;
 $neon: #ebe70d;
 $pageBG:#B8DEC5;
 $blue:$btccom;
-/* overrides */
+
 
 
 
@@ -92,7 +97,7 @@ $normal: 400;
 $semi-bold: 600;
 $bold: 700;
 
-$body-bg:$white;
+$body-bg:$pagebg;
 
 // Base
 // -------------------------------
@@ -100,7 +105,7 @@ $body-bg:$white;
 $font-family-sans-serif:          "Roboto", "Neo Sans Pro", "Open Sans", "Helvetica Neue", sans-serif !default;
 $font-family-monospace:           "Ubuntu Mono", monospace !default;
 
-$font-family-base:                "Lato", "Open Sans", "Helvetica Neue", sans-serif !default;
+$font-family-base:                "Roboto", "Lato", "Open Sans", "Helvetica Neue", sans-serif !default;
 $font-size-base:                  14px !default;
 $font-size-large:                 18px !default;
 $font-size-small:                 11px !default;

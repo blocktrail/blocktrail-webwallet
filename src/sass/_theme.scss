@@ -10,7 +10,7 @@ html {
 body {
     position: relative;
     //background-color: $pageBG;
-    $background-color: $white;
+    $background-color: $body-bg;
     padding-bottom: $big-footer-height;
 
     &.state-app_wallet {
@@ -84,6 +84,79 @@ body {
     }
 }
 
+
+
+.footer {
+    -webkit-font-smoothing: antialiased;
+    width:100%;
+    background:#052748;
+    padding-top: 28px;
+    padding-bottom: 28px;
+
+
+    .copyright {
+        .copyright-logo {
+            width: 127px;
+            height: 32px;
+            background: url('/img/BTC-COM@2x.png');
+            background-repeat: no-repeat;
+            background-size: 127px 25px;
+            //.img-retina('/images/BTC-COM.png?__sprite', '/images/BTC-COM@2x.png?__sprite', 127, 16);
+        }
+
+        .copyright-text {
+            font-size: 12px;
+            line-height: 36px;
+            color: #888;
+        }
+    }
+
+
+
+    .links-list {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+
+    .links-column {
+        float: left;
+        width: 190px;
+    }
+
+    .links-category {
+        color: #ddd;
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    .links-list-item a {
+        color: #888;
+        font-size: 14px;
+        line-height: 2;
+    }
+
+    .platform-swtich {
+        font-size: 16px;
+        line-height: 22px;
+        white-space: nowrap;
+        .bticon {
+            color: #ddd;
+            vertical-align: middle;
+            position: static;
+            margin:0px;
+            padding:0px;
+            width:10px;
+        }
+
+        a {
+            color: #ddd;
+        }
+    }
+}
+
+
+/*
 .footer {
     height: $big-footer-height;
     clear: both;
@@ -112,6 +185,7 @@ body {
         }
     }
 }
+*/
 
 .state-app_wallet {
     .footer {
@@ -300,41 +374,13 @@ $appHeaderHeight: 80px;
         .appHeader {
             border-bottom: 1px solid $muted;
             padding: 0px;
-         /*
-            position: absolute;
-            top: 0px;
-            right: 0px;
-            left: 0px;
-            */
+
             height: $appHeaderHeight;
             border-right:1px solid $muted;
             .appHeaderContent {
                 padding: 20px 40px;
             }
-/*
-            .dropdown {
-                margin-bottom: 20px;
-                border-radius: 0px;
 
-                .btn-alt {
-                    padding: 6px 20px;
-                    border-radius: 0px;
-                    font-size: 20px;
-                    background: none;
-                    background-color: transparent;
-                    border: 0px;
-                    box-shadow: none;
-                    text-align: right;
-                    color: $darkgray-light;
-                }
-                &.open {
-                    .btn-alt {
-                        background: none;
-                        background-color: $muted;
-                    }
-                }
-            }
-*/
             h1 {
                 font-size: 24px;
                 font-weight: $bold;
@@ -365,54 +411,49 @@ $appHeaderHeight: 80px;
 .navbar {
     margin: 0px;
     border-radius: 0px;
-    background-color: $blue;
+    background-color: $btccom;
     border: 0px;
     position: relative;
     z-index: 10;
+    height:60px;
 
-    .navbar-brand {
-        padding: 16px 0px 0px 0px;
+    .navbar-header {
+        width: 159px;
         height: auto;
-        margin: 0px 30px 0px 15px;
+        padding: 12px 0px 0px 0px;
 
-        img {
-            border: 0px;
-            margin: 0px;
-            width:159px;
-            height:37px;
+        .navbar-brand {
+            margin: 0px 0px 0px 0px;
+            padding: 0px;
+            height:auto;
+            img {
+                border: 0px;
+                margin: 0px;
+                width: 100%;
+                max-width:159px;
+            }
         }
     }
 
     .navbar-nav {
         margin-top: 0px;
+        margin:0px 0px 0px 80px;
+        padding-left:40px;
+        height:60px;
 
         li {
-            margin: 0px 10px;
-
+            height:100%;
             a {
-                padding: 19px 10px 19px 10px;
+                padding: 10px 20px;
+                margin:10px;
                 background: transparent;
                 color: $white;
-                font-size: 18px;
-                border-bottom: 2px solid transparent;
+                font-size: 16px;
                 font-weight: $normal;
-                text-shadow: none;
-
-                .bticon {
-                    font-size: 12px;
-                    margin: 0px 6px;
-                    color: inherit;
-                }
+                border-radius:3px;
 
                 &:active, &:focus, &:hover {
                     color: $white;
-                    background-color: transparent;
-                    background: none;
-                }
-
-                &:hover {
-                    color: $white;
-                    border-bottom: 2px solid $lemon;
                     background: none;
                     background-color: transparent;
                 }
@@ -420,16 +461,119 @@ $appHeaderHeight: 80px;
             &.active {
                 a {
                     border-bottom: 2px solid $neon;
-                    color: $white;
-                    background: none;
+                    color:$white;
+                    background-color: $btccom-active;
                     &:active, &:focus, &:hover {
-                        background: none;
-                        background-color: transparent;
+                        background-color: $btccom-active;
                     }
                 }
             }
         }
     }
+
+
+    .searchbar {
+        float: right;
+        font-size: 0;
+        margin-top: 13px;
+        margin-right: 20px;
+
+        .searchbar-inner {
+            font-size: $font-size-base;
+            display: inline-block;
+            padding: 6px;
+            background-color: #508ad3;
+            border-radius: 3px;
+        }
+
+        .searchbar-input-container {
+            overflow: hidden;
+        }
+
+        .searchbar-input {
+            float: left;
+            font-size: 12px;
+            font-family: $font-family-monospace;
+            line-height: 20px;
+            height: 20px;
+            color: #fff;
+            padding: 0;
+            width: 198px;
+            transition: width 0.2s ease-in;
+            border: none;
+            background-color: transparent;
+
+            &.active {
+                width: 265px;
+            }
+
+            &::-webkit-input-placeholder {
+                font-family: $font-family-sans-serif;
+                color: #ddd;
+            }
+            &::-moz-placeholder {
+                font-family: $font-family-sans-serif;
+                color: #ddd;
+            }
+            &:-ms-input-placeholder {
+                font-family: $font-family-sans-serif;
+                color: #ddd;
+            }
+        }
+
+        .searchbar-submit {
+            float: right;
+            width: 30px;
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            background-color: transparent;
+            padding: 0;
+            border: none;
+
+            .glyphicon-search {
+                color: #fff;
+            }
+        }
+    }
+
+    .lang {
+        float: right;
+        line-height: 60px;
+    }
+
+    .lang-active {
+        display: inline-block;
+        line-height: 30px;
+        position: relative;
+
+        &.open > .dropdown-menu {
+            left: auto;
+            right: 0;
+            min-width: initial;
+            width: 7em;
+        }
+
+        & > a {
+            display: block;
+            line-height: 16px;
+            font-size: 14px;
+            color: #fff;
+            padding: 5px 10px;
+            background: #052748;
+            border-radius: 5px;
+
+            &:focus, &:hover {
+                text-decoration: none;
+            }
+        }
+
+        .dropdown-menu > li > a {
+            padding: 3px 22px;
+            text-align: right;
+        }
+    }
+
 }
 
 .appNav {
@@ -672,6 +816,7 @@ $display-token-size: 50px;
                 border-right: 0px;
             }
             .input-group-addon {
+
                 &.currency {
                     background: none;
                     background-color: $white;
@@ -688,15 +833,15 @@ $display-token-size: 50px;
                     padding: 0px;
                     margin: 0px;
                     //height:46px;
-                    line-height: 40px;
+                    line-height: 42px;
                 }
 
                 .altCurrency {
                     margin: 0px;
                     font-weight: $normal;
                     font-size: 14px;
-                    padding-right: 10px;
-                    color: $darkgray-light;
+                    padding-right: 20px;
+                    color: $btccom;
                     text-align: right;
                 }
             }
@@ -1096,6 +1241,21 @@ $display-token-size: 50px;
         }
         .amount {
             //    font-size: 18px;
+        }
+        .advancedOptions {
+            margin-bottom:30px;
+            .bticon {
+                font-size:8px;
+            }
+            .caret {
+                margin-right:1px;
+            }
+            a {
+                text-decoration:none;
+            }
+            .checkbox {
+                line-height:22px;
+            }
         }
     }
 
@@ -1558,92 +1718,6 @@ $display-token-size: 50px;
 
 .btn-block {
     display: block;
-}
-
-.btn-alt {
-    border: 0 none;
-    font-weight: $semi-bold;
-    text-transform: capitalize;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
-    font-size: 16px;
-    padding: 12px 44px;
-    line-height: 20px;
-    border: 1px solid #999;
-    text-align: center;
-    color: $black-light;
-    display: inline-block;
-    text-shadow: none;
-
-    background: $sunflower-light; /* Old browsers */
-    background: -moz-linear-gradient(top, $white 0%, #dadada 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, $white), color-stop(100%, #dadada)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top, $white 0%, #dadada 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top, $white 0%, #dadada 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top, $white 0%, #dadada 100%); /* IE10+ */
-    background: linear-gradient(to bottom, $white 0%, #dadada 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$white', endColorstr='#dadada', GradientType=0); /* IE6-9 */
-    cursor: hand;
-    &:hover, &:active, &:focus, &.active {
-        background: none;
-        background-color: #dadada;
-        text-decoration: none;
-        cursor: pointer;
-    }
-
-    &.btn-success {
-        background: $dark-green;
-        border: 1px solid #777;
-        background: -moz-linear-gradient(top, $good-green 0%, $dark-green 100%); /* FF3.6+ */
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, $good-green), color-stop(100%, $dark-green)); /* Chrome,Safari4+ */
-        background: -webkit-linear-gradient(top, $good-green 0%, $dark-green 100%); /* Chrome10+,Safari5.1+ */
-        background: -o-linear-gradient(top, $good-green 0%, $dark-green 100%); /* Opera 11.10+ */
-        background: -ms-linear-gradient(top, $good-green 0%, $dark-green 100%); /* IE10+ */
-        background: linear-gradient(to bottom, $good-green 0%, $dark-green 100%); /* W3C */
-        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$good-green', endColorstr='$dark-green', GradientType=0); /* IE6-9 */
-
-        color: $white;
-        text-shadow: none;
-
-        &:hover, &:active, &:focus, &.active {
-            background: $dark-green;
-            box-shadow: none;
-            text-decoration: none;
-        }
-    }
-
-    &.btn-danger {
-        background: $bad-red;
-        color: $white;
-        &:hover, &:active, &:focus, &.active {
-            //    background:$dark-green;
-            box-shadow: none;
-            text-decoration: none;
-            background: darken($bad-red, 10%);
-        }
-    }
-
-    &.btn-warning {
-        background: $sunflower-dark;
-        border: 1px solid #777;
-        color: $black-light;
-        background: -moz-linear-gradient(top, $sunflower-light 0%, $sunflower-dark 100%); /* FF3.6+ */
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, $sunflower-light), color-stop(100%, $sunflower-dark)); /* Chrome,Safari4+ */
-        background: -webkit-linear-gradient(top, $sunflower-light 0%, $sunflower-dark 100%); /* Chrome10+,Safari5.1+ */
-        background: -o-linear-gradient(top, $sunflower-light 0%, $sunflower-dark 100%); /* Opera 11.10+ */
-        background: -ms-linear-gradient(top, $sunflower-light 0%, $sunflower-dark 100%); /* IE10+ */
-        background: linear-gradient(to bottom, $sunflower-light 0%, $sunflower-dark 100%); /* W3C */
-        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$sunflower-light', endColorstr='$sunflower-dark', GradientType=0); /* IE6-9 */
-
-        text-shadow: none;
-
-        &:hover, &:active, &:focus, &.active {
-            background: $sunflower-dark;
-            box-shadow: none;
-            text-decoration: none;
-        }
-    }
 }
 
 .input-group {

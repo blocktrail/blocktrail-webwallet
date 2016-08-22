@@ -7,42 +7,13 @@
 
                     <form class="form" name="registerForm">
                         <div class="alert" ng-if="errMsg" ng-class="{'alert-danger':errMsg}">{{ errMsg | translate }}</div>
-                        <!--
-                        <div class="form-group">
-                            <label>Sign up with</label>
-                            <select class="form-control" ng-model="form.registerWithEmail" ng-change="form.username=null; form.email=null;" convert-to-number>
-                                <option value="1">Email</option>
-                                <option value="0">Username</option>
-                            </select>
-                        </div>
-                        //-->
+
                         <div class="form-group form-group-lg" ng-if="form.registerWithEmail">
                             <label class="control-label">
                                 {{ 'SETUP_EMAIL_PLACEHOLDER' | translate }}
                             </label>
                             <input class="form-control" type="email" placeholder="{{ 'SETUP_EMAIL_PLACEHOLDER' | translate }}" required ng-model="form.email">
                         </div>
-                        <!--
-                        <div class="form-group form-group-lg" ng-if="!form.registerWithEmail">
-                            <label>
-                                <span>{{ 'SETUP_USERNAME_PLACEHOLDER' | translate }}</span>
-                                <div class="username-check text-bad capitalise">
-                                    <div ng-if="usernameTaken">{{ 'TAKEN' | translate }}</div>
-                                    <div ng-if="registerForm.username.$invalid && registerForm.username.$dirty">{{ 'MSG_INVALID_USERNAME' | translate }}</div>
-                                    <i class="bticon bticon-ok-circle-o text-good" ng-if="form.username && usernameTaken==false"></i>
-                                    <loading-spinner ng-if="checkingUsername"></loading-spinner>
-                                </div>
-                            </label>
-                            <input class="form-control"
-                                   type="text"
-                                   name="username"
-                                   placeholder="{{ 'SETUP_USERNAME_PLACEHOLDER' | translate }}"
-                                   ng-pattern="'[a-zA-Z0-9_]*'"
-                                   ng-model="form.username"
-                                   ng-model-options='{ debounce: 400 }'
-                                   ng-change="checkUsername()">
-                        </div>
-                        //-->
 
                         <div class="form-group form-group-lg">
                             <label class="control-label">{{ 'SETUP_PASSWORD_PLACEHOLDER' | translate }}</label>
@@ -50,7 +21,7 @@
                         </div>
 
                         <div class="form-group form-group-lg form-group-buttons text-center">
-                            <button class="btn btn-alt btn-success form-control capitalise" ng-click="doRegister()">{{ 'SETUP_REGISTER' | translate }}</button>
+                            <button class="btn btn-primary form-control capitalise" ng-click="doRegister()">{{ 'SETUP_REGISTER' | translate }}</button>
                         </div>
 
                         <div ng-if="working" class="text-center">
@@ -62,12 +33,6 @@
                             <a class="sentence-case" ui-sref="app.setup.login">{{ 'LAUNCH_EXISTING_ACCOUNT' | translate }}</a>
                         </div>
 
-
-                        <!--
-                        <div ng-if="!form.registerWithEmail">
-                            <p>*Signing up with a username gives you greater privacy and anonymity, but at a cost of being able to recover passwords and receive critical emails from us.</p>
-                        </div>
-                        //-->
                     </form>
                 </div>
             </div>
