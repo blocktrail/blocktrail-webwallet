@@ -20,6 +20,7 @@ var notifier = require('node-notifier');
 var livereload = require('gulp-livereload');
 var fontello = require('gulp-fontello');
 var del = require('del');
+var CryptoJS = require('crypto-js');
 
 var isWatch = false;
 var isLiveReload = process.argv.indexOf('--live-reload') !== -1 || process.argv.indexOf('--livereload') !== -1;
@@ -89,6 +90,33 @@ var buildAppConfig = function() {
     return def.promise;
 };
 
+var buildSRIMap = function(files, basepath) {
+    return Q.all(files.map(function(file) {
+        var def = Q.defer();
+
+        fs.readFile(file, function(err, filedata) {
+            if (err) {
+                def.reject(err);
+                return;
+            }
+
+            var sha = CryptoJS.SHA384(CryptoJS.enc.Base64.parse(filedata.toString('base64'))).toString(CryptoJS.enc.Base64);
+
+            def.resolve({filename: file, sha384: sha});
+        });
+
+        return def.promise;
+    })).then(function(results) {
+        var map = {};
+
+        _.forEach(results, function(r) {
+            map[r.filename.replace(basepath, "")] = r.sha384;
+        });
+
+        return map;
+    });
+};
+
 var appConfig = Q.fcall(buildAppConfig);
 
 gulp.task('appconfig', function() {
@@ -102,7 +130,7 @@ gulp.task('appconfig:print', ['appconfig'], function() {
     });
 });
 
-gulp.task('templates:index', ['appconfig'], function() {
+gulp.task('templates:index', ['appconfig', 'js', 'sass'], function() {
     var readTranslations = function(filename) {
         var def = Q.defer();
 
@@ -150,16 +178,24 @@ gulp.task('templates:index', ['appconfig'], function() {
                 }
             })
         })).then(function() {
-            return streamAsPromise(gulp.src("./src/index.html")
-                .pipe(template({
-                    VERSION: APPCONFIG.VERSION,
-                    STATICSDIR: APPCONFIG.STATICSDIR,
-                    STATICSURL: APPCONFIG.STATICSURL,
-                    APPCONFIG_JSON: JSON.stringify(APPCONFIG),
-                    TRANSLATIONS: JSON.stringify(translations)
-                }))
-                .pipe(gulp.dest("./www"))
-            );
+            return buildSRIMap([
+                "./www/" + APPCONFIG.STATICSDIR + "/js/app.js",
+                "./www/" + APPCONFIG.STATICSDIR + "/js/libs.js",
+                "./www/" + APPCONFIG.STATICSDIR + "/js/sdk.js",
+                "./www/" + APPCONFIG.STATICSDIR + "/css/app.css"
+            ], "./www/" + APPCONFIG.STATICSDIR + "/").then(function(SRI) {
+                return streamAsPromise(gulp.src("./src/index.html")
+                    .pipe(template({
+                        SRI: SRI,
+                        VERSION: APPCONFIG.VERSION,
+                        STATICSDIR: APPCONFIG.STATICSDIR,
+                        STATICSURL: APPCONFIG.STATICSURL,
+                        APPCONFIG_JSON: JSON.stringify(APPCONFIG),
+                        TRANSLATIONS: JSON.stringify(translations)
+                    }))
+                    .pipe(gulp.dest("./www"))
+                );
+            });
         });
     });
 });
@@ -264,8 +300,8 @@ var sassTask = function() {
 };
 
 // create a sass with and without dependancy on fontello
-gulp.task('sass', ['appconfig', 'css-rename'], sassTask);
-gulp.task('sassfontello', ['appconfig', 'fontello', 'css-rename'], sassTask);
+gulp.task('sass', ['appconfig', 'fontello', 'css-rename'], sassTask);
+gulp.task('sassnofontello', ['appconfig', 'css-rename'], sassTask);
 
 /**
  * css-rename to change .css to .sass extensions because we want the css imported :/
@@ -315,6 +351,38 @@ gulp.task('fontello', ['fontello-dl', 'fontello-rename', 'fontello-clean'], func
     });
 });
 
+gulp.task('copyfonts', ['appconfig'], function() {
+
+    return appConfig.then(function(APPCONFIG) {
+        return streamAsPromise(gulp.src(['./src/font/*', './src/font/**/*'])
+            .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/font'))
+        );
+    });
+});
+
+gulp.task('copyimages', ['appconfig'], function() {
+
+    return appConfig.then(function(APPCONFIG) {
+        return streamAsPromise(gulp.src(['./src/img/*', './src/img/**/*'])
+            .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/img'))
+        );
+    });
+});
+
+gulp.task('copymisc', ['appconfig'], function() {
+
+    return appConfig.then(function(APPCONFIG) {
+        return Q.all([
+            streamAsPromise(gulp.src(['./src/favicon.ico'])
+                .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/'))
+                .pipe(gulp.dest('./www/'))
+            )
+        ]);
+    });
+});
+
+gulp.task('copystatics', ['copyfonts', 'copyimages', 'copymisc']);
+
 gulp.task('watch', function() {
     isWatch = true;
 
@@ -324,33 +392,35 @@ gulp.task('watch', function() {
 
     gulp.watch(['./fontello.json'], ['fontello:livereload']);
     gulp.watch(['./src/sass/**/*.scss', './www/fontello/**/*'], ['sass:livereload']);
+    gulp.watch(['./src/img/**/*', './src/font/**/*'], ['copystatics:livereload']);
+    gulp.watch(['./src/js/**/*.js'], ['js:app:livereload']);
     gulp.watch(['./src/js/**/*.js'], ['js:app:livereload']);
     gulp.watch(['./src/lib/**/*.js'], ['js:libs:livereload', 'js:sdk:livereload']);
     gulp.watch(['./src/templates/**/*', './src/index.html'], ['templates:livereload']);
     gulp.watch(['./appconfig.json', './appconfig.default.json'], ['default:livereload']);
 });
 
-gulp.task('fontello:livereload', ['fontello'], function() {
+gulp.task('fontello:livereload', ['fontello', 'templates:index'], function() {
     livereload.reload();
 });
 
-gulp.task('sass:livereload', ['sass'], function() {
+gulp.task('sass:livereload', ['sassnofontello', 'templates:index'], function() {
     livereload.reload();
 });
 
-gulp.task('js:app:livereload', ['js:app'], function() {
+gulp.task('js:app:livereload', ['js:app', 'templates:index'], function() {
     livereload.reload();
 });
 
-gulp.task('js:libs:livereload', ['js:libs'], function() {
+gulp.task('js:libs:livereload', ['js:libs', 'templates:index'], function() {
     livereload.reload();
 });
 
-gulp.task('js:sdk:livereload', ['js:sdk'], function() {
+gulp.task('js:sdk:livereload', ['js:sdk', 'templates:index'], function() {
     livereload.reload();
 });
 
-gulp.task('templates:livereload', ['templates'], function() {
+gulp.task('templates:livereload', ['templates', 'templates:index'], function() {
     livereload.reload();
 });
 
@@ -358,7 +428,10 @@ gulp.task('default:livereload', ['default'], function() {
     livereload.reload();
 });
 
+gulp.task('copystatics:livereload', ['copystatics'], function() {
+    livereload.reload();
+});
+
 gulp.task('js', ['js:libs', 'js:app', 'js:sdk']);
 gulp.task('templates', ['templates:index', 'templates:rest']);
-gulp.task('default', ['sassfontello', 'templates', 'js']);
-gulp.task('nofontello', ['sass', 'templates', 'js']);
+gulp.task('default', ['copystatics', 'sass', 'templates', 'js']);

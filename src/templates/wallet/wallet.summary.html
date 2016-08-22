@@ -29,7 +29,7 @@
                                             <span class="avatar" style="background-image: url('data:image/jpeg;base64, {{ transaction.contact.avatarUrl }}');" ng-class="{received: transaction.wallet_value_change > 0, sent: transaction.wallet_value_change <= 0}"></span>
                                         </div>
                                         <div ng-if="!transaction.contact" class="display-token anon-token">
-                                            <img class="avatar img-circle" ng-src="{{ CONFIG.STATICSURL }}img/blank_profile.png" ng-class="{received: transaction.wallet_value_change > 0, sent: transaction.wallet_value_change <= 0}" />
+                                            <img class="avatar img-circle" ng-src="{{ CONFIG.STATICSURL }}/img/blank_profile.png" ng-class="{received: transaction.wallet_value_change > 0, sent: transaction.wallet_value_change <= 0}" />
                                         </div>
                                     </div>
                                     <div class="media-body media-top">
