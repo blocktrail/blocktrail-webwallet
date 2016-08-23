@@ -86,16 +86,6 @@ angular.module('blocktrail.wallet')
             $scope.enabled2faToggle = $scope.enabled2fa;
         });
 
-        $scope.languages = [
-            {code: 'nl', name: 'DUTCH'},
-            {code: 'en', name: 'ENGLISH'},
-            {code: 'en_US', name: 'ENGLISH_US'},
-            {code: 'fr', name: 'FRENCH'},
-            {code: 'es', name: 'SPANISH'},
-            {code: 'cn', name: 'CHINESE'},
-            {code: 'ru', name: 'RUSSIAN'}
-        ];
-
         // this automatically updates an already open modal instead of popping a new one open
         $scope.alert = dialogService.alertSingleton();
         $scope.$on('$destroy', function() {
@@ -133,6 +123,8 @@ angular.module('blocktrail.wallet')
 
         $scope.updateSettings = function() {
             $scope.savingSettings = true;
+
+            settingsService.language = $scope.normalizeLanguage(settingsService.language);
 
             // chain on $scope.$storingSettings so that any previous already saving happens first
             $scope.$storingSettings = $scope.$storingSettings.then(function() {

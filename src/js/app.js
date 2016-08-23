@@ -71,11 +71,38 @@ angular.module('blocktrail.wallet').run(
             {code: 'GBP', symbol: '£'}
         ];
 
-        $rootScope.changeLanguage = function(language) {
-            settingsService.language = language || $translate.preferredLanguage() || CONFIG.FALLBACK_LANGUAGE || 'en';
+        $rootScope.languages = [
+            {code: 'nl', name: 'DUTCH'},
+            {code: 'en', name: 'ENGLISH'},
+            {code: 'en_US', name: 'ENGLISH_US'},
+            {code: 'fr', name: 'FRENCH'},
+            {code: 'es', name: 'SPANISH'},
+            {code: 'cn', name: 'CHINESE'},
+            {code: 'ru', name: 'RUSSIAN'}
+        ];
 
-            amMoment.changeLocale(settingsService.language);
-            $translate.use(settingsService.language);
+        $rootScope.normalizeLanguage = function(language) {
+            language = language || $translate.preferredLanguage() || CONFIG.FALLBACK_LANGUAGE || 'en';
+
+            var langOk = false;
+            $rootScope.languages.forEach(function(lang) {
+                if (lang.code == language) {
+                    langOk = true;
+                }
+            });
+
+            if (!langOk) {
+                language = 'en';
+            }
+
+            return language;
+        };
+
+        $rootScope.changeLanguage = function(language) {
+            language = $rootScope.normalizeLanguage(language);
+
+            amMoment.changeLocale(language);
+            $translate.use(language);
         };
 
         // start loading settings
