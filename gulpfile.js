@@ -100,9 +100,9 @@ var buildSRIMap = function(files, basepath) {
                 return;
             }
 
-            var sha = CryptoJS.SHA384(CryptoJS.enc.Base64.parse(filedata.toString('base64'))).toString(CryptoJS.enc.Base64);
+            var sha = CryptoJS.SHA256(CryptoJS.enc.Base64.parse(filedata.toString('base64'))).toString(CryptoJS.enc.Base64);
 
-            def.resolve({filename: file, sha384: sha});
+            def.resolve({filename: file, sha256: sha});
         });
 
         return def.promise;
@@ -110,7 +110,7 @@ var buildSRIMap = function(files, basepath) {
         var map = {};
 
         _.forEach(results, function(r) {
-            map[r.filename.replace(basepath, "")] = r.sha384;
+            map[r.filename.replace(basepath, "")] = r.sha256;
         });
 
         return map;
