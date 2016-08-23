@@ -160,9 +160,18 @@ angular.module('blocktrail.wallet')
         amMoment.changeLocale('en-custom');
     });
 angular.module('blocktrail.wallet').config(
-    function($stateProvider, $urlRouterProvider, $logProvider, $ionicAutoTrackProvider, CONFIG) {
+    function($stateProvider, $urlRouterProvider, $logProvider, $ionicAutoTrackProvider, $sceDelegateProvider, CONFIG) {
         $ionicAutoTrackProvider.disableTracking('Tap');
         $logProvider.debugEnabled(CONFIG.DEBUG);
+
+        var urlWhitelist = ['self'];
+
+        if (CONFIG.CDN) {
+            urlWhitelist.push(CONFIG.CDN + "**");
+        }
+
+        $sceDelegateProvider.resourceUrlWhitelist(urlWhitelist);
+
         $stateProvider
             .state('app', {
                 abstract: true,
