@@ -84,15 +84,20 @@ body {
     }
 }
 
-
-
 .footer {
     -webkit-font-smoothing: antialiased;
-    width:100%;
-    background:#052748;
+    width: 100%;
+    background: #052748;
     padding-top: 28px;
     padding-bottom: 28px;
 
+    height: 250px;
+    clear: both;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+    overflow: hidden;
 
     .copyright {
         .copyright-logo {
