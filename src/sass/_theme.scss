@@ -407,6 +407,14 @@ $appHeaderHeight: 80px;
                 }
             }
         }
+
+        &.navbar-right {
+            li {
+                a {
+                    padding:10px 0px;
+                }
+            }
+        }
     }
 
     .searchbar {
