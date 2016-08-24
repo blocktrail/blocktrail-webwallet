@@ -149,7 +149,7 @@ angular.module('blocktrail.wallet')
         };
     })
     .controller('SendConfirmCtrl', function($scope, $rootScope, $modalInstance, $log, $translate, $q, $timeout, $state,
-                                            CurrencyConverter, Wallet, sendData, FormHelper, $ionicAnalytics, launchService) {
+                                            CurrencyConverter, Wallet, sendData, FormHelper, $analytics, launchService) {
         $scope.sendData = sendData;
         $scope.complete = false;
         $scope.working = false;
@@ -220,10 +220,7 @@ angular.module('blocktrail.wallet')
                     $log.info("wallet: unlocked");
                     $log.info("wallet: paying", $scope.pay);
 
-                    $ionicAnalytics.track('Pre-Pay', {
-                        amount: $scope.sendData.amount,
-                        source: 'NaN'
-                    });
+                    $analytics.eventTrack('pre-pay', {category: 'Events'});
 
                     return $q.when(wallet.pay($scope.pay, false, $scope.useZeroConf, false, $scope.sendData.lowPriority ? 'low_priority' : null, $scope.form.two_factor_token)).then(function(txHash) {
                         wallet.lock();
@@ -234,10 +231,7 @@ angular.module('blocktrail.wallet')
                     });
                 })
                 .then(function(txHash) {
-                    $ionicAnalytics.track('Pay', {
-                        amount: $scope.sendData.amount,
-                        source: 'NaN'
-                    });
+                    $analytics.eventTrack('pay', {category: 'Events'});
 
                     $log.info("wallet: paid", txHash);
                     $scope.error = null;

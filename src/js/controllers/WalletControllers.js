@@ -1,6 +1,6 @@
 angular.module('blocktrail.wallet')
    .controller('WalletCtrl', function($q, $log, $scope, $state, $rootScope, $interval, storageService, sdkService, Wallet,
-                                      Contacts, CONFIG, settingsService, $timeout, $ionicUser, launchService) {
+                                      Contacts, CONFIG, settingsService, $timeout, launchService) {
 
         $timeout(function() {
             $rootScope.hideLoadingScreen = true;
@@ -26,10 +26,11 @@ angular.module('blocktrail.wallet')
         $rootScope.getBalance = function() {
             //get a live balance update
             return $q.when(Wallet.balance(false).then(function(balanceData) {
-                if ((balanceData.balance > 0 || balanceData.uncBalance > 0) && !$ionicUser.get().isActive) {
-                    $ionicUser.identify({user_id: $ionicUser.get().user_id, isActive: 1});
-                    $ionicAnalytics.track('Actived', {});
-                }
+                // @TODO: GA equivilant
+                // if ((balanceData.balance > 0 || balanceData.uncBalance > 0) && !$ionicUser.get().isActive) {
+                //     $ionicUser.identify({user_id: $ionicUser.get().user_id, isActive: 1});
+                //     $ionicAnalytics.track('Actived', {});
+                // }
 
                 $rootScope.balance = balanceData.balance;
                 $rootScope.uncBalance = balanceData.uncBalance;

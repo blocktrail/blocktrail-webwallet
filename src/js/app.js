@@ -12,8 +12,6 @@ ionic.Platform.device = function() { return {}; };
 ionic.Platform.isWebView = function() { return true; };
 
 var blocktrail = angular.module('blocktrail.wallet', [
-    'ionic.service.core',
-    'ionic.service.analytics',
     'ui.router',
     'ui.bootstrap',
     'toggle-switch',
@@ -23,22 +21,11 @@ var blocktrail = angular.module('blocktrail.wallet', [
     'ngImgCrop',
     'blocktrail.localisation',
 
+    'angulartics',
+    'angulartics.google.analytics',
+
     'blocktrail.config'
 ]);
-
-angular.module('blocktrail.wallet').factory(
-    '$ionicCoreSettings',
-    function(CONFIG) {
-        return {
-            get: function(setting) {
-                if (CONFIG.IO_CONFIG[setting]) {
-                    return CONFIG.IO_CONFIG[setting];
-                }
-                return null;
-            }
-        }
-    }
-);
 
 /*--- Blocktrail Error Classes ---*/
 angular.module('blocktrail.wallet').config(function() {
@@ -57,7 +44,7 @@ angular.module('blocktrail.wallet').config(function() {
 });
 
 angular.module('blocktrail.wallet').run(
-    function($rootScope, $state, $ionicUser, $ionicAnalytics, $log, $interval, $timeout, settingsService, CONFIG, $locale, $translate, amMoment) {
+    function($rootScope, $state, $log, $interval, $timeout, settingsService, CONFIG, $locale, $translate, amMoment) {
         $rootScope.CONFIG       = CONFIG || {};
         $rootScope.$state       = $state;
         $rootScope.appVersion   = CONFIG.VERSION;
@@ -111,19 +98,6 @@ angular.module('blocktrail.wallet').run(
 
             // set the preferred/detected language
             $rootScope.changeLanguage(settingsService.language);
-        });
-
-        // register for usage data tracking @TODO: make configurable just like in mobile app
-        $ionicAnalytics.register({
-            silent: !CONFIG.DEBUG
-        });
-
-        $ionicAnalytics.track('Load', {});
-
-        // 'identify' user, by device.uuid
-        //  won't have any effect unless $ionicAnalytics.register is called
-        $ionicUser.identify({
-            user_id: window.device ? window.device.uuid : $ionicUser.generateGUID()
         });
 
         $rootScope.$on("$stateChangeError", function(event, toState, toParams, fromState, fromParams, error) {
@@ -187,8 +161,8 @@ angular.module('blocktrail.wallet')
         amMoment.changeLocale('en-custom');
     });
 angular.module('blocktrail.wallet').config(
-    function($stateProvider, $urlRouterProvider, $logProvider, $ionicAutoTrackProvider, $sceDelegateProvider, CONFIG) {
-        $ionicAutoTrackProvider.disableTracking('Tap');
+    function($stateProvider, $urlRouterProvider, $logProvider, $analyticsProvider, $sceDelegateProvider, CONFIG) {
+        $analyticsProvider.firstPageview(false);
         $logProvider.debugEnabled(CONFIG.DEBUG);
 
         var urlWhitelist = ['self'];

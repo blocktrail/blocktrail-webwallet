@@ -306,7 +306,7 @@ angular.module('blocktrail.wallet')
         };
     })
     .controller('SetupWalletInitCtrl', function($q, $scope, $state, launchService, sdkService, $log, $translate, $timeout,
-                                                $injector, settingsService, dialogService, $ionicAnalytics) {
+                                                $injector, settingsService, dialogService, $analytics, trackingService) {
 
         $scope.progressStatus = {};
         // this automatically updates an already open modal instead of popping a new one open
@@ -369,7 +369,7 @@ angular.module('blocktrail.wallet')
                     return $scope.sdk.initWallet({identifier: $scope.setupInfo.identifier, password: $scope.setupInfo.password});
                 })
                 .then(function(wallet) {
-                    $ionicAnalytics.track('initWallet', {});
+                    $analytics.eventTrack('initWallet', {category: 'Events'});
 
                     $log.debug('wallet initialised', wallet);
                     $scope.progressWidth = 90;
@@ -381,7 +381,7 @@ angular.module('blocktrail.wallet')
                         $log.debug('creating new wallet');
                         $scope.progressStatus = {title: 'CREATING_WALLET', header_class: 'text-neutral', body: 'PLEASE_WAIT', ok: false};
                         var t = (new Date).getTime();
-                        $ionicAnalytics.track('createNewWallet', {});
+                        $analytics.eventTrack('createNewWallet', {category: 'Events'});
                         return $scope.sdk.createNewWallet({identifier: $scope.setupInfo.identifier, password: $scope.setupInfo.password})
                             .progress(function(progress) {
 
@@ -470,9 +470,13 @@ angular.module('blocktrail.wallet')
                 .then(function() {
                     $log.debug('All done. Onwards to victory!');
                     if ($scope.setupInfo.backupInfo) {
+                        trackingService.trackRegistration();
+
                         //if a new wallet has been created, go to the wallet backup page
                         $state.go('app.setup.backup');
                     } else {
+                        trackingService.trackLogin();
+
                         //else continue to wallet
                         settingsService.$load().then(function() {
                             //load the settings so we can update them

@@ -186,6 +186,7 @@ gulp.task('templates:index', ['appconfig', 'js', 'sass'], function() {
             ], "./www/" + APPCONFIG.STATICSDIR + "/").then(function(SRI) {
                 return streamAsPromise(gulp.src("./src/index.html")
                     .pipe(template({
+                        APPCONFIG: APPCONFIG,
                         SRI: SRI,
                         VERSION: APPCONFIG.VERSION,
                         STATICSDIR: APPCONFIG.STATICSDIR,
@@ -215,8 +216,8 @@ gulp.task('js:libs', ['appconfig'], function() {
         return streamAsPromise(gulp.src([
             "./src/lib/q/q.js",
             "./src/lib/angular/angular.js",
-            "./src/lib/ionic-service-core/ionic-core.js",
-            "./src/lib/ionic-service-analytics/ionic-analytics.js",
+            './src/lib/angulartics/src/angulartics.js',
+            './src/lib/angulartics-google-analytics/lib/angulartics-ga.js',
             "./src/lib/angular-ui-router/release/angular-ui-router.js",
             "./src/lib/ng-infinite-scroller-origin/build/ng-infinite-scroll.js",
 
