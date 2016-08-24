@@ -24,7 +24,8 @@ var blocktrail = angular.module('blocktrail.wallet', [
     'angulartics',
     'angulartics.google.analytics',
 
-    'blocktrail.config'
+    'blocktrail.config',
+    'blocktrail.templates'
 ]);
 
 /*--- Blocktrail Error Classes ---*/
@@ -176,7 +177,7 @@ angular.module('blocktrail.wallet').config(
         $stateProvider
             .state('app', {
                 abstract: true,
-                templateUrl: CONFIG.STATICSURL + "/templates/common/base.html"
+                templateUrl: "templates/common/base.html"
             })
 
             /*---Launch---*/
@@ -194,13 +195,13 @@ angular.module('blocktrail.wallet').config(
                 url: "/setup",
                 abstract: true,
                 controller: "SetupCtrl",
-                templateUrl: CONFIG.STATICSURL + "/templates/setup/setup.html"
+                templateUrl: "templates/setup/setup.html"
             })
             .state('app.setup.login', {
                 url: "/login",
                 cache: false,
                 controller: "SetupLoginCtrl",
-                templateUrl: CONFIG.STATICSURL + "/templates/setup/setup.login.html",
+                templateUrl: "templates/setup/setup.login.html",
                 resolve: {
                     handleSetupState: function($state, launchService) {
                         return launchService.handleSetupState('app.setup.login', $state);
@@ -210,13 +211,13 @@ angular.module('blocktrail.wallet').config(
             .state('app.setup.rebrand', {
                 url: "/rebrand?goto",
                 controller: "RebrandCtrl",
-                templateUrl: CONFIG.STATICSURL + "/templates/setup/setup.rebrand.html"
+                templateUrl: "templates/setup/setup.rebrand.html"
             })
             .state('app.setup.register', {
                 url: "/register",
                 cache: false,
                 controller: "SetupNewAccountCtrl",
-                templateUrl: CONFIG.STATICSURL + "/templates/setup/setup.register.html",
+                templateUrl: "templates/setup/setup.register.html",
                 resolve: {
                     handleSetupState: function($state, launchService) {
                         return launchService.handleSetupState('app.setup.register', $state);
@@ -227,14 +228,14 @@ angular.module('blocktrail.wallet').config(
                 url: "/forgotpass",
                 cache: false,
                 controller: "SetupForgotPassCtrl",
-                templateUrl: CONFIG.STATICSURL + "/templates/setup/setup.forgotpass.html",
+                templateUrl: "templates/setup/setup.forgotpass.html",
                 resolve: {}
             })
             .state('app.setup.wallet', {
                 url: "/wallet",
                 cache: false,
                 controller: "SetupWalletInitCtrl",
-                templateUrl: CONFIG.STATICSURL + "/templates/setup/setup.wallet.html",
+                templateUrl: "templates/setup/setup.wallet.html",
                 resolve: {
                     handleSetupState: function($state, launchService) {
                         return launchService.handleSetupState('app.setup.wallet', $state);
@@ -245,7 +246,7 @@ angular.module('blocktrail.wallet').config(
                 url: "/wallet-backup",
                 cache: false,
                 controller: "SetupWalletBackupCtrl",
-                templateUrl: CONFIG.STATICSURL + "/templates/setup/setup.wallet-backup.html",
+                templateUrl: "templates/setup/setup.wallet-backup.html",
                 resolve: {
                     handleSetupState: function($state, launchService) {
                         return launchService.handleSetupState('app.setup.backup', $state);
@@ -262,7 +263,7 @@ angular.module('blocktrail.wallet').config(
                 abstract: true,
                 url: "/wallet",
                 controller: "WalletCtrl",
-                templateUrl: CONFIG.STATICSURL + "/templates/wallet/wallet.html",
+                templateUrl: "templates/wallet/wallet.html",
                 resolve: {
                     handleSetupState: function($state, launchService) {
                         return launchService.handleSetupState('app.wallet', $state);
@@ -297,7 +298,7 @@ angular.module('blocktrail.wallet').config(
                 url: "",
                 views: {
                     "mainView@app.wallet": {
-                        templateUrl: CONFIG.STATICSURL + "/templates/wallet/wallet.summary.html",
+                        templateUrl: "templates/wallet/wallet.summary.html",
                         controller: 'WalletSummaryCtrl'
                     }
                 }
@@ -309,7 +310,7 @@ angular.module('blocktrail.wallet').config(
                 cache: false,
                 views: {
                     "mainView@app.wallet": {
-                        templateUrl: CONFIG.STATICSURL + "/templates/send/send.input-screen.html",
+                        templateUrl: "templates/send/send.input-screen.html",
                         controller: 'SendCtrl'
                     }
                 }
@@ -321,7 +322,7 @@ angular.module('blocktrail.wallet').config(
                 cache: false,
                 views: {
                     "mainView@app.wallet": {
-                        templateUrl: CONFIG.STATICSURL + "/templates/receive/receive.new-address.html",
+                        templateUrl: "templates/receive/receive.new-address.html",
                         controller: 'ReceiveCtrl'
                     }
                 }
@@ -333,7 +334,7 @@ angular.module('blocktrail.wallet').config(
                 cache: true,
                 views: {
                     "mainView@app.wallet": {
-                        templateUrl: CONFIG.STATICSURL + "/templates/settings/settings.html",
+                        templateUrl: "templates/settings/settings.html",
                         controller: 'SettingsCtrl'
                     }
                 }

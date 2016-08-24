@@ -31,7 +31,7 @@ angular.module('blocktrail.wallet').factory(
 
             var modalInstance = $modal.open({
                 controller: 'DialogAlertCtrl',
-                templateUrl: CONFIG.STATICSURL + '/templates/dialog/dialog.alert.html',
+                templateUrl: 'templates/dialog/dialog.alert.html',
                 size: typeof message.size || 'md',
                 backdrop: typeof message.backdrop !== "undefined" ? message.backdrop : defaultBackdrop,
                 resolve: {
@@ -115,7 +115,7 @@ angular.module('blocktrail.wallet').factory(
 
             var modalInstance = $modal.open({
                 controller: 'DialogPromptCtrl',
-                templateUrl: CONFIG.STATICSURL + '/templates/dialog/dialog.prompt.html',
+                templateUrl: 'templates/dialog/dialog.prompt.html',
                 size: typeof message.size || 'md',
                 backdrop: typeof message.backdrop !== "undefined" ? message.backdrop : defaultBackdrop,
                 resolve: {

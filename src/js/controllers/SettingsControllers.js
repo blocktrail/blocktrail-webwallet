@@ -37,7 +37,7 @@ angular.module('blocktrail.wallet')
 
                 $modal.open({
                     controller: 'CropImageCtrl',
-                    templateUrl: CONFIG.STATICSURL + '/templates/settings/dialog.crop-image.html',
+                    templateUrl: 'templates/settings/dialog.crop-image.html',
                     windowClass: 'modal-max-height',
                     size: 'lg',
                     backdrop: 'static',

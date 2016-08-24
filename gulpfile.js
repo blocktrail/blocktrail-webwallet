@@ -21,6 +21,7 @@ var livereload = require('gulp-livereload');
 var fontello = require('gulp-fontello');
 var del = require('del');
 var CryptoJS = require('crypto-js');
+var html2js = require('gulp-html2js');
 
 var isWatch = false;
 var isLiveReload = process.argv.indexOf('--live-reload') !== -1 || process.argv.indexOf('--livereload') !== -1;
@@ -205,7 +206,14 @@ gulp.task('templates:rest', ['appconfig'], function() {
 
     return appConfig.then(function(APPCONFIG) {
         return streamAsPromise(gulp.src("./src/templates/**/*")
-            .pipe(gulp.dest("./www/" + APPCONFIG.STATICSDIR + "/templates"))
+        //    .pipe(gulp.dest("./www/" + APPCONFIG.STATICSDIR + "/templates"))
+
+            .pipe(html2js('templates.js', {
+                adapter: 'angular',
+                base: './src/',
+                name: 'blocktrail.templates'
+            }))
+            .pipe(gulp.dest("./www/" + APPCONFIG.STATICSDIR + "/js"))
         );
     });
 });
