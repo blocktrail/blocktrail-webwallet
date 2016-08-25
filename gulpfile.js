@@ -23,9 +23,6 @@ var del = require('del');
 var CryptoJS = require('crypto-js');
 var html2js = require('gulp-html2js');
 
-var isWatch = false;
-var isLiveReload = process.argv.indexOf('--live-reload') !== -1 || process.argv.indexOf('--livereload') !== -1;
-
 /**
  * helper to wrap a stream with a promise for easy chaining
  * @param stream
@@ -46,6 +43,21 @@ var streamAsPromise = function(stream) {
     return def.promise;
 };
 
+var readAppConfig = function(config) {
+    config = config || {};
+
+    ['./appconfig.json', './appconfig.default.json'].forEach(function(filename) {
+        var json = fs.readFileSync(filename);
+
+        if (json) {
+            var data = JSON.parse(stripJsonComments(json.toString('utf8')));
+            config = _.defaults(config, data);
+        }
+    });
+
+    return config;
+};
+
 /**
  * build appconfig from .json files
  *
@@ -60,14 +72,7 @@ var buildAppConfig = function() {
                 VERSION: branch + ":" + rev
             };
 
-            ['./appconfig.json', './appconfig.default.json'].forEach(function(filename) {
-                var json = fs.readFileSync(filename);
-
-                if (json) {
-                    var data = JSON.parse(stripJsonComments(json.toString('utf8')));
-                    config = _.defaults(config, data);
-                }
-            });
+            config = readAppConfig(config);
 
             if (typeof config.API_HTTPS !== "undefined" && config.API_HTTPS === false) {
                 config.API_URL = "http://" + config.API_HOST;
@@ -117,6 +122,23 @@ var buildSRIMap = function(files, basepath) {
         return map;
     });
 };
+
+var isWatch = false;
+var isLiveReload = process.argv.indexOf('--live-reload') !== -1 || process.argv.indexOf('--livereload') !== -1;
+var noSRI = false;
+// will automatically disable when `DEBUG=true` and `STATICSDIR=dev`, this is so that `gulp watch` doesn't have to rebuild everything all the time.
+if (process.argv.indexOf('--no-sri') !== -1) {
+    // even with you force --no-sri it requires the STATICSDIR to be set, because when it's NULL it will autodetect
+    //  and switch with new commits etc, which will make `gulp watch` fail horribly
+    if (!readAppConfig()['STATICSDIR']) {
+        throw new Error("STATICSDIR needs to be set to be able to build with --no-sri");
+    }
+    noSRI = true;
+} else {
+    noSRI = readAppConfig()['DEBUG'] && readAppConfig()['STATICSDIR'];
+}
+var doSRI = !noSRI;
+console.log('SRI? ', doSRI);
 
 var appConfig = Q.fcall(buildAppConfig);
 
@@ -182,13 +204,14 @@ gulp.task('templates:index', ['appconfig', 'js', 'sass'], function() {
             return buildSRIMap([
                 "./www/" + APPCONFIG.STATICSDIR + "/js/app.js",
                 "./www/" + APPCONFIG.STATICSDIR + "/js/libs.js",
+                "./www/" + APPCONFIG.STATICSDIR + "/js/templates.js",
                 "./www/" + APPCONFIG.STATICSDIR + "/js/sdk.js",
                 "./www/" + APPCONFIG.STATICSDIR + "/css/app.css"
             ], "./www/" + APPCONFIG.STATICSDIR + "/").then(function(SRI) {
                 return streamAsPromise(gulp.src("./src/index.html")
                     .pipe(template({
                         APPCONFIG: APPCONFIG,
-                        SRI: SRI,
+                        SRI: doSRI && SRI,
                         VERSION: APPCONFIG.VERSION,
                         STATICSDIR: APPCONFIG.STATICSDIR,
                         STATICSURL: APPCONFIG.STATICSURL,
@@ -408,27 +431,27 @@ gulp.task('watch', function() {
     gulp.watch(['./appconfig.json', './appconfig.default.json'], ['default:livereload']);
 });
 
-gulp.task('fontello:livereload', ['fontello', 'templates:index'], function() {
+gulp.task('fontello:livereload', _.merge(['fontello'], doSRI ? ['templates:index'] : []), function() {
     livereload.reload();
 });
 
-gulp.task('sass:livereload', ['sassnofontello', 'templates:index'], function() {
+gulp.task('sass:livereload', _.merge(['sassnofontello'], doSRI ? ['templates:index'] : []), function() {
     livereload.reload();
 });
 
-gulp.task('js:app:livereload', ['js:app', 'templates:index'], function() {
+gulp.task('js:app:livereload', _.merge(['js:app'], doSRI ? ['templates:index'] : []), function() {
     livereload.reload();
 });
 
-gulp.task('js:libs:livereload', ['js:libs', 'templates:index'], function() {
+gulp.task('js:libs:livereload', _.merge(['js:libs'], doSRI ? ['templates:index'] : []), function() {
     livereload.reload();
 });
 
-gulp.task('js:sdk:livereload', ['js:sdk', 'templates:index'], function() {
+gulp.task('js:sdk:livereload', _.merge(['js:sdk'], doSRI ? ['templates:index'] : []), function() {
     livereload.reload();
 });
 
-gulp.task('templates:livereload', ['templates', 'templates:index'], function() {
+gulp.task('templates:livereload', _.merge(['templates'], doSRI ? ['templates:index'] : []), function() {
     livereload.reload();
 });
 
