@@ -400,9 +400,8 @@ gulp.task('watch', function() {
     }
 
     gulp.watch(['./fontello.json'], ['fontello:livereload']);
-    gulp.watch(['./src/sass/**/*.scss', './www/fontello/**/*'], ['sass:livereload']);
+    gulp.watch(['./src/sass/**/*.scss'], ['sass:livereload']);
     gulp.watch(['./src/img/**/*', './src/font/**/*'], ['copystatics:livereload']);
-    gulp.watch(['./src/js/**/*.js'], ['js:app:livereload']);
     gulp.watch(['./src/js/**/*.js'], ['js:app:livereload']);
     gulp.watch(['./src/lib/**/*.js'], ['js:libs:livereload', 'js:sdk:livereload']);
     gulp.watch(['./src/templates/**/*', './src/index.html'], ['templates:livereload']);
