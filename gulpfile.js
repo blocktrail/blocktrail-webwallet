@@ -138,7 +138,9 @@ if (process.argv.indexOf('--no-sri') !== -1) {
     noSRI = readAppConfig()['DEBUG'] && readAppConfig()['STATICSDIR'];
 }
 var doSRI = !noSRI;
-console.log('SRI? ', doSRI);
+if (process.argv.indexOf('--silent') === -1) {
+    console.log('SRI? ', doSRI);
+}
 
 var appConfig = Q.fcall(buildAppConfig);
 
