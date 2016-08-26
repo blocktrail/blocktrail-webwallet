@@ -70,5 +70,18 @@
             ga('create', '<%= APPCONFIG.GOOGLEANALYTICS_ID %>', 'auto');
         </script>
         <% } %>
+        <% if (APPCONFIG.TWITTER_ID) { %>
+        <!-- Twitter universal website tag code -->
+        <script>
+            !function(e,n,u,a){e.twq||(a=e.twq=function(){a.exe?a.exe.apply(a,arguments):
+                    a.queue.push(arguments);},a.version='1',a.queue=[],t=n.createElement(u),
+                    t.async=!0,t.src='//static.ads-twitter.com/uwt.js',s=n.getElementsByTagName(u)[0],
+                    s.parentNode.insertBefore(t,s))}(window,document,'script');
+            // Insert Twitter Pixel ID and Standard Event data below
+            twq('init','<%= APPCONFIG.TWITTER_ID %>');
+            twq('track','PageView');
+        </script>
+        <!-- End Twitter universal website tag code -->
+        <% } %>
     </body>
 </html>
