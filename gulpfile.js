@@ -125,8 +125,8 @@ var buildSRIMap = function(files, basepath) {
 
 var isWatch = false;
 var isLiveReload = process.argv.indexOf('--live-reload') !== -1 || process.argv.indexOf('--livereload') !== -1;
+// determine SRI strategy
 var noSRI = false;
-// will automatically disable when `DEBUG=true` and `STATICSDIR=dev`, this is so that `gulp watch` doesn't have to rebuild everything all the time.
 if (process.argv.indexOf('--no-sri') !== -1) {
     // even with you force --no-sri it requires the STATICSDIR to be set, because when it's NULL it will autodetect
     //  and switch with new commits etc, which will make `gulp watch` fail horribly
@@ -135,11 +135,18 @@ if (process.argv.indexOf('--no-sri') !== -1) {
     }
     noSRI = true;
 } else {
-    noSRI = readAppConfig()['DEBUG'] && readAppConfig()['STATICSDIR'];
+    // use config value if present
+    var configSRI = readAppConfig()['SRI'];
+    if (configSRI !== null) {
+        noSRI = !configSRI;
+    } else {
+        // disable when `DEBUG=true` and `STATICSDIR=dev`, this is so that `gulp watch` doesn't have to rebuild everything all the time.
+        noSRI = readAppConfig()['DEBUG'] && readAppConfig()['STATICSDIR'];
+    }
 }
 var doSRI = !noSRI;
 if (process.argv.indexOf('--silent') === -1) {
-    console.log('SRI? ', doSRI);
+    console.log('SRI?', doSRI);
 }
 
 var appConfig = Q.fcall(buildAppConfig);
