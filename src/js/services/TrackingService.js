@@ -30,7 +30,7 @@ angular.module('blocktrail.wallet').factory(
 
                 if (CONFIG.GOOGLEADWORDS_ID && CONFIG.GOOGLEADWORDS_LABEL) {
                     var image = new Image(1,1);
-                    image.src = 'https//www.googleadservices.com/pagead/conversion/'+ CONFIG.GOOGLEADWORDS_ID +'/?label=' + CONFIG.GOOGLEADWORDS_LABEL + '&amp;guid=ON&amp;script=0';
+                    image.src = 'https://www.googleadservices.com/pagead/conversion/'+ CONFIG.GOOGLEADWORDS_ID +'/?label=' + CONFIG.GOOGLEADWORDS_LABEL + '&amp;guid=ON&amp;script=0';
                     document.body.appendChild(image);
                 }
 
