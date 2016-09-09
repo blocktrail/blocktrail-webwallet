@@ -137,7 +137,7 @@ if (process.argv.indexOf('--no-sri') !== -1) {
 } else {
     // use config value if present
     var configSRI = readAppConfig()['SRI'];
-    if (configSRI !== null) {
+    if (typeof configSRI !== "undefined" && configSRI !== null) {
         noSRI = !configSRI;
     } else {
         // disable when `DEBUG=true` and `STATICSDIR=dev`, this is so that `gulp watch` doesn't have to rebuild everything all the time.
