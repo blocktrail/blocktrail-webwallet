@@ -20,6 +20,16 @@
                             <input class="form-control" type="password" placeholder="{{ 'SETUP_PASSWORD_PLACEHOLDER' | translate }}" ng-model="form.password" required>
                         </div>
 
+                        <div class="form-group form-group-lg">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" ng-model="termsofservice">
+                                    {{ 'SETUP_TERMS_OF_SERVICE_TEXT' | translate }}
+                                    <a target="_blank" href="https://btc.com/legal">{{ 'SETUP_TERMS_OF_SERVICE_LINK' | translate }}</a>
+                                </label>
+                            </div>
+                        </div>
+
                         <div class="form-group form-group-lg form-group-buttons text-center">
                             <button class="btn btn-primary form-control capitalise" ng-click="doRegister()">{{ 'SETUP_REGISTER' | translate }}</button>
                         </div>
@@ -29,7 +39,7 @@
                             {{ 'CREATING_ACCOUNT' | translate }}
                         </div>
 
-                        <div class="smallButtons">
+                        <div class="smallButtons" style="margin-top:10px;">
                             <a class="sentence-case" ui-sref="app.setup.login">{{ 'LAUNCH_EXISTING_ACCOUNT' | translate }}</a>
                         </div>
 
