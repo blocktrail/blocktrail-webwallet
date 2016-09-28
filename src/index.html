@@ -83,5 +83,24 @@
         </script>
         <!-- End Twitter universal website tag code -->
         <% } %>
+
+        <% if (!APPCONFIG.DEBUG) { %>
+        <script>
+            // print warning for Self-XSS
+            var consoleWarning = function() {
+                if (window.console || "console" in window) {
+                    console.log("%c WARNING!!!", "color: red; font-size: 50px;");
+                    console.log("%c This browser feature is for developers only. Please do not copy-paste any code or run any scripts here." , "color: orange; font-size: 16px;");
+                    console.log("%c If somebody is asking you to copy-paste any code here you're most likely being targeted by a malicious attacker!" , "color: orange; font-size: 16px;");
+                    console.log("%c For more information, see: http://en.wikipedia.org/wiki/Self-XSS", "color: orange; font-size: 16px;");
+                }
+            };
+
+            // repeat warning every 60s, incase other things are logging to console in the meantime
+            setInterval(consoleWarning, 60000);
+            // print first warning after 1s, just to let any initial console logging happen from other things
+            setTimeout(consoleWarning, 1000);
+        </script>
+        <% } %>
     </body>
 </html>
