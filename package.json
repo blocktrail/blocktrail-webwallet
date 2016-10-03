@@ -11,7 +11,7 @@
     "gulp": "^3.9.0",
     "gulp-clean": "^0.3.2",
     "gulp-concat": "^2.5.2",
-    "gulp-fontello": "git://github.com/blocktrail/gulp-fontello.git#blocktrail",
+    "gulp-fontello": "git+https://github.com/blocktrail/gulp-fontello.git#blocktrail",
     "gulp-html2js": "^0.4.2",
     "gulp-if": "^1.2.5",
     "gulp-less": "^3.0.3",
