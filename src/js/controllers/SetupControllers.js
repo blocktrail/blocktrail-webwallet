@@ -180,6 +180,7 @@ angular.module('blocktrail.wallet')
     .controller('SetupNewAccountCtrl', function($scope, $rootScope, $state, $q, $http, $timeout, launchService, CONFIG,
                                                 settingsService, dialogService, $translate, $log) {
         $scope.usernameTaken = null;
+        $scope.termsofservice = false;
         $scope.working       = false;
         $scope.errMsg        = false;
         $scope.form = {
@@ -234,6 +235,10 @@ angular.module('blocktrail.wallet')
             }
             if (!$scope.form.password) {
                 $scope.errMsg = 'MSG_BAD_PASSWORD';
+                return false;
+            }
+            if (!$scope.termsofservice) {
+                $scope.errMsg = 'MSG_BAD_LEGAL';
                 return false;
             }
 
