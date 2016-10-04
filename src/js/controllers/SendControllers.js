@@ -80,15 +80,20 @@ angular.module('blocktrail.wallet')
 
             $scope.clearErrors();
 
-            //input amount
-            if (!$scope.sendInput.amount) {
+            // input amount
+            // https://stackoverflow.com/questions/7810446/regex-validation-of-numeric-with-up-to-4-decimal-places
+            if (!$scope.sendInput.amount || !$scope.sendInput.amount.match('^[0-9]*(?:\.[0-9]{0,8})?$')) {
                 $scope.errors.amount = 'MSG_INVALID_AMOUNT';
                 return;
                 //throw blocktrail.Error('MSG_INVALID_AMOUNT');
             }
 
-            var sendAmount = 0;
+            if (parseFloat($scope.sendInput.amount).toFixed(8) == '0.00000000') {
+                $scope.errors.amount = 'MSG_INVALID_AMOUNT';
+                return;
+            }
 
+            var sendAmount = 0;
             if ($scope.currencyType == 'BTC') {
                 sendAmount = $scope.sendInput.amount;
             } else {
