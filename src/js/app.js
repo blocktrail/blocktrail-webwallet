@@ -162,7 +162,8 @@ angular.module('blocktrail.wallet')
         amMoment.changeLocale('en-custom');
     });
 angular.module('blocktrail.wallet').config(
-    function($stateProvider, $urlRouterProvider, $logProvider, $analyticsProvider, $sceDelegateProvider, CONFIG) {
+    function($compileProvider, $stateProvider, $urlRouterProvider, $logProvider, $analyticsProvider, $sceDelegateProvider, CONFIG) {
+        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|bitcoin):/);
         $analyticsProvider.firstPageview(false);
         $logProvider.debugEnabled(CONFIG.DEBUG);
 

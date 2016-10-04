@@ -110,8 +110,8 @@ angular.module('blocktrail.wallet')
                 $scope.newRequest.qrValue = parseFloat($scope.altCurrency.amount);
             }
 
-            if ($scope.newRequest.btcValue) {
-                $scope.newRequest.bitcoinUri += "?amount=" + parseFloat($scope.newRequest.qrValue).toFixed(8);
+            if (!isNaN($scope.newRequest.qrValue) && $scope.newRequest.qrValue.toFixed(8) !== '0.00000000') {
+                $scope.newRequest.bitcoinUri += "?amount=" + $scope.newRequest.qrValue.toFixed(8);
             }
         };
 
@@ -125,7 +125,6 @@ angular.module('blocktrail.wallet')
 
         //generate the first address
         $scope.newAddress();
-
 
         $scope.$on('new_transactions', function(event, transactions) {
             //show popup (and maybe vibrate?) on new tx

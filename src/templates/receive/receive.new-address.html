@@ -19,10 +19,47 @@
                     </span>
                 </div>
             </div>
+
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="form-group form-group-lg">
+                    <label class="control-label capitalise" for="amount">{{ 'AMOUNT' | translate }}</label>
+                    <div class="input-group input-group-lg">
+                        <input ng-model="newRequest.btcValue" ng-change="setAltCurrency()" type="text" class="form-control" id="amount" name="amount" placeholder="0.00000000" autocomplete="off" type="number" min="0" required />
+
+                        <span class="input-group-addon currency">
+                            <span class="altCurrency">
+                                {{ altCurrency.code | toCurrencySymbol}} {{altCurrency.amount}}
+                            </span>
+                        </span>
+
+                        <span class="input-group-btn">
+                            <div class="btn-group" dropdown>
+                                <button type="button" class="btn btn-alt btn-default btn-lg" dropdown-toggle>
+                                    {{ currencyType }} <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li ng-repeat="currency in currencies"><a ng-click="updateCurrentType(currency.code)">{{ currency.code }}</a></li>
+                                </ul>
+                            </div>
+                        </span>
+                    </div>
+                    <span class="help help-block text-danger">
+                        <span class="sentence-case" ng-if="errors.amount">
+                            {{ errors.amount | translate }}
+                        </span>
+                    </span>
+                </div>
+            </div>
+
+
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="qrcode-display-section">
-                    <qr ng-if="newRequest.bitcoinUri" text="newRequest.bitcoinUri" type-number="qrSettings.typeNumber" correction-level="qrSettings.correctionLevel" size="qrSettings.SIZE" input-mode="qrSettings.inputMode" image="qrSettings.image"></qr>
-                    <loading-spinner loading-spinner-size="lg" ng-if="!newRequest.address"></loading-spinner>
+                    <div ng-if="newRequest.bitcoinUri">
+                        <a ng-href="{{ newRequest.bitcoinUri }}">
+                        <qr text="newRequest.bitcoinUri" type-number="qrSettings.typeNumber" correction-level="qrSettings.correctionLevel" size="qrSettings.SIZE" input-mode="qrSettings.inputMode" image="qrSettings.image"></qr>
+                        </a>
+                        <loading-spinner loading-spinner-size="lg" ng-if="!newRequest.address"></loading-spinner>
+                    </div>
                 </div>
             </div>
         </div>
