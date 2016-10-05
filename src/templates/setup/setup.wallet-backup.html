@@ -13,7 +13,7 @@
                             <b>{{ 'SETUP_WALLET_BACKUP_TEXT_BOLD' | translate }}</b><br/><br/>
                             {{ 'SETUP_WALLET_BACKUP_TEXT_APPEND' | translate }}
                         </p>
-                        <button class="btn btn-alt downloadBackupBtn" ng-click="export()">{{ 'BACKUP_CREATE_PDF' | translate }}</button>
+                        <button ng-class="{ 'btn-success':!backupSaved }" class="btn btn-lg btn-default downloadBackupBtn" ng-click="export()">{{ 'BACKUP_CREATE_PDF' | translate }}</button>
                     </div>
 
                     <form class="form">
@@ -30,8 +30,8 @@
                             </span>
                         </div>
                         <div class="form-group form-group-lg">
-                            <button class="btn btn-alt btn-success capitalise form-control"
-                                    ng-class="{'btn-default': !backupSaved, 'button-success': backupSaved}"
+                            <button class="btn btn-alt capitalise form-control"
+                                    ng-class="{'btn-default': !backupSaved, 'btn-success': backupSaved}"
                                     ng-disabled="!backupSaved"
                                     ng-click="continue()">{{ 'CONTINUE' | translate }}
                             </button>
