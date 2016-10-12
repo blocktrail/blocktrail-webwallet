@@ -1431,6 +1431,24 @@ $display-token-size: 50px;
             }
         }
     }
+
+    &.state-app_wallet_buybtc {
+        .buybtc-list {
+            & > div {
+                padding: 10px;
+            }
+        }
+
+        .buybtc-currentprice {
+            background-color: $lightgray-light;
+            width: 100%;
+            padding: 30px;
+
+            .currentprice-label {
+                font-size: 18px;
+            }
+        }
+    }
 }
 
 //Add opacity animation states for everything...ng-animate is active on all elements so meerly adding a transition will activate this animation

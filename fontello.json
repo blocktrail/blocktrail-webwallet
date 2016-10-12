@@ -221,6 +221,12 @@
             "css": "warning-empty",
             "code": 59427,
             "src": "typicons"
+        },
+        {
+            "uid": "3d8cc269fdad8a4cda55a20542a84e5c",
+            "css": "credit-card",
+            "code": 59425,
+            "src": "fontawesome"
         }
     ]
 }

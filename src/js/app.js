@@ -420,6 +420,49 @@ angular.module('blocktrail.wallet').config(
                 }
             })
 
+            /*--- Buy BTC ---*/
+            .state('app.wallet.buybtc', {
+                url: "/buy",
+                abstract: true,
+                template: "<div ui-view></div>"
+            })
+            .state('app.wallet.buybtc.choose', {
+                url: "/choose",
+                views: {
+                    "mainView@app.wallet": {
+                        templateUrl: "templates/buybtc/buybtc.choose.html",
+                        controller: 'BuyBTCChooseCtrl'
+                    }
+                }
+            })
+            .state('app.wallet.buybtc.glidera_bitid_callback', {
+                url: "/glidera/bitid/callback",
+                views: {
+                    "mainView@app.wallet": {
+                        templateUrl: "templates/buybtc/buybtc.glidera_callback.html",
+                        controller: 'BuyBTCGlideraBitIDCallbackCtrl'
+                    }
+                }
+            })
+            .state('app.wallet.buybtc.glidera_oauth2_callback', {
+                url: "/glidera/oaoth2/callback",
+                views: {
+                    "mainView@app.wallet": {
+                        templateUrl: "templates/buybtc/buybtc.glidera_callback.html",
+                        controller: 'BuyBTCGlideraOauthCallbackCtrl'
+                    }
+                }
+            })
+            .state('app.wallet.buybtc.buy', {
+                url: "/buy?broker",
+                views: {
+                    "mainView@app.wallet": {
+                        templateUrl: "templates/buybtc/buybtc.buy.html",
+                        controller: 'BuyBTCBuyCtrl'
+                    }
+                }
+            })
+
             /*--- Error ---*/
             .state('app.error', {
                 views: {
@@ -531,6 +574,21 @@ if (!window.repeat) {
 
         return r;
     };
+}
+
+function parseQuery(url) {
+    url = (url || "").split("?");
+    if (url.length < 2) {
+        return {};
+    }
+    var qstr = url[1];
+    var query = {};
+    var a = qstr.split('&');
+    for (var i = 0; i < a.length; i++) {
+        var b = a[i].split('=');
+        query[decodeURIComponent(b[0])] = decodeURIComponent(b[1] || '');
+    }
+    return query;
 }
 
 /**

@@ -15,7 +15,12 @@ angular.module('blocktrail.wallet').service('settingsService', function($q, stor
         contactsLastSync: null,
         enablePolling: true,    //dev setting - disables auto polling for transactions
         useTestnet: false,      //dev setting - enables testnet for SDK
-        setupComplete: false
+        setupComplete: false,
+
+        glideraRequest: null,
+        glideraAccessToken: null,
+
+        buyBTCRegion: null
     };
     angular.extend(this, defaults);
 

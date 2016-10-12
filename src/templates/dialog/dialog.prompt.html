@@ -17,7 +17,7 @@
 
         <p ng-if="message.bodyExtra">{{ message.bodyExtra | translate }}</p>
 
-        <div class="form-group form-group-lg">
+        <div class="form-group form-group-lg" ng-if="message.prompt">
             <label ng-if="message.label" class="control-label" for="prompt">{{ message.label | translate }}</label>
 
             <div ng-if="message.icon" class="input-group">

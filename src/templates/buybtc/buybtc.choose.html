@@ -1,0 +1,70 @@
+<div class="appPage">
+    <div class="text-center" style="margin-top: 50px;" ng-show="!chooseRegion">
+        <loading-spinner></loading-spinner>
+    </div>
+    <button class="btn btn-alt btn-hidden" style="float: right;" ng-click="resetBuyBTC()"></button>
+
+    <div ng-if="chooseRegion">
+        <!-- CHOOSE REGION -->
+        <div ng-if="!chooseRegion.code" ng-controller="BuyBTCChooseRegionCtrl">
+            <h2>{{ 'BUYBTC_CHOOSE_REGION_TITLE' | translate }}</h2>
+            <p ng-bind-html="'BUYBTC_CHOOSE_REGION_BODY' | translate | nl2br"></p>
+
+            <div ng-if="!usSelected">
+                <h3>{{ 'BUYBTC_REGIONS' | translate }}</h3>
+                <div class="buybtc-list">
+                    <div ng-click="selectUS()">
+                        <span class="sentence-case">USA</span>
+                    </div>
+                    <div ng-repeat="region in regions" ng-click="selectRegion(region.code, region.name)">
+                        <span class="sentence-case">{{ region.name | translate }}</span>
+                    </div>
+                    <div ng-click="selectRegion('OTHER_REGIONS')">
+                        <span class="sentence-case">{{ 'OTHER_REGIONS' | translate }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-if="usSelected">
+                <h3>{{ 'BUYBTC_REGIONS' | translate }}</h3>
+                <div class="buybtc-list">
+                    <div ng-repeat="usState in usStates" ng-click="selectRegion(usState.code, usState.name)">
+                        <span class="sentence-case">{{ usState.name }} ({{ usState.code.replace('US-', '') }})</span>
+                    </div>
+                    <div ng-click="selectRegion('OTHER_REGIONS')">
+                        <span class="sentence-case">Other</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REGION NOT OK -->
+        <div ng-if="chooseRegion.code && !chooseRegion.regionOk">
+            <div>
+                <h2>{{ 'BUYBTC_REGION_NOTOK_TITLE' | translate }}: <span class="">{{ chooseRegion.name | translate }}</span></h2>
+                <p ng-bind-html="'BUYBTC_REGION_NOTOK_BODY' | translate | nl2br"></p>
+            </div>
+
+            <div>
+                <button class="button send-button button-block button-energized" ng-click="selectRegion(null, null)">
+                    {{ 'BUYBTC_CHANGE_REGION' | translate }}
+                </button>
+            </div>
+        </div>
+
+        <!-- REGION OK -->
+        <div ng-if="chooseRegion.code && chooseRegion.regionOk">
+            <div>
+                <h2>{{ 'BUYBTC_CHOOSE_TITLE' | translate }}</h2>
+                <p ng-bind-html="'BUYBTC_CHOOSE_SUBTITLE' | translate | nl2br"></p>
+            </div>
+
+            <h3>{{ 'BUYBTC_PROVIDERS' | translate }}</h3>
+            <div class="buybtc-list">
+                 <div ng-if="brokers.indexOf('glidera') !== -1" ng-click="goGlideraBrowser()">
+                    <span class="sentence-case">Glidera</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

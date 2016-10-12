@@ -32,7 +32,7 @@ angular.module('blocktrail.wallet').factory(
             var modalInstance = $modal.open({
                 controller: 'DialogAlertCtrl',
                 templateUrl: 'templates/dialog/dialog.alert.html',
-                size: typeof message.size || 'md',
+                size: message.size || 'md',
                 backdrop: typeof message.backdrop !== "undefined" ? message.backdrop : defaultBackdrop,
                 resolve: {
                     message: function() {
@@ -111,12 +111,16 @@ angular.module('blocktrail.wallet').factory(
                 }
             }
 
+            if (typeof message.prompt === "undefined") {
+                message.prompt = true;
+            }
+
             var defaultBackdrop = message.cancel === false || message.ok === false ? 'static' : true;
 
             var modalInstance = $modal.open({
                 controller: 'DialogPromptCtrl',
                 templateUrl: 'templates/dialog/dialog.prompt.html',
-                size: typeof message.size || 'md',
+                size: message.size || 'md',
                 backdrop: typeof message.backdrop !== "undefined" ? message.backdrop : defaultBackdrop,
                 resolve: {
                     message: function() {
@@ -138,6 +142,59 @@ angular.module('blocktrail.wallet').factory(
                         title: title,
                         body: body,
                         ok: ok
+                    }
+                }
+
+                $rootScope.$broadcast('dialog:' + dialogId, message);
+            };
+
+            return modalInstance;
+        };
+
+        DialogService.prototype.spinner = function(title, body) {
+            var self = this;
+            var dialogId = ++self.dialogId;
+
+            var message;
+            if (typeof title === "object") {
+                message = title;
+            } else {
+                message = {
+                    title: title,
+                    body: body
+                }
+            }
+
+            if (typeof message.title === "undefined") {
+                message.title = 'LOADING';
+            }
+
+            var defaultBackdrop = 'static';
+
+            var modalInstance = $modal.open({
+                controller: 'DialogSpinnerCtrl',
+                templateUrl: 'templates/dialog/dialog.spinner.html',
+                size: message.size || 'md',
+                backdrop: typeof message.backdrop !== "undefined" ? message.backdrop : defaultBackdrop,
+                resolve: {
+                    message: function() {
+                        return message;
+                    },
+                    dialogId: function() {
+                        return dialogId
+                    }
+                }
+            });
+
+            modalInstance.message = message;
+            modalInstance.update = function(title, body) {
+                var message;
+                if (typeof title === "object") {
+                    message = title;
+                } else {
+                    message = {
+                        title: title,
+                        body: body
                     }
                 }
 

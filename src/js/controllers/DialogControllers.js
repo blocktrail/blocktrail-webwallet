@@ -32,4 +32,15 @@ angular.module('blocktrail.wallet')
             $scope.message = message;
         });
     })
+    .controller('DialogSpinnerCtrl', function($scope, $modalInstance, message, dialogId) {
+        $scope.message = message;
+
+        $scope.dismiss = function() {
+            $modalInstance.dismiss("dismiss");
+        };
+
+        $scope.$on('dialog:' + dialogId, function(event, message) {
+            $scope.message = message;
+        });
+    })
 ;

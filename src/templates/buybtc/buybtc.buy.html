@@ -1,0 +1,72 @@
+<div class="appPage">
+    <form name="buyInputForm" class="form" novalidate>
+        <div class="text-center" style="margin-top: 50px;" ng-show="initializing">
+            <loading-spinner></loading-spinner>
+        </div>
+
+        <div ng-show="!initializing">
+            <h2 class="sentence-case">{{ broker }}</h2>
+            <p>{{ 'BUYBTC_BUY_SUBTITLE' | translate }}</p>
+
+            <section class="buybtc-currentprice">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="currentprice-label">
+                            {{ 'CURRENT_PRICE' | translate }}
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div ng-if="fetchingMainPrice">
+                            <loading-spinner></loading-spinner>
+                        </div>
+                        <div ng-if="!fetchingMainPrice" class="currentprice-value">
+                            {{ buyInput.fiatCurrency | toCurrencySymbol }}{{ priceBTC | number:2 }}
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group form-group-lg">
+                        <label class="control-label capitalise" for="amount">{{ 'AMOUNT' | translate }}</label>
+                        <div class="input-group input-group-lg">
+                            <input ng-model="buyInput.amount" ng-change="updateInputPrice()" type="text" class="form-control"
+                                   id="amount" name="amount" placeholder="0.00000000" autocomplete="off" type="number" min="0" required />
+                            <span class="input-group-addon currency" style="min-width: 120px;">
+                                <span class="altCurrency">
+                                    {{ altCurrency.code | toCurrencySymbol }} {{ altCurrency.amount }}
+                                </span>
+                            </span>
+                            <span class="input-group-btn">
+                                <div class="btn-group" dropdown>
+                                    <button type="button" class="btn btn-alt btn-default btn-lg" dropdown-toggle>
+                                        {{ buyInput.currencyType }} <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li ng-repeat="currency in currencies"><a ng-click="updateCurrentType(currency.code)">{{ currency.code }}</a></li>
+                                    </ul>
+                                </div>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-if="buyInput.btcValue || buyInput.fiatValue">
+                <div class="col-xs-12">
+                    <div class="amount-footer amount-feefooter">
+                        <div class="feefooter-left sentence-case">{{ 'BUYBTC_INCL_FEE' | translate }} ({{ buyInput.feePercentage | number:1 }}%):</div>
+                        <div class="feefooter-right">
+                            {{ buyInput.fiatCurrency | toCurrencySymbol }}{{ buyInput.feeValue | number:2 }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <button class="btn btn-default" ng-click="buyBTC()">{{ 'BUYBTC_BUY' | translate }}</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
