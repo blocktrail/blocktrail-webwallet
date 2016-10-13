@@ -6,7 +6,7 @@ var bip39 = require('bip39');
 var blocktrail = {
     COIN: 100000000,
     PRECISION: 8,
-    DUST: 546,
+    DUST: 2730,
     BASE_FEE: 10000
 };
 

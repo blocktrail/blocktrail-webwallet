@@ -1671,7 +1671,7 @@ BackupGenerator.prototype.generateHTML = function(cb) {
         //load and compile the html
         var compiledHtml;
         try {
-            compiledHtml = _.template("<style>\n    html, body {\n        font-size: 100%;\n        background: #FFF;\n        margin: 0;\n        padding: 0;\n    }\n\n    @media screen {\n        html {\n            padding: 40px 20px 20px 20px;\n            width: 800px;\n        }\n        header {\n            display: block !important;\n        }\n    }\n\n    body {\n        font-family: 'Open Sans', Helvetica, sans-serif;\n        font-weight: 100;\n    }\n\n    h1, h2, h3 {\n        font-weight: 100;\n    }\n\n    h3 {\n        color: #333;\n    }\n\n    p {\n        margin: 0.5em 0;\n        line-height: 1em;\n    }\n\n    code {\n        font-family: Consolas, monospace;\n    }\n\n    figure {\n        display: inline-block;\n        margin: 1em;\n    }\n\n    figcaption {\n        font-size: 0.8em;\n        text-align: center;\n    }\n\n    header {\n        display: none;\n        position: fixed;\n        top: 0;\n        left: 20px;\n        width: 100%;\n        background: #FFF;\n        background: rgba(255, 255, 255, 0.85);\n        border-bottom: 1px solid #fff;\n    }\n\n    .logo-blocktrail-square {\n        display: block;\n        width: 200px;\n    }\n\n    .logo-blocktrail-square img {\n        width: 100%;\n        height: auto;\n    }\n\n    .intro h1 {\n        margin: 0;\n        padding: 0;\n    }\n\n    .backup-info {\n        padding-bottom: 1em;\n        margin-bottom: 1em;\n    }\n\n    .backup-info small {\n        display: block;\n        color: #666;\n        font-size: 0.75em;\n    }\n\n    .backup-info figcaption span:first-child {\n        margin-right: 1em;\n    }\n\n    section h2 {\n        padding-bottom: 0.2em;\n        margin-bottom: 0.2em;\n        border-bottom: 1px solid #CCC;\n    }\n</style>\n\n<header>\n    <a class='logo-blocktrail-square' href='https://www.blocktrail.com/'>\n        <img src='data:image/png;base64,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'  alt='blocktrail' />\n    </a>\n</header>\n\n<% if (options.page1) { %>\n    <section class='intro'>\n        <h1>Wallet Recovery Data Sheet!</h1>\n        <p>\n            This document holds the information and instructions required for you to recover your Blocktrail wallet should anything happen. <br>\n            Print it out and keep it in a safe location; if you lose these details you will never be able to recover your wallet.\n        </p>\n    </section>\n\n    <section>\n        <h2>Wallet Identifier</h2>\n        <div class='identifier'><h3><%= identifier %></h3></div>\n    </section>\n\n    <section class='backup-info'>\n        <h2>Backup Info</h2>\n        <% if (backupInfo.primaryMnemonic) { %>\n            <div><h3>Primary Mnemonic</h3><code> <%= backupInfo.primaryMnemonic %> </code></div>\n        <% } %>\n\n        <% if (backupInfo.backupMnemonic) { %>\n        <div><h3>Backup Mnemonic</h3><code> <%= backupInfo.backupMnemonic %> </code></div>\n        <% } %>\n\n        <% if (backupInfo.encryptedPrimarySeed) { %>\n        <div><h3>Encrypted Primary Seed</h3><code> <%= backupInfo.encryptedPrimarySeed %> </code></div>\n        <% } %>\n\n        <% if (backupInfo.backupSeed) { %>\n        <div><h3>Backup Seed</h3><code> <%= backupInfo.backupSeed %> </code></div>\n        <% } %>\n\n        <% if (backupInfo.recoveryEncryptedSecret) { %>\n        <div><h3>Encrypted Recovery Secret</h3><code> <%= backupInfo.recoveryEncryptedSecret %> </code></div>\n        <% } %>\n\n        <div style=\"page-break-before: always;\"></div>\n\n        <div class='blocktrail-pubkeys'><h3>Blocktrail Public Keys <small> <%= totalPubKeys  %> in total</small></h3>\n            <%= pubKeysHtml %>\n        </div>\n\n        <% if (extraInfo) { %>\n            <h2>Extra Info</h2>\n            <% for (idx in extraInfo) { %>\n                <div><h3><%= extraInfo[idx].title %></h3><code> <%= extraInfo[idx].value %> </code></div>\n            <% } %>\n        <% } %>\n    </section>\n<% } %>\n\n<% if (backupInfo.encryptedSecret && options.page2) { %>\n    <% if (options.page1) { %>\n        <div style=\"page-break-before: always;\"></div>\n    <% } %>\n\n    <section>\n        <div>\n            <h2>Backup Info - part 2</h2>\n            <p>This page needs to be replaced / updated when wallet password is changed!</p>\n            <div><h3>Password Encrypted Secret</h3><code> <%= backupInfo.encryptedSecret %> </code></div>\n        </div>\n    </section>\n<% } %>\n\n<% if (options.page3) { %>\n    <!-- save some paper ... <div style=\"page-break-before: always;\"></div> -->\n\n    <section class='backup-instructions'>\n        <div><h2>Wallet Recovery Instructions</h2><p>For instructions on how to recover your wallet, see the 'wallet_recovery_example.php' script in the examples folder of the Blocktrail SDK.</p></div>\n    </section>\n<% } %>\n");
+            compiledHtml = _.template("<style>\n    html, body {\n        font-size: 100%;\n        background: #FFF;\n        margin: 0;\n        padding: 0;\n    }\n\n    @media screen {\n        html {\n            padding: 40px 20px 20px 20px;\n            width: 800px;\n        }\n        header {\n            display: block !important;\n        }\n    }\n\n    body {\n        font-family: 'Open Sans', Helvetica, sans-serif;\n        font-weight: 100;\n    }\n\n    h1, h2, h3 {\n        font-weight: 100;\n    }\n\n    h3 {\n        color: #333;\n    }\n\n    p {\n        margin: 0.5em 0;\n        line-height: 1em;\n    }\n\n    code {\n        font-family: Consolas, monospace;\n    }\n\n    figure {\n        display: inline-block;\n        margin: 1em;\n    }\n\n    figcaption {\n        font-size: 0.8em;\n        text-align: center;\n    }\n\n    header {\n        display: none;\n        position: fixed;\n        top: 0;\n        left: 20px;\n        width: 100%;\n        background: #FFF;\n        background: rgba(255, 255, 255, 0.85);\n        border-bottom: 1px solid #fff;\n    }\n\n    .logo-blocktrail-square {\n        display: block;\n        width: 200px;\n    }\n\n    .logo-blocktrail-square img {\n        width: 100%;\n        height: auto;\n    }\n\n    .intro h1 {\n        margin: 0;\n        padding: 0;\n    }\n\n    .backup-info {\n        padding-bottom: 1em;\n        margin-bottom: 1em;\n    }\n\n    .backup-info small {\n        display: block;\n        color: #666;\n        font-size: 0.75em;\n    }\n\n    .backup-info figcaption span:first-child {\n        margin-right: 1em;\n    }\n\n    section h2 {\n        padding-bottom: 0.2em;\n        margin-bottom: 0.2em;\n        border-bottom: 1px solid #CCC;\n    }\n</style>\n\n<header>\n    <a class='logo-blocktrail-square' href='https://btc.com/'>\n        <img src='data:image/jpeg;base64,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'\n             alt='BTC.com' />\n    </a>\n</header>\n\n<% if (options.page1) { %>\n    <section class='intro'>\n        <h1>Wallet Recovery Data Sheet!</h1>\n        <p>\n            This document holds the information and instructions required for you to recover your BTC Wallet should anything happen. <br>\n            Print it out and keep it in a safe location; if you lose these details you will never be able to recover your wallet.\n        </p>\n    </section>\n\n    <section>\n        <h2>Wallet Identifier</h2>\n        <div class='identifier'><h3><%= identifier %></h3></div>\n    </section>\n\n    <section class='backup-info'>\n        <h2>Backup Info</h2>\n        <% if (backupInfo.primaryMnemonic) { %>\n            <div><h3>Primary Mnemonic</h3><code> <%= backupInfo.primaryMnemonic %> </code></div>\n        <% } %>\n\n        <% if (backupInfo.backupMnemonic) { %>\n        <div><h3>Backup Mnemonic</h3><code> <%= backupInfo.backupMnemonic %> </code></div>\n        <% } %>\n\n        <% if (backupInfo.encryptedPrimarySeed) { %>\n        <div><h3>Encrypted Primary Seed</h3><code> <%= backupInfo.encryptedPrimarySeed %> </code></div>\n        <% } %>\n\n        <% if (backupInfo.backupSeed) { %>\n        <div><h3>Backup Seed</h3><code> <%= backupInfo.backupSeed %> </code></div>\n        <% } %>\n\n        <% if (backupInfo.recoveryEncryptedSecret) { %>\n        <div><h3>Encrypted Recovery Secret</h3><code> <%= backupInfo.recoveryEncryptedSecret %> </code></div>\n        <% } %>\n\n        <div style=\"page-break-before: always;\"></div>\n\n        <div class='blocktrail-pubkeys'><h3>BTC Wallet Public Keys <small> <%= totalPubKeys  %> in total</small></h3>\n            <%= pubKeysHtml %>\n        </div>\n\n        <% if (extraInfo) { %>\n            <h2>Extra Info</h2>\n            <% for (idx in extraInfo) { %>\n                <div><h3><%= extraInfo[idx].title %></h3><code> <%= extraInfo[idx].value %> </code></div>\n            <% } %>\n        <% } %>\n    </section>\n<% } %>\n\n<% if (backupInfo.encryptedSecret && options.page2) { %>\n    <% if (options.page1) { %>\n        <div style=\"page-break-before: always;\"></div>\n    <% } %>\n\n    <section>\n        <div>\n            <h2>Backup Info - part 2</h2>\n            <p>This page needs to be replaced / updated when wallet password is changed!</p>\n            <div><h3>Password Encrypted Secret</h3><code> <%= backupInfo.encryptedSecret %> </code></div>\n        </div>\n    </section>\n<% } %>\n\n<% if (options.page3) { %>\n    <!-- save some paper ... <div style=\"page-break-before: always;\"></div> -->\n\n    <section class='backup-instructions'>\n        <div>\n            <h2>Wallet Recovery Instructions</h2>\n            <p>You can recover the bitcoins in your wallet on https://recovery.blocktrail.com using this backup sheet.</p>\n            <p>For a more technical aproach on how to recover your wallet yourself,\n                see the 'wallet_recovery_example.php' script in the examples folder of the Blocktrail SDK.</p>\n        </div>\n    </section>\n<% } %>\n");
         } catch (e) {
             return cb(e);
         }
@@ -1692,10 +1692,10 @@ BackupGenerator.prototype.generatePDF = function(callback) {
     var pageTop = function() {
         pdf.YAXIS(30); // top margin
         pdf.IMAGE(
-            'data:image/jpeg;base64,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',
+            'data:image/jpeg;base64,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',
             'jpeg',
-            183,
-            25
+            154,
+            30
         );
     };
 
@@ -1715,7 +1715,7 @@ BackupGenerator.prototype.generatePDF = function(callback) {
                     });
 
                     pdf.TEXT(
-                        "This document holds the information and instructions required for you to recover your Blocktrail wallet should anything happen. \n" +
+                        "This document holds the information and instructions required for you to recover your BTC Wallet should anything happen. \n" +
                         "Print it out and keep it in a safe location; if you lose these details you will never be able to recover your wallet."
                     );
 
@@ -1801,7 +1801,7 @@ BackupGenerator.prototype.generatePDF = function(callback) {
 
                     pdf.FONT_SIZE_SUBHEADER(function() {
                         pdf.TEXT_COLOR_GREY(function() {
-                            pdf.TEXT("BlockTrail Public Keys");
+                            pdf.TEXT("BTC Wallet Public Keys");
                         });
                         pdf.FONT_SIZE_NORMAL(function() {
                             pdf.TEXT(self.blocktrailPublicKeys.length + " in total");
@@ -1914,7 +1914,8 @@ BackupGenerator.prototype.generatePDF = function(callback) {
                     });
 
                     pdf.TEXT(
-                        "For instructions on how to recover your wallet, \n" +
+                        "You can recover the bitcoins in your wallet on https://recovery.blocktrail.com using this backup sheet.\n" +
+                        "For a more technical aproach on how to recover your wallet yourself, " +
                         "see the 'wallet_recovery_example.php' script in the examples folder of the Blocktrail SDK."
                     );
                 }
@@ -1946,7 +1947,7 @@ var bip39 = require('bip39');
 var blocktrail = {
     COIN: 100000000,
     PRECISION: 8,
-    DUST: 546,
+    DUST: 2730,
     BASE_FEE: 10000
 };
 
@@ -2382,6 +2383,7 @@ function Request(options) {
     self.port = options.port;
     self.apiKey = options.apiKey;
     self.apiSecret = options.apiSecret;
+    self.contentMd5 = typeof options.contentMd5 !== "undefined" ? options.contentMd5 : true;
 
     self.params = _.defaults({}, options.params);
     self.headers = _.defaults({}, options.headers);
@@ -2434,16 +2436,20 @@ Request.prototype.request = function(method, resource, params, data, fn) {
     if (data) {
         self.payload = JSON.stringify(data);
         self.headers['Content-Type'] = 'application/json';
+    } else {
+        self.payload = "";
     }
 
     if (isNodeJS) {
         self.headers['Content-Length'] = self.payload ? self.payload.length : 0;
     }
 
-    if (method === 'GET' || method === 'DELETE') {
-        self.headers['Content-MD5'] = createHash('md5').update(self.path).digest().toString('hex');
-    } else {
-        self.headers['Content-MD5'] = createHash('md5').update(self.payload).digest().toString('hex');
+    if (self.contentMd5 === true) {
+        if (method === 'GET' || method === 'DELETE') {
+            self.headers['Content-MD5'] = createHash('md5').update(self.path).digest().toString('hex');
+        } else {
+            self.headers['Content-MD5'] = createHash('md5').update(self.payload).digest().toString('hex');
+        }
     }
 
     debug('%s %s %s', method, self.host, self.path);
@@ -3752,7 +3758,7 @@ Wallet.prototype.buildTransaction = function(pay, changeAddress, allowZeroConf, 
                             });
                             var estimatedChange = inputsTotal - outputsTotal - fee;
 
-                            if (estimatedChange > blocktrail.DUST && inputsTotal - outputsTotal - fee !== change) {
+                            if (estimatedChange > blocktrail.DUST * 2 && estimatedChange !== change) {
                                 return cb(new blocktrail.WalletFeeError("the amount of change (" + change + ") " +
                                     "suggested by the coin selection seems incorrect (" + estimatedChange + ")"));
                             }
@@ -4807,14 +4813,14 @@ WalletSweeper.prototype.createTransaction = function(destinationAddress, fee, de
         _.each(data.utxos, function(utxo) {
             rawTransaction.addInput(utxo['hash'], utxo['index']);
             inputs.push({
-                 txid:         utxo['hash'],
-                 vout:         utxo['index'],
-                 scriptPubKey: utxo['script_hex'],
-                 value:        utxo['value'],
-                 address:      address,
-                 path:         data['path'],
-                 redeemScript: data['redeem']
-             });
+                txid:         utxo['hash'],
+                vout:         utxo['index'],
+                scriptPubKey: utxo['script_hex'],
+                value:        utxo['value'],
+                address:      address,
+                path:         data['path'],
+                redeemScript: data['redeem']
+            });
         });
     });
     if (!rawTransaction) {
@@ -4895,6 +4901,7 @@ module.exports = function(self) {
 };
 
 },{"bip39":22}],14:[function(require,module,exports){
+(function (Buffer){
 var APIClient = require('./lib/api_client');
 var blocktrail = require('./lib/blocktrail');
 
@@ -4927,10 +4934,12 @@ APIClient.debug = require('debug');
 APIClient.bip39 = require('bip39');
 APIClient.bitcoin = require('bitcoinjs-lib');
 APIClient.superagent = require('superagent');
+APIClient.Buffer = Buffer;
 
 exports = module.exports = APIClient;
 
-},{"./lib/api_client":1,"./lib/backup_generator":2,"./lib/blocktrail":3,"./lib/request":6,"./lib/services/blocktrail_bitcoin_service":8,"./lib/services/insight_bitcoin_service":9,"./lib/unspent_output_finder":10,"./lib/wallet":11,"./lib/wallet_sweeper":12,"bip39":22,"bitcoinjs-lib":36,"crypto-js":159,"debug":185,"lodash":215,"randombytes":256,"superagent":282}],15:[function(require,module,exports){
+}).call(this,require("buffer").Buffer)
+},{"./lib/api_client":1,"./lib/backup_generator":2,"./lib/blocktrail":3,"./lib/request":6,"./lib/services/blocktrail_bitcoin_service":8,"./lib/services/insight_bitcoin_service":9,"./lib/unspent_output_finder":10,"./lib/wallet":11,"./lib/wallet_sweeper":12,"bip39":22,"bitcoinjs-lib":36,"buffer":80,"crypto-js":159,"debug":185,"lodash":215,"randombytes":256,"superagent":282}],15:[function(require,module,exports){
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
 //
 // THIS IS NOT TESTED NOR LIKELY TO WORK OUTSIDE V8!
@@ -7884,11 +7893,9 @@ function bnModInverse(m) {
     }
   }
   if (v.compareTo(BigInteger.ONE) != 0) return BigInteger.ZERO
-  if (d.compareTo(m) >= 0) return d.subtract(m)
-  if (d.signum() < 0) d.addTo(m, d)
-  else return d
-  if (d.signum() < 0) return d.add(m)
-  else return d
+  while (d.compareTo(m) >= 0) d.subTo(m, d)
+  while (d.signum() < 0) d.addTo(m, d)
+  return d
 }
 
 var lowprimes = [
@@ -8123,36 +8130,31 @@ module.exports = BigInteger
 module.exports={
   "_args": [
     [
-      {
-        "raw": "bigi@^1.4.0",
-        "scope": null,
-        "escapedName": "bigi",
-        "name": "bigi",
-        "rawSpec": "^1.4.0",
-        "spec": ">=1.4.0 <2.0.0",
-        "type": "range"
-      },
+      "bigi@^1.4.0",
       "/work/blocktrail-sdk-nodejs/node_modules/bitcoinjs-lib"
     ]
   ],
   "_from": "bigi@>=1.4.0 <2.0.0",
-  "_id": "bigi@1.4.1",
+  "_id": "bigi@1.4.2",
   "_inCache": true,
   "_installable": true,
   "_location": "/bigi",
-  "_nodeVersion": "2.1.0",
-  "_npmUser": {
-    "name": "jprichardson",
-    "email": "jprichardson@gmail.com"
+  "_nodeVersion": "6.1.0",
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/bigi-1.4.2.tgz_1469584192413_0.6801238611806184"
   },
-  "_npmVersion": "2.10.1",
+  "_npmUser": {
+    "email": "jprichardson@gmail.com",
+    "name": "jprichardson"
+  },
+  "_npmVersion": "3.8.6",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "bigi@^1.4.0",
-    "scope": null,
-    "escapedName": "bigi",
     "name": "bigi",
+    "raw": "bigi@^1.4.0",
     "rawSpec": "^1.4.0",
+    "scope": null,
     "spec": ">=1.4.0 <2.0.0",
     "type": "range"
   },
@@ -8160,8 +8162,8 @@ module.exports={
     "/bitcoinjs-lib",
     "/ecurve"
   ],
-  "_resolved": "https://registry.npmjs.org/bigi/-/bigi-1.4.1.tgz",
-  "_shasum": "726e8ab08d1fe1dfb8aa6bb6309bffecf93a21b7",
+  "_resolved": "https://registry.npmjs.org/bigi/-/bigi-1.4.2.tgz",
+  "_shasum": "9c665a95f88b8b08fc05cfd731f561859d725825",
   "_shrinkwrap": null,
   "_spec": "bigi@^1.4.0",
   "_where": "/work/blocktrail-sdk-nodejs/node_modules/bitcoinjs-lib",
@@ -8179,10 +8181,10 @@ module.exports={
   },
   "directories": {},
   "dist": {
-    "shasum": "726e8ab08d1fe1dfb8aa6bb6309bffecf93a21b7",
-    "tarball": "https://registry.npmjs.org/bigi/-/bigi-1.4.1.tgz"
+    "shasum": "9c665a95f88b8b08fc05cfd731f561859d725825",
+    "tarball": "https://registry.npmjs.org/bigi/-/bigi-1.4.2.tgz"
   },
-  "gitHead": "7d034a1b38ca90f68daa9de472dda2fb813836f1",
+  "gitHead": "c25308081c896ff84702303722bf5ecd8b3f78e3",
   "homepage": "https://github.com/cryptocoinjs/bigi#readme",
   "keywords": [
     "cryptography",
@@ -8204,28 +8206,28 @@ module.exports={
   "main": "./lib/index.js",
   "maintainers": [
     {
-      "name": "midnightlightning",
-      "email": "boydb@midnightdesign.ws"
+      "email": "boydb@midnightdesign.ws",
+      "name": "midnightlightning"
     },
     {
-      "name": "sidazhang",
-      "email": "sidazhang89@gmail.com"
+      "email": "sidazhang89@gmail.com",
+      "name": "sidazhang"
     },
     {
-      "name": "nadav",
-      "email": "npm@shesek.info"
+      "email": "npm@shesek.info",
+      "name": "nadav"
     },
     {
-      "name": "jprichardson",
-      "email": "jprichardson@gmail.com"
+      "email": "jprichardson@gmail.com",
+      "name": "jprichardson"
     }
   ],
   "name": "bigi",
   "optionalDependencies": {},
   "readme": "ERROR: No README data found!",
   "repository": {
-    "url": "git+https://github.com/cryptocoinjs/bigi.git",
-    "type": "git"
+    "type": "git",
+    "url": "git+https://github.com/cryptocoinjs/bigi.git"
   },
   "scripts": {
     "browser-test": "mochify --wd -R spec",
@@ -8236,8 +8238,6 @@ module.exports={
     "unit": "mocha"
   },
   "testling": {
-    "files": "test/*.js",
-    "harness": "mocha",
     "browsers": [
       "ie/9..latest",
       "firefox/latest",
@@ -8245,9 +8245,11 @@ module.exports={
       "safari/6.0..latest",
       "iphone/6.0..latest",
       "android-browser/4.2..latest"
-    ]
+    ],
+    "files": "test/*.js",
+    "harness": "mocha"
   },
-  "version": "1.4.1"
+  "version": "1.4.2"
 }
 
 },{}],22:[function(require,module,exports){
@@ -16088,6 +16090,8 @@ if (Buffer.TYPED_ARRAY_SUPPORT) {
 function assertSize (size) {
   if (typeof size !== 'number') {
     throw new TypeError('"size" argument must be a number')
+  } else if (size < 0) {
+    throw new RangeError('"size" argument must not be negative')
   }
 }
 
@@ -16151,12 +16155,20 @@ function fromString (that, string, encoding) {
   var length = byteLength(string, encoding) | 0
   that = createBuffer(that, length)
 
-  that.write(string, encoding)
+  var actual = that.write(string, encoding)
+
+  if (actual !== length) {
+    // Writing a hex string, for example, that contains invalid characters will
+    // cause everything after the first invalid character to be ignored. (e.g.
+    // 'abxxcd' will be treated as 'ab')
+    that = that.slice(0, actual)
+  }
+
   return that
 }
 
 function fromArrayLike (that, array) {
-  var length = checked(array.length) | 0
+  var length = array.length < 0 ? 0 : checked(array.length) | 0
   that = createBuffer(that, length)
   for (var i = 0; i < length; i += 1) {
     that[i] = array[i] & 255
@@ -16225,7 +16237,7 @@ function fromObject (that, obj) {
 }
 
 function checked (length) {
-  // Note: cannot use `length < kMaxLength` here because that fails when
+  // Note: cannot use `length < kMaxLength()` here because that fails when
   // length is NaN (which is otherwise coerced to zero.)
   if (length >= kMaxLength()) {
     throw new RangeError('Attempt to allocate Buffer larger than maximum ' +
@@ -16274,9 +16286,9 @@ Buffer.isEncoding = function isEncoding (encoding) {
     case 'utf8':
     case 'utf-8':
     case 'ascii':
+    case 'latin1':
     case 'binary':
     case 'base64':
-    case 'raw':
     case 'ucs2':
     case 'ucs-2':
     case 'utf16le':
@@ -16337,9 +16349,8 @@ function byteLength (string, encoding) {
   for (;;) {
     switch (encoding) {
       case 'ascii':
+      case 'latin1':
       case 'binary':
-      case 'raw':
-      case 'raws':
         return len
       case 'utf8':
       case 'utf-8':
@@ -16412,8 +16423,9 @@ function slowToString (encoding, start, end) {
       case 'ascii':
         return asciiSlice(this, start, end)
 
+      case 'latin1':
       case 'binary':
-        return binarySlice(this, start, end)
+        return latin1Slice(this, start, end)
 
       case 'base64':
         return base64Slice(this, start, end)
@@ -16461,6 +16473,20 @@ Buffer.prototype.swap32 = function swap32 () {
   for (var i = 0; i < len; i += 4) {
     swap(this, i, i + 3)
     swap(this, i + 1, i + 2)
+  }
+  return this
+}
+
+Buffer.prototype.swap64 = function swap64 () {
+  var len = this.length
+  if (len % 8 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 64-bits')
+  }
+  for (var i = 0; i < len; i += 8) {
+    swap(this, i, i + 7)
+    swap(this, i + 1, i + 6)
+    swap(this, i + 2, i + 5)
+    swap(this, i + 3, i + 4)
   }
   return this
 }
@@ -16547,7 +16573,73 @@ Buffer.prototype.compare = function compare (target, start, end, thisStart, this
   return 0
 }
 
-function arrayIndexOf (arr, val, byteOffset, encoding) {
+// Finds either the first index of `val` in `buffer` at offset >= `byteOffset`,
+// OR the last index of `val` in `buffer` at offset <= `byteOffset`.
+//
+// Arguments:
+// - buffer - a Buffer to search
+// - val - a string, Buffer, or number
+// - byteOffset - an index into `buffer`; will be clamped to an int32
+// - encoding - an optional encoding, relevant is val is a string
+// - dir - true for indexOf, false for lastIndexOf
+function bidirectionalIndexOf (buffer, val, byteOffset, encoding, dir) {
+  // Empty buffer means no match
+  if (buffer.length === 0) return -1
+
+  // Normalize byteOffset
+  if (typeof byteOffset === 'string') {
+    encoding = byteOffset
+    byteOffset = 0
+  } else if (byteOffset > 0x7fffffff) {
+    byteOffset = 0x7fffffff
+  } else if (byteOffset < -0x80000000) {
+    byteOffset = -0x80000000
+  }
+  byteOffset = +byteOffset  // Coerce to Number.
+  if (isNaN(byteOffset)) {
+    // byteOffset: it it's undefined, null, NaN, "foo", etc, search whole buffer
+    byteOffset = dir ? 0 : (buffer.length - 1)
+  }
+
+  // Normalize byteOffset: negative offsets start from the end of the buffer
+  if (byteOffset < 0) byteOffset = buffer.length + byteOffset
+  if (byteOffset >= buffer.length) {
+    if (dir) return -1
+    else byteOffset = buffer.length - 1
+  } else if (byteOffset < 0) {
+    if (dir) byteOffset = 0
+    else return -1
+  }
+
+  // Normalize val
+  if (typeof val === 'string') {
+    val = Buffer.from(val, encoding)
+  }
+
+  // Finally, search either indexOf (if dir is true) or lastIndexOf
+  if (Buffer.isBuffer(val)) {
+    // Special case: looking for empty string/buffer always fails
+    if (val.length === 0) {
+      return -1
+    }
+    return arrayIndexOf(buffer, val, byteOffset, encoding, dir)
+  } else if (typeof val === 'number') {
+    val = val & 0xFF // Search for a byte value [0-255]
+    if (Buffer.TYPED_ARRAY_SUPPORT &&
+        typeof Uint8Array.prototype.indexOf === 'function') {
+      if (dir) {
+        return Uint8Array.prototype.indexOf.call(buffer, val, byteOffset)
+      } else {
+        return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset)
+      }
+    }
+    return arrayIndexOf(buffer, [ val ], byteOffset, encoding, dir)
+  }
+
+  throw new TypeError('val must be string, number or Buffer')
+}
+
+function arrayIndexOf (arr, val, byteOffset, encoding, dir) {
   var indexSize = 1
   var arrLength = arr.length
   var valLength = val.length
@@ -16574,60 +16666,45 @@ function arrayIndexOf (arr, val, byteOffset, encoding) {
     }
   }
 
-  var foundIndex = -1
-  for (var i = byteOffset; i < arrLength; ++i) {
-    if (read(arr, i) === read(val, foundIndex === -1 ? 0 : i - foundIndex)) {
-      if (foundIndex === -1) foundIndex = i
-      if (i - foundIndex + 1 === valLength) return foundIndex * indexSize
-    } else {
-      if (foundIndex !== -1) i -= i - foundIndex
-      foundIndex = -1
+  var i
+  if (dir) {
+    var foundIndex = -1
+    for (i = byteOffset; i < arrLength; i++) {
+      if (read(arr, i) === read(val, foundIndex === -1 ? 0 : i - foundIndex)) {
+        if (foundIndex === -1) foundIndex = i
+        if (i - foundIndex + 1 === valLength) return foundIndex * indexSize
+      } else {
+        if (foundIndex !== -1) i -= i - foundIndex
+        foundIndex = -1
+      }
+    }
+  } else {
+    if (byteOffset + valLength > arrLength) byteOffset = arrLength - valLength
+    for (i = byteOffset; i >= 0; i--) {
+      var found = true
+      for (var j = 0; j < valLength; j++) {
+        if (read(arr, i + j) !== read(val, j)) {
+          found = false
+          break
+        }
+      }
+      if (found) return i
     }
   }
 
   return -1
 }
 
-Buffer.prototype.indexOf = function indexOf (val, byteOffset, encoding) {
-  if (typeof byteOffset === 'string') {
-    encoding = byteOffset
-    byteOffset = 0
-  } else if (byteOffset > 0x7fffffff) {
-    byteOffset = 0x7fffffff
-  } else if (byteOffset < -0x80000000) {
-    byteOffset = -0x80000000
-  }
-  byteOffset >>= 0
-
-  if (this.length === 0) return -1
-  if (byteOffset >= this.length) return -1
-
-  // Negative offsets start from the end of the buffer
-  if (byteOffset < 0) byteOffset = Math.max(this.length + byteOffset, 0)
-
-  if (typeof val === 'string') {
-    val = Buffer.from(val, encoding)
-  }
-
-  if (Buffer.isBuffer(val)) {
-    // special case: looking for empty string/buffer always fails
-    if (val.length === 0) {
-      return -1
-    }
-    return arrayIndexOf(this, val, byteOffset, encoding)
-  }
-  if (typeof val === 'number') {
-    if (Buffer.TYPED_ARRAY_SUPPORT && Uint8Array.prototype.indexOf === 'function') {
-      return Uint8Array.prototype.indexOf.call(this, val, byteOffset)
-    }
-    return arrayIndexOf(this, [ val ], byteOffset, encoding)
-  }
-
-  throw new TypeError('val must be string, number or Buffer')
-}
-
 Buffer.prototype.includes = function includes (val, byteOffset, encoding) {
   return this.indexOf(val, byteOffset, encoding) !== -1
+}
+
+Buffer.prototype.indexOf = function indexOf (val, byteOffset, encoding) {
+  return bidirectionalIndexOf(this, val, byteOffset, encoding, true)
+}
+
+Buffer.prototype.lastIndexOf = function lastIndexOf (val, byteOffset, encoding) {
+  return bidirectionalIndexOf(this, val, byteOffset, encoding, false)
 }
 
 function hexWrite (buf, string, offset, length) {
@@ -16644,7 +16721,7 @@ function hexWrite (buf, string, offset, length) {
 
   // must be an even number of digits
   var strLen = string.length
-  if (strLen % 2 !== 0) throw new Error('Invalid hex string')
+  if (strLen % 2 !== 0) throw new TypeError('Invalid hex string')
 
   if (length > strLen / 2) {
     length = strLen / 2
@@ -16665,7 +16742,7 @@ function asciiWrite (buf, string, offset, length) {
   return blitBuffer(asciiToBytes(string), buf, offset, length)
 }
 
-function binaryWrite (buf, string, offset, length) {
+function latin1Write (buf, string, offset, length) {
   return asciiWrite(buf, string, offset, length)
 }
 
@@ -16727,8 +16804,9 @@ Buffer.prototype.write = function write (string, offset, length, encoding) {
       case 'ascii':
         return asciiWrite(this, string, offset, length)
 
+      case 'latin1':
       case 'binary':
-        return binaryWrite(this, string, offset, length)
+        return latin1Write(this, string, offset, length)
 
       case 'base64':
         // Warning: maxLength not taken into account in base64Write
@@ -16869,7 +16947,7 @@ function asciiSlice (buf, start, end) {
   return ret
 }
 
-function binarySlice (buf, start, end) {
+function latin1Slice (buf, start, end) {
   var ret = ''
   end = Math.min(buf.length, end)
 
@@ -25686,15 +25764,7 @@ utils.intFromLE = intFromLE;
 module.exports={
   "_args": [
     [
-      {
-        "raw": "elliptic@^6.0.0",
-        "scope": null,
-        "escapedName": "elliptic",
-        "name": "elliptic",
-        "rawSpec": "^6.0.0",
-        "spec": ">=6.0.0 <7.0.0",
-        "type": "range"
-      },
+      "elliptic@^6.0.0",
       "/work/blocktrail-sdk-nodejs/node_modules/create-ecdh"
     ]
   ],
@@ -25709,17 +25779,16 @@ module.exports={
     "tmp": "tmp/elliptic-6.3.1.tgz_1465921413402_0.5202967382501811"
   },
   "_npmUser": {
-    "name": "indutny",
-    "email": "fedor@indutny.com"
+    "email": "fedor@indutny.com",
+    "name": "indutny"
   },
   "_npmVersion": "3.8.6",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "elliptic@^6.0.0",
-    "scope": null,
-    "escapedName": "elliptic",
     "name": "elliptic",
+    "raw": "elliptic@^6.0.0",
     "rawSpec": "^6.0.0",
+    "scope": null,
     "spec": ">=6.0.0 <7.0.0",
     "type": "range"
   },
@@ -25732,8 +25801,8 @@ module.exports={
   "_spec": "elliptic@^6.0.0",
   "_where": "/work/blocktrail-sdk-nodejs/node_modules/create-ecdh",
   "author": {
-    "name": "Fedor Indutny",
-    "email": "fedor@indutny.com"
+    "email": "fedor@indutny.com",
+    "name": "Fedor Indutny"
   },
   "bugs": {
     "url": "https://github.com/indutny/elliptic/issues"
@@ -25780,8 +25849,8 @@ module.exports={
   "main": "lib/elliptic.js",
   "maintainers": [
     {
-      "name": "indutny",
-      "email": "fedor@indutny.com"
+      "email": "fedor@indutny.com",
+      "name": "indutny"
     }
   ],
   "name": "elliptic",
@@ -28502,15 +28571,7 @@ arguments[4][102][0].apply(exports,arguments)
 module.exports={
   "_args": [
     [
-      {
-        "raw": "elliptic@^6.0.0",
-        "scope": null,
-        "escapedName": "elliptic",
-        "name": "elliptic",
-        "rawSpec": "^6.0.0",
-        "spec": ">=6.0.0 <7.0.0",
-        "type": "range"
-      },
+      "elliptic@^6.0.0",
       "/work/blocktrail-sdk-nodejs/node_modules/crypto-browserify/node_modules/browserify-sign"
     ]
   ],
@@ -28525,17 +28586,16 @@ module.exports={
     "tmp": "tmp/elliptic-6.3.1.tgz_1465921413402_0.5202967382501811"
   },
   "_npmUser": {
-    "name": "indutny",
-    "email": "fedor@indutny.com"
+    "email": "fedor@indutny.com",
+    "name": "indutny"
   },
   "_npmVersion": "3.8.6",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "elliptic@^6.0.0",
-    "scope": null,
-    "escapedName": "elliptic",
     "name": "elliptic",
+    "raw": "elliptic@^6.0.0",
     "rawSpec": "^6.0.0",
+    "scope": null,
     "spec": ">=6.0.0 <7.0.0",
     "type": "range"
   },
@@ -28548,8 +28608,8 @@ module.exports={
   "_spec": "elliptic@^6.0.0",
   "_where": "/work/blocktrail-sdk-nodejs/node_modules/crypto-browserify/node_modules/browserify-sign",
   "author": {
-    "name": "Fedor Indutny",
-    "email": "fedor@indutny.com"
+    "email": "fedor@indutny.com",
+    "name": "Fedor Indutny"
   },
   "bugs": {
     "url": "https://github.com/indutny/elliptic/issues"
@@ -28596,8 +28656,8 @@ module.exports={
   "main": "lib/elliptic.js",
   "maintainers": [
     {
-      "name": "indutny",
-      "email": "fedor@indutny.com"
+      "email": "fedor@indutny.com",
+      "name": "indutny"
     }
   ],
   "name": "elliptic",
@@ -38697,22 +38757,26 @@ if (typeof Object.create === 'function') {
 }
 
 },{}],213:[function(require,module,exports){
-/**
- * Determine if an object is Buffer
+/*!
+ * Determine if an object is a Buffer
  *
- * Author:   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
- * License:  MIT
- *
- * `npm install is-buffer`
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @license  MIT
  */
 
+// The _isBuffer check is for Safari 5-7 support, because it's missing
+// Object.prototype.constructor. Remove this eventually
 module.exports = function (obj) {
-  return !!(obj != null &&
-    (obj._isBuffer || // For Safari 5-7 (missing Object.prototype.constructor)
-      (obj.constructor &&
-      typeof obj.constructor.isBuffer === 'function' &&
-      obj.constructor.isBuffer(obj))
-    ))
+  return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
+}
+
+function isBuffer (obj) {
+  return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
+}
+
+// For Node v0.10 support. Remove this eventually.
+function isSlowBuffer (obj) {
+  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
 }
 
 },{}],214:[function(require,module,exports){
@@ -49813,7 +49877,6 @@ function nextTick(fn, arg1, arg2, arg3) {
 }).call(this,require('_process'))
 },{"_process":221}],221:[function(require,module,exports){
 // shim for using process in browser
-
 var process = module.exports = {};
 
 // cached from whatever global is present so that test runners that stub it
@@ -49824,22 +49887,84 @@ var process = module.exports = {};
 var cachedSetTimeout;
 var cachedClearTimeout;
 
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
 (function () {
-  try {
-    cachedSetTimeout = setTimeout;
-  } catch (e) {
-    cachedSetTimeout = function () {
-      throw new Error('setTimeout is not defined');
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
     }
-  }
-  try {
-    cachedClearTimeout = clearTimeout;
-  } catch (e) {
-    cachedClearTimeout = function () {
-      throw new Error('clearTimeout is not defined');
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
     }
-  }
 } ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
 var queue = [];
 var draining = false;
 var currentQueue;
@@ -49864,7 +49989,7 @@ function drainQueue() {
     if (draining) {
         return;
     }
-    var timeout = cachedSetTimeout(cleanUpNextTick);
+    var timeout = runTimeout(cleanUpNextTick);
     draining = true;
 
     var len = queue.length;
@@ -49881,7 +50006,7 @@ function drainQueue() {
     }
     currentQueue = null;
     draining = false;
-    cachedClearTimeout(timeout);
+    runClearTimeout(timeout);
 }
 
 process.nextTick = function (fun) {
@@ -49893,7 +50018,7 @@ process.nextTick = function (fun) {
     }
     queue.push(new Item(fun, args));
     if (queue.length === 1 && !draining) {
-        cachedSetTimeout(drainQueue, 0);
+        runTimeout(drainQueue);
     }
 };
 

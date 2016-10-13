@@ -750,7 +750,7 @@ Wallet.prototype.buildTransaction = function(pay, changeAddress, allowZeroConf, 
                             });
                             var estimatedChange = inputsTotal - outputsTotal - fee;
 
-                            if (estimatedChange > blocktrail.DUST && inputsTotal - outputsTotal - fee !== change) {
+                            if (estimatedChange > blocktrail.DUST * 2 && estimatedChange !== change) {
                                 return cb(new blocktrail.WalletFeeError("the amount of change (" + change + ") " +
                                     "suggested by the coin selection seems incorrect (" + estimatedChange + ")"));
                             }
