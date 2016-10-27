@@ -56,7 +56,8 @@ angular.module('blocktrail.wallet').run(
         $rootScope.currencies = [
             {code: 'USD', symbol: '$'},
             {code: 'EUR', symbol: '€'},
-            {code: 'GBP', symbol: '£'}
+            {code: 'GBP', symbol: '£'},
+            {code: 'CNY', symbol: '¥'}
         ];
 
         $rootScope.languages = [

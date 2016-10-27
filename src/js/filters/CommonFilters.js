@@ -24,6 +24,8 @@ angular.module('blocktrail.wallet')
                     return "€" + localValue;
                 case 'USD':
                     return "$" + localValue;
+                case 'CNY':
+                    return "¥" + localValue;
                 case 'AUD':
                     return "$" + localValue;
                 case 'BTC':
