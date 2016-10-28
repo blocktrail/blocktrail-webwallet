@@ -60,38 +60,16 @@ angular.module('blocktrail.wallet').run(
             {code: 'CNY', symbol: '¥'}
         ];
 
-        $rootScope.languages = [
-            {code: 'nl', name: 'DUTCH'},
-            {code: 'en', name: 'ENGLISH'},
-            {code: 'en_US', name: 'ENGLISH_US'},
-            {code: 'fr', name: 'FRENCH'},
-            {code: 'es', name: 'SPANISH'},
-            {code: 'cn', name: 'CHINESE'},
-            {code: 'ru', name: 'RUSSIAN'}
-        ];
+        $rootScope.changeLanguage = function(language) {
+            settingsService.language = language || blocktrailLocalisation.preferredAvailableLanguage() || CONFIG.FALLBACK_LANGUAGE || 'en';
 
-        $rootScope.normalizeLanguage = function(language) {
-            language = language || $translate.preferredLanguage() || CONFIG.FALLBACK_LANGUAGE || 'en';
-
-            var langOk = false;
-            $rootScope.languages.forEach(function(lang) {
-                if (lang.code == language) {
-                    langOk = true;
-                }
-            });
-
-            if (!langOk) {
-                language = 'en';
+            var momentLocale = settingsService.language;
+            if (momentLocale == 'cn') {
+                momentLocale = 'zh-cn';
             }
 
-            return language;
-        };
-
-        $rootScope.changeLanguage = function(language) {
-            language = $rootScope.normalizeLanguage(language);
-
-            amMoment.changeLocale(language);
-            $translate.use(language);
+            amMoment.changeLocale(momentLocale);
+            $translate.use(settingsService.language);
         };
 
         // start loading settings
@@ -264,7 +242,53 @@ angular.module('blocktrail.wallet').config(
                 url: "/setup",
                 abstract: true,
                 controller: "SetupCtrl",
-                templateUrl: "templates/setup/setup.html"
+                templateUrl: "templates/setup/setup.html",
+                resolve: {
+                    /**
+                     * check for extra languages to enable
+                     * if new language is new preferred, set it
+                     */
+                    preferredLanguage: function(CONFIG, $rootScope, settingsService, blocktrailLocalisation, $http) {
+                        return $http.get(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/mywallet/config?v=" + CONFIG.VERSION)
+                            .then(function(result) {
+                                return result.data.extraLanguages;
+                            })
+                            .then(function(extraLanguages) {
+                                // filter out languages we already know
+                                var knownLanguages = blocktrailLocalisation.getLanguages();
+                                extraLanguages = extraLanguages.filter(function(language) {
+                                    return knownLanguages.indexOf(language) === -1;
+                                });
+
+                                if (extraLanguages.length === 0) {
+                                    return;
+                                }
+
+                                // enable extra languages
+                                _.each(extraLanguages, function(extraLanguage) {
+                                    blocktrailLocalisation.enableLanguage(extraLanguage, {});
+                                });
+
+                                // determine (new) preferred language
+                                var preferredLanguage = blocktrailLocalisation.setupPreferredLanguage();
+
+                                // activate preferred language
+                                $rootScope.changeLanguage(preferredLanguage);
+
+                                // store preferred language
+                                return settingsService.$isLoaded().then(function() {
+                                    settingsService.language = preferredLanguage;
+                                    settingsService.extraLanguages = settingsService.extraLanguages.concat(extraLanguages).unique();
+
+                                    return settingsService.$store();
+                                });
+                            })
+                            .then(function() {
+                            }, function(e) {
+                                console.error(e);
+                            });
+                    }
+                }
             })
             .state('app.setup.loggedout', {
                 url: "/loggedout",

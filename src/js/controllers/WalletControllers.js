@@ -1,6 +1,7 @@
 angular.module('blocktrail.wallet')
    .controller('WalletCtrl', function($q, $log, $scope, $state, $rootScope, $interval, storageService, sdkService, Wallet,
-                                      Contacts, CONFIG, settingsService, $timeout, launchService) {
+                                      Contacts, CONFIG, settingsService, $timeout, launchService, blocktrailLocalisation,
+                                      dialogService, $http, $translate) {
 
         $timeout(function() {
             $rootScope.hideLoadingScreen = true;
@@ -9,7 +10,68 @@ angular.module('blocktrail.wallet')
             Wallet.disablePolling();
         }
 
-        $rootScope.getPrice = function() {
+       /*
+        * check for extra languages to enable
+        *  if one is preferred, prompt user to switch
+        */
+       $rootScope.fetchExtraLanguages = $http.get(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/mywallet/config?v=" + CONFIG.VERSION)
+           .then(function(result) {
+               return result.data.extraLanguages;
+           })
+           .then(function(extraLanguages) {
+               return settingsService.$isLoaded().then(function() {
+                   // filter out languages we already know
+                   var knownLanguages = blocktrailLocalisation.getLanguages();
+                   extraLanguages = extraLanguages.filter(function(language) {
+                       return knownLanguages.indexOf(language) === -1;
+                   });
+
+                   if (extraLanguages.length === 0) {
+                       return;
+                   }
+
+                   // enable extra languages
+                   _.each(extraLanguages, function(extraLanguage) {
+                       blocktrailLocalisation.enableLanguage(extraLanguage, {});
+                   });
+
+                   // determine (new) preferred language
+                   var preferredLanguage = blocktrailLocalisation.setupPreferredLanguage();
+
+                   // store extra languages
+                   settingsService.extraLanguages = settingsService.extraLanguages.concat(extraLanguages).unique();
+
+                   return settingsService.$store()
+                       .then(function() {
+                           // check if we have a new preferred language
+                           if (preferredLanguage != settingsService.language && extraLanguages.indexOf(preferredLanguage) !== -1) {
+                               // prompt to enable
+                               return dialogService.prompt({
+                                   body: $translate.instant('MSG_BETTER_LANGUAGE', {
+                                       oldLanguage: $translate.instant(blocktrailLocalisation.languageName(settingsService.language)),
+                                       newLanguage: $translate.instant(blocktrailLocalisation.languageName(preferredLanguage))
+                                   }).sentenceCase(),
+                                   title: $translate.instant('MSG_BETTER_LANGUAGE_TITLE').sentenceCase(),
+                                   prompt: false
+                                })
+                                   .result
+                                   .then(function() {
+                                       // enable new language
+                                       settingsService.language = preferredLanguage;
+                                       $rootScope.changeLanguage(preferredLanguage);
+
+                                       return settingsService.$store();
+                                   })
+                               ;
+                           }
+                       })
+                       ;
+               });
+           })
+           .then(function() {}, function(e) { console.error('extraLanguages', e && (e.msg || e.message || "" + e)); });
+
+
+       $rootScope.getPrice = function() {
             //get a live prices update
             return $q.when(Wallet.price(false).then(function(data) {
                 return $rootScope.bitcoinPrices = data;
@@ -38,7 +100,7 @@ angular.module('blocktrail.wallet')
             }));
         };
 
-        $rootScope.syncProfile = function() {            
+        $rootScope.syncProfile = function() {
             //sync profile if a pending update is present
             if (!settingsService.profileSynced) {
                 settingsService.$syncProfileUp();

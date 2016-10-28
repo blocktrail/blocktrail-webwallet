@@ -1,7 +1,7 @@
 angular.module('blocktrail.wallet')
     .controller('SettingsCtrl', function($scope, $http, $rootScope, $q, sdkService, launchService, settingsService, Wallet,
                                          Contacts, storageService, $translate, $timeout, $state, $log, $sce, dialogService,
-                                         CONFIG, $modal) {
+                                         CONFIG, $modal, blocktrailLocalisation) {
         $rootScope.pageTitle = 'SETTINGS';
 
         $scope.profilePic = {
@@ -11,6 +11,18 @@ angular.module('blocktrail.wallet')
             cropping: false,
             saved: false
         };
+
+        var updateLanguages = function() {
+            $scope.languages = blocktrailLocalisation.getLanguages().map(function(language) {
+                var name = blocktrailLocalisation.languageName(language);
+                return name ? {code: language, name: name} : null;
+            }).clean();
+        };
+
+        updateLanguages();
+        $rootScope.fetchExtraLanguages.then(function() {
+            updateLanguages();
+        });
 
         $scope.$storingSettings = $q.when(null);
         $scope.settingsSaved = null;
@@ -118,7 +130,7 @@ angular.module('blocktrail.wallet')
         $scope.updateSettings = function() {
             $scope.savingSettings = true;
 
-            settingsService.language = $scope.normalizeLanguage(settingsService.language);
+            $rootScope.changeLanguage(settingsService.language);
 
             // chain on $scope.$storingSettings so that any previous already saving happens first
             $scope.$storingSettings = $scope.$storingSettings.then(function() {
@@ -128,8 +140,6 @@ angular.module('blocktrail.wallet')
                     return settingsService.$syncSettingsUp();
                 })
                 .then(function() {
-                    $rootScope.changeLanguage(settingsService.language);
-
                     $scope.savingSettings = false;
                     $scope.settingsSaved = true;
                     $timeout(function() {
