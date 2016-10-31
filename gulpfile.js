@@ -452,7 +452,7 @@ gulp.task('watch', function() {
     gulp.watch(['./src/img/**/*', './src/font/**/*'], ['copystatics:livereload']);
     gulp.watch(['./src/js/**/*.js'], ['js:app:livereload']);
     gulp.watch(['./src/lib/**/*.js'], ['js:libs:livereload', 'js:sdk:livereload']);
-    gulp.watch(['./src/templates/**/*', './src/translations/translations/*', './src/index.html'], ['templates:livereload']);
+    gulp.watch(['./src/templates/**/*', './src/translations/translations/**/*', './src/index.html'], ['templates:livereload']);
     gulp.watch(['./appconfig.json', './appconfig.default.json'], ['default:livereload']);
 });
 

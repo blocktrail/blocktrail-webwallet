@@ -16,7 +16,10 @@
 
     "HOMEPAGE_URL": "https://btc.com",
     "EXPLORER_URL": "https://btc.com",
+    "WALLET_URL": "https://wallet.btc.com",
     "DEVELOPERS_URL": "https://www.blocktrail.com/api",
+
+    "GLIDERA_URL": "https://www.glidera.io",
 
     "DEFAULT_IDENTIFIER": "mywallet",
     

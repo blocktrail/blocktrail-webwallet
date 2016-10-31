@@ -40,6 +40,7 @@ angular.module('blocktrail.wallet').factory(
         db('wallet-cache');
         db('history');
         db('wallet_info');
+        db('settings');
 
         return {
             db: db,

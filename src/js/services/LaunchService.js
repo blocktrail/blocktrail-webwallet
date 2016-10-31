@@ -16,14 +16,14 @@ angular.module('blocktrail.wallet').factory(
 
             return self.determineSetupState().then(
                 function(setupState) {
-                    var isAllowed = setupState.allowed.any(function(allowedState) {
+                    var isAllowed = !!setupState.allowed.any(function(allowedState) {
                         return currentState.indexOf(allowedState) === 0;
                     });
 
-                    $log.debug('handleSetupState', currentState, setupState, isAllowed);
+                    $log.debug('handleSetupState ' + [currentState, isAllowed].join(";"));
                     if (!isAllowed) {
                         $state.go(setupState._default);
-                        return $q.reject(false);
+                        return;
                     }
 
                     return true;
@@ -162,14 +162,26 @@ angular.module('blocktrail.wallet').factory(
             return $q.when(self.storage.get('wallet_info'))
                 .then(function(doc) { return doc; }, function() { return {_id: "wallet_info"}; })
                 .then(function(doc) {
-                    doc.identifier = identifier;
-                    doc.encryptedPassword = encryptedPassword;
+                        doc.identifier = identifier;
+                        doc.encryptedPassword = encryptedPassword;
 
-                    return self.storage.put(doc).then(function() {
-                        return true;
-                    });
-                }
-            );
+                        return self.storage.put(doc).then(function() {
+                            return true;
+                        });
+                    }
+                );
+        };
+
+        var walletSecret = null;
+        LaunchService.prototype.stashWalletSecret = function(secret) {
+            walletSecret = secret;
+        };
+
+        LaunchService.prototype.getWalletSecret = function() {
+            var secret = walletSecret;
+            walletSecret = null;
+
+            return secret;
         };
 
         LaunchService.prototype.clearWalletInfo = function() {

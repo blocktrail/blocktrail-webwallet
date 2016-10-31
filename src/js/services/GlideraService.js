@@ -1,9 +1,13 @@
 angular.module('blocktrail.wallet').factory(
     'glideraService',
-    function(CONFIG, $log, $q, Wallet, dialogService, $translate, $http, $timeout, settingsService, launchService, sdkService) {
+    function(CONFIG, $log, $q, Wallet, dialogService, $rootScope, $translate, $http,
+             $timeout, $interval, settingsService, launchService, sdkService) {
         var clientId;
-        var returnuri = "http://localhost:3000/#/wallet/buy/glidera/oaoth2/callback";
+        var returnuri = CONFIG.WALLET_URL + "/#/wallet/buy/glidera/oaoth2/callback";
+        var SANDBOX = CONFIG.GLIDERA_URL.indexOf('sandbox.') !== -1;
         var decryptedAccessToken = null;
+        var DECRYPTED_TOKEN_TTL = 30 * 60 * 1000; // 30min
+        DECRYPTED_TOKEN_TTL = 5000;
 
         var encodeOpenURI = function(uri) {
             return uri.replace('#', '%23');
@@ -14,7 +18,7 @@ angular.module('blocktrail.wallet').factory(
 
             $timeout(function() {
                 decryptedAccessToken = null;
-            }, 30 * 60 * 1000); // 30min
+            }, DECRYPTED_TOKEN_TTL); // 30min
         };
 
         var createRequest = function(options, accessToken, twoFactor) {
@@ -29,7 +33,7 @@ angular.module('blocktrail.wallet').factory(
 
             options = _.defaults({}, (options || {}), {
                 https: true,
-                host: 'sandbox.glidera.io',
+                host: CONFIG.GLIDERA_URL.replace(/https?:\/\//, ''),
                 endpoint: '/api/v1',
                 params: {},
                 headers: _.defaults({}, (options.headers || {}), headers),
@@ -41,7 +45,7 @@ angular.module('blocktrail.wallet').factory(
 
         var oauth2 = function() {
             var uuid = Math.ceil((new Date).getTime() / 1000);
-            var scope = ['transact'].join(',');
+            var scope = ['transact', 'transaction_history'].join(' ');
             var qs = [
                 'response_type=code',
                 'client_id=' + clientId,
@@ -52,7 +56,7 @@ angular.module('blocktrail.wallet').factory(
                 'redirect_uri=' + returnuri
             ];
 
-            var glideraUrl = "https://sandbox.glidera.io/oauth2/auth?" + qs.join("&");
+            var glideraUrl = CONFIG.GLIDERA_URL + "/oauth2/auth?" + qs.join("&");
 
             $log.debug('oauth2', glideraUrl);
 
@@ -66,7 +70,7 @@ angular.module('blocktrail.wallet').factory(
                     'access_token=' + accessToken
                 ];
 
-                var glideraUrl = "https://sandbox.glidera.io/user/setup?" + qs.join("&");
+                var glideraUrl = CONFIG.GLIDERA_URL + "/user/setup?" + qs.join("&");
 
                 $log.debug('setup', glideraUrl);
 
@@ -94,7 +98,7 @@ angular.module('blocktrail.wallet').factory(
                     spinner = dialogService.spinner({title: 'WORKING'});
 
                     return sdkService.sdk().then(function(sdk) {
-                        return sdk.glideraOauth(qs.code, returnuri, true)
+                        return sdk.glideraOauth(qs.code, returnuri, SANDBOX)
                             .then(function(result) {
                                 $log.debug('oauthtoken', JSON.stringify(result, null, 4));
 
@@ -104,19 +108,34 @@ angular.module('blocktrail.wallet').factory(
                                 };
 
                                 return settingsService.$isLoaded().then(function() {
-                                    return launchService.getAccountInfo().then(function(accountInfo) {
-                                        glideraAccessToken.encryptedWith = 'secret';
-                                        glideraAccessToken.encryptedAccessToken = CryptoJS.AES.encrypt(accessToken, accountInfo.secret).toString();
+                                    return dialogService.prompt({
+                                        body: $translate.instant('MSG_BUYBTC_PASSWORD_TO_ENCRYPT').sentenceCase(),
+                                        title: $translate.instant('ENTER_CURRENT_PASSWORD').sentenceCase(),
+                                        input_type: 'password',
+                                        icon: 'key'
                                     })
+                                        .result
+                                        .then(function(password) {
+                                            return Wallet.unlockWithPassword(password)
+                                        })
+                                        .then(function(wallet) {
+                                            glideraAccessToken.encryptedAccessToken = CryptoJS.AES.encrypt(accessToken, wallet.secret).toString();
+
+                                            wallet.lock();
+                                        })
                                         .then(function() {
                                             setDecryptedAccessToken(accessToken);
                                             settingsService.glideraAccessToken = glideraAccessToken;
 
                                             return settingsService.$store().then(function() {
                                                 return settingsService.$syncSettingsUp();
-                                            });
+                                            })
+                                                .then(function() {
+                                                    updateAllTransactions();
+                                                })
+                                            ;
                                         })
-                                        ;
+                                    ;
                                 })
                             })
                         ;
@@ -205,6 +224,24 @@ angular.module('blocktrail.wallet').factory(
             ;
         };
 
+        var decryptAccessToken = function(secret) {
+            return settingsService.$isLoaded().then(function() {
+                $log.debug('glideraAccessToken', JSON.stringify(settingsService.glideraAccessToken, null, 4));
+
+                return settingsService.glideraAccessToken ? settingsService.glideraAccessToken.encryptedAccessToken : null;
+            }).then(function(encryptedAccessToken) {
+                if (!encryptedAccessToken) {
+                    return;
+                }
+
+                var accessToken = CryptoJS.AES.decrypt(encryptedAccessToken, secret).toString(CryptoJS.enc.Utf8);
+
+                setDecryptedAccessToken(accessToken);
+
+                return accessToken;
+            });
+        };
+
         var accessTokenPromise = null; // use promise to avoid doing things twice
         var accessToken = function() {
             if (decryptedAccessToken) {
@@ -220,34 +257,36 @@ angular.module('blocktrail.wallet').factory(
             accessTokenPromise = def.promise;
 
             $timeout(function() {
-                settingsService.$isLoaded().then(function() {
-                    $log.debug('glideraAccessToken', JSON.stringify(settingsService.glideraAccessToken, null, 4));
-
-                    return settingsService.glideraAccessToken ? settingsService.glideraAccessToken.encryptedAccessToken : null;
-                }).then(function(encryptedAccessToken) {
-                    if (!encryptedAccessToken) {
-                        return;
-                    }
-
-                    var decryptAccessToken = function() {
-                        console.log('decryptAccessToken');
-                        return launchService.getAccountInfo().then(function(accountInfo) {
-                            var accessToken = CryptoJS.AES.decrypt(encryptedAccessToken, accountInfo.secret).toString(CryptoJS.enc.Utf8);
-
-                            setDecryptedAccessToken(accessToken);
-
-                            return accessToken;
+                var unlockWallet = function() {
+                    return dialogService.prompt({
+                        body: $translate.instant('MSG_BUYBTC_PASSWORD_TO_DECRYPT').sentenceCase(),
+                        title: $translate.instant('ENTER_CURRENT_PASSWORD').sentenceCase(),
+                        input_type: 'password',
+                        icon: 'key'
+                    })
+                        .result
+                        .then(function(password) {
+                            return Wallet.unlockWithPassword(password)
+                                .catch(function(e) {
+                                    return unlockWallet();
+                                })
                         });
-                    };
+                };
 
-                    return decryptAccessToken();
-                })
+                return unlockWallet()
+                    .then(function(wallet) {
+                        var walletSecret = wallet.secret;
+
+                        wallet.lock();
+
+                        return decryptAccessToken(walletSecret);
+                    })
                     .then(function(r) {
-                        console.log('DONE');
+                        $log.debug('DONE');
                         accessTokenPromise = null;
                         def.resolve(r);
                     }, function(err) {
-                        console.log('DONE ERR');
+                        $log.debug('DONE ERR');
                         accessTokenPromise = null;
                         $log.debug(err);
                         def.reject(err);
@@ -258,25 +297,25 @@ angular.module('blocktrail.wallet').factory(
         };
 
         var buyPrices = function(qty, fiat) {
-            $log.debug('buyPrices', qty, fiat);
-            return userCanTransact().then(function(userCanTransact) {
-                if (!userCanTransact) {
-                    throw new Error("User can't transact!");
-                }
+            return sdkService.sdk().then(function(sdk) {
+                return sdk.glideraBuyPrices(qty, fiat, SANDBOX)
+                    .then(function(result) {
+                        console.log('buyPrices ' + JSON.stringify(result));
 
-                return accessToken().then(function(accessToken) {
-                    var r = createRequest(null, accessToken);
-                    return r.request('POST', '/prices/buy', {}, {
-                        qty: qty,
-                        fiat: fiat
-                    })
-                        .then(function(result) {
-                            $log.debug('buyPrices', JSON.stringify(result, null, 4));
+                        return result;
+                    });
+            });
+        };
 
-                            return result;
-                        })
-                    ;
-                });
+        var buyPricesUuid = function(qty, fiat) {
+            return accessToken().then(function(accessToken) {
+                var r = createRequest(null, accessToken, null);
+                return r.request('POST', '/prices/buy', {}, qty && {qty: qty} || {fiat: fiat})
+                    .then(function(result) {
+                        console.log('buyPricesUuid ' + JSON.stringify(result));
+
+                        return result;
+                    });
             });
         };
 
@@ -301,7 +340,23 @@ angular.module('blocktrail.wallet').factory(
                                 .then(function(result) {
                                     $log.debug('buy', JSON.stringify(result, null, 4));
 
-                                    return result;
+                                    settingsService.glideraTransactions.push({
+                                        transactionUuid: result.transactionUuid,
+                                        transactionHash: result.transactionHash || null,
+                                        status: result.status,
+                                        qty: result.qty,
+                                        price: result.price,
+                                        total: result.total,
+                                        currency: result.currency
+                                    });
+
+                                    return settingsService.$store().then(function() {
+                                        return settingsService.$syncSettingsUp().then(function() {
+                                            updatePendingTransactions();
+
+                                            return result;
+                                        });
+                                    });
                                 })
                             ;
                         });
@@ -314,16 +369,182 @@ angular.module('blocktrail.wallet').factory(
             clientId = _clientId;
         };
 
+        var pollPendingTransactions = true;
+        var $updateStatus;
+        var updatePendingTransactions = function() {
+            $updateStatus = $q.defer();
+
+            var _update = function() {
+                pollPendingTransactions = false;
+                var delay = 10000;
+
+                return $q.when(decryptedAccessToken).then(function(accessToken) {
+                    if (accessToken) {
+                        var updateStatus = {};
+
+                        $q.all(settingsService.glideraTransactions.map(function(transaction) {
+                            if (transaction.status === 'PROCESSING' || !transaction.transactionHash) {
+                                pollPendingTransactions = true;
+                                var r = createRequest(null, accessToken);
+                                return r.request('GET', '/transaction/' + transaction.transactionUuid, {})
+                                    .then(function(result) {
+                                        updateStatus[transaction.transactionUuid] = result;
+                                    })
+                                ;
+                            } else {
+                                return $q.when(null);
+                            }
+                        }))
+                            .then(function() {
+                                settingsService.glideraTransactions = settingsService.glideraTransactions.map(function(transaction) {
+                                    if (typeof updateStatus[transaction.transactionUuid] !== "undefined") {
+                                        var newTxInfo = updateStatus[transaction.transactionUuid];
+                                        var oldStatus = transaction.status;
+
+                                        // sometimes a tx is marked COMPLETE but missing a transactionHash,
+                                        //  in that case we force another update
+                                        if (newTxInfo.status === 'COMPLETE' && !newTxInfo.transactionHash) {
+                                            delay = 0;
+                                        } else {
+                                            transaction.qty = newTxInfo.qty;
+                                            transaction.status = newTxInfo.status;
+                                            transaction.transactionHash = newTxInfo.transactionHash;
+
+                                            if (oldStatus === 'PROCESSING' && transaction.status === 'COMPLETE') {
+                                                $rootScope.$broadcast('glidera_complete', transaction);
+                                            }
+                                        }
+                                    }
+
+                                    return transaction;
+                                });
+
+                                return settingsService.$store().then(function() {
+                                    return settingsService.$syncSettingsUp();
+                                });
+                            })
+                        ;
+                    }
+                })
+                    .then(function() {
+                    }, function(e) {
+                        $log.error('updatePendingTransactions ' + e);
+                    })
+                    .then(function() {
+                        if (delay) {
+                            $updateStatus.resolve();
+
+                            if (pollPendingTransactions) {
+                                $timeout(updatePendingTransactions, delay);
+                            }
+                        } else {
+                            // do it again
+                            return _update();
+                        }
+                    })
+                ;
+            };
+
+            _update();
+        };
+        var updateAllTransactions = function(initLoop) {
+            $updateStatus = $q.defer();
+
+            return accessToken().then(function(accessToken) {
+                if (accessToken) {
+                    var updateTxs = [];
+
+                    var r = createRequest(null, accessToken);
+                    return r.request('GET', '/transaction', {})
+                        .then(function(results) {
+                            results.transactions.forEach(function(result) {
+                                updateTxs.push(result);
+                            });
+                        })
+                        .then(function() {
+                            settingsService.glideraTransactions = updateTxs.map(function(updateTx) {
+                                return {
+                                    transactionUuid: updateTx.transactionUuid,
+                                    transactionHash: updateTx.transactionHash,
+                                    qty: updateTx.qty,
+                                    status: updateTx.status,
+                                    price: updateTx.price,
+                                    total: updateTx.total,
+                                    currency: updateTx.currency
+                                };
+                            });
+
+                            return settingsService.$store().then(function() {
+                                return settingsService.$syncSettingsUp().then(function() {
+                                    return true;
+                                });
+                            });
+                        })
+                    ;
+                } else {
+                    return false;
+                }
+            })
+                .then(function(r) { return r; }, function(e) { $log.error('updateAllTransactions ' + e); })
+                .then(function(r) {
+                    $updateStatus.resolve();
+
+                    if (initLoop) {
+                        if (r) {
+                            $timeout(updatePendingTransactions, 10000);
+                        } else {
+                            $timeout(updateAllTransactions, 10000);
+                        }
+                    }
+                })
+            ;
+        };
+
+        var firstUpdate = $q.when(launchService.getWalletSecret())
+            .then(function(walletSecret) {
+                if (!walletSecret) {
+                    return;
+                }
+
+                return decryptAccessToken(walletSecret);
+            }, function(e) { console.log('initDecryptAccessToken ERR ' + e)})
+            .then(function() {
+                // updateAllTransactions(); // @TODO: DEBUG
+                return updatePendingTransactions();
+            });
+
+        Wallet.addTransactionMetaResolver(function(transaction) {
+            return firstUpdate.then(function() {
+                settingsService.glideraTransactions.forEach(function(glideraTxInfo) {
+                    if (glideraTxInfo.transactionHash === transaction.hash) {
+                        transaction.buybtc = {
+                            broker: 'glidera',
+                            qty: glideraTxInfo.qty,
+                            currency: glideraTxInfo.currency,
+                            price: glideraTxInfo.price
+                        };
+                    }
+                });
+
+                return transaction;
+            });
+        });
+
         return {
+            $updateStatus: function() {
+                return $updateStatus.promise;
+            },
             setClientId: setClientId,
             createRequest: createRequest,
             oauth2: oauth2,
             setup: setup,
+            decryptAccessToken: decryptAccessToken,
             twoFactor: twoFactor,
             handleOauthCallback: handleOauthCallback,
             accessToken: accessToken,
             userCanTransact: userCanTransact,
             buyPrices: buyPrices,
+            buyPricesUuid: buyPricesUuid,
             buy: buy
         };
     }

@@ -13,6 +13,15 @@
             <span class="value">{{ data.hash }}</span>
         </small>
 
+        <div ng-if="data.buybtc">
+            <div class="label capitalise">
+                {{ 'TX_INFO_BUYBTC' | translate }}
+            </div>
+            <div class="value">
+                {{ 'TX_INFO_BUYBTC_DETAILS' | translate:data.buybtc }}
+            </div>
+        </div>
+
         <div class="amount" ng-class="{received: data.wallet_value_change > 0, sent: data.wallet_value_change <= 0}">
             <div class="fiat text-ellipsis" ng-if="data.price">
                 <span class="label">{{ 'TX_INFO_TIME_SUBTITLE' | translate }}</span>
@@ -43,7 +52,7 @@
             </div>
         </div>
 
-        <div class="contact" ng-if="data.contact && data.contact.displayName || data.otherAddresses || data.is_internal">
+        <div class="contact" ng-if="!data.buybtc && (data.contact && data.contact.displayName || data.otherAddresses || data.is_internal)">
             <div class="label capitalise">
                 <span ng-if="data.wallet_value_change <= 0">{{ 'TX_INFO_SENT_TO' | translate }}</span>
                 <span ng-if="data.wallet_value_change > 0">{{ 'TX_INFO_RECEIVED_FROM' | translate }}</span>

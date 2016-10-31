@@ -660,7 +660,7 @@ window.QforEachLimit = function(list, n, fn) {
                 return Q.when(i).then(fn);
             })
         )
-            // when the batch is done we concat the results and continue
+        // when the batch is done we concat the results and continue
             .then(function(_results) {
                 if (n === null) {
                     return _results;
@@ -672,4 +672,16 @@ window.QforEachLimit = function(list, n, fn) {
             })
             ;
     })();
+};
+
+window.Qwaterfall = function(fns, arg) {
+    var p = Q.when(arg);
+
+    fns.slice().forEach(function(fn) {
+        p = p.then(function(arg) {
+            return fn(arg);
+        });
+    });
+
+    return p;
 };

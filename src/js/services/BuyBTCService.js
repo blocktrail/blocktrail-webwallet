@@ -1,6 +1,6 @@
 angular.module('blocktrail.wallet').factory(
     'buyBTCService',
-    function(CONFIG, $log, $q, Wallet, $translate, $http, glideraService) {
+    function(CONFIG, $log, $q, $translate, $http, glideraService) {
         var SUPPORTED_BROKERS = ['glidera'];
 
         var _regions = [

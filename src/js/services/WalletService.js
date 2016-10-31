@@ -6,11 +6,13 @@ angular.module('blocktrail.wallet').factory(
 
             self.initDB();
 
+            self._lock = null;
             self.poll = null;
             self.interval = null;
             self.noPolling = false;
             self.isRefilling = null;
             self.addressRefillPromise = null;
+            self.transsactionMetaResolvers = [];
 
             self.sdk = sdkService.sdk();
 
@@ -35,6 +37,12 @@ angular.module('blocktrail.wallet').factory(
             $interval(function() {
                 self.refillOfflineAddresses(1);
             }, 3 * 60 * 1000);
+        };
+
+        Wallet.prototype.addTransactionMetaResolver = function(resolver) {
+            var self = this;
+
+            self.transsactionMetaResolvers.push(resolver);
         };
 
         Wallet.OFFLINE_ADDRESSES = 30;
@@ -64,50 +72,6 @@ angular.module('blocktrail.wallet').factory(
                 }
 
                 return address;
-            });
-        };
-
-        Wallet.prototype.unlockData = function(pin) {
-            var self = this;
-
-            return launchService.getWalletInfo().then(function(walletInfo) {
-                var password, secret;
-
-                try {
-                    // legacy; storing encrypted password instead of secret
-                    if (walletInfo.encryptedPassword) {
-                        password = CryptoJS.AES.decrypt(walletInfo.encryptedPassword, pin).toString(CryptoJS.enc.Utf8);
-                    } else {
-                        secret = CryptoJS.AES.decrypt(walletInfo.encryptedSecret, pin).toString(CryptoJS.enc.Utf8);
-                    }
-                } catch (e) {
-                    throw new blocktrail.WalletPinError(e.message);
-                }
-
-                if (!password && !secret) {
-                    throw new blocktrail.WalletPinError("Bad PIN");
-                }
-
-                var unlockData = {};
-                if (password) {
-                    unlockData.password = password;
-                } else {
-                    unlockData.secret = secret;
-                }
-
-                return unlockData;
-            });
-        };
-
-        Wallet.prototype.unlock = function(pin) {
-            var self = this;
-
-            return self.wallet.then(function(wallet) {
-                return self.unlockData(pin).then(function(unlock) {
-                    return wallet.unlock(unlock).then(function() {
-                        return wallet;
-                    });
-                });
             });
         };
 
@@ -397,7 +361,7 @@ angular.module('blocktrail.wallet').factory(
                                                         });
                                                     })
                                                     .then(function() {
-                                                        return self.mergeContact(transaction);
+                                                        return Qwaterfall(self.transsactionMetaResolvers.concat([self.mergeContact]), transaction);
                                                     });
                                             } else if (isNew) {
                                                 // add the new tx data to the cache and return the tx merged with contact info
@@ -411,7 +375,7 @@ angular.module('blocktrail.wallet').factory(
                                                         });
                                                     })
                                                     .then(function() {
-                                                        return self.mergeContact(transaction);
+                                                        return Qwaterfall(self.transsactionMetaResolvers.concat([self.mergeContact]), transaction);
                                                     });
                                             } else {
                                                 // this tx is old and will be cleaned out in the next step
@@ -520,10 +484,10 @@ angular.module('blocktrail.wallet').factory(
                     historyDoc.unconfirmed = historyDoc.unconfirmed || []; // tmp to migrate without errs
 
                     $log.debug('Wallet.transactions.history[' + historyDoc.confirmed.length + '][' + historyDoc.unconfirmed.length + ']');
-                    //combine the un/confirmed txs, get their full data and merge contact info for each
+                    // combine the un/confirmed txs, get their full data and merge contact info for each
                     return Q.all(historyDoc.unconfirmed.concat(historyDoc.confirmed).slice(from, to).map(function(hash) {
                         return self.historyCache.get(hash).then(function(row) {
-                            return self.mergeContact(row.data);
+                            return Qwaterfall(self.transsactionMetaResolvers.concat([self.mergeContact]), row.data);
                         });
                     }));
                 })

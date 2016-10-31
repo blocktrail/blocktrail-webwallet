@@ -537,6 +537,11 @@ angular.module('blocktrail.wallet')
                         return $q.reject(error);
                     }
                 })
+                .then(function(wallet) {
+                    // while logging in we stash the secret so we can decrypt the glidera accesstoken
+                    launchService.stashWalletSecret(wallet.secret);
+                    wallet.lock();
+                })
                 .then(function() {
                     //set the wallet as the main wallet
                     $log.debug('setting wallet as main wallet');
@@ -597,7 +602,7 @@ angular.module('blocktrail.wallet')
                     $log.error(e);
                     $scope.working = false;
 
-                    if (e == 'CANCELLED') {
+                    if (e == 'CANCELLED' || e == "dismiss") {
                         //user canceled action
                         return false;
                     } else {

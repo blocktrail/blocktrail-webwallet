@@ -162,7 +162,6 @@ angular.module('blocktrail.wallet')
         $scope.priceBTC = null;
         $scope.fetchingInputPrice = false;
         $scope.fiatFirst = false;
-        $scope.priceUuid = null;
         $scope.buyInput = {
             currencyType: null,
             fiatCurrency: 'USD',
@@ -178,7 +177,7 @@ angular.module('blocktrail.wallet')
         var updateMainPrice = function() {
             $scope.fetchingMainPrice = true;
 
-            glideraService.buyPrices(1.0).then(function(result) {
+            return glideraService.buyPrices(1.0).then(function(result) {
                 $timeout(function() {
                     $scope.priceBTC = result.total;
 
@@ -201,12 +200,11 @@ angular.module('blocktrail.wallet')
                         return;
                     }
 
-                    glideraService.buyPrices($scope.buyInput.btcValue, null).then(function(result) {
+                    return glideraService.buyPrices($scope.buyInput.btcValue, null).then(function(result) {
                         $timeout(function() {
                             $scope.buyInput.fiatValue = parseFloat(result.total);
                             $scope.buyInput.feeValue = parseFloat(result.fees);
                             $scope.buyInput.feePercentage = ($scope.buyInput.feeValue / $scope.buyInput.fiatValue) * 100;
-                            $scope.priceUuid = result.priceUuid;
 
                             $scope.altCurrency = {
                                 code: $scope.buyInput.fiatCurrency,
@@ -226,12 +224,11 @@ angular.module('blocktrail.wallet')
                         return;
                     }
 
-                    glideraService.buyPrices(null, $scope.buyInput.fiatValue).then(function(result) {
+                    return glideraService.buyPrices(null, $scope.buyInput.fiatValue).then(function(result) {
                         $timeout(function() {
                             $scope.buyInput.btcValue = parseFloat(result.qty);
                             $scope.buyInput.feeValue = parseFloat(result.fees);
                             $scope.buyInput.feePercentage = ($scope.buyInput.feeValue / $scope.buyInput.fiatValue) * 100;
-                            $scope.priceUuid = result.priceUuid;
 
                             $scope.altCurrency = {
                                 code: 'BTC',
@@ -277,30 +274,29 @@ angular.module('blocktrail.wallet')
          * init buy getting an access token, repeat until we have an access token
          *  then update main price and set interval for updating price
          */
+        var pollInterval;
         var init = function() {
-            return glideraService.accessToken()
-                .then(function(accessToken) {
-                    if (!accessToken) {
-                        $state.go('app.wallet.buybtc.choose');
-                        return;
-                    }
-
-                    // update main price for display straight away
-                    updateMainPrice();
+            // update main price for display straight away
+            updateMainPrice().then(function() {
+                $timeout(function() {
                     $scope.initializing = false;
+                });
+            });
 
-                    // update every minute
-                    $interval(function() {
-                        // update main price
-                        updateMainPrice();
-                        // update input price
-                        $scope.updateInputPrice();
-                    }, 60 * 1000);
-                }, function(err) {
-                    $state.go('app.wallet.buybtc.choose');
-                })
-            ;
+            // update every minute
+            pollInterval = $interval(function() {
+                // update main price
+                updateMainPrice();
+                // update input price
+                $scope.updateInputPrice();
+            }, 60 * 1000);
         };
+
+        $scope.$on('$destroy', function() {
+            if (pollInterval) {
+                $interval.cancel(pollInterval);
+            }
+        });
 
         $timeout(function() {
             init();
@@ -310,39 +306,47 @@ angular.module('blocktrail.wallet')
             var spinner;
 
             if ($scope.broker == 'glidera') {
-                return dialogService.prompt({
-                    body: $translate.instant('MSG_BUYBTC_CONFIRM_BODY', {
-                        qty: $filter('number')($scope.buyInput.btcValue, 6),
-                        price: $filter('number')($scope.buyInput.fiatValue, 2),
-                        fee: $filter('number')($scope.buyInput.feeValue, 2),
-                        currencySymbol: $filter('toCurrencySymbol')('USD')
-                    }).sentenceCase(),
-                    title: $translate.instant('MSG_BUYBTC_CONFIRM_TITLE').sentenceCase(),
-                    prompt: false
-                })
-                    .result
-                    .then(function() {
-                        spinner = dialogService.spinner({title: 'BUYBTC_BUYING'});
+                var btcValue = null, fiatValue = null;
+                if ($scope.fiatFirst) {
+                    fiatValue = $scope.buyInput.fiatValue;
+                } else {
+                    btcValue = $scope.buyInput.btcValue;
+                }
 
-                        return glideraService.buy($scope.buyInput.btcValue, $scope.priceUuid)
+                return glideraService.buyPricesUuid(btcValue, fiatValue)
+                    .then(function(result) {
+                        return dialogService.prompt({
+                            body: $translate.instant('MSG_BUYBTC_CONFIRM_BODY', {
+                                qty: $filter('number')(result.qty, 6),
+                                price: $filter('number')(result.total, 2),
+                                fee: $filter('number')(result.fees, 2),
+                                currencySymbol: $filter('toCurrencySymbol')('USD')
+                            }).sentenceCase(),
+                            title: $translate.instant('MSG_BUYBTC_CONFIRM_TITLE').sentenceCase(),
+                            prompt: false
+                        })
+                            .result
                             .then(function() {
-                                spinner.close();
+                                spinner = dialogService.spinner({title: 'BUYBTC_BUYING'});
 
-                                dialogService.alert({
-                                    body: $translate.instant('MSG_BUYBTC_BOUGHT_BODY', {
-                                        qty: $filter('number')($scope.buyInput.btcValue, 6),
-                                        price: $filter('number')($scope.buyInput.fiatValue, 2),
-                                        fee: $filter('number')($scope.buyInput.feeValue, 2),
-                                        currencySymbol: $filter('toCurrencySymbol')('USD')
-                                    }).sentenceCase(),
-                                    title: $translate.instant('MSG_BUYBTC_BOUGHT_TITLE').sentenceCase()
-                                });
+                                return glideraService.buy(result.qty, result.priceUuid)
+                                    .then(function() {
+                                        spinner.close();
 
-                                $state.go('app.wallet.summary');
-                            })
-                        ;
-                    }, function() {
+                                        dialogService.alert({
+                                            body: $translate.instant('MSG_BUYBTC_BOUGHT_BODY', {
+                                                qty: $filter('number')(result.qty, 6),
+                                                price: $filter('number')(result.total, 2),
+                                                fee: $filter('number')(result.fees, 2),
+                                                currencySymbol: $filter('toCurrencySymbol')('USD')
+                                            }).sentenceCase(),
+                                            title: $translate.instant('MSG_BUYBTC_BOUGHT_TITLE').sentenceCase()
+                                        });
 
+                                        $state.go('app.wallet.summary');
+                                    })
+                                    ;
+                            });
                     })
                     .then(function() {
                         // -
@@ -351,7 +355,7 @@ angular.module('blocktrail.wallet')
                             spinner.close();
                         }
 
-                        if (err != "CANCELLED") {
+                        if (err != "CANCELLED" && err != "dismiss") {
                             dialogService.alert({
                                 title: 'ERROR_TITLE_1',
                                 body: "" + err

@@ -81,6 +81,12 @@ angular.module('blocktrail.wallet').factory(
             return self.client.post("/mywallet/glidera/oauth", null, {code: code, redirect_uri: redirect_uri, sandbox: sandbox});
         };
 
+        blocktrailSDK.prototype.glideraBuyPrices = function (qty, fiat, sandbox) {
+            var self = this;
+
+            return self.client.get("/mywallet/glidera/prices/buy", {qty: qty, fiat: fiat, sandbox: sandbox});
+        };
+
         blocktrailSDK.prototype.passwordChange = function (oldPassword, newPassword, encryptedSecret, twoFactorToken, walletsData) {
             var self = this;
 

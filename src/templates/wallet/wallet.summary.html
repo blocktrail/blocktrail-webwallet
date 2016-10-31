@@ -46,8 +46,9 @@
                                     <div class="media-body media-top">
                                         <div class="tx-type">
                                             <span ng-if="transaction.contact && transaction.contact.displayName" class="sentence-case">
-                                                <span ng-if="transaction.wallet_value_change <= 0">{{ 'TX_INFO_SENT_TO' | translate }}</span>
-                                                <span ng-if="transaction.wallet_value_change > 0">{{ 'TX_INFO_RECEIVED_FROM' | translate }}</span>
+                                                <span ng-if="transaction.buybtc">{{ 'TX_INFO_BUYBTC_FROM' | translate }}</span>
+                                                <span ng-if="!transaction.buybtc && transaction.wallet_value_change <= 0">{{ 'TX_INFO_SENT_TO' | translate }}</span>
+                                                <span ng-if="!transaction.buybtc && transaction.wallet_value_change > 0">{{ 'TX_INFO_RECEIVED_FROM' | translate }}</span>
                                                 <span class="capitalise">{{ transaction.contact.displayName }}</span>
                                             </span>
                                             <span ng-if="!transaction.contact || !transaction.contact.displayName" class="sentence-case">{{ transaction.altDisplay }}</span>
