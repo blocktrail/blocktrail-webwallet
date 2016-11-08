@@ -192,14 +192,15 @@ angular.module('blocktrail.wallet')
 
                     if (transaction.wallet_value_change > 0) {
                         //received from anonymous
-                        transaction.altDisplay = transaction.txin_other_addresses.length >= 1 && transaction.txin_other_addresses[0];
+                        transaction.otherAddresses = transaction.txin_other_addresses.join(", ");
                         transaction.altDisplay = $translate.instant('TX_INFO_RECEIVED');
                     } else if (transaction.is_internal) {
                         //sent to self
+                        transaction.otherAddresses = null;
                         transaction.altDisplay = $translate.instant('INTERNAL_TRANSACTION_TITLE');
                     } else {
                         //sent to anonymous
-                        transaction.altDisplay = transaction.txout_other_addresses.length >= 1 && transaction.txout_other_addresses[0];
+                        transaction.otherAddresses = transaction.txout_other_addresses.join(", ");
                         transaction.altDisplay = $translate.instant('TX_INFO_SENT');
                     }
 

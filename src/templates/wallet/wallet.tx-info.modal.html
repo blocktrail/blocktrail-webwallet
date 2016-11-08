@@ -48,7 +48,7 @@
                 <span ng-if="data.wallet_value_change <= 0">{{ 'TX_INFO_SENT_TO' | translate }}</span>
                 <span ng-if="data.wallet_value_change > 0">{{ 'TX_INFO_RECEIVED_FROM' | translate }}</span>
             </div>
-            <div class="value text-ellipsis">{{ data.contact && data.contact.displayName || data.altDisplay }}</div>
+            <div class="value text-ellipsis">{{ data.contact && data.contact.displayName || data.otherAddresses || ('INTERNAL_TRANSACTION_TITLE' | translate) }}</div>
         </div>
 
         <div class="more-info">
