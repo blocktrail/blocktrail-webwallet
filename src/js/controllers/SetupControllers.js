@@ -20,6 +20,10 @@ angular.module('blocktrail.wallet')
     .controller('SetupLoginCtrl', function($scope, $rootScope, $state, $q, $http, $timeout, launchService, CONFIG, settingsService,
                                            dialogService, FormHelper, $sce, $translate, $log) {
         $scope.working = false;
+        $scope.form = {
+            username: null,
+            password: null
+        };
 
         $scope.error = null;
         $scope.$watch('form', function() {
@@ -333,37 +337,30 @@ angular.module('blocktrail.wallet')
                 return false;
             }
 
-            $scope.progressStatus = {title: 'CREATING_WALLET', header_class: 'text-neutral', body: null, ok: false};
+            $scope.updateProgress({title: 'CREATING_WALLET'});
             $scope.working = true;
 
             $scope.createWallet();
         };
 
-        $scope.progressDone   = false;
-        $scope.progressStep   = 1;
-        $scope.progressWidth  = 5;
-        $scope.progressDelay  = 1000;
-
-
+        $scope.progressWidth = 5;
+        var defaultProgress = {
+            title: null,
+            body: null,
+            header_class: 'text-neutral',
+            ok: false
+        };
         $scope.updateProgress = function (progress) {
-            $scope.progressDelay = $scope.progressDelay*1.4;
+            progress = angular.extend({}, defaultProgress, progress);
+            $log.debug('updateProgress: ' + progress.title + " - " + progress.body);
 
             $timeout(function() {
-                $scope.progressStep ++;
-                $scope.progressWidth  += 15;
-                if ($scope.progressWidth>=90) {
-                    $scope.progressWidth =100;
+                $scope.progressWidth += 15;
+                if ($scope.progressWidth >= 90) {
+                    $scope.progressWidth = 100;
                 }
                 $scope.progressStatus = progress;
-
-                if ($scope.progressDone && $scope.progressStep>=7) {
-                    $timeout(function() {
-                        $scope.progressWidth =100;
-                        $state.go('app.setup.backup');
-                    }, 2000);
-                }
-
-            }, $scope.progressDelay);
+            });
         };
 
         $scope.createWallet = function() {
@@ -384,31 +381,44 @@ angular.module('blocktrail.wallet')
                     if (error.message.match(/not found/) || error.message.match(/couldn't be found/)) {
                         //no existing wallet - create one
                         $log.debug('creating new wallet');
-                        $scope.progressStatus = {title: 'CREATING_WALLET', header_class: 'text-neutral', body: 'PLEASE_WAIT', ok: false};
+                        $scope.updateProgress({title: 'CREATING_WALLET', body: 'PLEASE_WAIT'});
                         var t = (new Date).getTime();
                         $analytics.eventTrack('createNewWallet', {category: 'Events'});
+
                         return $scope.sdk.createNewWallet({identifier: $scope.setupInfo.identifier, password: $scope.setupInfo.password})
                             .progress(function(progress) {
-
+                                /*
+                                 * per step we increment the progress bar and display some new progress text
+                                 * some of the text doesn't really match what is being done,
+                                 * but we just want the user to feel like something is happening.
+                                 */
                                 switch (progress) {
                                     case blocktrailSDK.CREATE_WALLET_PROGRESS_START:
-                                        $scope.updateProgress({title: 'CREATING_WALLET', header_class: 'text-neutral', body: $translate.instant('PLEASE_WAIT').capitalize(), ok: false});
+                                        $scope.updateProgress({title: 'CREATING_WALLET', body: 'PLEASE_WAIT'});
+                                        break;
+                                    case blocktrailSDK.CREATE_WALLET_PROGRESS_ENCRYPT_SECRET:
+                                        $scope.updateProgress({title: 'CREATING_WALLET', body: 'CREATING_GENERATE_PRIMARYKEY'});
+                                        break;
+                                    case blocktrailSDK.CREATE_WALLET_PROGRESS_ENCRYPT_PRIMARY:
+                                        $scope.updateProgress({title: 'CREATING_WALLET', body: 'CREATING_GENERATE_BACKUPKEY'});
+                                        break;
+                                    case blocktrailSDK.CREATE_WALLET_PROGRESS_ENCRYPT_RECOVERY:
+                                        $scope.updateProgress({title: 'CREATING_WALLET', body: 'CREATING_GENERATE_RECOVERY'});
                                         break;
                                     case blocktrailSDK.CREATE_WALLET_PROGRESS_PRIMARY:
-                                        $scope.updateProgress({title: 'CREATING_WALLET', header_class: 'text-neutral', body: $translate.instant('CREATING_GENERATE_PRIMARYKEY').capitalize(), ok: false});
+                                        $scope.updateProgress({title: 'CREATING_WALLET', body: 'CREATING_INIT_KEYS'});
                                         break;
                                     case blocktrailSDK.CREATE_WALLET_PROGRESS_BACKUP:
-                                        $scope.updateProgress({title: 'CREATING_WALLET', header_class: 'text-neutral', body: $translate.instant('CREATING_GENERATE_BACKUPKEY').capitalize(), ok: false});
+                                        $scope.updateProgress({title: 'CREATING_WALLET', body: 'CREATING_INIT_KEYS'});
                                         break;
                                     case blocktrailSDK.CREATE_WALLET_PROGRESS_SUBMIT:
-                                        $scope.updateProgress({title: 'CREATING_WALLET', header_class: 'text-neutral', body: $translate.instant('CREATING_SUBMIT_WALLET').capitalize(), ok: false});
+                                        $scope.updateProgress({title: 'CREATING_WALLET', body: 'CREATING_SUBMIT_WALLET'});
                                         break;
                                     case blocktrailSDK.CREATE_WALLET_PROGRESS_INIT:
-                                        $scope.updateProgress({title: 'CREATING_WALLET', header_class: 'text-neutral', body: $translate.instant('CREATING_INIT_WALLET').capitalize(), ok: false});
+                                        $scope.updateProgress({title: 'CREATING_WALLET', body: 'CREATING_INIT_WALLET'});
                                         break;
                                     case blocktrailSDK.CREATE_WALLET_PROGRESS_DONE:
-                                        $scope.progressDone = true;
-                                        $scope.updateProgress({title: 'CREATING_WALLET', header_class: 'text-neutral', body: $translate.instant('CREATING_DONE').capitalize(), ok: false});
+                                        $scope.updateProgress({title: 'CREATING_WALLET', body: 'CREATING_DONE'});
                                         break;
                                 }
 
@@ -439,12 +449,12 @@ angular.module('blocktrail.wallet')
                 .then(function() {
                     //set the wallet as the main wallet
                     $log.debug('setting wallet as main wallet');
-                    $scope.progressStatus = {title: 'SAVING_WALLET', header_class: 'text-neutral', body: null, ok: false};
+                    $scope.updateProgress({title: 'SAVING_WALLET'});
                     return $scope.sdk.setMainMobileWallet($scope.setupInfo.identifier);
                 })
                 .then(function() {
                     //store the identity and encrypted password
-                    $scope.progressStatus = {title: 'SAVING_WALLET', header_class: 'text-neutral', body: null, ok: false};
+                    $scope.updateProgress({title: 'SAVING_WALLET'});
                     $log.debug('saving wallet info', $scope.setupInfo.identifier, null);
                     return launchService.storeWalletInfo($scope.setupInfo.identifier, null);
                 })
