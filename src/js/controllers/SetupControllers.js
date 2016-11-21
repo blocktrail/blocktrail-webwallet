@@ -337,7 +337,7 @@ angular.module('blocktrail.wallet')
                 return false;
             }
 
-            $scope.updateProgress({title: 'CREATING_WALLET'});
+            $scope.updateProgress({title: 'LOADING_WALLET'});
             $scope.working = true;
 
             $scope.createWallet();
@@ -449,12 +449,11 @@ angular.module('blocktrail.wallet')
                 .then(function() {
                     //set the wallet as the main wallet
                     $log.debug('setting wallet as main wallet');
-                    $scope.updateProgress({title: 'SAVING_WALLET'});
+                    $scope.updateProgress({title: 'PREPARING_WALLET'});
                     return $scope.sdk.setMainMobileWallet($scope.setupInfo.identifier);
                 })
                 .then(function() {
                     //store the identity and encrypted password
-                    $scope.updateProgress({title: 'SAVING_WALLET'});
                     $log.debug('saving wallet info', $scope.setupInfo.identifier, null);
                     return launchService.storeWalletInfo($scope.setupInfo.identifier, null);
                 })
