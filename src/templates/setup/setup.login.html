@@ -39,6 +39,15 @@
                             </div>
                         </div>
 
+                        <div ng-if="CONFIG.DEBUG" class="form-group form-group-lg">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" ng-model="form.forceNewWallet">
+                                    {{ 'SETUP_FORCE_NEW_WALLET' | translate }}
+                                </label>
+                            </div>
+                        </div>
+
                         <div class="form-group form-group-lg form-group-buttons" ng-if="!working">
                             <button class="form-control btn btn-primary capitalise" ng-disabled="working" ng-click="doLogin(loginForm)">{{ 'SETUP_LOGIN' | translate }}</button>
                         </div>

@@ -36,8 +36,9 @@ angular.module('blocktrail.wallet')
 
         $scope.working = false;
         $scope.form = {
-            username: null,
-            password: null
+            username: "",
+            password: "",
+            forceNewWallet: false
         };
 
         $scope.error = null;
@@ -108,8 +109,11 @@ angular.module('blocktrail.wallet')
                         .then(function(secret) {
                             return launchService.storeAccountInfo(_.merge({}, {secret: secret}, result.data)).then(function() {
                                 $log.debug('existing_wallet', result.data.existing_wallet);
+                                $log.debug('forceNewWallet', $scope.form.forceNewWallet);
 
-                                $scope.setupInfo.identifier = result.data.existing_wallet || $scope.setupInfo.identifier;
+                                if (!$scope.form.forceNewWallet) {
+                                    $scope.setupInfo.identifier = result.data.existing_wallet || $scope.setupInfo.identifier;
+                                }
                                 $scope.setupInfo.password = $scope.form.password;
 
                                 //save the default settings and do a profile sync
@@ -329,7 +333,7 @@ angular.module('blocktrail.wallet')
         };
     })
     .controller('SetupWalletInitCtrl', function($q, $scope, $state, launchService, sdkService, $log, $translate, $timeout,
-                                                $injector, settingsService, dialogService, $analytics, trackingService) {
+                                                $injector, settingsService, dialogService, $analytics, trackingService, CONFIG) {
 
         $scope.progressStatus = {};
         // this automatically updates an already open modal instead of popping a new one open
@@ -387,10 +391,48 @@ angular.module('blocktrail.wallet')
                 .then(function(wallet) {
                     $analytics.eventTrack('initWallet', {category: 'Events'});
 
-                    $log.debug('wallet initialised', wallet);
-                    $scope.progressWidth = 90;
-                    //wallet already exists with these detail
-                    return $q.when(wallet);
+                    // time to upgrade to V3 ppl!
+                    if (wallet.walletVersion != blocktrailSDK.Wallet.WALLET_VERSION_V3) {
+                        $scope.updateProgress({title: 'UPGRADING_WALLET', body: 'UPGRADING_WALLET_BODY'});
+
+                        return wallet.upgradeToV3($scope.setupInfo.password)
+                            .progress(function(progress) {
+                                /*
+                                 * per step we increment the progress bar and display some new progress text
+                                 * some of the text doesn't really match what is being done,
+                                 * but we just want the user to feel like something is happening.
+                                 */
+                                switch (progress) {
+                                    case blocktrailSDK.CREATE_WALLET_PROGRESS_START:
+                                        $scope.updateProgress({title: 'UPGRADING_WALLET', body: 'UPGRADING_WALLET_BODY'});
+                                        break;
+                                    case blocktrailSDK.CREATE_WALLET_PROGRESS_ENCRYPT_SECRET:
+                                        $scope.updateProgress({title: 'UPGRADING_WALLET', body: 'CREATING_GENERATE_PRIMARYKEY'});
+                                        break;
+                                    case blocktrailSDK.CREATE_WALLET_PROGRESS_ENCRYPT_PRIMARY:
+                                        $scope.updateProgress({title: 'UPGRADING_WALLET', body: 'CREATING_GENERATE_BACKUPKEY'});
+                                        break;
+                                    case blocktrailSDK.CREATE_WALLET_PROGRESS_ENCRYPT_RECOVERY:
+                                        $scope.updateProgress({title: 'UPGRADING_WALLET', body: 'CREATING_GENERATE_RECOVERY'});
+                                        break;
+                                }
+
+                            })
+                            .then(function() {
+                                $scope.updateProgress({title: 'UPGRADING_WALLET', body: 'UPGRADING_WALLET_BODY'});
+
+                                // bump progress
+                                $scope.progressWidth = 90;
+
+                                return wallet;
+                            });
+
+                    } else {
+                        $log.debug('wallet initialised', wallet);
+                        // bump progress
+                        $scope.progressWidth = 90;
+                        return wallet;
+                    }
                 }, function(error) {
                     if (error.message.match(/not found/) || error.message.match(/couldn't be found/)) {
                         //no existing wallet - create one
@@ -399,7 +441,10 @@ angular.module('blocktrail.wallet')
                         var t = (new Date).getTime();
                         $analytics.eventTrack('createNewWallet', {category: 'Events'});
 
-                        return $scope.sdk.createNewWallet({identifier: $scope.setupInfo.identifier, password: $scope.setupInfo.password})
+                        return $scope.sdk.createNewWallet({
+                            walletVersion: CONFIG.DEFAULT_WALLET_VERSION,
+                            identifier: $scope.setupInfo.identifier,
+                            password: $scope.setupInfo.password})
                             .progress(function(progress) {
                                 /*
                                  * per step we increment the progress bar and display some new progress text
