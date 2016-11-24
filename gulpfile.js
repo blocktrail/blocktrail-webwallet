@@ -125,6 +125,8 @@ var buildSRIMap = function(files, basepath) {
 
 var isWatch = false;
 var isLiveReload = process.argv.indexOf('--live-reload') !== -1 || process.argv.indexOf('--livereload') !== -1;
+var noFontello = process.argv.indexOf('--no-fontello') !== -1 || process.argv.indexOf('--nofontello') !== -1;
+
 // determine SRI strategy
 var noSRI = false;
 if (process.argv.indexOf('--no-sri') !== -1) {
@@ -361,6 +363,10 @@ gulp.task('css-rename', function() {
 });
 
 gulp.task('fontello-dl', function() {
+
+    if (noFontello) {
+        return;
+    }
 
     return streamAsPromise(gulp.src('./fontello.json')
         .pipe(fontello())
