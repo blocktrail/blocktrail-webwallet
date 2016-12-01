@@ -187,8 +187,7 @@ angular.module('blocktrail.wallet')
 
                                                     $scope.alert.dismiss();
                                                     return true;
-                                                })
-                                            ;
+                                                });
                                         } else {
                                             $scope.alert.dismiss();
                                             return true;
@@ -203,161 +202,152 @@ angular.module('blocktrail.wallet')
                                     }
                                 )
                                 .then(function() {
-                                     return dialogService.prompt({
-                                         title: $translate.instant('CHANGE_PASSWORD').capitalize(),
-                                         body: $translate.instant('ENTER_NEW_PASSWORD').sentenceCase(),
-                                         input_type: 'password',
-                                         icon: 'key'
-                                     })
+                                    return currentPassword;
+                                })
+                        })
+                        .then(function(currentPassword) {
+                            return dialogService.prompt({
+                                title: $translate.instant('CHANGE_PASSWORD').capitalize(),
+                                body: $translate.instant('ENTER_NEW_PASSWORD').sentenceCase(),
+                                input_type: 'password',
+                                icon: 'key'
+                            })
+                                .result
+                                .then(function(newPassword) {
+                                    return dialogService.prompt({
+                                        title: $translate.instant('CHANGE_PASSWORD').capitalize(),
+                                        body: $translate.instant('ENTER_REPEAT_PASSWORD').sentenceCase(),
+                                        input_type: 'password',
+                                        icon: 'key'
+                                    })
                                         .result
-                                        .then(function(newPassword) {
+                                        .then(function(newPassword2) {
+                                            if (newPassword != newPassword2) {
+                                                throw new Error($translate.instant('MSG_BAD_PASSWORD_REPEAT'));
+                                            }
+
+                                            return newPassword;
+                                        })
+                                })
+                                .then(function(newPassword) {
+                                    return $q.when(null).then(function() {
+                                        if (accountInfo.requires2FA) {
                                             return dialogService.prompt({
                                                 title: $translate.instant('CHANGE_PASSWORD').capitalize(),
-                                                body: $translate.instant('ENTER_REPEAT_PASSWORD').sentenceCase(),
-                                                input_type: 'password',
-                                                icon: 'key'
-                                            })
-                                                .result
-                                                .then(function(newPassword2) {
-                                                    if (newPassword != newPassword2) {
-                                                        throw new Error($translate.instant('MSG_BAD_PASSWORD_REPEAT'));
-                                                    }
+                                                body: $translate.instant('MSG_MISSING_TWO_FACTOR_TOKEN').sentenceCase()
+                                            }).result;
+                                        } else {
+                                            return null;
+                                        }
+                                    }).then(function(twoFactorToken) {
+                                        $scope.alert(
+                                            $translate.instant('CHANGE_PASSWORD').capitalize(),
+                                            $translate.instant('CHANGE_PASSWORD_WALLET_INPROGRESS').sentenceCase(),
+                                            false
+                                        );
 
-                                                    return $q.when(null).then(function() {
-                                                        if (accountInfo.requires2FA) {
-                                                            return dialogService.prompt({
-                                                                title: $translate.instant('CHANGE_PASSWORD').capitalize(),
-                                                                body: $translate.instant('MSG_MISSING_TWO_FACTOR_TOKEN').sentenceCase()
-                                                            }).result;
-                                                        } else {
-                                                            return null;
-                                                        }
-                                                    }).then(function(twoFactorToken) {
-                                                        $scope.alert(
-                                                            $translate.instant('CHANGE_PASSWORD').capitalize(),
-                                                            $translate.instant('CHANGE_PASSWORD_WALLET_INPROGRESS').sentenceCase(),
-                                                            false
-                                                        );
+                                        return Wallet.unlockWithPassword(currentPassword).then(function(wallet) {
+                                            return wallet.doPasswordChange(newPassword)
+                                                .then(function(r) {
+                                                    var newEncryptedWalletSecret = r[0];
+                                                    var newEncrypedWalletSecretMnemonic = r[1];
 
-                                                        return Wallet.unlockWithPassword(currentPassword).then(function(wallet) {
-                                                            // 'manually' doing wallet.passwordChange because we want to do it in a single request
-                                                            return $q.when()
-                                                                .then(function() {
-                                                                if (wallet.walletVersion != blocktrailSDK.Wallet.WALLET_VERSION_V2) {
-                                                                    throw new blocktrailSDK.WalletLockedError("Wallet version does not support password change!");
-                                                                }
+                                                    return sdkService.sdk().then(function(sdk) {
 
-                                                                if (wallet.locked) {
-                                                                    throw new blocktrailSDK.WalletLockedError("Wallet needs to be unlocked to change password");
-                                                                }
+                                                        // don't submit new encrypted secret if we don't have a secret
+                                                        var encryptedSecret = accountInfo.secret ? CryptoJS.AES.encrypt(accountInfo.secret, newPassword).toString() : null;
 
-                                                                if (!wallet.secret) {
-                                                                    throw new blocktrailSDK.WalletLockedError("No secret");
-                                                                }
+                                                        var passwordChange = function() {
+                                                            return sdk.passwordChange(
+                                                                CryptoJS.SHA512(currentPassword).toString(),
+                                                                CryptoJS.SHA512(newPassword).toString(),
+                                                                encryptedSecret,
+                                                                twoFactorToken,
+                                                                [{
+                                                                    identifier: wallet.identifier,
+                                                                    encrypted_secret: newEncryptedWalletSecret
+                                                                }]
+                                                            )
+                                                                .then(
+                                                                    function() {
+                                                                        wallet.encryptedSecret = newEncryptedWalletSecret;
+                                                                        wallet.lock();
 
-                                                                var newEncryptedWalletSecret = CryptoJS.AES.encrypt(wallet.secret, newPassword).toString(CryptoJS.format.OpenSSL);
+                                                                        launchService.storeBackupInfo({
+                                                                            encryptedSecret: newEncryptedWalletSecret
+                                                                        });
 
-                                                                return newEncryptedWalletSecret;
-                                                            })
-                                                                .then(function(encryptedWalletSecret) {
-                                                                    return sdkService.sdk().then(function(sdk) {
+                                                                        return $scope.alert({
+                                                                            title: $translate.instant('CHANGE_PASSWORD').capitalize(),
+                                                                            bodyHtml: $sce.trustAsHtml($translate.instant('CHANGE_PASSWORD_BACKUP').sentenceCase()),
+                                                                            ok: $translate.instant('BACKUP_CREATE_PDF').capitalize()
+                                                                        }).result.then(function() {
+                                                                            var backup = new sdkService.BackupGenerator(
+                                                                                wallet.identifier,
+                                                                                {
+                                                                                    encryptedSecret: newEncrypedWalletSecretMnemonic
+                                                                                },
+                                                                                {},
+                                                                                {
+                                                                                    page1: false,
+                                                                                    page2: true,
+                                                                                    page3: false
+                                                                                }
+                                                                            );
 
-                                                                        // don't submit new encrypted secret if we don't have a secret
-                                                                        var encryptedSecret = accountInfo.secret ? CryptoJS.AES.encrypt(accountInfo.secret, newPassword).toString() : null;
+                                                                            try {
+                                                                                backup.generatePDF(function(err, pdf) {
+                                                                                    if (err) {
+                                                                                        $log.error(err);
+                                                                                        dialogService.alert(err, $scope.translations['ERROR'], $scope.translations['OK']);
+                                                                                    } else {
+                                                                                        pdf.save("BlockTrail Updated Recovery Data Sheet - " + wallet.identifier + ".pdf");
 
-                                                                        var passwordChange = function() {
-                                                                            return sdk.passwordChange(
-                                                                                CryptoJS.SHA512(currentPassword).toString(),
-                                                                                CryptoJS.SHA512(newPassword).toString(),
-                                                                                encryptedSecret,
-                                                                                twoFactorToken,
-                                                                                [{
-                                                                                    identifier: wallet.identifier,
-                                                                                    encrypted_secret: encryptedWalletSecret
-                                                                                }]
-                                                                            )
-                                                                                .then(
-                                                                                    function() {
-                                                                                        wallet.lock();
+                                                                                        // delete all temp backup info
+                                                                                        launchService.clearBackupInfo()
+                                                                                            .then(function() {
 
-                                                                                        launchService.storeBackupInfo({
-                                                                                            encryptedSecret: encryptedWalletSecret
-                                                                                        });
-
-                                                                                        $scope.alert({
-                                                                                            title: $translate.instant('CHANGE_PASSWORD').capitalize(),
-                                                                                            bodyHtml: $sce.trustAsHtml($translate.instant('CHANGE_PASSWORD_BACKUP').sentenceCase()),
-                                                                                            ok: $translate.instant('BACKUP_CREATE_PDF').capitalize()
-                                                                                        }).result.then(function() {
-                                                                                            var backup = new sdkService.BackupGenerator(
-                                                                                                wallet.identifier,
-                                                                                                {
-                                                                                                    encryptedSecret: blocktrailSDK.bip39.entropyToMnemonic(blocktrailSDK.convert(encryptedWalletSecret, 'base64', 'hex'))
-                                                                                                },
-                                                                                                {},
-                                                                                                {page1: false, page2: true, page3: false}
-                                                                                            );
-
-                                                                                            try {
-                                                                                                backup.generatePDF(function(err, pdf) {
-                                                                                                    if (err) {
-                                                                                                        $log.error(err);
-                                                                                                        dialogService.alert(err, $scope.translations['ERROR'], $scope.translations['OK']);
-                                                                                                    } else {
-                                                                                                        pdf.save("BlockTrail Updated Recovery Data Sheet - " + wallet.identifier + ".pdf");
-
-                                                                                                        // delete all temp backup info
-                                                                                                        launchService.clearBackupInfo()
-                                                                                                            .then(function() {
-
-                                                                                                            })
-                                                                                                        ;
-                                                                                                    }
-                                                                                                });
-                                                                                            } catch (error) {
-                                                                                                $log.error("Backup generation error", error);
-                                                                                            }
-                                                                                        });
-                                                                                    },
-                                                                                    function(error) {
-                                                                                        wallet.lock();
-
-                                                                                        if (error instanceof blocktrailSDK.WalletInvalid2FAError) {
-                                                                                            return dialogService.prompt({
-                                                                                                title: $translate.instant('CHANGE_PASSWORD').capitalize(),
-                                                                                                body: $translate.instant('MSG_INVALID_TWO_FACTOR_TOKEN').capitalize()
                                                                                             })
-                                                                                                .result
-                                                                                                .then(function(_twoFactorToken) {
-                                                                                                    twoFactorToken = _twoFactorToken;
-                                                                                                    return passwordChange();
-                                                                                                })
-                                                                                            ;
-                                                                                        } else if (error) {
-                                                                                            throw new Error('MSG_BAD_LOGIN');
-                                                                                        } else {
-                                                                                            throw new Error('MSG_BAD_NETWORK');
-                                                                                        }
+                                                                                        ;
                                                                                     }
-                                                                                )
-                                                                            ;
-                                                                        };
+                                                                                });
+                                                                            } catch (error) {
+                                                                                $log.error("Backup generation error", error);
+                                                                            }
+                                                                        });
+                                                                    },
+                                                                    function(error) {
+                                                                        wallet.lock();
 
-                                                                        return passwordChange();
-                                                                    });
-                                                                })
-                                                            ;
-                                                        });
+                                                                        if (error instanceof blocktrailSDK.WalletInvalid2FAError) {
+                                                                            return dialogService.prompt({
+                                                                                title: $translate.instant('CHANGE_PASSWORD').capitalize(),
+                                                                                body: $translate.instant('MSG_INVALID_TWO_FACTOR_TOKEN').capitalize()
+                                                                            })
+                                                                                .result
+                                                                                .then(function(_twoFactorToken) {
+                                                                                    twoFactorToken = _twoFactorToken;
+                                                                                    return passwordChange();
+                                                                                })
+                                                                                ;
+                                                                        } else if (error) {
+                                                                            throw new Error('MSG_BAD_LOGIN');
+                                                                        } else {
+                                                                            throw new Error('MSG_BAD_NETWORK');
+                                                                        }
+                                                                    }
+                                                                )
+                                                                ;
+                                                        };
+
+                                                        return passwordChange();
                                                     });
-                                                })
-                                            ;
-                                        })
-                                    ;
-                                })
-                            ;
+                                                });
+                                        });
+                                    });
+                                });
                         })
-                    ;
-                })
+                });
             })
             .catch(function(err) {
                 if (err && err.message) {
