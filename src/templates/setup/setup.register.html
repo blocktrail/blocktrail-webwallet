@@ -3,8 +3,8 @@
         <div class="col-md-6 col-md-offset-3 col-sm-12 col-xs-12">
             <div class="appWrapper">
                 <h1 class="pageTitle capitalise">{{ 'SETUP_REGISTER' | translate }}</h1>
-                <div class="formContainer">
 
+                <div class="formContainer">
                     <form class="form" name="registerForm">
                         <div class="alert" ng-if="errMsg" ng-class="{'alert-danger':errMsg}">{{ errMsg | translate }}</div>
 
@@ -39,11 +39,11 @@
                             {{ 'CREATING_ACCOUNT' | translate }}
                         </div>
 
-                        <div class="smallButtons" style="margin-top:10px;">
-                            <a class="sentence-case" ui-sref="app.setup.login">{{ 'LAUNCH_EXISTING_ACCOUNT' | translate }}</a>
-                        </div>
-
                     </form>
+                </div>
+
+                <div class="smallButtons text-center">
+                    <a class="sentence-case" ui-sref="app.setup.login">{{ 'LAUNCH_EXISTING_ACCOUNT' | translate }}</a>
                 </div>
             </div>
         </div>

@@ -363,6 +363,9 @@ gulp.task('css-rename', function() {
 });
 
 gulp.task('fontello-dl', function() {
+    if (noFontello) {
+        return;
+    }
 
     if (noFontello) {
         return;

@@ -248,11 +248,11 @@ body {
         left: 0px;
         width: 100%;
         padding: 0px 0px 25px 25px;
-
         a {
             color: $muted;
             padding: 4px 6px;
             display: block;
+            text-decoration: none;
         }
     }
 }
@@ -397,10 +397,7 @@ $appHeaderHeight: 80px;
 
             &.active {
                 a {
-                    border-bottom: 2px solid $neon;
-                    color: $white;
                     background-color: $btccom-active;
-
                     &:active, &:focus, &:hover {
                         background-color: $btccom-active;
                     }
@@ -860,34 +857,34 @@ $display-token-size: 50px;
     }
 
     .appWrapper {
-        padding: 80px 0px;
+        padding: 40px 0px;
     }
 
     .pageTitle {
-        margin-top: 0px;
+        margin-top: 20px;
     }
 
     .formContainer {
         background-color: $white;
         padding: 0px 20px 20px 20px;
-        margin: 10px 0px;
+        margin: 0px 0px;
         border: 1px solid $muted;
 
         .form {
             padding: 0px 0px;
             margin-top: 20px;
             display: block;
-
-            .smallButtons {
-                padding-top: 10px;
-
-                a {
-                    display: block;
-                    padding: 0px 0px 4px 0px;
-                }
-            }
         }
     }
+
+    .smallButtons {
+        margin:20px auto;
+        a {
+            display: block;
+            padding: 0px 0px 4px 0px;
+        }
+    }
+
 
     .backupWrapper {
         margin-top: 20px;
@@ -930,6 +927,24 @@ $display-token-size: 50px;
                 font-size: 16px;
             }
         }
+    }
+
+    .loggedoutWrapper {
+        padding: 80px 0px 20px 0px;
+        .alert {
+            h2 {
+                margin: 0px;
+            }
+        }
+
+        p {
+            padding: 20px 0px 20px 0px;
+            font-size: $font-size-large;
+        }
+        .appstoreimages {
+            margin-bottom:100px;
+        }
+
     }
 }
 
@@ -1480,109 +1495,120 @@ $display-token-size: 50px;
 }
 
 /*--- Modals ---*/
-.modal-open {
-    .content {
-        @extend .blur-me;
-    }
-}
 
+/*
 .modal-max-height {
     .modal-dialog {
         height: calc(100% - 130px);
 
         .modal-content {
             height: 100%;
+            border-radius: 10px;
+        }
+        .modal-body {
+            height: calc(100% - 70px - 70px); // reduce height for header + footer
+        }
 
-            .modal-body {
-                height: calc(100% - 70px - 70px); // reduce height for header + footer
+    }
+}
+*/
+
+.modal-open {
+    .content {
+        @extend .blur-me;
+    }
+}
+.modal {
+
+    .modal-dialog {
+        margin-top: 100px;
+        button.close {
+            margin:6px 10px;
+        }
+        .modal-content {
+            border-radius:10px;
+        }
+        .modal-header {
+            background-color: $blue;
+            padding: 15px 20px;
+            -webkit-border-top-left-radius: 6px;
+            -webkit-border-top-right-radius: 6px;
+            -moz-border-radius-topleft: 6px;
+            -moz-border-radius-topright: 6px;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+
+            h3 {
+                font-weight: 400;
+                font-size: 20px;
+                color: $white;
+            }
+        }
+        .modal-body {
+            padding: 20px 25px;
+            .alert-default {
+                padding: 10px;
+                margin: 0px;
+            }
+            .title {
+                font-size: 18px;
+                font-weight: $normal;
+                padding: 0px 0px;
+                display: block;
+                width: 100%;
+                text-align: center;
+                line-height: 50px;
+
+                .address, .amount {
+                    // font-weight: $semi-bold;
+                    padding: 4px 10px;
+                    border-radius: 4px;
+                    background-color: $lightgray-light;
+                    border: 1px solid $muted;
+                }
+            }
+
+            .value {
+                color: $black-light;
+                display: block;
+                font-size: 14px;
+                text-align: left;
+            }
+            .label {
+                color: $black-light;
+                font-weight: $semi-bold;
+                display: block;
+                font-size: 14px;
+                text-align: left;
+                margin: 0px;
+                padding: 10px 0px 0px 0px;
+            }
+            .transaction-ok {
+                color: $good-green;
+                font-size: 80px;
+            }
+        }
+        .modal-footer {
+            padding: 20px 25px;
+            background-color: $lightgray-light;
+        }
+        .table {
+            background-color: $lightgray-light;
+            margin: 0px;
+            border-bottom: 1px solid $muted;
+            tr {
+                th {
+                    font-weight: $bold;
+                }
+                td, th {
+                    border: 0px;
+                    padding: 15px 30px;
+                    font-size: 16px;
+                }
             }
         }
     }
 }
-
-.modal-dialog {
-    margin-top: 100px;
-    .modal-header {
-        background-color: $blue;
-        padding: 20px 30px;
-        -webkit-border-top-left-radius: 6px;
-        -webkit-border-top-right-radius: 6px;
-        -moz-border-radius-topleft: 6px;
-        -moz-border-radius-topright: 6px;
-        border-top-left-radius: 6px;
-        border-top-right-radius: 6px;
-
-        h3 {
-            font-weight: 400;
-            font-size: 20px;
-            color: $white;
-        }
-    }
-    .modal-body {
-        padding: 20px 25px;
-        .alert-default {
-            padding: 10px;
-            margin: 0px;
-        }
-        .title {
-            font-size: 18px;
-            font-weight: $normal;
-            padding: 0px 0px;
-            display: block;
-            width: 100%;
-            text-align: center;
-            line-height: 50px;
-
-            .address, .amount {
-                // font-weight: $semi-bold;
-                padding: 4px 10px;
-                border-radius: 4px;
-                background-color: $lightgray-light;
-                border: 1px solid $muted;
-            }
-        }
-
-        .value {
-            color: $black-light;
-            display: block;
-            font-size: 14px;
-            text-align: left;
-        }
-        .label {
-            color: $black-light;
-            font-weight: $semi-bold;
-            display: block;
-            font-size: 14px;
-            text-align: left;
-            margin: 0px;
-            padding: 10px 0px 0px 0px;
-        }
-        .transaction-ok {
-            color: $good-green;
-            font-size: 80px;
-        }
-    }
-    .modal-footer {
-        padding: 20px 25px;
-        background-color: $lightgray-light;
-    }
-    .table {
-        background-color: $lightgray-light;
-        margin: 0px;
-        border-bottom: 1px solid $muted;
-        tr {
-            th {
-                font-weight: $bold;
-            }
-            td, th {
-                border: 0px;
-                padding: 15px 30px;
-                font-size: 16px;
-            }
-        }
-    }
-}
-
 /*--- Cool Buttons ---*/
 
 /*--- Cool Buttons ---*/

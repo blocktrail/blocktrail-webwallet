@@ -181,7 +181,7 @@ angular.module('blocktrail.wallet')
             );
         };
     })
-    .controller('SetupNewAccountCtrl', function($scope, $rootScope, $state, $q, $http, $timeout, launchService, CONFIG,
+    .controller('SetupNewAccountCtrl', function($scope, $rootScope, $state, $q, $http, $timeout, $modal, launchService, CONFIG,
                                                 settingsService, dialogService, $translate, $log) {
         $scope.usernameTaken = null;
         $scope.termsofservice = false;
@@ -193,6 +193,14 @@ angular.module('blocktrail.wallet')
             password: null,
             registerWithEmail: 1 //can't use bool, must be number equivalent
         };
+
+        $scope.showMobileDialog=true;
+        if ($scope.showMobileDialog) {
+            $modal.open({
+                controller: 'SetupDownloadMobileModalController',
+                templateUrl: 'templates/setup/setup.download-mobile.modal.html'
+            })
+        }
 
         // this automatically updates an already open modal instead of popping a new one open
 
@@ -246,29 +254,26 @@ angular.module('blocktrail.wallet')
                 return false;
             }
 
-            //if the user is registering with username, confirm their password
-            if (!$scope.form.registerWithEmail) {
-                return dialogService.prompt({
-                        title: $translate.instant('MSG_REPEAT_PASSWORD').capitalize(),
-                        body: $translate.instant('SETUP_PASSWORD_REPEAT_PLACEHOLDER').capitalize(),
-                        input_type: 'password',
-                        icon: 'key'
-                    }).result
-                    .then(
-                        function(dialogResult) {
-                            if ($scope.form.password === dialogResult.trim()) {
-                                $scope.working = true;
+            //confirm their password
 
-                                $scope.register();
-                            } else {
-                                $scope.errMsg = 'MSG_BAD_PASSWORD_REPEAT';
-                            }
+            return dialogService.prompt({
+                    title: $translate.instant('MSG_REPEAT_PASSWORD').capitalize(),
+                    body: $translate.instant('SETUP_PASSWORD_REPEAT_PLACEHOLDER'),
+                    input_type: 'password',
+                    icon: 'key'
+                }).result
+                .then(
+                    function(dialogResult) {
+                        if ($scope.form.password === dialogResult.trim()) {
+                            $scope.working = true;
+
+                            $scope.register();
+                        } else {
+                            $scope.errMsg = 'MSG_BAD_PASSWORD_REPEAT';
                         }
-                    );
-            } else {
-                $scope.working = true;
-                $scope.register();
-            }
+                    }
+                );
+
         };
 
         $scope.register = function() {
@@ -673,9 +678,19 @@ angular.module('blocktrail.wallet')
                     $scope.working = false;
                 }
             );
-
-
         };
+    })
 
+    .controller('SetupDownloadMobileModalController', function($scope, $modalInstance, CONFIG) {
+        $scope.CONFIG   = CONFIG;
+        $scope.mobileOs = 'android'; //should be android or ios
+
+        $scope.dismiss = function() {
+            $modalInstance.close();
+        };
+    })
+
+    .controller('SetupLoggedoutCtrl', function($scope, CONFIG) {
+        $scope.CONFIG = CONFIG;
     })
 ;

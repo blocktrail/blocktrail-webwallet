@@ -199,6 +199,17 @@ angular.module('blocktrail.wallet').config(
                 controller: "SetupCtrl",
                 templateUrl: "templates/setup/setup.html"
             })
+            .state('app.setup.loggedout', {
+                url: "/loggedout",
+                cache: false,
+                controller: "SetupLoggedoutCtrl",
+                templateUrl: "templates/setup/setup.loggedout.html",
+                resolve: {
+                    handleSetupState: function($state, launchService) {
+                        return launchService.handleSetupState('app.setup.loggedout', $state);
+                    }
+                }
+            })
             .state('app.setup.login', {
                 url: "/login",
                 cache: false,
@@ -353,7 +364,7 @@ angular.module('blocktrail.wallet').config(
         ;
 
         // if none of the above states are matched, use this as the fallback
-        $urlRouterProvider.otherwise('/setup/register');
+        $urlRouterProvider.otherwise('/setup/login');
     }
 );
 
