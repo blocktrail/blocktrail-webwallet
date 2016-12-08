@@ -1,0 +1,22 @@
+
+<button type="button" class="close" ng-click="dismiss();" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+<div class="row">
+    <div class="col-xs-10 col-xs-offset-1 text-center">
+        <h3 style="margin-top:40px;">{{'SETUP_DOWNLOAD_MOBILE_TITLE' | translate }} <span ng-if="mobileOs=='android'">{{'ANDROID' | translate }}</span> <span ng-if="mobileOs=='ios'">{{'IOS' | translate }}</span></h3>
+        <h4 style="margin-top:20px;">
+            {{'SETUP_DOWNLOAD_MOBILE_TEXT' | translate }}
+        </h4>
+        <div style="padding:20px 0px;">
+            <a href="https://itunes.apple.com/us/app/btc.com-wallet-bitcoin-wallet/id1019614423?mt=8" target="_new" ng-if="mobileOs=='ios'">
+                <img ng-src="{{ CONFIG.STATICSURL }}/img/ios.png" />
+            </a>
+            <a href="https://play.google.com/store/apps/details?id=com.blocktrail.mywallet&hl=en" target="_new" ng-if="mobileOs=='android'">
+                <img ng-src="{{ CONFIG.STATICSURL }}/img/android.png" />
+            </a>
+        </div>
+        <div style="padding:0px 0px 40px 0px;">
+            Or, continue to <a ng-href="#" ng-click="dismiss();">web version</a>
+        </div>
+    </div>
+</div>

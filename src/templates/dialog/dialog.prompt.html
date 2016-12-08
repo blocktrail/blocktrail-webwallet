@@ -36,8 +36,8 @@
         </div>
     </div>
     <div class="modal-footer" ng-class="message.footer_class">
-        <a ng-if="message.cancel !== false" class="btn btn-alt btn-danger" ng-click="dismiss()">{{ (message.cancel || 'CANCEL') | translate }}</a>
-        <input type="submit" ng-if="message.ok !== false" class="btn btn-alt btn-success" value="{{ (message.ok || 'OK') | translate }}" />
+        <a ng-if="message.cancel !== false" class="btn btn-alt btn-danger btn-lg" ng-click="dismiss()">{{ (message.cancel || 'CANCEL') | translate }}</a>
+        <input type="submit" ng-if="message.ok !== false" class="btn btn-alt btn-success btn-lg" value="{{ (message.ok || 'OK') | translate }}" />
     </div>
 
 </form>

@@ -59,7 +59,7 @@ angular.module('blocktrail.wallet').factory(
                             // no walletInfo found, means wallet needs to be created
                             //  however unless specifically navigated to app.setup.wallet we just go back to the login
                             return {
-                                allowed: ['app.setup.wallet', 'app.setup.login', 'app.setup.register'],
+                                allowed: ['app.setup.wallet', 'app.setup.login', 'app.setup.register', 'app.setup.loggedout'],
                                 _default: 'app.setup.login'
                             };
                         }
@@ -69,7 +69,7 @@ angular.module('blocktrail.wallet').factory(
                 // fallback, but should only really happen when accountInfo is not set yet
                 .catch(function() {
                     return {
-                        allowed: ['app.setup.login', 'app.setup.register'],
+                        allowed: ['app.setup.login', 'app.setup.register', 'app.setup.loggedout'],
                         _default: 'app.setup.login'
                     };
 

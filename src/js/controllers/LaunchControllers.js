@@ -18,7 +18,7 @@ angular.module('blocktrail.wallet')
     .controller('LogoutCtrl', function($state, storageService) {
         storageService.resetAll().then(
             function() {
-                window.location.replace('/#/setup/login');
+                window.location.replace('/#/setup/loggedout');
                 window.location.reload(true);
             }
         );
