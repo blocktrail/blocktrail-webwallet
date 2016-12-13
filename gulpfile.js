@@ -270,6 +270,8 @@ gulp.task('js:libs', ['appconfig'], function() {
 
             "./src/lib/pouchdb/dist/pouchdb.js",
 
+            "./src/lib/bowser/src/bowser.js",
+
             "./src/lib/angular-translate/angular-translate.js",
             "./src/lib/libphonenumber/dist/libphonenumber.js",
             "./src/lib/intl-tel-input/src/js/data.js",
