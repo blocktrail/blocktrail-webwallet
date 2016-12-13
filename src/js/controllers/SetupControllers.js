@@ -1,5 +1,17 @@
 angular.module('blocktrail.wallet')
-    .controller('SetupCtrl', function($scope, $state, CONFIG) {
+    .controller('SetupCtrl', function($scope, $modal, $state, CONFIG) {
+        $scope.showMobileDialog = bowser.mobile;
+        $scope.showMobileDialogOnce = function() {
+            if ($scope.showMobileDialog) {
+                $scope.showMobileDialog =  false;
+                $modal.open({
+                    controller: 'SetupDownloadMobileModalController',
+                    templateUrl: 'templates/setup/setup.download-mobile.modal.html'
+                });
+            }
+        };
+
+
         $scope.setupInfo = {
             // force uniqueness of the identifier to make it easier to force a
             identifier: CONFIG.DEFAULT_IDENTIFIER + "-" + randomBytes(8).toString('hex'),
@@ -19,6 +31,9 @@ angular.module('blocktrail.wallet')
     })
     .controller('SetupLoginCtrl', function($scope, $rootScope, $state, $q, $http, $timeout, launchService, CONFIG, settingsService,
                                            dialogService, FormHelper, $sce, $translate, $log) {
+        // display mobile app download popup
+        $scope.showMobileDialogOnce();
+
         $scope.working = false;
         $scope.form = {
             username: null,
@@ -183,10 +198,13 @@ angular.module('blocktrail.wallet')
     })
     .controller('SetupNewAccountCtrl', function($scope, $rootScope, $state, $q, $http, $timeout, $modal, launchService, CONFIG,
                                                 settingsService, dialogService, $translate, $log) {
+        // display mobile app download popup
+        $scope.showMobileDialogOnce();
+
         $scope.usernameTaken = null;
         $scope.termsofservice = false;
-        $scope.working       = false;
-        $scope.errMsg        = false;
+        $scope.working = false;
+        $scope.errMsg = false;
         $scope.form = {
             username: null,
             email: null,
@@ -194,16 +212,7 @@ angular.module('blocktrail.wallet')
             registerWithEmail: 1 //can't use bool, must be number equivalent
         };
 
-        $scope.showMobileDialog=true;
-        if ($scope.showMobileDialog) {
-            $modal.open({
-                controller: 'SetupDownloadMobileModalController',
-                templateUrl: 'templates/setup/setup.download-mobile.modal.html'
-            })
-        }
-
         // this automatically updates an already open modal instead of popping a new one open
-
         $scope.alert = dialogService.alertSingleton();
         $scope.$on('$destroy', function() {
             $scope.alert.dismiss();
@@ -681,9 +690,8 @@ angular.module('blocktrail.wallet')
         };
     })
 
-    .controller('SetupDownloadMobileModalController', function($scope, $modalInstance, CONFIG) {
-        $scope.CONFIG   = CONFIG;
-        $scope.mobileOs = 'android'; //should be android or ios
+    .controller('SetupDownloadMobileModalController', function($scope, $modalInstance) {
+        $scope.mobileOs = bowser.android ? 'android' : bowser.ios ? 'ios' : 'both';
 
         $scope.dismiss = function() {
             $modalInstance.close();
