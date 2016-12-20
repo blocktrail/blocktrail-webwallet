@@ -530,6 +530,7 @@ angular.module('blocktrail.wallet')
 
                         return launchService.storeBackupInfo({
                             identifier: $scope.setupInfo.identifier,
+                            walletVersion: $scope.setupInfo.backupInfo.walletVersion,
                             encryptedPrimarySeed: $scope.setupInfo.backupInfo.encryptedPrimarySeed,
                             encryptedSecret: $scope.setupInfo.backupInfo.encryptedSecret,
                             backupSeed: $scope.setupInfo.backupInfo.backupSeed,
@@ -630,6 +631,7 @@ angular.module('blocktrail.wallet')
 
         $scope.setupInfo.identifier = backupInfo.identifier;
         $scope.setupInfo.backupInfo = {
+            walletVersion: backupInfo.walletVersion,
             encryptedPrimarySeed: backupInfo.encryptedPrimarySeed,
             encryptedSecret: backupInfo.encryptedSecret,
             backupSeed: backupInfo.backupSeed,
