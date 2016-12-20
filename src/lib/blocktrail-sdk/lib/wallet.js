@@ -5,8 +5,9 @@ var async = require('async');
 var bitcoin = require('bitcoinjs-lib');
 var blocktrail = require('./blocktrail');
 var CryptoJS = require('crypto-js');
+var Encryption = require('./encryption');
+var EncryptionMnemonic = require('./encryption_mnemonic');
 var bip39 = require('bip39');
-
 
 /**
  *
@@ -60,13 +61,13 @@ var Wallet = function(
     }
 
     assert(backupPublicKey instanceof bitcoin.HDNode);
-    assert(_.all(primaryPublicKeys, function(primaryPublicKey) { return primaryPublicKey instanceof bitcoin.HDNode; }));
-    assert(_.all(blocktrailPublicKeys, function(blocktrailPublicKey) { return blocktrailPublicKey instanceof bitcoin.HDNode; }));
+    assert(_.every(primaryPublicKeys, function(primaryPublicKey) { return primaryPublicKey instanceof bitcoin.HDNode; }));
+    assert(_.every(blocktrailPublicKeys, function(blocktrailPublicKey) { return blocktrailPublicKey instanceof bitcoin.HDNode; }));
 
     // v1
     self.primaryMnemonic = primaryMnemonic;
 
-    // v2
+    // v2 & v3
     self.encryptedPrimarySeed = encryptedPrimarySeed;
     self.encryptedSecret = encryptedSecret;
 
@@ -86,6 +87,7 @@ var Wallet = function(
 
 Wallet.WALLET_VERSION_V1 = 'v1';
 Wallet.WALLET_VERSION_V2 = 'v2';
+Wallet.WALLET_VERSION_V3 = 'v3';
 
 Wallet.WALLET_ENTROPY_BITS = 256;
 
@@ -99,6 +101,7 @@ Wallet.PAY_PROGRESS_SIGN = 30;
 Wallet.PAY_PROGRESS_SEND = 40;
 Wallet.PAY_PROGRESS_DONE = 100;
 
+Wallet.FEE_STRATEGY_FORCE_FEE = blocktrail.FEE_STRATEGY_FORCE_FEE;
 Wallet.FEE_STRATEGY_BASE_FEE = blocktrail.FEE_STRATEGY_BASE_FEE;
 Wallet.FEE_STRATEGY_OPTIMAL = blocktrail.FEE_STRATEGY_OPTIMAL;
 Wallet.FEE_STRATEGY_LOW_PRIORITY = blocktrail.FEE_STRATEGY_LOW_PRIORITY;
@@ -119,6 +122,9 @@ Wallet.prototype.unlock = function(options, cb) {
 
             case Wallet.WALLET_VERSION_V2:
                 return self.unlockV2(options);
+
+            case Wallet.WALLET_VERSION_V3:
+                return self.unlockV3(options);
 
             default:
                 return q.reject(new blocktrail.WalletInitError("Invalid wallet version"));
@@ -161,7 +167,12 @@ Wallet.prototype.unlockV1 = function(options) {
     options.primaryMnemonic = typeof options.primaryMnemonic !== "undefined" ? options.primaryMnemonic : self.primaryMnemonic;
     options.secretMnemonic = typeof options.secretMnemonic !== "undefined" ? options.secretMnemonic : self.secretMnemonic;
 
-    return self.sdk.resolvePrimaryPrivateKeyFromOptions(options);
+    return self.sdk.resolvePrimaryPrivateKeyFromOptions(options)
+        .then(function(options) {
+            self.primarySeed = options.primarySeed;
+
+            return options.primaryPrivateKey;
+        });
 };
 
 Wallet.prototype.unlockV2 = function(options, cb) {
@@ -180,16 +191,15 @@ Wallet.prototype.unlockV2 = function(options, cb) {
         }
 
         if (options.primaryPrivateKey) {
-            if (options.primaryPrivateKey instanceof bitcoin.HDNode) {
-                return options.primaryPrivateKey;
-            } else {
-                return bitcoin.HDNode.fromBase58(options.primaryPrivateKey, self.network);
-            }
-        } else if (options.primarySeed) {
+            throw new blocktrail.WalletDecryptError("specifying primaryPrivateKey has been deprecated");
+        }
+
+        if (options.primarySeed) {
             self.primarySeed = options.primarySeed;
         } else if (options.secret) {
             try {
-                self.primarySeed = new Buffer(CryptoJS.AES.decrypt(options.encryptedPrimarySeed, self.secret).toString(CryptoJS.enc.Utf8), 'base64');
+                self.primarySeed = new Buffer(
+                    CryptoJS.AES.decrypt(CryptoJS.format.OpenSSL.parse(options.encryptedPrimarySeed), self.secret).toString(CryptoJS.enc.Utf8), 'base64');
                 if (!self.primarySeed.length) {
                     throw new Error();
                 }
@@ -206,7 +216,7 @@ Wallet.prototype.unlockV2 = function(options, cb) {
             options.passphrase = options.passphrase || options.password;
 
             try {
-                self.secret = CryptoJS.AES.decrypt(options.encryptedSecret, options.passphrase).toString(CryptoJS.enc.Utf8);
+                self.secret = CryptoJS.AES.decrypt(CryptoJS.format.OpenSSL.parse(options.encryptedSecret), options.passphrase).toString(CryptoJS.enc.Utf8);
                 if (!self.secret.length) {
                     throw new Error();
                 }
@@ -214,7 +224,8 @@ Wallet.prototype.unlockV2 = function(options, cb) {
                 throw new blocktrail.WalletDecryptError("Failed to decrypt secret");
             }
             try {
-                self.primarySeed = new Buffer(CryptoJS.AES.decrypt(options.encryptedPrimarySeed, self.secret).toString(CryptoJS.enc.Utf8), 'base64');
+                self.primarySeed = new Buffer(
+                    CryptoJS.AES.decrypt(CryptoJS.format.OpenSSL.parse(options.encryptedPrimarySeed), self.secret).toString(CryptoJS.enc.Utf8), 'base64');
                 if (!self.primarySeed.length) {
                     throw new Error();
                 }
@@ -224,6 +235,70 @@ Wallet.prototype.unlockV2 = function(options, cb) {
         }
 
         return bitcoin.HDNode.fromSeedBuffer(self.primarySeed, self.network);
+    }));
+
+    return deferred.promise;
+};
+
+Wallet.prototype.unlockV3 = function(options, cb) {
+    var self = this;
+
+    var deferred = q.defer();
+    deferred.promise.nodeify(cb);
+
+    deferred.resolve(q.fcall(function() {
+        return q.when()
+            .then(function() {
+                /* jshint -W071, -W074 */
+                options.encryptedPrimarySeed = typeof options.encryptedPrimarySeed !== "undefined" ? options.encryptedPrimarySeed : self.encryptedPrimarySeed;
+                options.encryptedSecret = typeof options.encryptedSecret !== "undefined" ? options.encryptedSecret : self.encryptedSecret;
+
+                if (options.secret) {
+                    self.secret = options.secret;
+                }
+
+                if (options.primaryPrivateKey) {
+                    throw new blocktrail.WalletInitError("specifying primaryPrivateKey has been deprecated");
+                }
+
+                if (options.primarySeed) {
+                    self.primarySeed = options.primarySeed;
+                } else if (options.secret) {
+                    return self.sdk.promisedDecrypt(new Buffer(options.encryptedPrimarySeed, 'base64'), self.secret)
+                        .then(function(primarySeed) {
+                            self.primarySeed = primarySeed;
+                        }, function() {
+                            throw new blocktrail.WalletDecryptError("Failed to decrypt primarySeed");
+                        });
+                } else {
+                    // avoid conflicting options
+                    if (options.passphrase && options.password) {
+                        throw new blocktrail.WalletCreateError("Can't specify passphrase and password");
+                    }
+                    // normalize passphrase/password
+                    options.passphrase = options.passphrase || options.password;
+                    delete options.password;
+
+                    return self.sdk.promisedDecrypt(new Buffer(options.encryptedSecret, 'base64'), new Buffer(options.passphrase))
+                        .then(function(secret) {
+                            self.secret = secret;
+                        }, function() {
+                            throw new blocktrail.WalletDecryptError("Failed to decrypt secret");
+                        })
+                        .then(function() {
+                            return self.sdk.promisedDecrypt(new Buffer(options.encryptedPrimarySeed, 'base64'), self.secret)
+                                .then(function(primarySeed) {
+                                    self.primarySeed = primarySeed;
+                                }, function() {
+                                    throw new blocktrail.WalletDecryptError("Failed to decrypt primarySeed");
+                                });
+                        });
+                }
+            })
+            .then(function() {
+                return bitcoin.HDNode.fromSeedBuffer(self.primarySeed, self.network);
+            })
+        ;
     }));
 
     return deferred.promise;
@@ -240,6 +315,146 @@ Wallet.prototype.lock = function() {
     self.locked = true;
 };
 
+/**
+ * upgrade wallet to V3 encryption scheme
+ *
+ * @param passphrase is required again to reencrypt the data, important that it's the correct password!!!
+ * @param cb
+ * @returns {promise}
+ */
+Wallet.prototype.upgradeToV3 = function(passphrase, cb) {
+    var self = this;
+
+    var deferred = q.defer();
+    deferred.promise.nodeify(cb);
+
+    q.when(true)
+        .then(function() {
+            if (self.locked) {
+                throw new blocktrail.WalletLockedError("Wallet needs to be unlocked to upgrade");
+            }
+
+            if (self.walletVersion === Wallet.WALLET_VERSION_V3) {
+                throw new blocktrail.WalletUpgradeError("Wallet is already V3");
+            } else if (self.walletVersion === Wallet.WALLET_VERSION_V2) {
+                return self._upgradeV2ToV3(passphrase, deferred.notify.bind(deferred));
+            } else if (self.walletVersion === Wallet.WALLET_VERSION_V1) {
+                return self._upgradeV1ToV3(passphrase, deferred.notify.bind(deferred));
+            }
+        })
+        .then(function(r) { deferred.resolve(r); }, function(e) { deferred.reject(e); });
+
+    return deferred.promise;
+};
+
+Wallet.prototype._upgradeV2ToV3 = function(passphrase, notify) {
+    var self = this;
+
+    return q.when(true)
+        .then(function() {
+            var options = {
+                storeDataOnServer: true,
+                passphrase: passphrase,
+                primarySeed: self.primarySeed,
+                recoverySecret: false // don't create new recovery secret, V2 already has ones
+            };
+
+            return self.sdk.produceEncryptedDataV3(options, notify || function noop() {})
+                .then(function(options) {
+                    return self.sdk.updateWallet(self.identifier, {
+                        encrypted_primary_seed: options.encryptedPrimarySeed.toString('base64'),
+                        encrypted_secret: options.encryptedSecret.toString('base64'),
+                        wallet_version: Wallet.WALLET_VERSION_V3
+                    }).then(function() {
+                        self.secret = options.secret;
+                        self.encryptedPrimarySeed = options.encryptedPrimarySeed;
+                        self.encryptedSecret = options.encryptedSecret;
+                        self.walletVersion = Wallet.WALLET_VERSION_V3;
+
+                        return self;
+                    });
+                });
+        });
+
+};
+
+Wallet.prototype._upgradeV1ToV3 = function(passphrase, notify) {
+    var self = this;
+
+    return q.when(true)
+        .then(function() {
+            var options = {
+                storeDataOnServer: true,
+                passphrase: passphrase,
+                primarySeed: self.primarySeed
+            };
+
+            return self.sdk.produceEncryptedDataV3(options, notify || function noop() {})
+                .then(function(options) {
+                    // store recoveryEncryptedSecret for printing on backup sheet
+                    self.recoveryEncryptedSecret = options.recoveryEncryptedSecret;
+
+                    return self.sdk.updateWallet(self.identifier, {
+                        encrypted_primary_seed: options.encryptedPrimarySeed.toString('base64'),
+                        encrypted_secret: options.encryptedSecret.toString('base64'),
+                        recovery_secret: options.recoverySecret.toString('hex'),
+                        wallet_version: Wallet.WALLET_VERSION_V3
+                    }).then(function() {
+                        self.secret = options.secret;
+                        self.encryptedPrimarySeed = options.encryptedPrimarySeed;
+                        self.encryptedSecret = options.encryptedSecret;
+                        self.walletVersion = Wallet.WALLET_VERSION_V3;
+
+                        return self;
+                    });
+                });
+        });
+};
+
+Wallet.prototype.doPasswordChange = function(newPassword) {
+    var self = this;
+
+    return q.when(null)
+        .then(function() {
+
+            if (self.walletVersion === Wallet.WALLET_VERSION_V1) {
+                throw new blocktrail.WalletLockedError("Wallet version does not support password change!");
+            }
+
+            if (self.locked) {
+                throw new blocktrail.WalletLockedError("Wallet needs to be unlocked to change password");
+            }
+
+            if (!self.secret) {
+                throw new blocktrail.WalletLockedError("No secret");
+            }
+
+            var newEncryptedSecret;
+            var newEncrypedWalletSecretMnemonic;
+            if (self.walletVersion === Wallet.WALLET_VERSION_V2) {
+                newEncryptedSecret = CryptoJS.AES.encrypt(self.secret, newPassword).toString(CryptoJS.format.OpenSSL);
+                newEncrypedWalletSecretMnemonic = bip39.entropyToMnemonic(blocktrail.convert(newEncryptedSecret, 'base64', 'hex'));
+
+            } else {
+                if (typeof newPassword === "string") {
+                    newPassword = new Buffer(newPassword);
+                } else {
+                    if (!(newPassword instanceof Buffer)) {
+                        throw new Error('New password must be provided as a string or a Buffer');
+                    }
+                }
+
+                newEncryptedSecret = Encryption.encrypt(self.secret, newPassword);
+                newEncrypedWalletSecretMnemonic = EncryptionMnemonic.encode(newEncryptedSecret);
+
+                // It's a buffer, so convert it back to base64
+                newEncryptedSecret = newEncryptedSecret.toString('base64');
+            }
+
+            return [newEncryptedSecret, newEncrypedWalletSecretMnemonic];
+        });
+};
+
 Wallet.prototype.passwordChange = function(newPassword, cb) {
     var self = this;
 
@@ -247,38 +462,29 @@ Wallet.prototype.passwordChange = function(newPassword, cb) {
     deferred.promise.nodeify(cb);
 
     q.fcall(function() {
-        if (self.walletVersion !== Wallet.WALLET_VERSION_V2) {
-            throw new blocktrail.WalletLockedError("Wallet version does not support password change!");
-        }
+        return self.doPasswordChange(newPassword)
+            .then(function(r) {
+                var newEncryptedSecret = r[0];
+                var newEncrypedWalletSecretMnemonic = r[1];
 
-        if (self.locked) {
-            throw new blocktrail.WalletLockedError("Wallet needs to be unlocked to change password");
-        }
+                return self.sdk.updateWallet(self.identifier, {encrypted_secret: newEncryptedSecret}).then(function() {
+                    self.encryptedSecret = newEncryptedSecret;
 
-        if (!self.secret) {
-            throw new blocktrail.WalletLockedError("No secret");
-        }
-
-        var newEncryptedSecret = CryptoJS.AES.encrypt(self.secret, newPassword).toString(CryptoJS.format.OpenSSL);
-
-        return self.sdk.updateWallet(self.identifier, {encrypted_secret: newEncryptedSecret}).then(function() {
-            self.encryptedSecret = newEncryptedSecret;
-
-            // backupInfo
-            return {
-                encryptedSecret: bip39.entropyToMnemonic(blocktrail.convert(newEncryptedSecret, 'base64', 'hex'))
-            };
-        });
-    })
-        .then(
-        function(r) {
-            deferred.resolve(r);
-        },
-        function(e) {
-            deferred.reject(e);
-        }
-    )
-    ;
+                    // backupInfo
+                    return {
+                        encryptedSecret: newEncrypedWalletSecretMnemonic
+                    };
+                });
+            })
+            .then(
+                function(r) {
+                    deferred.resolve(r);
+                },
+                function(e) {
+                    deferred.reject(e);
+                }
+            );
+    });
 
     return deferred.promise;
 };
@@ -422,7 +628,6 @@ Wallet.prototype.upgradeKeyIndex = function(keyIndex, cb) {
  */
 Wallet.prototype.getNewAddress = function(cb) {
     var self = this;
-
     var deferred = q.defer();
     deferred.promise.spreadNodeify(cb);
 
@@ -558,7 +763,6 @@ Wallet.prototype.deleteWallet = function(force, cb) {
  * @param [changeAddress]       bool        change address to use (auto generated if NULL)
  * @param [allowZeroConf]       bool        allow zero confirmation unspent outputs to be used in coin selection
  * @param [randomizeChangeIdx]  bool        randomize the index of the change output (default TRUE, only disable if you have a good reason to)
- * @param [randomizeChangeIdx]  bool        randomize the index of the change output (default TRUE, only disable if you have a good reason to)
  * @param [feeStrategy]         string      defaults to Wallet.FEE_STRATEGY_OPTIMAL
  * @param [twoFactorToken]      string      2FA token
  * @param options
@@ -592,6 +796,7 @@ Wallet.prototype.pay = function(pay, changeAddress, allowZeroConf, randomizeChan
     randomizeChangeIdx = typeof randomizeChangeIdx !== "undefined" ? randomizeChangeIdx : true;
     feeStrategy = feeStrategy || Wallet.FEE_STRATEGY_OPTIMAL;
     options = options || {};
+    var checkFee = typeof options.checkFee !== "undefined" ? options.checkFee : true;
 
     var deferred = q.defer();
     deferred.promise.nodeify(cb);
@@ -616,7 +821,7 @@ Wallet.prototype.pay = function(pay, changeAddress, allowZeroConf, randomizeChan
             function(tx, utxos) {
                 deferred.notify(Wallet.PAY_PROGRESS_SEND);
 
-                return self.sendTransaction(tx.toHex(), utxos.map(function(utxo) { return utxo['path']; }), true, twoFactorToken)
+                return self.sendTransaction(tx.toHex(), utxos.map(function(utxo) { return utxo['path']; }), checkFee, twoFactorToken)
                     .then(function(result) {
                         deferred.notify(Wallet.PAY_PROGRESS_DONE);
 
@@ -907,7 +1112,7 @@ Wallet.prototype.buildTransaction = function(pay, changeAddress, allowZeroConf, 
                                 case Wallet.FEE_STRATEGY_OPTIMAL:
                                     if (fee > estimatedFee * 20) {
                                         return cb(new blocktrail.WalletFeeError("the fee suggested by the coin selection (" + fee + ") " +
-                                            "seems awefull high (" + estimatedFee + ") for FEE_STRATEGY_OPTIMAL"));
+                                            "seems awefully high (" + estimatedFee + ") for FEE_STRATEGY_OPTIMAL"));
                                     }
                                 break;
                             }
@@ -1149,6 +1354,20 @@ Wallet.sortMultiSigKeys = function(pubKeys) {
  * @returns {number}
  */
 Wallet.estimateIncompleteTxFee = function(tx) {
+    var size = Wallet.estimateIncompleteTxSize(tx);
+    var sizeKB = Math.ceil(size / 1000);
+
+    return sizeKB * blocktrail.BASE_FEE;
+};
+
+/**
+ * determine how much fee is required based on the inputs and outputs
+ *  this is an estimation, not a proper 100% correct calculation
+ *
+ * @param {bitcoin.Transaction} tx
+ * @returns {number}
+ */
+Wallet.estimateIncompleteTxSize = function(tx) {
     var size = 4 + 4 + 4 + 4; // version + txinVarInt + txoutVarInt + locktime
 
     size += tx.outs.length * 34;
@@ -1211,9 +1430,7 @@ Wallet.estimateIncompleteTxFee = function(tx) {
         }
     });
 
-    var sizeKB = Math.ceil(size / 1000);
-
-    return sizeKB * blocktrail.BASE_FEE;
+    return size;
 };
 
 /**

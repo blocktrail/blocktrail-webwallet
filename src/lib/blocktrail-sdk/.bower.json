@@ -14,13 +14,12 @@
     "test",
     "tests"
   ],
-  "_release": "aee37328fb",
+  "_release": "a31fd377e7",
   "_resolution": {
-    "type": "branch",
-    "branch": "backup-sheet-btccom",
-    "commit": "aee37328fb8e9a14d727e3285b960e2a1131dce8"
+    "type": "commit",
+    "commit": "a31fd377e7cf8cebef5df4f752b62d05cd771266"
   },
   "_source": "git@github.com:blocktrail/blocktrail-sdk-nodejs.git",
-  "_target": "backup-sheet-btccom",
+  "_target": "a31fd377e7cf8cebef5df4f752b62d05cd771266",
   "_originalSource": "git@github.com:blocktrail/blocktrail-sdk-nodejs.git"
 }
