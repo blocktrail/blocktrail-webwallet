@@ -191,8 +191,9 @@ angular.module('blocktrail.wallet')
                     }
 
                     if (transaction.wallet_value_change > 0) {
-                        //received from anonymous
-                        transaction.otherAddresses = transaction.txin_other_addresses.join(", ");
+                        // received from anonymous
+                        // disabled displaying recieved from
+                        // transaction.otherAddresses = transaction.txin_other_addresses.join(", ");
                         transaction.altDisplay = $translate.instant('TX_INFO_RECEIVED');
                     } else if (transaction.is_internal) {
                         //sent to self

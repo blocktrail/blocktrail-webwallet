@@ -43,7 +43,7 @@
             </div>
         </div>
 
-        <div class="contact">
+        <div class="contact" ng-if="data.contact && data.contact.displayName || data.otherAddresses || data.is_internal">
             <div class="label capitalise">
                 <span ng-if="data.wallet_value_change <= 0">{{ 'TX_INFO_SENT_TO' | translate }}</span>
                 <span ng-if="data.wallet_value_change > 0">{{ 'TX_INFO_RECEIVED_FROM' | translate }}</span>
