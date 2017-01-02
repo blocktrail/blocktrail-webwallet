@@ -369,10 +369,6 @@ gulp.task('fontello-dl', function() {
         return;
     }
 
-    if (noFontello) {
-        return;
-    }
-
     return streamAsPromise(gulp.src('./fontello.json')
         .pipe(fontello())
         .pipe(gulp.dest('./www/fontello/'))
