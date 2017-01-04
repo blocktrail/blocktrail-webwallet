@@ -258,6 +258,7 @@ gulp.task('js:libs', ['appconfig'], function() {
         return streamAsPromise(gulp.src([
             "./src/lib/q/q.js",
             "./src/lib/angular/angular.js",
+            "./src/lib/angular-sanitize/angular-sanitize.js",
             './src/lib/angulartics/src/angulartics.js',
             './src/lib/angulartics-google-analytics/lib/angulartics-ga.js',
             "./src/lib/angular-ui-router/release/angular-ui-router.js",

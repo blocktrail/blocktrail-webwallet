@@ -299,16 +299,15 @@ angular.module('blocktrail.wallet')
                                                                                 backup.generatePDF(function(err, pdf) {
                                                                                     if (err) {
                                                                                         $log.error(err);
-                                                                                        dialogService.alert(err, $scope.translations['ERROR'], $scope.translations['OK']);
+                                                                                        $scope.alert({
+                                                                                            title: $translate.instant('ERROR'),
+                                                                                            body: "" + err
+                                                                                        });
                                                                                     } else {
                                                                                         pdf.save("BlockTrail Updated Recovery Data Sheet - " + wallet.identifier + ".pdf");
 
                                                                                         // delete all temp backup info
-                                                                                        launchService.clearBackupInfo()
-                                                                                            .then(function() {
-
-                                                                                            })
-                                                                                        ;
+                                                                                        launchService.clearBackupInfo();
                                                                                     }
                                                                                 });
                                                                             } catch (error) {

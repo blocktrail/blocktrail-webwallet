@@ -35,6 +35,7 @@ angular.module('blocktrail.localisation', [
             $translateProvider.fallbackLanguage(CONFIG.FALLBACK_LANGUAGE);
         }
 
+        $translateProvider.useSanitizeValueStrategy(['sanitize', 'escapeParameters']);
         $translateProvider.registerAvailableLanguageKeys(['en', 'fr', 'es', 'nl', 'ru', 'cn'], {
             'en_*': 'en',
             'fr_*': 'fr',
