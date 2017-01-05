@@ -19,6 +19,9 @@
             <div class="help-block sentence-case">
                 {{ error | translate }}
             </div>
+            <div ng-if="detailedError" class="help-block sentence-case">
+                {{ detailedError | translate }}
+            </div>
         </div>
 
         <div ng-show="!working && !complete">

@@ -160,6 +160,7 @@ angular.module('blocktrail.wallet')
         $scope.working = false;
 
         $scope.error = null;
+        $scope.detailedError = null;
 
         $scope.form = {
             password : null,
@@ -210,6 +211,7 @@ angular.module('blocktrail.wallet')
             }
 
             $scope.error = null;
+            $scope.detailedError = null;
             $scope.working = true;
             $scope.progressWidth = 5;
             $scope.progressTimeout = $timeout(function() {
@@ -240,6 +242,7 @@ angular.module('blocktrail.wallet')
 
                     $log.info("wallet: paid", txHash);
                     $scope.error = null;
+                    $scope.detailedError = null;
                     $scope.complete = true;
                     $scope.working = false;
                     $scope.txHash = txHash;
@@ -248,6 +251,7 @@ angular.module('blocktrail.wallet')
                 })
                 .catch(function(err) {
                     $scope.error = null;
+                    $scope.detailedError = null;
                     $scope.working = false;
 
                     $timeout.cancel($scope.progressTimeout);
@@ -275,6 +279,7 @@ angular.module('blocktrail.wallet')
                         $log.error(err);
                         // other error
                         $scope.error = 'MSG_SEND_FAIL_UNKNOWN';
+                        $scope.detailedError = ("" + err).replace(/^Error: /, "");
                     }
                 })
             ;
