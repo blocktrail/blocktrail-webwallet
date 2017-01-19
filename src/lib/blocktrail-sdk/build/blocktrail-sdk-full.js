@@ -5924,6 +5924,21 @@ APIClient.prototype._createNewWalletV3 = function(options) {
     return deferred.promise;
 };
 
+function verifyPublicBip32Key(bip32Key) {
+    var hk = bitcoin.HDNode.fromBase58(bip32Key[0]);
+    if (hk.privKey) {
+        throw new Error('BIP32Key contained private key material - abort');
+    }
+
+    if (bip32Key[1].slice(0, 1) !== "M") {
+        throw new Error("BIP32Key contained non-public path - abort");
+    }
+}
+
+function verifyPublicOnly(walletData) {
+    verifyPublicBip32Key(walletData.primary_public_key);
+    verifyPublicBip32Key(walletData.backup_public_key);
+}
 
 /**
  * create wallet using the API
@@ -5949,6 +5964,8 @@ APIClient.prototype.storeNewWalletV1 = function(identifier, primaryPublicKey, ba
         checksum: checksum,
         key_index: keyIndex
     };
+
+    verifyPublicOnly(postData);
 
     return self.client.post("/wallet", null, postData, cb);
 };
@@ -5983,6 +6000,8 @@ APIClient.prototype.storeNewWalletV2 = function(identifier, primaryPublicKey, ba
         key_index: keyIndex
     };
 
+    verifyPublicOnly(postData);
+
     return self.client.post("/wallet", null, postData, cb);
 };
 
@@ -6015,6 +6034,8 @@ APIClient.prototype.storeNewWalletV3 = function(identifier, primaryPublicKey, ba
         checksum: checksum,
         key_index: keyIndex
     };
+
+    verifyPublicOnly(postData);
 
     return self.client.post("/wallet", null, postData, cb);
 };
@@ -6448,7 +6469,7 @@ APIClient.prototype.price = function(cb) {
 module.exports = APIClient;
 
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"./blocktrail":3,"./encryption":4,"./encryption_mnemonic":5,"./keyderivation":6,"./rest_client":11,"./use-webworker":15,"./wallet":16,"./webworker":18,"./webworkifier":19,"_process":228,"bip39":29,"bitcoinjs-lib":43,"buffer":87,"crypto-js":166,"lodash":222,"q":256,"randombytes":263}],2:[function(require,module,exports){
+},{"./blocktrail":3,"./encryption":4,"./encryption_mnemonic":5,"./keyderivation":6,"./rest_client":11,"./use-webworker":15,"./wallet":16,"./webworker":18,"./webworkifier":19,"_process":228,"bip39":28,"bitcoinjs-lib":42,"buffer":87,"crypto-js":166,"lodash":222,"q":256,"randombytes":263}],2:[function(require,module,exports){
 var async = require('async');
 var _ = require('lodash');
 
@@ -6831,7 +6852,7 @@ BackupGenerator.prototype.generatePDF = function(callback) {
 
 module.exports = BackupGenerator;
 
-},{"./pdf_writer":8,"./qrCode-browser":9,"async":22,"bowser":63,"lodash":222}],3:[function(require,module,exports){
+},{"./pdf_writer":8,"./qrCode-browser":9,"async":21,"bowser":62,"lodash":222}],3:[function(require,module,exports){
 (function (Buffer){
 var util = require('util');
 var assert = require('assert');
@@ -7048,7 +7069,7 @@ blocktrail.patchQ(require('q'));
 module.exports = blocktrail;
 
 }).call(this,require("buffer").Buffer)
-},{"./encryption":4,"./encryption_mnemonic":5,"./keyderivation":6,"assert":21,"bip39":29,"buffer":87,"crypto-js":166,"q":256,"util":302}],4:[function(require,module,exports){
+},{"./encryption":4,"./encryption_mnemonic":5,"./keyderivation":6,"assert":83,"bip39":28,"buffer":87,"crypto-js":166,"q":256,"util":302}],4:[function(require,module,exports){
 (function (Buffer){
 var assert = require('assert');
 var sjcl = require('sjcl');
@@ -7134,7 +7155,7 @@ Encryption.decrypt = function(ct, pw) {
 module.exports = Encryption;
 
 }).call(this,require("buffer").Buffer)
-},{"./keyderivation":6,"assert":21,"buffer":87,"randombytes":263,"sjcl":284}],5:[function(require,module,exports){
+},{"./keyderivation":6,"assert":83,"buffer":87,"randombytes":263,"sjcl":284}],5:[function(require,module,exports){
 (function (Buffer){
 var assert = require('assert'),
     bip39 = require('bip39');
@@ -7232,7 +7253,7 @@ EncryptionMnemonic.decode = function(mnemonic) {
 module.exports = EncryptionMnemonic;
 
 }).call(this,require("buffer").Buffer)
-},{"assert":21,"bip39":29,"buffer":87}],6:[function(require,module,exports){
+},{"assert":83,"bip39":28,"buffer":87}],6:[function(require,module,exports){
 (function (Buffer){
 var assert = require('assert'),
     pbkdf2Sha512 = require('./pbkdf2_sha512');
@@ -7261,7 +7282,7 @@ KeyDerivation.compute = function(pw, salt, iterations) {
 module.exports = KeyDerivation;
 
 }).call(this,require("buffer").Buffer)
-},{"./pbkdf2_sha512":7,"assert":21,"buffer":87}],7:[function(require,module,exports){
+},{"./pbkdf2_sha512":7,"assert":83,"buffer":87}],7:[function(require,module,exports){
 (function (Buffer){
 var asmCrypto = require('../vendor/asmcrypto.js/asmcrypto.js');
 
@@ -7951,7 +7972,7 @@ BlocktrailBitcoinService.prototype.batchAddressHasTransactions = function(addres
 
 module.exports = BlocktrailBitcoinService;
 
-},{"../api_client":1,"async":22,"lodash":222,"q":256}],13:[function(require,module,exports){
+},{"../api_client":1,"async":21,"lodash":222,"q":256}],13:[function(require,module,exports){
 var blocktrail = require('../blocktrail');
 var request = require('superagent');
 var _ = require('lodash');
@@ -8131,7 +8152,7 @@ UnspentOutputFinder.prototype.getUTXOs = function(addresses) {
 
 module.exports = UnspentOutputFinder;
 
-},{"async":22,"lodash":222,"q":256}],15:[function(require,module,exports){
+},{"async":21,"lodash":222,"q":256}],15:[function(require,module,exports){
 (function (process){
 /* globals window, navigator */
 var isNodeJS = !process.browser;
@@ -9674,7 +9695,7 @@ Wallet.deriveByPath = function(hdKey, path, keyPath) {
 module.exports = Wallet;
 
 }).call(this,require("buffer").Buffer)
-},{"./blocktrail":3,"./encryption":4,"./encryption_mnemonic":5,"assert":21,"async":22,"bip39":29,"bitcoinjs-lib":43,"buffer":87,"crypto-js":166,"lodash":222,"q":256}],17:[function(require,module,exports){
+},{"./blocktrail":3,"./encryption":4,"./encryption_mnemonic":5,"assert":83,"async":21,"bip39":28,"bitcoinjs-lib":42,"buffer":87,"crypto-js":166,"lodash":222,"q":256}],17:[function(require,module,exports){
 (function (Buffer){
 var UnspentOutputFinder = require('./unspent_output_finder');
 var bitcoin = require('bitcoinjs-lib');
@@ -10279,7 +10300,7 @@ WalletSweeper.prototype.signTransaction = function(rawTransaction, inputs) {
 module.exports = WalletSweeper;
 
 }).call(this,require("buffer").Buffer)
-},{"./blocktrail":3,"./encryption":4,"./encryption_mnemonic":5,"./unspent_output_finder":14,"./wallet":16,"async":22,"bip39":29,"bitcoinjs-lib":43,"buffer":87,"crypto-js":166,"lodash":222,"q":256}],18:[function(require,module,exports){
+},{"./blocktrail":3,"./encryption":4,"./encryption_mnemonic":5,"./unspent_output_finder":14,"./wallet":16,"async":21,"bip39":28,"bitcoinjs-lib":42,"buffer":87,"crypto-js":166,"lodash":222,"q":256}],18:[function(require,module,exports){
 (function (Buffer){
 var bip39 = require("bip39");
 var Encryption = require('./encryption');
@@ -10362,7 +10383,7 @@ module.exports = function(self) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"./encryption":4,"bip39":29,"buffer":87}],19:[function(require,module,exports){
+},{"./encryption":4,"bip39":28,"buffer":87}],19:[function(require,module,exports){
 /* global URL */
 var q = require('q');
 var webworkify = require('webworkify');
@@ -10483,368 +10504,7 @@ APIClient.Buffer = Buffer;
 exports = module.exports = APIClient;
 
 }).call(this,require("buffer").Buffer)
-},{"./lib/api_client":1,"./lib/backup_generator":2,"./lib/blocktrail":3,"./lib/encryption":4,"./lib/encryption_mnemonic":5,"./lib/keyderivation":6,"./lib/request":10,"./lib/services/blocktrail_bitcoin_service":12,"./lib/services/insight_bitcoin_service":13,"./lib/unspent_output_finder":14,"./lib/use-webworker":15,"./lib/wallet":16,"./lib/wallet_sweeper":17,"bip39":29,"bitcoinjs-lib":43,"buffer":87,"crypto-js":166,"debug":192,"lodash":222,"q":256,"randombytes":263,"superagent":290}],21:[function(require,module,exports){
-// http://wiki.commonjs.org/wiki/Unit_Testing/1.0
-//
-// THIS IS NOT TESTED NOR LIKELY TO WORK OUTSIDE V8!
-//
-// Originally from narwhal.js (http://narwhaljs.org)
-// Copyright (c) 2009 Thomas Robinson <280north.com>
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the 'Software'), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-// when used in node, this will actually load the util module we depend on
-// versus loading the builtin util module as happens otherwise
-// this is a bug in node module loading as far as I am concerned
-var util = require('util/');
-
-var pSlice = Array.prototype.slice;
-var hasOwn = Object.prototype.hasOwnProperty;
-
-// 1. The assert module provides functions that throw
-// AssertionError's when particular conditions are not met. The
-// assert module must conform to the following interface.
-
-var assert = module.exports = ok;
-
-// 2. The AssertionError is defined in assert.
-// new assert.AssertionError({ message: message,
-//                             actual: actual,
-//                             expected: expected })
-
-assert.AssertionError = function AssertionError(options) {
-  this.name = 'AssertionError';
-  this.actual = options.actual;
-  this.expected = options.expected;
-  this.operator = options.operator;
-  if (options.message) {
-    this.message = options.message;
-    this.generatedMessage = false;
-  } else {
-    this.message = getMessage(this);
-    this.generatedMessage = true;
-  }
-  var stackStartFunction = options.stackStartFunction || fail;
-
-  if (Error.captureStackTrace) {
-    Error.captureStackTrace(this, stackStartFunction);
-  }
-  else {
-    // non v8 browsers so we can have a stacktrace
-    var err = new Error();
-    if (err.stack) {
-      var out = err.stack;
-
-      // try to strip useless frames
-      var fn_name = stackStartFunction.name;
-      var idx = out.indexOf('\n' + fn_name);
-      if (idx >= 0) {
-        // once we have located the function frame
-        // we need to strip out everything before it (and its line)
-        var next_line = out.indexOf('\n', idx + 1);
-        out = out.substring(next_line + 1);
-      }
-
-      this.stack = out;
-    }
-  }
-};
-
-// assert.AssertionError instanceof Error
-util.inherits(assert.AssertionError, Error);
-
-function replacer(key, value) {
-  if (util.isUndefined(value)) {
-    return '' + value;
-  }
-  if (util.isNumber(value) && !isFinite(value)) {
-    return value.toString();
-  }
-  if (util.isFunction(value) || util.isRegExp(value)) {
-    return value.toString();
-  }
-  return value;
-}
-
-function truncate(s, n) {
-  if (util.isString(s)) {
-    return s.length < n ? s : s.slice(0, n);
-  } else {
-    return s;
-  }
-}
-
-function getMessage(self) {
-  return truncate(JSON.stringify(self.actual, replacer), 128) + ' ' +
-         self.operator + ' ' +
-         truncate(JSON.stringify(self.expected, replacer), 128);
-}
-
-// At present only the three keys mentioned above are used and
-// understood by the spec. Implementations or sub modules can pass
-// other keys to the AssertionError's constructor - they will be
-// ignored.
-
-// 3. All of the following functions must throw an AssertionError
-// when a corresponding condition is not met, with a message that
-// may be undefined if not provided.  All assertion methods provide
-// both the actual and expected values to the assertion error for
-// display purposes.
-
-function fail(actual, expected, message, operator, stackStartFunction) {
-  throw new assert.AssertionError({
-    message: message,
-    actual: actual,
-    expected: expected,
-    operator: operator,
-    stackStartFunction: stackStartFunction
-  });
-}
-
-// EXTENSION! allows for well behaved errors defined elsewhere.
-assert.fail = fail;
-
-// 4. Pure assertion tests whether a value is truthy, as determined
-// by !!guard.
-// assert.ok(guard, message_opt);
-// This statement is equivalent to assert.equal(true, !!guard,
-// message_opt);. To test strictly for the value true, use
-// assert.strictEqual(true, guard, message_opt);.
-
-function ok(value, message) {
-  if (!value) fail(value, true, message, '==', assert.ok);
-}
-assert.ok = ok;
-
-// 5. The equality assertion tests shallow, coercive equality with
-// ==.
-// assert.equal(actual, expected, message_opt);
-
-assert.equal = function equal(actual, expected, message) {
-  if (actual != expected) fail(actual, expected, message, '==', assert.equal);
-};
-
-// 6. The non-equality assertion tests for whether two objects are not equal
-// with != assert.notEqual(actual, expected, message_opt);
-
-assert.notEqual = function notEqual(actual, expected, message) {
-  if (actual == expected) {
-    fail(actual, expected, message, '!=', assert.notEqual);
-  }
-};
-
-// 7. The equivalence assertion tests a deep equality relation.
-// assert.deepEqual(actual, expected, message_opt);
-
-assert.deepEqual = function deepEqual(actual, expected, message) {
-  if (!_deepEqual(actual, expected)) {
-    fail(actual, expected, message, 'deepEqual', assert.deepEqual);
-  }
-};
-
-function _deepEqual(actual, expected) {
-  // 7.1. All identical values are equivalent, as determined by ===.
-  if (actual === expected) {
-    return true;
-
-  } else if (util.isBuffer(actual) && util.isBuffer(expected)) {
-    if (actual.length != expected.length) return false;
-
-    for (var i = 0; i < actual.length; i++) {
-      if (actual[i] !== expected[i]) return false;
-    }
-
-    return true;
-
-  // 7.2. If the expected value is a Date object, the actual value is
-  // equivalent if it is also a Date object that refers to the same time.
-  } else if (util.isDate(actual) && util.isDate(expected)) {
-    return actual.getTime() === expected.getTime();
-
-  // 7.3 If the expected value is a RegExp object, the actual value is
-  // equivalent if it is also a RegExp object with the same source and
-  // properties (`global`, `multiline`, `lastIndex`, `ignoreCase`).
-  } else if (util.isRegExp(actual) && util.isRegExp(expected)) {
-    return actual.source === expected.source &&
-           actual.global === expected.global &&
-           actual.multiline === expected.multiline &&
-           actual.lastIndex === expected.lastIndex &&
-           actual.ignoreCase === expected.ignoreCase;
-
-  // 7.4. Other pairs that do not both pass typeof value == 'object',
-  // equivalence is determined by ==.
-  } else if (!util.isObject(actual) && !util.isObject(expected)) {
-    return actual == expected;
-
-  // 7.5 For all other Object pairs, including Array objects, equivalence is
-  // determined by having the same number of owned properties (as verified
-  // with Object.prototype.hasOwnProperty.call), the same set of keys
-  // (although not necessarily the same order), equivalent values for every
-  // corresponding key, and an identical 'prototype' property. Note: this
-  // accounts for both named and indexed properties on Arrays.
-  } else {
-    return objEquiv(actual, expected);
-  }
-}
-
-function isArguments(object) {
-  return Object.prototype.toString.call(object) == '[object Arguments]';
-}
-
-function objEquiv(a, b) {
-  if (util.isNullOrUndefined(a) || util.isNullOrUndefined(b))
-    return false;
-  // an identical 'prototype' property.
-  if (a.prototype !== b.prototype) return false;
-  // if one is a primitive, the other must be same
-  if (util.isPrimitive(a) || util.isPrimitive(b)) {
-    return a === b;
-  }
-  var aIsArgs = isArguments(a),
-      bIsArgs = isArguments(b);
-  if ((aIsArgs && !bIsArgs) || (!aIsArgs && bIsArgs))
-    return false;
-  if (aIsArgs) {
-    a = pSlice.call(a);
-    b = pSlice.call(b);
-    return _deepEqual(a, b);
-  }
-  var ka = objectKeys(a),
-      kb = objectKeys(b),
-      key, i;
-  // having the same number of owned properties (keys incorporates
-  // hasOwnProperty)
-  if (ka.length != kb.length)
-    return false;
-  //the same set of keys (although not necessarily the same order),
-  ka.sort();
-  kb.sort();
-  //~~~cheap key test
-  for (i = ka.length - 1; i >= 0; i--) {
-    if (ka[i] != kb[i])
-      return false;
-  }
-  //equivalent values for every corresponding key, and
-  //~~~possibly expensive deep test
-  for (i = ka.length - 1; i >= 0; i--) {
-    key = ka[i];
-    if (!_deepEqual(a[key], b[key])) return false;
-  }
-  return true;
-}
-
-// 8. The non-equivalence assertion tests for any deep inequality.
-// assert.notDeepEqual(actual, expected, message_opt);
-
-assert.notDeepEqual = function notDeepEqual(actual, expected, message) {
-  if (_deepEqual(actual, expected)) {
-    fail(actual, expected, message, 'notDeepEqual', assert.notDeepEqual);
-  }
-};
-
-// 9. The strict equality assertion tests strict equality, as determined by ===.
-// assert.strictEqual(actual, expected, message_opt);
-
-assert.strictEqual = function strictEqual(actual, expected, message) {
-  if (actual !== expected) {
-    fail(actual, expected, message, '===', assert.strictEqual);
-  }
-};
-
-// 10. The strict non-equality assertion tests for strict inequality, as
-// determined by !==.  assert.notStrictEqual(actual, expected, message_opt);
-
-assert.notStrictEqual = function notStrictEqual(actual, expected, message) {
-  if (actual === expected) {
-    fail(actual, expected, message, '!==', assert.notStrictEqual);
-  }
-};
-
-function expectedException(actual, expected) {
-  if (!actual || !expected) {
-    return false;
-  }
-
-  if (Object.prototype.toString.call(expected) == '[object RegExp]') {
-    return expected.test(actual);
-  } else if (actual instanceof expected) {
-    return true;
-  } else if (expected.call({}, actual) === true) {
-    return true;
-  }
-
-  return false;
-}
-
-function _throws(shouldThrow, block, expected, message) {
-  var actual;
-
-  if (util.isString(expected)) {
-    message = expected;
-    expected = null;
-  }
-
-  try {
-    block();
-  } catch (e) {
-    actual = e;
-  }
-
-  message = (expected && expected.name ? ' (' + expected.name + ').' : '.') +
-            (message ? ' ' + message : '.');
-
-  if (shouldThrow && !actual) {
-    fail(actual, expected, 'Missing expected exception' + message);
-  }
-
-  if (!shouldThrow && expectedException(actual, expected)) {
-    fail(actual, expected, 'Got unwanted exception' + message);
-  }
-
-  if ((shouldThrow && actual && expected &&
-      !expectedException(actual, expected)) || (!shouldThrow && actual)) {
-    throw actual;
-  }
-}
-
-// 11. Expected to throw an error:
-// assert.throws(block, Error_opt, message_opt);
-
-assert.throws = function(block, /*optional*/error, /*optional*/message) {
-  _throws.apply(this, [true].concat(pSlice.call(arguments)));
-};
-
-// EXTENSION! This is annoying to write outside this module.
-assert.doesNotThrow = function(block, /*optional*/message) {
-  _throws.apply(this, [false].concat(pSlice.call(arguments)));
-};
-
-assert.ifError = function(err) { if (err) {throw err;}};
-
-var objectKeys = Object.keys || function (obj) {
-  var keys = [];
-  for (var key in obj) {
-    if (hasOwn.call(obj, key)) keys.push(key);
-  }
-  return keys;
-};
-
-},{"util/":302}],22:[function(require,module,exports){
+},{"./lib/api_client":1,"./lib/backup_generator":2,"./lib/blocktrail":3,"./lib/encryption":4,"./lib/encryption_mnemonic":5,"./lib/keyderivation":6,"./lib/request":10,"./lib/services/blocktrail_bitcoin_service":12,"./lib/services/insight_bitcoin_service":13,"./lib/unspent_output_finder":14,"./lib/use-webworker":15,"./lib/wallet":16,"./lib/wallet_sweeper":17,"bip39":28,"bitcoinjs-lib":42,"buffer":87,"crypto-js":166,"debug":192,"lodash":222,"q":256,"randombytes":263,"superagent":290}],21:[function(require,module,exports){
 (function (process){
 /*!
  * async
@@ -11971,7 +11631,7 @@ var objectKeys = Object.keys || function (obj) {
 }());
 
 }).call(this,require('_process'))
-},{"_process":228}],23:[function(require,module,exports){
+},{"_process":228}],22:[function(require,module,exports){
 // base-x encoding
 // Forked from https://github.com/cryptocoinjs/bs58
 // Originally written by Mike Hearn for BitcoinJ
@@ -12059,7 +11719,7 @@ module.exports = function base (ALPHABET) {
   }
 }
 
-},{}],24:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 (function (exports) {
 	'use strict';
 
@@ -12145,7 +11805,7 @@ module.exports = function base (ALPHABET) {
 	module.exports.fromByteArray = uint8ToBase64;
 }());
 
-},{}],25:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 // (public) Constructor
 function BigInteger(a, b, c) {
   if (!(this instanceof BigInteger))
@@ -13656,7 +13316,7 @@ BigInteger.valueOf = nbv
 
 module.exports = BigInteger
 
-},{"../package.json":28}],26:[function(require,module,exports){
+},{"../package.json":27}],25:[function(require,module,exports){
 (function (Buffer){
 // FIXME: Kind of a weird way to throw exceptions, consider removing
 var assert = require('assert')
@@ -13751,14 +13411,14 @@ BigInteger.prototype.toHex = function(size) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./bigi":25,"assert":21,"buffer":87}],27:[function(require,module,exports){
+},{"./bigi":24,"assert":83,"buffer":87}],26:[function(require,module,exports){
 var BigInteger = require('./bigi')
 
 //addons
 require('./convert')
 
 module.exports = BigInteger
-},{"./bigi":25,"./convert":26}],28:[function(require,module,exports){
+},{"./bigi":24,"./convert":25}],27:[function(require,module,exports){
 module.exports={
   "_args": [
     [
@@ -13884,7 +13544,7 @@ module.exports={
   "version": "1.4.2"
 }
 
-},{}],29:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 (function (Buffer){
 var bip39 = require('./lib/index')
 var sjcl = require('./sjcl')
@@ -13926,7 +13586,7 @@ module.exports = {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./lib/index":30,"./sjcl":31,"assert":21,"buffer":87}],30:[function(require,module,exports){
+},{"./lib/index":29,"./sjcl":30,"assert":83,"buffer":87}],29:[function(require,module,exports){
 (function (Buffer){
 var assert = require('assert')
 var createHash = require('create-hash')
@@ -14059,7 +13719,7 @@ module.exports = {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"../wordlists/en.json":32,"assert":21,"buffer":87,"create-hash":111,"randombytes":263,"unorm":296}],31:[function(require,module,exports){
+},{"../wordlists/en.json":31,"assert":83,"buffer":87,"create-hash":111,"randombytes":263,"unorm":296}],30:[function(require,module,exports){
 "use strict";function q(a){throw a;}var u=void 0,v=!1;var sjcl={cipher:{},hash:{},keyexchange:{},mode:{},misc:{},codec:{},exception:{corrupt:function(a){this.toString=function(){return"CORRUPT: "+this.message};this.message=a},invalid:function(a){this.toString=function(){return"INVALID: "+this.message};this.message=a},bug:function(a){this.toString=function(){return"BUG: "+this.message};this.message=a},notReady:function(a){this.toString=function(){return"NOT READY: "+this.message};this.message=a}}};
 "undefined"!==typeof module&&module.exports&&(module.exports=sjcl);"function"===typeof define&&define([],function(){return sjcl});
 sjcl.cipher.aes=function(a){this.o[0][0][0]||this.t();var b,c,d,e,f=this.o[0][4],g=this.o[1];b=a.length;var h=1;4!==b&&(6!==b&&8!==b)&&q(new sjcl.exception.invalid("invalid aes key size"));this.b=[d=a.slice(0),e=[]];for(a=b;a<4*b+28;a++){c=d[a-1];if(0===a%b||8===b&&4===a%b)c=f[c>>>24]<<24^f[c>>16&255]<<16^f[c>>8&255]<<8^f[c&255],0===a%b&&(c=c<<8^c>>>24^h<<24,h=h<<1^283*(h>>7));d[a]=d[a-b]^c}for(b=0;a;b++,a--)c=d[b&3?a:a-4],e[b]=4>=a||4>b?c:g[0][f[c>>>24]]^g[1][f[c>>16&255]]^g[2][f[c>>8&255]]^g[3][f[c&
@@ -14122,7 +13782,7 @@ b.mode&&sjcl.arrayBuffer&&sjcl.arrayBuffer.ccm&&b.ct instanceof ArrayBuffer?sjcl
 q(new sjcl.exception.invalid("json decode: this isn't json!")),null!=d[3]?b[d[2]]=parseInt(d[3],10):null!=d[4]?b[d[2]]=d[2].match(/^(ct|adata|salt|iv)$/)?sjcl.codec.base64.toBits(d[4]):unescape(d[4]):null!=d[5]&&(b[d[2]]="true"===d[5]);return b},h:function(a,b,c){a===u&&(a={});if(b===u)return a;for(var d in b)b.hasOwnProperty(d)&&(c&&(a[d]!==u&&a[d]!==b[d])&&q(new sjcl.exception.invalid("required parameter overridden")),a[d]=b[d]);return a},la:function(a,b){var c={},d;for(d in a)a.hasOwnProperty(d)&&
 a[d]!==b[d]&&(c[d]=a[d]);return c},ka:function(a,b){var c={},d;for(d=0;d<b.length;d++)a[b[d]]!==u&&(c[b[d]]=a[b[d]]);return c}};sjcl.encrypt=sjcl.json.encrypt;sjcl.decrypt=sjcl.json.decrypt;sjcl.misc.ia={};sjcl.misc.cachedPbkdf2=function(a,b){var c=sjcl.misc.ia,d;b=b||{};d=b.iter||1E3;c=c[a]=c[a]||{};d=c[d]=c[d]||{firstSalt:b.salt&&b.salt.length?b.salt.slice(0):sjcl.random.randomWords(2,0)};c=b.salt===u?d.firstSalt:b.salt;d[c]=d[c]||sjcl.misc.pbkdf2(a,c,b.iter);return{key:d[c].slice(0),salt:c.slice(0)}};
 
-},{"crypto":115}],32:[function(require,module,exports){
+},{"crypto":115}],31:[function(require,module,exports){
 module.exports=[
   "abandon",
   "ability",
@@ -16174,7 +15834,7 @@ module.exports=[
   "zoo"
 ]
 
-},{}],33:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 (function (Buffer){
 var assert = require('assert')
 var base58check = require('bs58check')
@@ -16240,7 +15900,7 @@ Address.prototype.toString = Address.prototype.toBase58Check
 module.exports = Address
 
 }).call(this,require("buffer").Buffer)
-},{"./networks":45,"./scripts":48,"assert":21,"bs58check":85,"buffer":87,"typeforce":294}],34:[function(require,module,exports){
+},{"./networks":44,"./scripts":47,"assert":83,"bs58check":85,"buffer":87,"typeforce":294}],33:[function(require,module,exports){
 var bs58check = require('bs58check')
 
 function decode () {
@@ -16260,7 +15920,7 @@ module.exports = {
   encode: encode
 }
 
-},{"bs58check":85}],35:[function(require,module,exports){
+},{"bs58check":85}],34:[function(require,module,exports){
 (function (Buffer){
 var assert = require('assert')
 var bufferutils = require('./bufferutils')
@@ -16384,7 +16044,7 @@ Block.prototype.toHex = function (headersOnly) {
 module.exports = Block
 
 }).call(this,require("buffer").Buffer)
-},{"./bufferutils":36,"./crypto":37,"./transaction":49,"assert":21,"buffer":87}],36:[function(require,module,exports){
+},{"./bufferutils":35,"./crypto":36,"./transaction":48,"assert":83,"buffer":87}],35:[function(require,module,exports){
 (function (Buffer){
 var assert = require('assert')
 var opcodes = require('./opcodes')
@@ -16576,7 +16236,7 @@ module.exports = {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./opcodes":46,"assert":21,"buffer":87}],37:[function(require,module,exports){
+},{"./opcodes":45,"assert":83,"buffer":87}],36:[function(require,module,exports){
 var createHash = require('create-hash')
 
 function hash160 (buffer) {
@@ -16622,7 +16282,7 @@ module.exports = {
   HmacSHA512: HmacSHA512
 }
 
-},{"create-hash":111,"create-hmac":114}],38:[function(require,module,exports){
+},{"create-hash":111,"create-hmac":114}],37:[function(require,module,exports){
 (function (Buffer){
 var assert = require('assert')
 var createHmac = require('create-hmac')
@@ -16881,7 +16541,7 @@ module.exports = {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./ecsignature":41,"assert":21,"bigi":27,"buffer":87,"create-hmac":114,"typeforce":294}],39:[function(require,module,exports){
+},{"./ecsignature":40,"assert":83,"bigi":26,"buffer":87,"create-hmac":114,"typeforce":294}],38:[function(require,module,exports){
 (function (Buffer){
 var assert = require('assert')
 var base58check = require('bs58check')
@@ -16969,7 +16629,7 @@ ECKey.prototype.sign = function (hash) {
 module.exports = ECKey
 
 }).call(this,require("buffer").Buffer)
-},{"./ecdsa":38,"./ecpubkey":40,"./networks":45,"assert":21,"bigi":27,"bs58check":85,"buffer":87,"ecurve":206,"randombytes":263,"typeforce":294}],40:[function(require,module,exports){
+},{"./ecdsa":37,"./ecpubkey":39,"./networks":44,"assert":83,"bigi":26,"bs58check":85,"buffer":87,"ecurve":206,"randombytes":263,"typeforce":294}],39:[function(require,module,exports){
 (function (Buffer){
 var crypto = require('./crypto')
 var ecdsa = require('./ecdsa')
@@ -17029,7 +16689,7 @@ ECPubKey.prototype.toHex = function () {
 module.exports = ECPubKey
 
 }).call(this,require("buffer").Buffer)
-},{"./address":33,"./crypto":37,"./ecdsa":38,"./networks":45,"buffer":87,"ecurve":206,"typeforce":294}],41:[function(require,module,exports){
+},{"./address":32,"./crypto":36,"./ecdsa":37,"./networks":44,"buffer":87,"ecurve":206,"typeforce":294}],40:[function(require,module,exports){
 (function (Buffer){
 var assert = require('assert')
 var typeForce = require('typeforce')
@@ -17163,7 +16823,7 @@ ECSignature.prototype.toScriptSignature = function (hashType) {
 module.exports = ECSignature
 
 }).call(this,require("buffer").Buffer)
-},{"assert":21,"bigi":27,"buffer":87,"typeforce":294}],42:[function(require,module,exports){
+},{"assert":83,"bigi":26,"buffer":87,"typeforce":294}],41:[function(require,module,exports){
 (function (Buffer){
 var assert = require('assert')
 var base58check = require('bs58check')
@@ -17481,7 +17141,7 @@ HDNode.prototype.toString = HDNode.prototype.toBase58
 module.exports = HDNode
 
 }).call(this,require("buffer").Buffer)
-},{"./crypto":37,"./eckey":39,"./ecpubkey":40,"./networks":45,"assert":21,"bigi":27,"bs58check":85,"buffer":87,"create-hmac":114,"ecurve":206,"typeforce":294}],43:[function(require,module,exports){
+},{"./crypto":36,"./eckey":38,"./ecpubkey":39,"./networks":44,"assert":83,"bigi":26,"bs58check":85,"buffer":87,"create-hmac":114,"ecurve":206,"typeforce":294}],42:[function(require,module,exports){
 module.exports = {
   Address: require('./address'),
   base58check: require('./base58check'),
@@ -17503,7 +17163,7 @@ module.exports = {
   Wallet: require('./wallet')
 }
 
-},{"./address":33,"./base58check":34,"./block":35,"./bufferutils":36,"./crypto":37,"./ecdsa":38,"./eckey":39,"./ecpubkey":40,"./ecsignature":41,"./hdnode":42,"./message":44,"./networks":45,"./opcodes":46,"./script":47,"./scripts":48,"./transaction":49,"./transaction_builder":50,"./wallet":51}],44:[function(require,module,exports){
+},{"./address":32,"./base58check":33,"./block":34,"./bufferutils":35,"./crypto":36,"./ecdsa":37,"./eckey":38,"./ecpubkey":39,"./ecsignature":40,"./hdnode":41,"./message":43,"./networks":44,"./opcodes":45,"./script":46,"./scripts":47,"./transaction":48,"./transaction_builder":49,"./wallet":50}],43:[function(require,module,exports){
 (function (Buffer){
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
@@ -17561,7 +17221,7 @@ module.exports = {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./bufferutils":36,"./crypto":37,"./ecdsa":38,"./ecpubkey":40,"./ecsignature":41,"./networks":45,"bigi":27,"buffer":87,"ecurve":206}],45:[function(require,module,exports){
+},{"./bufferutils":35,"./crypto":36,"./ecdsa":37,"./ecpubkey":39,"./ecsignature":40,"./networks":44,"bigi":26,"buffer":87,"ecurve":206}],44:[function(require,module,exports){
 // https://en.bitcoin.it/wiki/List_of_address_prefixes
 // Dogecoin BIP32 is a proposed standard: https://bitcointalk.org/index.php?topic=409731
 
@@ -17712,7 +17372,7 @@ function estimateFee (type) {
 
 module.exports = networks
 
-},{}],46:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 module.exports = {
   // push value
   OP_FALSE: 0,
@@ -17852,7 +17512,7 @@ module.exports = {
   OP_INVALIDOPCODE: 255
 }
 
-},{}],47:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 (function (Buffer){
 var assert = require('assert')
 var bufferutils = require('./bufferutils')
@@ -18000,7 +17660,7 @@ Script.prototype.toHex = function () {
 module.exports = Script
 
 }).call(this,require("buffer").Buffer)
-},{"./bufferutils":36,"./crypto":37,"./opcodes":46,"assert":21,"buffer":87,"typeforce":294}],48:[function(require,module,exports){
+},{"./bufferutils":35,"./crypto":36,"./opcodes":45,"assert":83,"buffer":87,"typeforce":294}],47:[function(require,module,exports){
 (function (Buffer){
 var assert = require('assert')
 var ops = require('./opcodes')
@@ -18295,7 +17955,7 @@ module.exports = {
 }
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")})
-},{"../../is-buffer/index.js":220,"./ecsignature":41,"./opcodes":46,"./script":47,"assert":21,"ecurve":206,"typeforce":294}],49:[function(require,module,exports){
+},{"../../is-buffer/index.js":220,"./ecsignature":40,"./opcodes":45,"./script":46,"assert":83,"ecurve":206,"typeforce":294}],48:[function(require,module,exports){
 (function (Buffer){
 var assert = require('assert')
 var bufferutils = require('./bufferutils')
@@ -18668,7 +18328,7 @@ Transaction.prototype.validateInput = function (index, prevOutScript, pubKey, bu
 module.exports = Transaction
 
 }).call(this,require("buffer").Buffer)
-},{"./address":33,"./bufferutils":36,"./crypto":37,"./ecsignature":41,"./opcodes":46,"./script":47,"./scripts":48,"assert":21,"buffer":87,"typeforce":294}],50:[function(require,module,exports){
+},{"./address":32,"./bufferutils":35,"./crypto":36,"./ecsignature":40,"./opcodes":45,"./script":46,"./scripts":47,"assert":83,"buffer":87,"typeforce":294}],49:[function(require,module,exports){
 (function (Buffer){
 var assert = require('assert')
 var ops = require('./opcodes')
@@ -19077,7 +18737,7 @@ TransactionBuilder.prototype.sign = function (index, privKey, redeemScript, hash
 module.exports = TransactionBuilder
 
 }).call(this,require("buffer").Buffer)
-},{"./ecpubkey":40,"./ecsignature":41,"./opcodes":46,"./script":47,"./scripts":48,"./transaction":49,"assert":21,"buffer":87}],51:[function(require,module,exports){
+},{"./ecpubkey":39,"./ecsignature":40,"./opcodes":45,"./script":46,"./scripts":47,"./transaction":48,"assert":83,"buffer":87}],50:[function(require,module,exports){
 (function (Buffer){
 var assert = require('assert')
 var bufferutils = require('./bufferutils')
@@ -19452,7 +19112,7 @@ Wallet.prototype.createTx = Wallet.prototype.createTransaction
 module.exports = Wallet
 
 }).call(this,require("buffer").Buffer)
-},{"./address":33,"./bufferutils":36,"./hdnode":42,"./networks":45,"./script":47,"./transaction_builder":50,"assert":21,"buffer":87,"randombytes":263,"typeforce":294}],52:[function(require,module,exports){
+},{"./address":32,"./bufferutils":35,"./hdnode":41,"./networks":44,"./script":46,"./transaction_builder":49,"assert":83,"buffer":87,"randombytes":263,"typeforce":294}],51:[function(require,module,exports){
 var proto = {}
 module.exports = proto
 
@@ -19473,7 +19133,7 @@ function mix(from, into) {
   }
 }
 
-},{"./copy.js":53,"./create.js":54,"./from.js":55,"./is.js":56,"./join.js":57,"./read.js":59,"./subarray.js":60,"./to.js":61,"./write.js":62}],53:[function(require,module,exports){
+},{"./copy.js":52,"./create.js":53,"./from.js":54,"./is.js":55,"./join.js":56,"./read.js":58,"./subarray.js":59,"./to.js":60,"./write.js":61}],52:[function(require,module,exports){
 module.exports = copy
 
 var slice = [].slice
@@ -19527,12 +19187,12 @@ function slow_copy(from, to, j, i, jend) {
   }
 }
 
-},{}],54:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 module.exports = function(size) {
   return new Uint8Array(size)
 }
 
-},{}],55:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 module.exports = from
 
 var base64 = require('base64-js')
@@ -19592,13 +19252,13 @@ function from_base64(str) {
   return new Uint8Array(base64.toByteArray(str)) 
 }
 
-},{"base64-js":24}],56:[function(require,module,exports){
+},{"base64-js":23}],55:[function(require,module,exports){
 
 module.exports = function(buffer) {
   return buffer instanceof Uint8Array;
 }
 
-},{}],57:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 module.exports = join
 
 function join(targets, hint) {
@@ -19636,7 +19296,7 @@ function get_length(targets) {
   return size
 }
 
-},{}],58:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 var proto
   , map
 
@@ -19658,7 +19318,7 @@ function get(target) {
   return out
 }
 
-},{}],59:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 module.exports = {
     readUInt8:      read_uint8
   , readInt8:       read_int8
@@ -19747,14 +19407,14 @@ function read_double_be(target, at) {
   return dv.getFloat64(at + target.byteOffset, false)
 }
 
-},{"./mapped.js":58}],60:[function(require,module,exports){
+},{"./mapped.js":57}],59:[function(require,module,exports){
 module.exports = subarray
 
 function subarray(buf, from, to) {
   return buf.subarray(from || 0, to || buf.length)
 }
 
-},{}],61:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 module.exports = to
 
 var base64 = require('base64-js')
@@ -19792,7 +19452,7 @@ function to_base64(buf) {
 }
 
 
-},{"base64-js":24,"to-utf8":291}],62:[function(require,module,exports){
+},{"base64-js":23,"to-utf8":291}],61:[function(require,module,exports){
 module.exports = {
     writeUInt8:      write_uint8
   , writeInt8:       write_int8
@@ -19880,7 +19540,7 @@ function write_double_be(target, value, at) {
   return dv.setFloat64(at + target.byteOffset, value, false)
 }
 
-},{"./mapped.js":58}],63:[function(require,module,exports){
+},{"./mapped.js":57}],62:[function(require,module,exports){
 /*!
   * Bowser - a browser detector
   * https://github.com/ded/bowser
@@ -20158,7 +19818,7 @@ function write_double_be(target, value, at) {
   return bowser
 });
 
-},{}],64:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 var r;
 
 module.exports = function rand(len) {
@@ -20217,9 +19877,9 @@ if (typeof window === 'object') {
   }
 }
 
-},{"crypto":65}],65:[function(require,module,exports){
+},{"crypto":64}],64:[function(require,module,exports){
 
-},{}],66:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 (function (Buffer){
 // based on the aes implimentation in triple sec
 // https://github.com/keybase/triplesec
@@ -20400,7 +20060,7 @@ AES.prototype._doCryptBlock = function (M, keySchedule, SUB_MIX, SBOX) {
 exports.AES = AES
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":87}],67:[function(require,module,exports){
+},{"buffer":87}],66:[function(require,module,exports){
 (function (Buffer){
 var aes = require('./aes')
 var Transform = require('cipher-base')
@@ -20501,7 +20161,7 @@ function xorTest (a, b) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./aes":66,"./ghash":71,"buffer":87,"buffer-xor":86,"cipher-base":89,"inherits":219}],68:[function(require,module,exports){
+},{"./aes":65,"./ghash":70,"buffer":87,"buffer-xor":86,"cipher-base":89,"inherits":219}],67:[function(require,module,exports){
 var ciphers = require('./encrypter')
 exports.createCipher = exports.Cipher = ciphers.createCipher
 exports.createCipheriv = exports.Cipheriv = ciphers.createCipheriv
@@ -20514,7 +20174,7 @@ function getCiphers () {
 }
 exports.listCiphers = exports.getCiphers = getCiphers
 
-},{"./decrypter":69,"./encrypter":70,"./modes":72}],69:[function(require,module,exports){
+},{"./decrypter":68,"./encrypter":69,"./modes":71}],68:[function(require,module,exports){
 (function (Buffer){
 var aes = require('./aes')
 var Transform = require('cipher-base')
@@ -20655,7 +20315,7 @@ exports.createDecipher = createDecipher
 exports.createDecipheriv = createDecipheriv
 
 }).call(this,require("buffer").Buffer)
-},{"./aes":66,"./authCipher":67,"./modes":72,"./modes/cbc":73,"./modes/cfb":74,"./modes/cfb1":75,"./modes/cfb8":76,"./modes/ctr":77,"./modes/ecb":78,"./modes/ofb":79,"./streamCipher":80,"buffer":87,"cipher-base":89,"evp_bytestokey":210,"inherits":219}],70:[function(require,module,exports){
+},{"./aes":65,"./authCipher":66,"./modes":71,"./modes/cbc":72,"./modes/cfb":73,"./modes/cfb1":74,"./modes/cfb8":75,"./modes/ctr":76,"./modes/ecb":77,"./modes/ofb":78,"./streamCipher":79,"buffer":87,"cipher-base":89,"evp_bytestokey":210,"inherits":219}],69:[function(require,module,exports){
 (function (Buffer){
 var aes = require('./aes')
 var Transform = require('cipher-base')
@@ -20781,7 +20441,7 @@ exports.createCipheriv = createCipheriv
 exports.createCipher = createCipher
 
 }).call(this,require("buffer").Buffer)
-},{"./aes":66,"./authCipher":67,"./modes":72,"./modes/cbc":73,"./modes/cfb":74,"./modes/cfb1":75,"./modes/cfb8":76,"./modes/ctr":77,"./modes/ecb":78,"./modes/ofb":79,"./streamCipher":80,"buffer":87,"cipher-base":89,"evp_bytestokey":210,"inherits":219}],71:[function(require,module,exports){
+},{"./aes":65,"./authCipher":66,"./modes":71,"./modes/cbc":72,"./modes/cfb":73,"./modes/cfb1":74,"./modes/cfb8":75,"./modes/ctr":76,"./modes/ecb":77,"./modes/ofb":78,"./streamCipher":79,"buffer":87,"cipher-base":89,"evp_bytestokey":210,"inherits":219}],70:[function(require,module,exports){
 (function (Buffer){
 var zeros = new Buffer(16)
 zeros.fill(0)
@@ -20883,7 +20543,7 @@ function xor (a, b) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":87}],72:[function(require,module,exports){
+},{"buffer":87}],71:[function(require,module,exports){
 exports['aes-128-ecb'] = {
   cipher: 'AES',
   key: 128,
@@ -21056,7 +20716,7 @@ exports['aes-256-gcm'] = {
   type: 'auth'
 }
 
-},{}],73:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 var xor = require('buffer-xor')
 
 exports.encrypt = function (self, block) {
@@ -21075,7 +20735,7 @@ exports.decrypt = function (self, block) {
   return xor(out, pad)
 }
 
-},{"buffer-xor":86}],74:[function(require,module,exports){
+},{"buffer-xor":86}],73:[function(require,module,exports){
 (function (Buffer){
 var xor = require('buffer-xor')
 
@@ -21110,7 +20770,7 @@ function encryptStart (self, data, decrypt) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":87,"buffer-xor":86}],75:[function(require,module,exports){
+},{"buffer":87,"buffer-xor":86}],74:[function(require,module,exports){
 (function (Buffer){
 function encryptByte (self, byteParam, decrypt) {
   var pad
@@ -21148,7 +20808,7 @@ function shiftIn (buffer, value) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":87}],76:[function(require,module,exports){
+},{"buffer":87}],75:[function(require,module,exports){
 (function (Buffer){
 function encryptByte (self, byteParam, decrypt) {
   var pad = self._cipher.encryptBlock(self._prev)
@@ -21167,7 +20827,7 @@ exports.encrypt = function (self, chunk, decrypt) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":87}],77:[function(require,module,exports){
+},{"buffer":87}],76:[function(require,module,exports){
 (function (Buffer){
 var xor = require('buffer-xor')
 
@@ -21202,7 +20862,7 @@ exports.encrypt = function (self, chunk) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":87,"buffer-xor":86}],78:[function(require,module,exports){
+},{"buffer":87,"buffer-xor":86}],77:[function(require,module,exports){
 exports.encrypt = function (self, block) {
   return self._cipher.encryptBlock(block)
 }
@@ -21210,7 +20870,7 @@ exports.decrypt = function (self, block) {
   return self._cipher.decryptBlock(block)
 }
 
-},{}],79:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 (function (Buffer){
 var xor = require('buffer-xor')
 
@@ -21230,7 +20890,7 @@ exports.encrypt = function (self, chunk) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":87,"buffer-xor":86}],80:[function(require,module,exports){
+},{"buffer":87,"buffer-xor":86}],79:[function(require,module,exports){
 (function (Buffer){
 var aes = require('./aes')
 var Transform = require('cipher-base')
@@ -21259,7 +20919,7 @@ StreamCipher.prototype._final = function () {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./aes":66,"buffer":87,"cipher-base":89,"inherits":219}],81:[function(require,module,exports){
+},{"./aes":65,"buffer":87,"cipher-base":89,"inherits":219}],80:[function(require,module,exports){
 var ebtk = require('evp_bytestokey')
 var aes = require('browserify-aes/browser')
 var DES = require('browserify-des')
@@ -21334,7 +20994,7 @@ function getCiphers () {
 }
 exports.listCiphers = exports.getCiphers = getCiphers
 
-},{"browserify-aes/browser":68,"browserify-aes/modes":72,"browserify-des":82,"browserify-des/modes":83,"evp_bytestokey":210}],82:[function(require,module,exports){
+},{"browserify-aes/browser":67,"browserify-aes/modes":71,"browserify-des":81,"browserify-des/modes":82,"evp_bytestokey":210}],81:[function(require,module,exports){
 (function (Buffer){
 var CipherBase = require('cipher-base')
 var des = require('des.js')
@@ -21381,7 +21041,7 @@ DES.prototype._final = function () {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":87,"cipher-base":89,"des.js":193,"inherits":219}],83:[function(require,module,exports){
+},{"buffer":87,"cipher-base":89,"des.js":193,"inherits":219}],82:[function(require,module,exports){
 exports['des-ecb'] = {
   key: 8,
   iv: 0
@@ -21407,13 +21067,374 @@ exports['des-ede'] = {
   iv: 0
 }
 
-},{}],84:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
+// http://wiki.commonjs.org/wiki/Unit_Testing/1.0
+//
+// THIS IS NOT TESTED NOR LIKELY TO WORK OUTSIDE V8!
+//
+// Originally from narwhal.js (http://narwhaljs.org)
+// Copyright (c) 2009 Thomas Robinson <280north.com>
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the 'Software'), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// when used in node, this will actually load the util module we depend on
+// versus loading the builtin util module as happens otherwise
+// this is a bug in node module loading as far as I am concerned
+var util = require('util/');
+
+var pSlice = Array.prototype.slice;
+var hasOwn = Object.prototype.hasOwnProperty;
+
+// 1. The assert module provides functions that throw
+// AssertionError's when particular conditions are not met. The
+// assert module must conform to the following interface.
+
+var assert = module.exports = ok;
+
+// 2. The AssertionError is defined in assert.
+// new assert.AssertionError({ message: message,
+//                             actual: actual,
+//                             expected: expected })
+
+assert.AssertionError = function AssertionError(options) {
+  this.name = 'AssertionError';
+  this.actual = options.actual;
+  this.expected = options.expected;
+  this.operator = options.operator;
+  if (options.message) {
+    this.message = options.message;
+    this.generatedMessage = false;
+  } else {
+    this.message = getMessage(this);
+    this.generatedMessage = true;
+  }
+  var stackStartFunction = options.stackStartFunction || fail;
+
+  if (Error.captureStackTrace) {
+    Error.captureStackTrace(this, stackStartFunction);
+  }
+  else {
+    // non v8 browsers so we can have a stacktrace
+    var err = new Error();
+    if (err.stack) {
+      var out = err.stack;
+
+      // try to strip useless frames
+      var fn_name = stackStartFunction.name;
+      var idx = out.indexOf('\n' + fn_name);
+      if (idx >= 0) {
+        // once we have located the function frame
+        // we need to strip out everything before it (and its line)
+        var next_line = out.indexOf('\n', idx + 1);
+        out = out.substring(next_line + 1);
+      }
+
+      this.stack = out;
+    }
+  }
+};
+
+// assert.AssertionError instanceof Error
+util.inherits(assert.AssertionError, Error);
+
+function replacer(key, value) {
+  if (util.isUndefined(value)) {
+    return '' + value;
+  }
+  if (util.isNumber(value) && !isFinite(value)) {
+    return value.toString();
+  }
+  if (util.isFunction(value) || util.isRegExp(value)) {
+    return value.toString();
+  }
+  return value;
+}
+
+function truncate(s, n) {
+  if (util.isString(s)) {
+    return s.length < n ? s : s.slice(0, n);
+  } else {
+    return s;
+  }
+}
+
+function getMessage(self) {
+  return truncate(JSON.stringify(self.actual, replacer), 128) + ' ' +
+         self.operator + ' ' +
+         truncate(JSON.stringify(self.expected, replacer), 128);
+}
+
+// At present only the three keys mentioned above are used and
+// understood by the spec. Implementations or sub modules can pass
+// other keys to the AssertionError's constructor - they will be
+// ignored.
+
+// 3. All of the following functions must throw an AssertionError
+// when a corresponding condition is not met, with a message that
+// may be undefined if not provided.  All assertion methods provide
+// both the actual and expected values to the assertion error for
+// display purposes.
+
+function fail(actual, expected, message, operator, stackStartFunction) {
+  throw new assert.AssertionError({
+    message: message,
+    actual: actual,
+    expected: expected,
+    operator: operator,
+    stackStartFunction: stackStartFunction
+  });
+}
+
+// EXTENSION! allows for well behaved errors defined elsewhere.
+assert.fail = fail;
+
+// 4. Pure assertion tests whether a value is truthy, as determined
+// by !!guard.
+// assert.ok(guard, message_opt);
+// This statement is equivalent to assert.equal(true, !!guard,
+// message_opt);. To test strictly for the value true, use
+// assert.strictEqual(true, guard, message_opt);.
+
+function ok(value, message) {
+  if (!value) fail(value, true, message, '==', assert.ok);
+}
+assert.ok = ok;
+
+// 5. The equality assertion tests shallow, coercive equality with
+// ==.
+// assert.equal(actual, expected, message_opt);
+
+assert.equal = function equal(actual, expected, message) {
+  if (actual != expected) fail(actual, expected, message, '==', assert.equal);
+};
+
+// 6. The non-equality assertion tests for whether two objects are not equal
+// with != assert.notEqual(actual, expected, message_opt);
+
+assert.notEqual = function notEqual(actual, expected, message) {
+  if (actual == expected) {
+    fail(actual, expected, message, '!=', assert.notEqual);
+  }
+};
+
+// 7. The equivalence assertion tests a deep equality relation.
+// assert.deepEqual(actual, expected, message_opt);
+
+assert.deepEqual = function deepEqual(actual, expected, message) {
+  if (!_deepEqual(actual, expected)) {
+    fail(actual, expected, message, 'deepEqual', assert.deepEqual);
+  }
+};
+
+function _deepEqual(actual, expected) {
+  // 7.1. All identical values are equivalent, as determined by ===.
+  if (actual === expected) {
+    return true;
+
+  } else if (util.isBuffer(actual) && util.isBuffer(expected)) {
+    if (actual.length != expected.length) return false;
+
+    for (var i = 0; i < actual.length; i++) {
+      if (actual[i] !== expected[i]) return false;
+    }
+
+    return true;
+
+  // 7.2. If the expected value is a Date object, the actual value is
+  // equivalent if it is also a Date object that refers to the same time.
+  } else if (util.isDate(actual) && util.isDate(expected)) {
+    return actual.getTime() === expected.getTime();
+
+  // 7.3 If the expected value is a RegExp object, the actual value is
+  // equivalent if it is also a RegExp object with the same source and
+  // properties (`global`, `multiline`, `lastIndex`, `ignoreCase`).
+  } else if (util.isRegExp(actual) && util.isRegExp(expected)) {
+    return actual.source === expected.source &&
+           actual.global === expected.global &&
+           actual.multiline === expected.multiline &&
+           actual.lastIndex === expected.lastIndex &&
+           actual.ignoreCase === expected.ignoreCase;
+
+  // 7.4. Other pairs that do not both pass typeof value == 'object',
+  // equivalence is determined by ==.
+  } else if (!util.isObject(actual) && !util.isObject(expected)) {
+    return actual == expected;
+
+  // 7.5 For all other Object pairs, including Array objects, equivalence is
+  // determined by having the same number of owned properties (as verified
+  // with Object.prototype.hasOwnProperty.call), the same set of keys
+  // (although not necessarily the same order), equivalent values for every
+  // corresponding key, and an identical 'prototype' property. Note: this
+  // accounts for both named and indexed properties on Arrays.
+  } else {
+    return objEquiv(actual, expected);
+  }
+}
+
+function isArguments(object) {
+  return Object.prototype.toString.call(object) == '[object Arguments]';
+}
+
+function objEquiv(a, b) {
+  if (util.isNullOrUndefined(a) || util.isNullOrUndefined(b))
+    return false;
+  // an identical 'prototype' property.
+  if (a.prototype !== b.prototype) return false;
+  // if one is a primitive, the other must be same
+  if (util.isPrimitive(a) || util.isPrimitive(b)) {
+    return a === b;
+  }
+  var aIsArgs = isArguments(a),
+      bIsArgs = isArguments(b);
+  if ((aIsArgs && !bIsArgs) || (!aIsArgs && bIsArgs))
+    return false;
+  if (aIsArgs) {
+    a = pSlice.call(a);
+    b = pSlice.call(b);
+    return _deepEqual(a, b);
+  }
+  var ka = objectKeys(a),
+      kb = objectKeys(b),
+      key, i;
+  // having the same number of owned properties (keys incorporates
+  // hasOwnProperty)
+  if (ka.length != kb.length)
+    return false;
+  //the same set of keys (although not necessarily the same order),
+  ka.sort();
+  kb.sort();
+  //~~~cheap key test
+  for (i = ka.length - 1; i >= 0; i--) {
+    if (ka[i] != kb[i])
+      return false;
+  }
+  //equivalent values for every corresponding key, and
+  //~~~possibly expensive deep test
+  for (i = ka.length - 1; i >= 0; i--) {
+    key = ka[i];
+    if (!_deepEqual(a[key], b[key])) return false;
+  }
+  return true;
+}
+
+// 8. The non-equivalence assertion tests for any deep inequality.
+// assert.notDeepEqual(actual, expected, message_opt);
+
+assert.notDeepEqual = function notDeepEqual(actual, expected, message) {
+  if (_deepEqual(actual, expected)) {
+    fail(actual, expected, message, 'notDeepEqual', assert.notDeepEqual);
+  }
+};
+
+// 9. The strict equality assertion tests strict equality, as determined by ===.
+// assert.strictEqual(actual, expected, message_opt);
+
+assert.strictEqual = function strictEqual(actual, expected, message) {
+  if (actual !== expected) {
+    fail(actual, expected, message, '===', assert.strictEqual);
+  }
+};
+
+// 10. The strict non-equality assertion tests for strict inequality, as
+// determined by !==.  assert.notStrictEqual(actual, expected, message_opt);
+
+assert.notStrictEqual = function notStrictEqual(actual, expected, message) {
+  if (actual === expected) {
+    fail(actual, expected, message, '!==', assert.notStrictEqual);
+  }
+};
+
+function expectedException(actual, expected) {
+  if (!actual || !expected) {
+    return false;
+  }
+
+  if (Object.prototype.toString.call(expected) == '[object RegExp]') {
+    return expected.test(actual);
+  } else if (actual instanceof expected) {
+    return true;
+  } else if (expected.call({}, actual) === true) {
+    return true;
+  }
+
+  return false;
+}
+
+function _throws(shouldThrow, block, expected, message) {
+  var actual;
+
+  if (util.isString(expected)) {
+    message = expected;
+    expected = null;
+  }
+
+  try {
+    block();
+  } catch (e) {
+    actual = e;
+  }
+
+  message = (expected && expected.name ? ' (' + expected.name + ').' : '.') +
+            (message ? ' ' + message : '.');
+
+  if (shouldThrow && !actual) {
+    fail(actual, expected, 'Missing expected exception' + message);
+  }
+
+  if (!shouldThrow && expectedException(actual, expected)) {
+    fail(actual, expected, 'Got unwanted exception' + message);
+  }
+
+  if ((shouldThrow && actual && expected &&
+      !expectedException(actual, expected)) || (!shouldThrow && actual)) {
+    throw actual;
+  }
+}
+
+// 11. Expected to throw an error:
+// assert.throws(block, Error_opt, message_opt);
+
+assert.throws = function(block, /*optional*/error, /*optional*/message) {
+  _throws.apply(this, [true].concat(pSlice.call(arguments)));
+};
+
+// EXTENSION! This is annoying to write outside this module.
+assert.doesNotThrow = function(block, /*optional*/message) {
+  _throws.apply(this, [false].concat(pSlice.call(arguments)));
+};
+
+assert.ifError = function(err) { if (err) {throw err;}};
+
+var objectKeys = Object.keys || function (obj) {
+  var keys = [];
+  for (var key in obj) {
+    if (hasOwn.call(obj, key)) keys.push(key);
+  }
+  return keys;
+};
+
+},{"util/":302}],84:[function(require,module,exports){
 var basex = require('base-x')
 var ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 
 module.exports = basex(ALPHABET)
 
-},{"base-x":23}],85:[function(require,module,exports){
+},{"base-x":22}],85:[function(require,module,exports){
 (function (Buffer){
 'use strict'
 
@@ -27341,7 +27362,7 @@ elliptic.curves = require('./elliptic/curves');
 elliptic.ec = require('./elliptic/ec');
 elliptic.eddsa = require('./elliptic/eddsa');
 
-},{"../package.json":110,"./elliptic/curve":97,"./elliptic/curves":100,"./elliptic/ec":101,"./elliptic/eddsa":104,"./elliptic/hmac-drbg":107,"./elliptic/utils":109,"brorand":64}],95:[function(require,module,exports){
+},{"../package.json":110,"./elliptic/curve":97,"./elliptic/curves":100,"./elliptic/ec":101,"./elliptic/eddsa":104,"./elliptic/hmac-drbg":107,"./elliptic/utils":109,"brorand":63}],95:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -31847,7 +31868,7 @@ var publicEncrypt = require('public-encrypt')
   }
 })
 
-},{"browserify-cipher":81,"browserify-sign":133,"browserify-sign/algos":132,"create-ecdh":92,"create-hash":111,"create-hmac":114,"diffie-hellman":199,"pbkdf2":226,"public-encrypt":229,"randombytes":263}],116:[function(require,module,exports){
+},{"browserify-cipher":80,"browserify-sign":133,"browserify-sign/algos":132,"create-ecdh":92,"create-hash":111,"create-hmac":114,"diffie-hellman":199,"pbkdf2":226,"public-encrypt":229,"randombytes":263}],116:[function(require,module,exports){
 var asn1 = exports;
 
 asn1.bignum = require('bn.js');
@@ -34121,7 +34142,7 @@ module.exports = verify
 }).call(this,require("buffer").Buffer)
 },{"./curves":134,"bn.js":130,"buffer":87,"elliptic":137,"parse-asn1":157}],137:[function(require,module,exports){
 arguments[4][94][0].apply(exports,arguments)
-},{"../package.json":153,"./elliptic/curve":140,"./elliptic/curves":143,"./elliptic/ec":144,"./elliptic/eddsa":147,"./elliptic/hmac-drbg":150,"./elliptic/utils":152,"brorand":64,"dup":94}],138:[function(require,module,exports){
+},{"../package.json":153,"./elliptic/curve":140,"./elliptic/curves":143,"./elliptic/ec":144,"./elliptic/eddsa":147,"./elliptic/hmac-drbg":150,"./elliptic/utils":152,"brorand":63,"dup":94}],138:[function(require,module,exports){
 arguments[4][95][0].apply(exports,arguments)
 },{"../../elliptic":137,"bn.js":130,"dup":95}],139:[function(require,module,exports){
 arguments[4][96][0].apply(exports,arguments)
@@ -34429,7 +34450,7 @@ module.exports = function (okey, password) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"browserify-aes":68,"buffer":87,"evp_bytestokey":210}],157:[function(require,module,exports){
+},{"browserify-aes":67,"buffer":87,"evp_bytestokey":210}],157:[function(require,module,exports){
 (function (Buffer){
 var asn1 = require('./asn1')
 var aesid = require('./aesid.json')
@@ -34534,7 +34555,7 @@ function decrypt (data, password) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./aesid.json":154,"./asn1":155,"./fixProc":156,"browserify-aes":68,"buffer":87,"pbkdf2":226}],158:[function(require,module,exports){
+},{"./aesid.json":154,"./asn1":155,"./fixProc":156,"browserify-aes":67,"buffer":87,"pbkdf2":226}],158:[function(require,module,exports){
 ;(function (root, factory, undef) {
 	if (typeof exports === "object") {
 		// CommonJS
@@ -42393,7 +42414,7 @@ Curve.prototype.validate = function (Q) {
 
 module.exports = Curve
 
-},{"./point":208,"assert":21,"bigi":27}],205:[function(require,module,exports){
+},{"./point":208,"assert":83,"bigi":26}],205:[function(require,module,exports){
 module.exports={
   "secp128r1": {
     "p": "fffffffdffffffffffffffffffffffff",
@@ -42495,7 +42516,7 @@ function getCurveByName (name) {
 
 module.exports = getCurveByName
 
-},{"./curve":204,"./curves.json":205,"bigi":27}],208:[function(require,module,exports){
+},{"./curve":204,"./curves.json":205,"bigi":26}],208:[function(require,module,exports){
 (function (Buffer){
 var assert = require('assert')
 var BigInteger = require('bigi')
@@ -42745,7 +42766,7 @@ Point.prototype.toString = function () {
 module.exports = Point
 
 }).call(this,require("buffer").Buffer)
-},{"assert":21,"bigi":27,"buffer":87}],209:[function(require,module,exports){
+},{"assert":83,"bigi":26,"buffer":87}],209:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -61588,7 +61609,7 @@ MillerRabin.prototype.getDivisor = function getDivisor(n, k) {
   return false;
 };
 
-},{"bn.js":224,"brorand":64}],224:[function(require,module,exports){
+},{"bn.js":224,"brorand":63}],224:[function(require,module,exports){
 arguments[4][93][0].apply(exports,arguments)
 },{"dup":93}],225:[function(require,module,exports){
 module.exports = assert;
@@ -61984,9 +62005,9 @@ arguments[4][154][0].apply(exports,arguments)
 arguments[4][155][0].apply(exports,arguments)
 },{"asn1.js":231,"dup":155}],249:[function(require,module,exports){
 arguments[4][156][0].apply(exports,arguments)
-},{"browserify-aes":68,"buffer":87,"dup":156,"evp_bytestokey":210}],250:[function(require,module,exports){
+},{"browserify-aes":67,"buffer":87,"dup":156,"evp_bytestokey":210}],250:[function(require,module,exports){
 arguments[4][157][0].apply(exports,arguments)
-},{"./aesid.json":247,"./asn1":248,"./fixProc":249,"browserify-aes":68,"buffer":87,"dup":157,"pbkdf2":226}],251:[function(require,module,exports){
+},{"./aesid.json":247,"./asn1":248,"./fixProc":249,"browserify-aes":67,"buffer":87,"dup":157,"pbkdf2":226}],251:[function(require,module,exports){
 (function (Buffer){
 var parseKeys = require('parse-asn1');
 var mgf = require('./mgf');
@@ -64989,7 +65010,7 @@ QRCodeDraw.prototype = {
 };
 
 
-},{"./qrcapacitytable.js":257,"./qrcode.js":259,"bops":52}],259:[function(require,module,exports){
+},{"./qrcapacitytable.js":257,"./qrcode.js":259,"bops":51}],259:[function(require,module,exports){
 var bops = require('bops');
 
 /**
@@ -66160,7 +66181,7 @@ QRBitBuffer.prototype = {
 	}
 };
 
-},{"bops":52}],260:[function(require,module,exports){
+},{"bops":51}],260:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -67368,7 +67389,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this,require('_process'))
-},{"./_stream_duplex":265,"_process":228,"buffer":87,"core-util-is":91,"events":209,"inherits":219,"isarray":221,"process-nextick-args":227,"string_decoder/":286,"util":65}],268:[function(require,module,exports){
+},{"./_stream_duplex":265,"_process":228,"buffer":87,"core-util-is":91,"events":209,"inherits":219,"isarray":221,"process-nextick-args":227,"string_decoder/":286,"util":64}],268:[function(require,module,exports){
 // a transform stream is a readable/writable stream where you do
 // something with the data.  Sometimes it's called a "filter",
 // but that's not a great name for it, since that implies a thing where
@@ -73386,11 +73407,3854 @@ module.exports = function (fn, options) {
 
 },{}],305:[function(require,module,exports){
 /*! asmCrypto, (c) 2013 Artem S Vybornov, opensource.org/licenses/MIT */
-!function(a,b){function c(){var a=Error.apply(this,arguments);this.message=a.message,this.stack=a.stack}function d(){var a=Error.apply(this,arguments);this.message=a.message,this.stack=a.stack}function e(){var a=Error.apply(this,arguments);this.message=a.message,this.stack=a.stack}function f(a,b){b=!!b;for(var c=a.length,d=new Uint8Array(b?4*c:c),e=0,f=0;c>e;e++){var g=a.charCodeAt(e);if(b&&g>=55296&&56319>=g){if(++e>=c)throw new Error("Malformed string, low surrogate expected at position "+e);g=(55296^g)<<10|65536|56320^a.charCodeAt(e)}else if(!b&&g>>>8)throw new Error("Wide characters are not allowed.");!b||127>=g?d[f++]=g:2047>=g?(d[f++]=192|g>>6,d[f++]=128|63&g):65535>=g?(d[f++]=224|g>>12,d[f++]=128|g>>6&63,d[f++]=128|63&g):(d[f++]=240|g>>18,d[f++]=128|g>>12&63,d[f++]=128|g>>6&63,d[f++]=128|63&g)}return d.subarray(0,f)}function g(a,b){b=!!b;for(var c=a.length,d=new Array(c),e=0,f=0;c>e;e++){var g=a[e];if(!b||128>g)d[f++]=g;else if(g>=192&&224>g&&c>e+1)d[f++]=(31&g)<<6|63&a[++e];else if(g>=224&&240>g&&c>e+2)d[f++]=(15&g)<<12|(63&a[++e])<<6|63&a[++e];else{if(!(g>=240&&248>g&&c>e+3))throw new Error("Malformed UTF8 character at byte offset "+e);var h=(7&g)<<18|(63&a[++e])<<12|(63&a[++e])<<6|63&a[++e];65535>=h?d[f++]=h:(h^=65536,d[f++]=55296|h>>10,d[f++]=56320|1023&h)}}for(var i="",j=16384,e=0;f>e;e+=j)i+=String.fromCharCode.apply(String,d.slice(e,f>=e+j?e+j:f));return i}function h(a){for(var b="",c=0;c<a.length;c++){var d=(255&a[c]).toString(16);d.length<2&&(b+="0"),b+=d}return b}function i(a){return btoa(g(a))}function j(a){return"string"==typeof a}function k(a){return a instanceof ArrayBuffer}function l(a){return a instanceof Uint8Array}function m(a,b){var c=b.heap,d=c?c.byteLength:b.heapSize||65536;if(4095&d||0>=d)throw new Error("heap size must be a positive integer and a multiple of 4096");return c=c||new a(new ArrayBuffer(d))}function n(a,b,c,d,e){var f=a.length-b,g=e>f?f:e;return a.set(c.subarray(d,d+g),b),g}function o(){return this.result=null,this.pos=0,this.len=0,this.asm.reset(),this}function p(a){if(null!==this.result)throw new c("state must be reset before processing new data");if(j(a)&&(a=f(a)),k(a)&&(a=new Uint8Array(a)),!l(a))throw new TypeError("data isn't of expected type");for(var b=this.asm,d=this.heap,e=this.pos,g=this.len,h=0,i=a.length,m=0;i>0;)m=n(d,e+g,a,h,i),g+=m,h+=m,i-=m,m=b.process(e,g),e+=m,g-=m,g||(e=0);return this.pos=e,this.len=g,this}function q(){if(null!==this.result)throw new c("state must be reset before processing new data");return this.asm.finish(this.pos,this.len,0),this.result=new Uint8Array(this.HASH_SIZE),this.result.set(this.heap.subarray(0,this.HASH_SIZE)),this.pos=0,this.len=0,this}function r(a,b,c){"use asm";var d=0,e=0,f=0,g=0,h=0,i=0,j=0,k=0,l=0,m=0,n=0,o=0,p=0,q=0,s=0,t=0,u=0,v=0;var w=0,x=0,y=0,z=0,A=0,B=0,C=0,D=0,E=0,F=0,G=0,H=0,I=0,J=0,K=0,L=0,M=0,N=0,O=0,P=0,Q=0,R=0,S=0,T=0,U=0,V=0,W=0,X=0,Y=0,Z=0,$=0,_=0;var aa=new a.Uint8Array(c);function ba(na,oa,pa,qa,ra,sa,ta,ua,va,wa,xa,ya,za,Aa,Ba,Ca,Da,Ea,Fa,Ga,Ha,Ia,Ja,Ka,La,Ma,Na,Oa,Pa,Qa,Ra,Sa){na=na|0;oa=oa|0;pa=pa|0;qa=qa|0;ra=ra|0;sa=sa|0;ta=ta|0;ua=ua|0;va=va|0;wa=wa|0;xa=xa|0;ya=ya|0;za=za|0;Aa=Aa|0;Ba=Ba|0;Ca=Ca|0;Da=Da|0;Ea=Ea|0;Fa=Fa|0;Ga=Ga|0;Ha=Ha|0;Ia=Ia|0;Ja=Ja|0;Ka=Ka|0;La=La|0;Ma=Ma|0;Na=Na|0;Oa=Oa|0;Pa=Pa|0;Qa=Qa|0;Ra=Ra|0;Sa=Sa|0;var Ta=0,Ua=0,Va=0,Wa=0,Xa=0,Ya=0,Za=0,$a=0,_a=0,ab=0,bb=0,cb=0,db=0,eb=0,fb=0,gb=0,hb=0,ib=0,jb=0;Ta=d;Ua=e;Va=f;Wa=g;Xa=h;Ya=i;Za=j;$a=k;_a=l;ab=m;bb=n;cb=o;db=p;eb=q;fb=s;gb=t;ib=3609767458+oa|0;hb=1116352408+na+(ib>>>0<oa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ib=602891725+qa|0;hb=1899447441+pa+(ib>>>0<qa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ib=3964484399+sa|0;hb=3049323471+ra+(ib>>>0<sa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ib=2173295548+ua|0;hb=3921009573+ta+(ib>>>0<ua>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ib=4081628472+wa|0;hb=961987163+va+(ib>>>0<wa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ib=3053834265+ya|0;hb=1508970993+xa+(ib>>>0<ya>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ib=2937671579+Aa|0;hb=2453635748+za+(ib>>>0<Aa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ib=3664609560+Ca|0;hb=2870763221+Ba+(ib>>>0<Ca>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ib=2734883394+Ea|0;hb=3624381080+Da+(ib>>>0<Ea>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ib=1164996542+Ga|0;hb=310598401+Fa+(ib>>>0<Ga>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ib=1323610764+Ia|0;hb=607225278+Ha+(ib>>>0<Ia>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ib=3590304994+Ka|0;hb=1426881987+Ja+(ib>>>0<Ka>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ib=4068182383+Ma|0;hb=1925078388+La+(ib>>>0<Ma>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ib=991336113+Oa|0;hb=2162078206+Na+(ib>>>0<Oa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ib=633803317+Qa|0;hb=2614888103+Pa+(ib>>>0<Qa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ib=3479774868+Sa|0;hb=3248222580+Ra+(ib>>>0<Sa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;oa=oa+Ga|0;na=na+Fa+(oa>>>0<Ga>>>0?1:0)|0;jb=(qa>>>1|pa<<31)^(qa>>>8|pa<<24)^(qa>>>7|pa<<25)|0;oa=oa+jb|0;na=na+((pa>>>1|qa<<31)^(pa>>>8|qa<<24)^pa>>>7)+(oa>>>0<jb>>>0?1:0)|0;jb=(Qa>>>19|Pa<<13)^(Qa<<3|Pa>>>29)^(Qa>>>6|Pa<<26)|0;oa=oa+jb|0;na=na+((Pa>>>19|Qa<<13)^(Pa<<3|Qa>>>29)^Pa>>>6)+(oa>>>0<jb>>>0?1:0)|0;ib=2666613458+oa|0;hb=3835390401+na+(ib>>>0<oa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;qa=qa+Ia|0;pa=pa+Ha+(qa>>>0<Ia>>>0?1:0)|0;jb=(sa>>>1|ra<<31)^(sa>>>8|ra<<24)^(sa>>>7|ra<<25)|0;qa=qa+jb|0;pa=pa+((ra>>>1|sa<<31)^(ra>>>8|sa<<24)^ra>>>7)+(qa>>>0<jb>>>0?1:0)|0;jb=(Sa>>>19|Ra<<13)^(Sa<<3|Ra>>>29)^(Sa>>>6|Ra<<26)|0;qa=qa+jb|0;pa=pa+((Ra>>>19|Sa<<13)^(Ra<<3|Sa>>>29)^Ra>>>6)+(qa>>>0<jb>>>0?1:0)|0;ib=944711139+qa|0;hb=4022224774+pa+(ib>>>0<qa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;sa=sa+Ka|0;ra=ra+Ja+(sa>>>0<Ka>>>0?1:0)|0;jb=(ua>>>1|ta<<31)^(ua>>>8|ta<<24)^(ua>>>7|ta<<25)|0;sa=sa+jb|0;ra=ra+((ta>>>1|ua<<31)^(ta>>>8|ua<<24)^ta>>>7)+(sa>>>0<jb>>>0?1:0)|0;jb=(oa>>>19|na<<13)^(oa<<3|na>>>29)^(oa>>>6|na<<26)|0;sa=sa+jb|0;ra=ra+((na>>>19|oa<<13)^(na<<3|oa>>>29)^na>>>6)+(sa>>>0<jb>>>0?1:0)|0;ib=2341262773+sa|0;hb=264347078+ra+(ib>>>0<sa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ua=ua+Ma|0;ta=ta+La+(ua>>>0<Ma>>>0?1:0)|0;jb=(wa>>>1|va<<31)^(wa>>>8|va<<24)^(wa>>>7|va<<25)|0;ua=ua+jb|0;ta=ta+((va>>>1|wa<<31)^(va>>>8|wa<<24)^va>>>7)+(ua>>>0<jb>>>0?1:0)|0;jb=(qa>>>19|pa<<13)^(qa<<3|pa>>>29)^(qa>>>6|pa<<26)|0;ua=ua+jb|0;ta=ta+((pa>>>19|qa<<13)^(pa<<3|qa>>>29)^pa>>>6)+(ua>>>0<jb>>>0?1:0)|0;ib=2007800933+ua|0;hb=604807628+ta+(ib>>>0<ua>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;wa=wa+Oa|0;va=va+Na+(wa>>>0<Oa>>>0?1:0)|0;jb=(ya>>>1|xa<<31)^(ya>>>8|xa<<24)^(ya>>>7|xa<<25)|0;wa=wa+jb|0;va=va+((xa>>>1|ya<<31)^(xa>>>8|ya<<24)^xa>>>7)+(wa>>>0<jb>>>0?1:0)|0;jb=(sa>>>19|ra<<13)^(sa<<3|ra>>>29)^(sa>>>6|ra<<26)|0;wa=wa+jb|0;va=va+((ra>>>19|sa<<13)^(ra<<3|sa>>>29)^ra>>>6)+(wa>>>0<jb>>>0?1:0)|0;ib=1495990901+wa|0;hb=770255983+va+(ib>>>0<wa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ya=ya+Qa|0;xa=xa+Pa+(ya>>>0<Qa>>>0?1:0)|0;jb=(Aa>>>1|za<<31)^(Aa>>>8|za<<24)^(Aa>>>7|za<<25)|0;ya=ya+jb|0;xa=xa+((za>>>1|Aa<<31)^(za>>>8|Aa<<24)^za>>>7)+(ya>>>0<jb>>>0?1:0)|0;jb=(ua>>>19|ta<<13)^(ua<<3|ta>>>29)^(ua>>>6|ta<<26)|0;ya=ya+jb|0;xa=xa+((ta>>>19|ua<<13)^(ta<<3|ua>>>29)^ta>>>6)+(ya>>>0<jb>>>0?1:0)|0;ib=1856431235+ya|0;hb=1249150122+xa+(ib>>>0<ya>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Aa=Aa+Sa|0;za=za+Ra+(Aa>>>0<Sa>>>0?1:0)|0;jb=(Ca>>>1|Ba<<31)^(Ca>>>8|Ba<<24)^(Ca>>>7|Ba<<25)|0;Aa=Aa+jb|0;za=za+((Ba>>>1|Ca<<31)^(Ba>>>8|Ca<<24)^Ba>>>7)+(Aa>>>0<jb>>>0?1:0)|0;jb=(wa>>>19|va<<13)^(wa<<3|va>>>29)^(wa>>>6|va<<26)|0;Aa=Aa+jb|0;za=za+((va>>>19|wa<<13)^(va<<3|wa>>>29)^va>>>6)+(Aa>>>0<jb>>>0?1:0)|0;ib=3175218132+Aa|0;hb=1555081692+za+(ib>>>0<Aa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ca=Ca+oa|0;Ba=Ba+na+(Ca>>>0<oa>>>0?1:0)|0;jb=(Ea>>>1|Da<<31)^(Ea>>>8|Da<<24)^(Ea>>>7|Da<<25)|0;Ca=Ca+jb|0;Ba=Ba+((Da>>>1|Ea<<31)^(Da>>>8|Ea<<24)^Da>>>7)+(Ca>>>0<jb>>>0?1:0)|0;jb=(ya>>>19|xa<<13)^(ya<<3|xa>>>29)^(ya>>>6|xa<<26)|0;Ca=Ca+jb|0;Ba=Ba+((xa>>>19|ya<<13)^(xa<<3|ya>>>29)^xa>>>6)+(Ca>>>0<jb>>>0?1:0)|0;ib=2198950837+Ca|0;hb=1996064986+Ba+(ib>>>0<Ca>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ea=Ea+qa|0;Da=Da+pa+(Ea>>>0<qa>>>0?1:0)|0;jb=(Ga>>>1|Fa<<31)^(Ga>>>8|Fa<<24)^(Ga>>>7|Fa<<25)|0;Ea=Ea+jb|0;Da=Da+((Fa>>>1|Ga<<31)^(Fa>>>8|Ga<<24)^Fa>>>7)+(Ea>>>0<jb>>>0?1:0)|0;jb=(Aa>>>19|za<<13)^(Aa<<3|za>>>29)^(Aa>>>6|za<<26)|0;Ea=Ea+jb|0;Da=Da+((za>>>19|Aa<<13)^(za<<3|Aa>>>29)^za>>>6)+(Ea>>>0<jb>>>0?1:0)|0;ib=3999719339+Ea|0;hb=2554220882+Da+(ib>>>0<Ea>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ga=Ga+sa|0;Fa=Fa+ra+(Ga>>>0<sa>>>0?1:0)|0;jb=(Ia>>>1|Ha<<31)^(Ia>>>8|Ha<<24)^(Ia>>>7|Ha<<25)|0;Ga=Ga+jb|0;Fa=Fa+((Ha>>>1|Ia<<31)^(Ha>>>8|Ia<<24)^Ha>>>7)+(Ga>>>0<jb>>>0?1:0)|0;jb=(Ca>>>19|Ba<<13)^(Ca<<3|Ba>>>29)^(Ca>>>6|Ba<<26)|0;Ga=Ga+jb|0;Fa=Fa+((Ba>>>19|Ca<<13)^(Ba<<3|Ca>>>29)^Ba>>>6)+(Ga>>>0<jb>>>0?1:0)|0;ib=766784016+Ga|0;hb=2821834349+Fa+(ib>>>0<Ga>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ia=Ia+ua|0;Ha=Ha+ta+(Ia>>>0<ua>>>0?1:0)|0;jb=(Ka>>>1|Ja<<31)^(Ka>>>8|Ja<<24)^(Ka>>>7|Ja<<25)|0;Ia=Ia+jb|0;Ha=Ha+((Ja>>>1|Ka<<31)^(Ja>>>8|Ka<<24)^Ja>>>7)+(Ia>>>0<jb>>>0?1:0)|0;jb=(Ea>>>19|Da<<13)^(Ea<<3|Da>>>29)^(Ea>>>6|Da<<26)|0;Ia=Ia+jb|0;Ha=Ha+((Da>>>19|Ea<<13)^(Da<<3|Ea>>>29)^Da>>>6)+(Ia>>>0<jb>>>0?1:0)|0;ib=2566594879+Ia|0;hb=2952996808+Ha+(ib>>>0<Ia>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ka=Ka+wa|0;Ja=Ja+va+(Ka>>>0<wa>>>0?1:0)|0;jb=(Ma>>>1|La<<31)^(Ma>>>8|La<<24)^(Ma>>>7|La<<25)|0;Ka=Ka+jb|0;Ja=Ja+((La>>>1|Ma<<31)^(La>>>8|Ma<<24)^La>>>7)+(Ka>>>0<jb>>>0?1:0)|0;jb=(Ga>>>19|Fa<<13)^(Ga<<3|Fa>>>29)^(Ga>>>6|Fa<<26)|0;Ka=Ka+jb|0;Ja=Ja+((Fa>>>19|Ga<<13)^(Fa<<3|Ga>>>29)^Fa>>>6)+(Ka>>>0<jb>>>0?1:0)|0;ib=3203337956+Ka|0;hb=3210313671+Ja+(ib>>>0<Ka>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ma=Ma+ya|0;La=La+xa+(Ma>>>0<ya>>>0?1:0)|0;jb=(Oa>>>1|Na<<31)^(Oa>>>8|Na<<24)^(Oa>>>7|Na<<25)|0;Ma=Ma+jb|0;La=La+((Na>>>1|Oa<<31)^(Na>>>8|Oa<<24)^Na>>>7)+(Ma>>>0<jb>>>0?1:0)|0;jb=(Ia>>>19|Ha<<13)^(Ia<<3|Ha>>>29)^(Ia>>>6|Ha<<26)|0;Ma=Ma+jb|0;La=La+((Ha>>>19|Ia<<13)^(Ha<<3|Ia>>>29)^Ha>>>6)+(Ma>>>0<jb>>>0?1:0)|0;ib=1034457026+Ma|0;hb=3336571891+La+(ib>>>0<Ma>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Oa=Oa+Aa|0;Na=Na+za+(Oa>>>0<Aa>>>0?1:0)|0;jb=(Qa>>>1|Pa<<31)^(Qa>>>8|Pa<<24)^(Qa>>>7|Pa<<25)|0;Oa=Oa+jb|0;Na=Na+((Pa>>>1|Qa<<31)^(Pa>>>8|Qa<<24)^Pa>>>7)+(Oa>>>0<jb>>>0?1:0)|0;jb=(Ka>>>19|Ja<<13)^(Ka<<3|Ja>>>29)^(Ka>>>6|Ja<<26)|0;Oa=Oa+jb|0;Na=Na+((Ja>>>19|Ka<<13)^(Ja<<3|Ka>>>29)^Ja>>>6)+(Oa>>>0<jb>>>0?1:0)|0;ib=2466948901+Oa|0;hb=3584528711+Na+(ib>>>0<Oa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Qa=Qa+Ca|0;Pa=Pa+Ba+(Qa>>>0<Ca>>>0?1:0)|0;jb=(Sa>>>1|Ra<<31)^(Sa>>>8|Ra<<24)^(Sa>>>7|Ra<<25)|0;Qa=Qa+jb|0;Pa=Pa+((Ra>>>1|Sa<<31)^(Ra>>>8|Sa<<24)^Ra>>>7)+(Qa>>>0<jb>>>0?1:0)|0;jb=(Ma>>>19|La<<13)^(Ma<<3|La>>>29)^(Ma>>>6|La<<26)|0;Qa=Qa+jb|0;Pa=Pa+((La>>>19|Ma<<13)^(La<<3|Ma>>>29)^La>>>6)+(Qa>>>0<jb>>>0?1:0)|0;ib=3758326383+Qa|0;hb=113926993+Pa+(ib>>>0<Qa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Sa=Sa+Ea|0;Ra=Ra+Da+(Sa>>>0<Ea>>>0?1:0)|0;jb=(oa>>>1|na<<31)^(oa>>>8|na<<24)^(oa>>>7|na<<25)|0;Sa=Sa+jb|0;Ra=Ra+((na>>>1|oa<<31)^(na>>>8|oa<<24)^na>>>7)+(Sa>>>0<jb>>>0?1:0)|0;jb=(Oa>>>19|Na<<13)^(Oa<<3|Na>>>29)^(Oa>>>6|Na<<26)|0;Sa=Sa+jb|0;Ra=Ra+((Na>>>19|Oa<<13)^(Na<<3|Oa>>>29)^Na>>>6)+(Sa>>>0<jb>>>0?1:0)|0;ib=168717936+Sa|0;hb=338241895+Ra+(ib>>>0<Sa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;oa=oa+Ga|0;na=na+Fa+(oa>>>0<Ga>>>0?1:0)|0;jb=(qa>>>1|pa<<31)^(qa>>>8|pa<<24)^(qa>>>7|pa<<25)|0;oa=oa+jb|0;na=na+((pa>>>1|qa<<31)^(pa>>>8|qa<<24)^pa>>>7)+(oa>>>0<jb>>>0?1:0)|0;jb=(Qa>>>19|Pa<<13)^(Qa<<3|Pa>>>29)^(Qa>>>6|Pa<<26)|0;oa=oa+jb|0;na=na+((Pa>>>19|Qa<<13)^(Pa<<3|Qa>>>29)^Pa>>>6)+(oa>>>0<jb>>>0?1:0)|0;ib=1188179964+oa|0;hb=666307205+na+(ib>>>0<oa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;qa=qa+Ia|0;pa=pa+Ha+(qa>>>0<Ia>>>0?1:0)|0;jb=(sa>>>1|ra<<31)^(sa>>>8|ra<<24)^(sa>>>7|ra<<25)|0;qa=qa+jb|0;pa=pa+((ra>>>1|sa<<31)^(ra>>>8|sa<<24)^ra>>>7)+(qa>>>0<jb>>>0?1:0)|0;jb=(Sa>>>19|Ra<<13)^(Sa<<3|Ra>>>29)^(Sa>>>6|Ra<<26)|0;qa=qa+jb|0;pa=pa+((Ra>>>19|Sa<<13)^(Ra<<3|Sa>>>29)^Ra>>>6)+(qa>>>0<jb>>>0?1:0)|0;ib=1546045734+qa|0;hb=773529912+pa+(ib>>>0<qa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;sa=sa+Ka|0;ra=ra+Ja+(sa>>>0<Ka>>>0?1:0)|0;jb=(ua>>>1|ta<<31)^(ua>>>8|ta<<24)^(ua>>>7|ta<<25)|0;sa=sa+jb|0;ra=ra+((ta>>>1|ua<<31)^(ta>>>8|ua<<24)^ta>>>7)+(sa>>>0<jb>>>0?1:0)|0;jb=(oa>>>19|na<<13)^(oa<<3|na>>>29)^(oa>>>6|na<<26)|0;sa=sa+jb|0;ra=ra+((na>>>19|oa<<13)^(na<<3|oa>>>29)^na>>>6)+(sa>>>0<jb>>>0?1:0)|0;ib=1522805485+sa|0;hb=1294757372+ra+(ib>>>0<sa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;
+(function ( exports, global ) {
 
-Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ua=ua+Ma|0;ta=ta+La+(ua>>>0<Ma>>>0?1:0)|0;jb=(wa>>>1|va<<31)^(wa>>>8|va<<24)^(wa>>>7|va<<25)|0;ua=ua+jb|0;ta=ta+((va>>>1|wa<<31)^(va>>>8|wa<<24)^va>>>7)+(ua>>>0<jb>>>0?1:0)|0;jb=(qa>>>19|pa<<13)^(qa<<3|pa>>>29)^(qa>>>6|pa<<26)|0;ua=ua+jb|0;ta=ta+((pa>>>19|qa<<13)^(pa<<3|qa>>>29)^pa>>>6)+(ua>>>0<jb>>>0?1:0)|0;ib=2643833823+ua|0;hb=1396182291+ta+(ib>>>0<ua>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;wa=wa+Oa|0;va=va+Na+(wa>>>0<Oa>>>0?1:0)|0;jb=(ya>>>1|xa<<31)^(ya>>>8|xa<<24)^(ya>>>7|xa<<25)|0;wa=wa+jb|0;va=va+((xa>>>1|ya<<31)^(xa>>>8|ya<<24)^xa>>>7)+(wa>>>0<jb>>>0?1:0)|0;jb=(sa>>>19|ra<<13)^(sa<<3|ra>>>29)^(sa>>>6|ra<<26)|0;wa=wa+jb|0;va=va+((ra>>>19|sa<<13)^(ra<<3|sa>>>29)^ra>>>6)+(wa>>>0<jb>>>0?1:0)|0;ib=2343527390+wa|0;hb=1695183700+va+(ib>>>0<wa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ya=ya+Qa|0;xa=xa+Pa+(ya>>>0<Qa>>>0?1:0)|0;jb=(Aa>>>1|za<<31)^(Aa>>>8|za<<24)^(Aa>>>7|za<<25)|0;ya=ya+jb|0;xa=xa+((za>>>1|Aa<<31)^(za>>>8|Aa<<24)^za>>>7)+(ya>>>0<jb>>>0?1:0)|0;jb=(ua>>>19|ta<<13)^(ua<<3|ta>>>29)^(ua>>>6|ta<<26)|0;ya=ya+jb|0;xa=xa+((ta>>>19|ua<<13)^(ta<<3|ua>>>29)^ta>>>6)+(ya>>>0<jb>>>0?1:0)|0;ib=1014477480+ya|0;hb=1986661051+xa+(ib>>>0<ya>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Aa=Aa+Sa|0;za=za+Ra+(Aa>>>0<Sa>>>0?1:0)|0;jb=(Ca>>>1|Ba<<31)^(Ca>>>8|Ba<<24)^(Ca>>>7|Ba<<25)|0;Aa=Aa+jb|0;za=za+((Ba>>>1|Ca<<31)^(Ba>>>8|Ca<<24)^Ba>>>7)+(Aa>>>0<jb>>>0?1:0)|0;jb=(wa>>>19|va<<13)^(wa<<3|va>>>29)^(wa>>>6|va<<26)|0;Aa=Aa+jb|0;za=za+((va>>>19|wa<<13)^(va<<3|wa>>>29)^va>>>6)+(Aa>>>0<jb>>>0?1:0)|0;ib=1206759142+Aa|0;hb=2177026350+za+(ib>>>0<Aa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ca=Ca+oa|0;Ba=Ba+na+(Ca>>>0<oa>>>0?1:0)|0;jb=(Ea>>>1|Da<<31)^(Ea>>>8|Da<<24)^(Ea>>>7|Da<<25)|0;Ca=Ca+jb|0;Ba=Ba+((Da>>>1|Ea<<31)^(Da>>>8|Ea<<24)^Da>>>7)+(Ca>>>0<jb>>>0?1:0)|0;jb=(ya>>>19|xa<<13)^(ya<<3|xa>>>29)^(ya>>>6|xa<<26)|0;Ca=Ca+jb|0;Ba=Ba+((xa>>>19|ya<<13)^(xa<<3|ya>>>29)^xa>>>6)+(Ca>>>0<jb>>>0?1:0)|0;ib=344077627+Ca|0;hb=2456956037+Ba+(ib>>>0<Ca>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ea=Ea+qa|0;Da=Da+pa+(Ea>>>0<qa>>>0?1:0)|0;jb=(Ga>>>1|Fa<<31)^(Ga>>>8|Fa<<24)^(Ga>>>7|Fa<<25)|0;Ea=Ea+jb|0;Da=Da+((Fa>>>1|Ga<<31)^(Fa>>>8|Ga<<24)^Fa>>>7)+(Ea>>>0<jb>>>0?1:0)|0;jb=(Aa>>>19|za<<13)^(Aa<<3|za>>>29)^(Aa>>>6|za<<26)|0;Ea=Ea+jb|0;Da=Da+((za>>>19|Aa<<13)^(za<<3|Aa>>>29)^za>>>6)+(Ea>>>0<jb>>>0?1:0)|0;ib=1290863460+Ea|0;hb=2730485921+Da+(ib>>>0<Ea>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ga=Ga+sa|0;Fa=Fa+ra+(Ga>>>0<sa>>>0?1:0)|0;jb=(Ia>>>1|Ha<<31)^(Ia>>>8|Ha<<24)^(Ia>>>7|Ha<<25)|0;Ga=Ga+jb|0;Fa=Fa+((Ha>>>1|Ia<<31)^(Ha>>>8|Ia<<24)^Ha>>>7)+(Ga>>>0<jb>>>0?1:0)|0;jb=(Ca>>>19|Ba<<13)^(Ca<<3|Ba>>>29)^(Ca>>>6|Ba<<26)|0;Ga=Ga+jb|0;Fa=Fa+((Ba>>>19|Ca<<13)^(Ba<<3|Ca>>>29)^Ba>>>6)+(Ga>>>0<jb>>>0?1:0)|0;ib=3158454273+Ga|0;hb=2820302411+Fa+(ib>>>0<Ga>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ia=Ia+ua|0;Ha=Ha+ta+(Ia>>>0<ua>>>0?1:0)|0;jb=(Ka>>>1|Ja<<31)^(Ka>>>8|Ja<<24)^(Ka>>>7|Ja<<25)|0;Ia=Ia+jb|0;Ha=Ha+((Ja>>>1|Ka<<31)^(Ja>>>8|Ka<<24)^Ja>>>7)+(Ia>>>0<jb>>>0?1:0)|0;jb=(Ea>>>19|Da<<13)^(Ea<<3|Da>>>29)^(Ea>>>6|Da<<26)|0;Ia=Ia+jb|0;Ha=Ha+((Da>>>19|Ea<<13)^(Da<<3|Ea>>>29)^Da>>>6)+(Ia>>>0<jb>>>0?1:0)|0;ib=3505952657+Ia|0;hb=3259730800+Ha+(ib>>>0<Ia>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ka=Ka+wa|0;Ja=Ja+va+(Ka>>>0<wa>>>0?1:0)|0;jb=(Ma>>>1|La<<31)^(Ma>>>8|La<<24)^(Ma>>>7|La<<25)|0;Ka=Ka+jb|0;Ja=Ja+((La>>>1|Ma<<31)^(La>>>8|Ma<<24)^La>>>7)+(Ka>>>0<jb>>>0?1:0)|0;jb=(Ga>>>19|Fa<<13)^(Ga<<3|Fa>>>29)^(Ga>>>6|Fa<<26)|0;Ka=Ka+jb|0;Ja=Ja+((Fa>>>19|Ga<<13)^(Fa<<3|Ga>>>29)^Fa>>>6)+(Ka>>>0<jb>>>0?1:0)|0;ib=106217008+Ka|0;hb=3345764771+Ja+(ib>>>0<Ka>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ma=Ma+ya|0;La=La+xa+(Ma>>>0<ya>>>0?1:0)|0;jb=(Oa>>>1|Na<<31)^(Oa>>>8|Na<<24)^(Oa>>>7|Na<<25)|0;Ma=Ma+jb|0;La=La+((Na>>>1|Oa<<31)^(Na>>>8|Oa<<24)^Na>>>7)+(Ma>>>0<jb>>>0?1:0)|0;jb=(Ia>>>19|Ha<<13)^(Ia<<3|Ha>>>29)^(Ia>>>6|Ha<<26)|0;Ma=Ma+jb|0;La=La+((Ha>>>19|Ia<<13)^(Ha<<3|Ia>>>29)^Ha>>>6)+(Ma>>>0<jb>>>0?1:0)|0;ib=3606008344+Ma|0;hb=3516065817+La+(ib>>>0<Ma>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Oa=Oa+Aa|0;Na=Na+za+(Oa>>>0<Aa>>>0?1:0)|0;jb=(Qa>>>1|Pa<<31)^(Qa>>>8|Pa<<24)^(Qa>>>7|Pa<<25)|0;Oa=Oa+jb|0;Na=Na+((Pa>>>1|Qa<<31)^(Pa>>>8|Qa<<24)^Pa>>>7)+(Oa>>>0<jb>>>0?1:0)|0;jb=(Ka>>>19|Ja<<13)^(Ka<<3|Ja>>>29)^(Ka>>>6|Ja<<26)|0;Oa=Oa+jb|0;Na=Na+((Ja>>>19|Ka<<13)^(Ja<<3|Ka>>>29)^Ja>>>6)+(Oa>>>0<jb>>>0?1:0)|0;ib=1432725776+Oa|0;hb=3600352804+Na+(ib>>>0<Oa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Qa=Qa+Ca|0;Pa=Pa+Ba+(Qa>>>0<Ca>>>0?1:0)|0;jb=(Sa>>>1|Ra<<31)^(Sa>>>8|Ra<<24)^(Sa>>>7|Ra<<25)|0;Qa=Qa+jb|0;Pa=Pa+((Ra>>>1|Sa<<31)^(Ra>>>8|Sa<<24)^Ra>>>7)+(Qa>>>0<jb>>>0?1:0)|0;jb=(Ma>>>19|La<<13)^(Ma<<3|La>>>29)^(Ma>>>6|La<<26)|0;Qa=Qa+jb|0;Pa=Pa+((La>>>19|Ma<<13)^(La<<3|Ma>>>29)^La>>>6)+(Qa>>>0<jb>>>0?1:0)|0;ib=1467031594+Qa|0;hb=4094571909+Pa+(ib>>>0<Qa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Sa=Sa+Ea|0;Ra=Ra+Da+(Sa>>>0<Ea>>>0?1:0)|0;jb=(oa>>>1|na<<31)^(oa>>>8|na<<24)^(oa>>>7|na<<25)|0;Sa=Sa+jb|0;Ra=Ra+((na>>>1|oa<<31)^(na>>>8|oa<<24)^na>>>7)+(Sa>>>0<jb>>>0?1:0)|0;jb=(Oa>>>19|Na<<13)^(Oa<<3|Na>>>29)^(Oa>>>6|Na<<26)|0;Sa=Sa+jb|0;Ra=Ra+((Na>>>19|Oa<<13)^(Na<<3|Oa>>>29)^Na>>>6)+(Sa>>>0<jb>>>0?1:0)|0;ib=851169720+Sa|0;hb=275423344+Ra+(ib>>>0<Sa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;oa=oa+Ga|0;na=na+Fa+(oa>>>0<Ga>>>0?1:0)|0;jb=(qa>>>1|pa<<31)^(qa>>>8|pa<<24)^(qa>>>7|pa<<25)|0;oa=oa+jb|0;na=na+((pa>>>1|qa<<31)^(pa>>>8|qa<<24)^pa>>>7)+(oa>>>0<jb>>>0?1:0)|0;jb=(Qa>>>19|Pa<<13)^(Qa<<3|Pa>>>29)^(Qa>>>6|Pa<<26)|0;oa=oa+jb|0;na=na+((Pa>>>19|Qa<<13)^(Pa<<3|Qa>>>29)^Pa>>>6)+(oa>>>0<jb>>>0?1:0)|0;ib=3100823752+oa|0;hb=430227734+na+(ib>>>0<oa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;qa=qa+Ia|0;pa=pa+Ha+(qa>>>0<Ia>>>0?1:0)|0;jb=(sa>>>1|ra<<31)^(sa>>>8|ra<<24)^(sa>>>7|ra<<25)|0;qa=qa+jb|0;pa=pa+((ra>>>1|sa<<31)^(ra>>>8|sa<<24)^ra>>>7)+(qa>>>0<jb>>>0?1:0)|0;jb=(Sa>>>19|Ra<<13)^(Sa<<3|Ra>>>29)^(Sa>>>6|Ra<<26)|0;qa=qa+jb|0;pa=pa+((Ra>>>19|Sa<<13)^(Ra<<3|Sa>>>29)^Ra>>>6)+(qa>>>0<jb>>>0?1:0)|0;ib=1363258195+qa|0;hb=506948616+pa+(ib>>>0<qa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;sa=sa+Ka|0;ra=ra+Ja+(sa>>>0<Ka>>>0?1:0)|0;jb=(ua>>>1|ta<<31)^(ua>>>8|ta<<24)^(ua>>>7|ta<<25)|0;sa=sa+jb|0;ra=ra+((ta>>>1|ua<<31)^(ta>>>8|ua<<24)^ta>>>7)+(sa>>>0<jb>>>0?1:0)|0;jb=(oa>>>19|na<<13)^(oa<<3|na>>>29)^(oa>>>6|na<<26)|0;sa=sa+jb|0;ra=ra+((na>>>19|oa<<13)^(na<<3|oa>>>29)^na>>>6)+(sa>>>0<jb>>>0?1:0)|0;ib=3750685593+sa|0;hb=659060556+ra+(ib>>>0<sa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ua=ua+Ma|0;ta=ta+La+(ua>>>0<Ma>>>0?1:0)|0;jb=(wa>>>1|va<<31)^(wa>>>8|va<<24)^(wa>>>7|va<<25)|0;ua=ua+jb|0;ta=ta+((va>>>1|wa<<31)^(va>>>8|wa<<24)^va>>>7)+(ua>>>0<jb>>>0?1:0)|0;jb=(qa>>>19|pa<<13)^(qa<<3|pa>>>29)^(qa>>>6|pa<<26)|0;ua=ua+jb|0;ta=ta+((pa>>>19|qa<<13)^(pa<<3|qa>>>29)^pa>>>6)+(ua>>>0<jb>>>0?1:0)|0;ib=3785050280+ua|0;hb=883997877+ta+(ib>>>0<ua>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;wa=wa+Oa|0;va=va+Na+(wa>>>0<Oa>>>0?1:0)|0;jb=(ya>>>1|xa<<31)^(ya>>>8|xa<<24)^(ya>>>7|xa<<25)|0;wa=wa+jb|0;va=va+((xa>>>1|ya<<31)^(xa>>>8|ya<<24)^xa>>>7)+(wa>>>0<jb>>>0?1:0)|0;jb=(sa>>>19|ra<<13)^(sa<<3|ra>>>29)^(sa>>>6|ra<<26)|0;wa=wa+jb|0;va=va+((ra>>>19|sa<<13)^(ra<<3|sa>>>29)^ra>>>6)+(wa>>>0<jb>>>0?1:0)|0;ib=3318307427+wa|0;hb=958139571+va+(ib>>>0<wa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ya=ya+Qa|0;xa=xa+Pa+(ya>>>0<Qa>>>0?1:0)|0;jb=(Aa>>>1|za<<31)^(Aa>>>8|za<<24)^(Aa>>>7|za<<25)|0;ya=ya+jb|0;xa=xa+((za>>>1|Aa<<31)^(za>>>8|Aa<<24)^za>>>7)+(ya>>>0<jb>>>0?1:0)|0;jb=(ua>>>19|ta<<13)^(ua<<3|ta>>>29)^(ua>>>6|ta<<26)|0;ya=ya+jb|0;xa=xa+((ta>>>19|ua<<13)^(ta<<3|ua>>>29)^ta>>>6)+(ya>>>0<jb>>>0?1:0)|0;ib=3812723403+ya|0;hb=1322822218+xa+(ib>>>0<ya>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Aa=Aa+Sa|0;za=za+Ra+(Aa>>>0<Sa>>>0?1:0)|0;jb=(Ca>>>1|Ba<<31)^(Ca>>>8|Ba<<24)^(Ca>>>7|Ba<<25)|0;Aa=Aa+jb|0;za=za+((Ba>>>1|Ca<<31)^(Ba>>>8|Ca<<24)^Ba>>>7)+(Aa>>>0<jb>>>0?1:0)|0;jb=(wa>>>19|va<<13)^(wa<<3|va>>>29)^(wa>>>6|va<<26)|0;Aa=Aa+jb|0;za=za+((va>>>19|wa<<13)^(va<<3|wa>>>29)^va>>>6)+(Aa>>>0<jb>>>0?1:0)|0;ib=2003034995+Aa|0;hb=1537002063+za+(ib>>>0<Aa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ca=Ca+oa|0;Ba=Ba+na+(Ca>>>0<oa>>>0?1:0)|0;jb=(Ea>>>1|Da<<31)^(Ea>>>8|Da<<24)^(Ea>>>7|Da<<25)|0;Ca=Ca+jb|0;Ba=Ba+((Da>>>1|Ea<<31)^(Da>>>8|Ea<<24)^Da>>>7)+(Ca>>>0<jb>>>0?1:0)|0;jb=(ya>>>19|xa<<13)^(ya<<3|xa>>>29)^(ya>>>6|xa<<26)|0;Ca=Ca+jb|0;Ba=Ba+((xa>>>19|ya<<13)^(xa<<3|ya>>>29)^xa>>>6)+(Ca>>>0<jb>>>0?1:0)|0;ib=3602036899+Ca|0;hb=1747873779+Ba+(ib>>>0<Ca>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ea=Ea+qa|0;Da=Da+pa+(Ea>>>0<qa>>>0?1:0)|0;jb=(Ga>>>1|Fa<<31)^(Ga>>>8|Fa<<24)^(Ga>>>7|Fa<<25)|0;Ea=Ea+jb|0;Da=Da+((Fa>>>1|Ga<<31)^(Fa>>>8|Ga<<24)^Fa>>>7)+(Ea>>>0<jb>>>0?1:0)|0;jb=(Aa>>>19|za<<13)^(Aa<<3|za>>>29)^(Aa>>>6|za<<26)|0;Ea=Ea+jb|0;Da=Da+((za>>>19|Aa<<13)^(za<<3|Aa>>>29)^za>>>6)+(Ea>>>0<jb>>>0?1:0)|0;ib=1575990012+Ea|0;hb=1955562222+Da+(ib>>>0<Ea>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ga=Ga+sa|0;Fa=Fa+ra+(Ga>>>0<sa>>>0?1:0)|0;jb=(Ia>>>1|Ha<<31)^(Ia>>>8|Ha<<24)^(Ia>>>7|Ha<<25)|0;Ga=Ga+jb|0;Fa=Fa+((Ha>>>1|Ia<<31)^(Ha>>>8|Ia<<24)^Ha>>>7)+(Ga>>>0<jb>>>0?1:0)|0;jb=(Ca>>>19|Ba<<13)^(Ca<<3|Ba>>>29)^(Ca>>>6|Ba<<26)|0;Ga=Ga+jb|0;Fa=Fa+((Ba>>>19|Ca<<13)^(Ba<<3|Ca>>>29)^Ba>>>6)+(Ga>>>0<jb>>>0?1:0)|0;ib=1125592928+Ga|0;hb=2024104815+Fa+(ib>>>0<Ga>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ia=Ia+ua|0;Ha=Ha+ta+(Ia>>>0<ua>>>0?1:0)|0;jb=(Ka>>>1|Ja<<31)^(Ka>>>8|Ja<<24)^(Ka>>>7|Ja<<25)|0;Ia=Ia+jb|0;Ha=Ha+((Ja>>>1|Ka<<31)^(Ja>>>8|Ka<<24)^Ja>>>7)+(Ia>>>0<jb>>>0?1:0)|0;jb=(Ea>>>19|Da<<13)^(Ea<<3|Da>>>29)^(Ea>>>6|Da<<26)|0;Ia=Ia+jb|0;Ha=Ha+((Da>>>19|Ea<<13)^(Da<<3|Ea>>>29)^Da>>>6)+(Ia>>>0<jb>>>0?1:0)|0;ib=2716904306+Ia|0;hb=2227730452+Ha+(ib>>>0<Ia>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ka=Ka+wa|0;Ja=Ja+va+(Ka>>>0<wa>>>0?1:0)|0;jb=(Ma>>>1|La<<31)^(Ma>>>8|La<<24)^(Ma>>>7|La<<25)|0;Ka=Ka+jb|0;Ja=Ja+((La>>>1|Ma<<31)^(La>>>8|Ma<<24)^La>>>7)+(Ka>>>0<jb>>>0?1:0)|0;jb=(Ga>>>19|Fa<<13)^(Ga<<3|Fa>>>29)^(Ga>>>6|Fa<<26)|0;Ka=Ka+jb|0;Ja=Ja+((Fa>>>19|Ga<<13)^(Fa<<3|Ga>>>29)^Fa>>>6)+(Ka>>>0<jb>>>0?1:0)|0;ib=442776044+Ka|0;hb=2361852424+Ja+(ib>>>0<Ka>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ma=Ma+ya|0;La=La+xa+(Ma>>>0<ya>>>0?1:0)|0;jb=(Oa>>>1|Na<<31)^(Oa>>>8|Na<<24)^(Oa>>>7|Na<<25)|0;Ma=Ma+jb|0;La=La+((Na>>>1|Oa<<31)^(Na>>>8|Oa<<24)^Na>>>7)+(Ma>>>0<jb>>>0?1:0)|0;jb=(Ia>>>19|Ha<<13)^(Ia<<3|Ha>>>29)^(Ia>>>6|Ha<<26)|0;Ma=Ma+jb|0;La=La+((Ha>>>19|Ia<<13)^(Ha<<3|Ia>>>29)^Ha>>>6)+(Ma>>>0<jb>>>0?1:0)|0;ib=593698344+Ma|0;hb=2428436474+La+(ib>>>0<Ma>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Oa=Oa+Aa|0;Na=Na+za+(Oa>>>0<Aa>>>0?1:0)|0;jb=(Qa>>>1|Pa<<31)^(Qa>>>8|Pa<<24)^(Qa>>>7|Pa<<25)|0;Oa=Oa+jb|0;Na=Na+((Pa>>>1|Qa<<31)^(Pa>>>8|Qa<<24)^Pa>>>7)+(Oa>>>0<jb>>>0?1:0)|0;jb=(Ka>>>19|Ja<<13)^(Ka<<3|Ja>>>29)^(Ka>>>6|Ja<<26)|0;Oa=Oa+jb|0;Na=Na+((Ja>>>19|Ka<<13)^(Ja<<3|Ka>>>29)^Ja>>>6)+(Oa>>>0<jb>>>0?1:0)|0;ib=3733110249+Oa|0;hb=2756734187+Na+(ib>>>0<Oa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Qa=Qa+Ca|0;Pa=Pa+Ba+(Qa>>>0<Ca>>>0?1:0)|0;jb=(Sa>>>1|Ra<<31)^(Sa>>>8|Ra<<24)^(Sa>>>7|Ra<<25)|0;Qa=Qa+jb|0;Pa=Pa+((Ra>>>1|Sa<<31)^(Ra>>>8|Sa<<24)^Ra>>>7)+(Qa>>>0<jb>>>0?1:0)|0;jb=(Ma>>>19|La<<13)^(Ma<<3|La>>>29)^(Ma>>>6|La<<26)|0;Qa=Qa+jb|0;Pa=Pa+((La>>>19|Ma<<13)^(La<<3|Ma>>>29)^La>>>6)+(Qa>>>0<jb>>>0?1:0)|0;ib=2999351573+Qa|0;hb=3204031479+Pa+(ib>>>0<Qa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Sa=Sa+Ea|0;Ra=Ra+Da+(Sa>>>0<Ea>>>0?1:0)|0;jb=(oa>>>1|na<<31)^(oa>>>8|na<<24)^(oa>>>7|na<<25)|0;Sa=Sa+jb|0;Ra=Ra+((na>>>1|oa<<31)^(na>>>8|oa<<24)^na>>>7)+(Sa>>>0<jb>>>0?1:0)|0;jb=(Oa>>>19|Na<<13)^(Oa<<3|Na>>>29)^(Oa>>>6|Na<<26)|0;Sa=Sa+jb|0;Ra=Ra+((Na>>>19|Oa<<13)^(Na<<3|Oa>>>29)^Na>>>6)+(Sa>>>0<jb>>>0?1:0)|0;ib=3815920427+Sa|0;hb=3329325298+Ra+(ib>>>0<Sa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;oa=oa+Ga|0;na=na+Fa+(oa>>>0<Ga>>>0?1:0)|0;jb=(qa>>>1|pa<<31)^(qa>>>8|pa<<24)^(qa>>>7|pa<<25)|0;oa=oa+jb|0;na=na+((pa>>>1|qa<<31)^(pa>>>8|qa<<24)^pa>>>7)+(oa>>>0<jb>>>0?1:0)|0;jb=(Qa>>>19|Pa<<13)^(Qa<<3|Pa>>>29)^(Qa>>>6|Pa<<26)|0;oa=oa+jb|0;na=na+((Pa>>>19|Qa<<13)^(Pa<<3|Qa>>>29)^Pa>>>6)+(oa>>>0<jb>>>0?1:0)|0;ib=3928383900+oa|0;hb=3391569614+na+(ib>>>0<oa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;qa=qa+Ia|0;pa=pa+Ha+(qa>>>0<Ia>>>0?1:0)|0;jb=(sa>>>1|ra<<31)^(sa>>>8|ra<<24)^(sa>>>7|ra<<25)|0;qa=qa+jb|0;pa=pa+((ra>>>1|sa<<31)^(ra>>>8|sa<<24)^ra>>>7)+(qa>>>0<jb>>>0?1:0)|0;jb=(Sa>>>19|Ra<<13)^(Sa<<3|Ra>>>29)^(Sa>>>6|Ra<<26)|0;qa=qa+jb|0;pa=pa+((Ra>>>19|Sa<<13)^(Ra<<3|Sa>>>29)^Ra>>>6)+(qa>>>0<jb>>>0?1:0)|0;ib=566280711+qa|0;hb=3515267271+pa+(ib>>>0<qa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;sa=sa+Ka|0;ra=ra+Ja+(sa>>>0<Ka>>>0?1:0)|0;jb=(ua>>>1|ta<<31)^(ua>>>8|ta<<24)^(ua>>>7|ta<<25)|0;sa=sa+jb|0;ra=ra+((ta>>>1|ua<<31)^(ta>>>8|ua<<24)^ta>>>7)+(sa>>>0<jb>>>0?1:0)|0;jb=(oa>>>19|na<<13)^(oa<<3|na>>>29)^(oa>>>6|na<<26)|0;sa=sa+jb|0;ra=ra+((na>>>19|oa<<13)^(na<<3|oa>>>29)^na>>>6)+(sa>>>0<jb>>>0?1:0)|0;ib=3454069534+sa|0;hb=3940187606+ra+(ib>>>0<sa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ua=ua+Ma|0;ta=ta+La+(ua>>>0<Ma>>>0?1:0)|0;jb=(wa>>>1|va<<31)^(wa>>>8|va<<24)^(wa>>>7|va<<25)|0;ua=ua+jb|0;ta=ta+((va>>>1|wa<<31)^(va>>>8|wa<<24)^va>>>7)+(ua>>>0<jb>>>0?1:0)|0;jb=(qa>>>19|pa<<13)^(qa<<3|pa>>>29)^(qa>>>6|pa<<26)|0;ua=ua+jb|0;ta=ta+((pa>>>19|qa<<13)^(pa<<3|qa>>>29)^pa>>>6)+(ua>>>0<jb>>>0?1:0)|0;ib=4000239992+ua|0;hb=4118630271+ta+(ib>>>0<ua>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;wa=wa+Oa|0;va=va+Na+(wa>>>0<Oa>>>0?1:0)|0;jb=(ya>>>1|xa<<31)^(ya>>>8|xa<<24)^(ya>>>7|xa<<25)|0;wa=wa+jb|0;va=va+((xa>>>1|ya<<31)^(xa>>>8|ya<<24)^xa>>>7)+(wa>>>0<jb>>>0?1:0)|0;jb=(sa>>>19|ra<<13)^(sa<<3|ra>>>29)^(sa>>>6|ra<<26)|0;wa=wa+jb|0;va=va+((ra>>>19|sa<<13)^(ra<<3|sa>>>29)^ra>>>6)+(wa>>>0<jb>>>0?1:0)|0;
+function IllegalStateError () { var err = Error.apply( this, arguments ); this.message = err.message, this.stack = err.stack; }
+IllegalStateError.prototype = Object.create( Error.prototype, { name: { value: 'IllegalStateError' } } );
 
-ib=1914138554+wa|0;hb=116418474+va+(ib>>>0<wa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;ya=ya+Qa|0;xa=xa+Pa+(ya>>>0<Qa>>>0?1:0)|0;jb=(Aa>>>1|za<<31)^(Aa>>>8|za<<24)^(Aa>>>7|za<<25)|0;ya=ya+jb|0;xa=xa+((za>>>1|Aa<<31)^(za>>>8|Aa<<24)^za>>>7)+(ya>>>0<jb>>>0?1:0)|0;jb=(ua>>>19|ta<<13)^(ua<<3|ta>>>29)^(ua>>>6|ta<<26)|0;ya=ya+jb|0;xa=xa+((ta>>>19|ua<<13)^(ta<<3|ua>>>29)^ta>>>6)+(ya>>>0<jb>>>0?1:0)|0;ib=2731055270+ya|0;hb=174292421+xa+(ib>>>0<ya>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Aa=Aa+Sa|0;za=za+Ra+(Aa>>>0<Sa>>>0?1:0)|0;jb=(Ca>>>1|Ba<<31)^(Ca>>>8|Ba<<24)^(Ca>>>7|Ba<<25)|0;Aa=Aa+jb|0;za=za+((Ba>>>1|Ca<<31)^(Ba>>>8|Ca<<24)^Ba>>>7)+(Aa>>>0<jb>>>0?1:0)|0;jb=(wa>>>19|va<<13)^(wa<<3|va>>>29)^(wa>>>6|va<<26)|0;Aa=Aa+jb|0;za=za+((va>>>19|wa<<13)^(va<<3|wa>>>29)^va>>>6)+(Aa>>>0<jb>>>0?1:0)|0;ib=3203993006+Aa|0;hb=289380356+za+(ib>>>0<Aa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ca=Ca+oa|0;Ba=Ba+na+(Ca>>>0<oa>>>0?1:0)|0;jb=(Ea>>>1|Da<<31)^(Ea>>>8|Da<<24)^(Ea>>>7|Da<<25)|0;Ca=Ca+jb|0;Ba=Ba+((Da>>>1|Ea<<31)^(Da>>>8|Ea<<24)^Da>>>7)+(Ca>>>0<jb>>>0?1:0)|0;jb=(ya>>>19|xa<<13)^(ya<<3|xa>>>29)^(ya>>>6|xa<<26)|0;Ca=Ca+jb|0;Ba=Ba+((xa>>>19|ya<<13)^(xa<<3|ya>>>29)^xa>>>6)+(Ca>>>0<jb>>>0?1:0)|0;ib=320620315+Ca|0;hb=460393269+Ba+(ib>>>0<Ca>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ea=Ea+qa|0;Da=Da+pa+(Ea>>>0<qa>>>0?1:0)|0;jb=(Ga>>>1|Fa<<31)^(Ga>>>8|Fa<<24)^(Ga>>>7|Fa<<25)|0;Ea=Ea+jb|0;Da=Da+((Fa>>>1|Ga<<31)^(Fa>>>8|Ga<<24)^Fa>>>7)+(Ea>>>0<jb>>>0?1:0)|0;jb=(Aa>>>19|za<<13)^(Aa<<3|za>>>29)^(Aa>>>6|za<<26)|0;Ea=Ea+jb|0;Da=Da+((za>>>19|Aa<<13)^(za<<3|Aa>>>29)^za>>>6)+(Ea>>>0<jb>>>0?1:0)|0;ib=587496836+Ea|0;hb=685471733+Da+(ib>>>0<Ea>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ga=Ga+sa|0;Fa=Fa+ra+(Ga>>>0<sa>>>0?1:0)|0;jb=(Ia>>>1|Ha<<31)^(Ia>>>8|Ha<<24)^(Ia>>>7|Ha<<25)|0;Ga=Ga+jb|0;Fa=Fa+((Ha>>>1|Ia<<31)^(Ha>>>8|Ia<<24)^Ha>>>7)+(Ga>>>0<jb>>>0?1:0)|0;jb=(Ca>>>19|Ba<<13)^(Ca<<3|Ba>>>29)^(Ca>>>6|Ba<<26)|0;Ga=Ga+jb|0;Fa=Fa+((Ba>>>19|Ca<<13)^(Ba<<3|Ca>>>29)^Ba>>>6)+(Ga>>>0<jb>>>0?1:0)|0;ib=1086792851+Ga|0;hb=852142971+Fa+(ib>>>0<Ga>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ia=Ia+ua|0;Ha=Ha+ta+(Ia>>>0<ua>>>0?1:0)|0;jb=(Ka>>>1|Ja<<31)^(Ka>>>8|Ja<<24)^(Ka>>>7|Ja<<25)|0;Ia=Ia+jb|0;Ha=Ha+((Ja>>>1|Ka<<31)^(Ja>>>8|Ka<<24)^Ja>>>7)+(Ia>>>0<jb>>>0?1:0)|0;jb=(Ea>>>19|Da<<13)^(Ea<<3|Da>>>29)^(Ea>>>6|Da<<26)|0;Ia=Ia+jb|0;Ha=Ha+((Da>>>19|Ea<<13)^(Da<<3|Ea>>>29)^Da>>>6)+(Ia>>>0<jb>>>0?1:0)|0;ib=365543100+Ia|0;hb=1017036298+Ha+(ib>>>0<Ia>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ka=Ka+wa|0;Ja=Ja+va+(Ka>>>0<wa>>>0?1:0)|0;jb=(Ma>>>1|La<<31)^(Ma>>>8|La<<24)^(Ma>>>7|La<<25)|0;Ka=Ka+jb|0;Ja=Ja+((La>>>1|Ma<<31)^(La>>>8|Ma<<24)^La>>>7)+(Ka>>>0<jb>>>0?1:0)|0;jb=(Ga>>>19|Fa<<13)^(Ga<<3|Fa>>>29)^(Ga>>>6|Fa<<26)|0;Ka=Ka+jb|0;Ja=Ja+((Fa>>>19|Ga<<13)^(Fa<<3|Ga>>>29)^Fa>>>6)+(Ka>>>0<jb>>>0?1:0)|0;ib=2618297676+Ka|0;hb=1126000580+Ja+(ib>>>0<Ka>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Ma=Ma+ya|0;La=La+xa+(Ma>>>0<ya>>>0?1:0)|0;jb=(Oa>>>1|Na<<31)^(Oa>>>8|Na<<24)^(Oa>>>7|Na<<25)|0;Ma=Ma+jb|0;La=La+((Na>>>1|Oa<<31)^(Na>>>8|Oa<<24)^Na>>>7)+(Ma>>>0<jb>>>0?1:0)|0;jb=(Ia>>>19|Ha<<13)^(Ia<<3|Ha>>>29)^(Ia>>>6|Ha<<26)|0;Ma=Ma+jb|0;La=La+((Ha>>>19|Ia<<13)^(Ha<<3|Ia>>>29)^Ha>>>6)+(Ma>>>0<jb>>>0?1:0)|0;ib=3409855158+Ma|0;hb=1288033470+La+(ib>>>0<Ma>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Oa=Oa+Aa|0;Na=Na+za+(Oa>>>0<Aa>>>0?1:0)|0;jb=(Qa>>>1|Pa<<31)^(Qa>>>8|Pa<<24)^(Qa>>>7|Pa<<25)|0;Oa=Oa+jb|0;Na=Na+((Pa>>>1|Qa<<31)^(Pa>>>8|Qa<<24)^Pa>>>7)+(Oa>>>0<jb>>>0?1:0)|0;jb=(Ka>>>19|Ja<<13)^(Ka<<3|Ja>>>29)^(Ka>>>6|Ja<<26)|0;Oa=Oa+jb|0;Na=Na+((Ja>>>19|Ka<<13)^(Ja<<3|Ka>>>29)^Ja>>>6)+(Oa>>>0<jb>>>0?1:0)|0;ib=4234509866+Oa|0;hb=1501505948+Na+(ib>>>0<Oa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Qa=Qa+Ca|0;Pa=Pa+Ba+(Qa>>>0<Ca>>>0?1:0)|0;jb=(Sa>>>1|Ra<<31)^(Sa>>>8|Ra<<24)^(Sa>>>7|Ra<<25)|0;Qa=Qa+jb|0;Pa=Pa+((Ra>>>1|Sa<<31)^(Ra>>>8|Sa<<24)^Ra>>>7)+(Qa>>>0<jb>>>0?1:0)|0;jb=(Ma>>>19|La<<13)^(Ma<<3|La>>>29)^(Ma>>>6|La<<26)|0;Qa=Qa+jb|0;Pa=Pa+((La>>>19|Ma<<13)^(La<<3|Ma>>>29)^La>>>6)+(Qa>>>0<jb>>>0?1:0)|0;ib=987167468+Qa|0;hb=1607167915+Pa+(ib>>>0<Qa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;Sa=Sa+Ea|0;Ra=Ra+Da+(Sa>>>0<Ea>>>0?1:0)|0;jb=(oa>>>1|na<<31)^(oa>>>8|na<<24)^(oa>>>7|na<<25)|0;Sa=Sa+jb|0;Ra=Ra+((na>>>1|oa<<31)^(na>>>8|oa<<24)^na>>>7)+(Sa>>>0<jb>>>0?1:0)|0;jb=(Oa>>>19|Na<<13)^(Oa<<3|Na>>>29)^(Oa>>>6|Na<<26)|0;Sa=Sa+jb|0;Ra=Ra+((Na>>>19|Oa<<13)^(Na<<3|Oa>>>29)^Na>>>6)+(Sa>>>0<jb>>>0?1:0)|0;ib=1246189591+Sa|0;hb=1816402316+Ra+(ib>>>0<Sa>>>0?1:0)|0;ib=ib+gb|0;hb=hb+fb+(ib>>>0<gb>>>0?1:0)|0;jb=(ab>>>14|_a<<18)^(ab>>>18|_a<<14)^(ab<<23|_a>>>9)|0;ib=ib+jb|0;hb=hb+((_a>>>14|ab<<18)^(_a>>>18|ab<<14)^(_a<<23|ab>>>9))+(ib>>>0<jb>>>0?1:0)|0;jb=eb^ab&(cb^eb)|0;ib=ib+jb|0;hb=hb+(db^_a&(bb^db))+(ib>>>0<jb>>>0?1:0)|0;gb=eb;fb=db;eb=cb;db=bb;cb=ab;bb=_a;ab=$a+ib|0;_a=Za+hb+(ab>>>0<$a>>>0?1:0)|0;$a=Ya;Za=Xa;Ya=Wa;Xa=Va;Wa=Ua;Va=Ta;Ua=ib+(Wa&Ya^$a&(Wa^Ya))|0;Ta=hb+(Va&Xa^Za&(Va^Xa))+(Ua>>>0<ib>>>0?1:0)|0;jb=(Wa>>>28|Va<<4)^(Wa<<30|Va>>>2)^(Wa<<25|Va>>>7)|0;Ua=Ua+jb|0;Ta=Ta+((Va>>>28|Wa<<4)^(Va<<30|Wa>>>2)^(Va<<25|Wa>>>7))+(Ua>>>0<jb>>>0?1:0)|0;e=e+Ua|0;d=d+Ta+(e>>>0<Ua>>>0?1:0)|0;g=g+Wa|0;f=f+Va+(g>>>0<Wa>>>0?1:0)|0;i=i+Ya|0;h=h+Xa+(i>>>0<Ya>>>0?1:0)|0;k=k+$a|0;j=j+Za+(k>>>0<$a>>>0?1:0)|0;m=m+ab|0;l=l+_a+(m>>>0<ab>>>0?1:0)|0;o=o+cb|0;n=n+bb+(o>>>0<cb>>>0?1:0)|0;q=q+eb|0;p=p+db+(q>>>0<eb>>>0?1:0)|0;t=t+gb|0;s=s+fb+(t>>>0<gb>>>0?1:0)|0}function ca(na){na=na|0;ba(aa[na|0]<<24|aa[na|1]<<16|aa[na|2]<<8|aa[na|3],aa[na|4]<<24|aa[na|5]<<16|aa[na|6]<<8|aa[na|7],aa[na|8]<<24|aa[na|9]<<16|aa[na|10]<<8|aa[na|11],aa[na|12]<<24|aa[na|13]<<16|aa[na|14]<<8|aa[na|15],aa[na|16]<<24|aa[na|17]<<16|aa[na|18]<<8|aa[na|19],aa[na|20]<<24|aa[na|21]<<16|aa[na|22]<<8|aa[na|23],aa[na|24]<<24|aa[na|25]<<16|aa[na|26]<<8|aa[na|27],aa[na|28]<<24|aa[na|29]<<16|aa[na|30]<<8|aa[na|31],aa[na|32]<<24|aa[na|33]<<16|aa[na|34]<<8|aa[na|35],aa[na|36]<<24|aa[na|37]<<16|aa[na|38]<<8|aa[na|39],aa[na|40]<<24|aa[na|41]<<16|aa[na|42]<<8|aa[na|43],aa[na|44]<<24|aa[na|45]<<16|aa[na|46]<<8|aa[na|47],aa[na|48]<<24|aa[na|49]<<16|aa[na|50]<<8|aa[na|51],aa[na|52]<<24|aa[na|53]<<16|aa[na|54]<<8|aa[na|55],aa[na|56]<<24|aa[na|57]<<16|aa[na|58]<<8|aa[na|59],aa[na|60]<<24|aa[na|61]<<16|aa[na|62]<<8|aa[na|63],aa[na|64]<<24|aa[na|65]<<16|aa[na|66]<<8|aa[na|67],aa[na|68]<<24|aa[na|69]<<16|aa[na|70]<<8|aa[na|71],aa[na|72]<<24|aa[na|73]<<16|aa[na|74]<<8|aa[na|75],aa[na|76]<<24|aa[na|77]<<16|aa[na|78]<<8|aa[na|79],aa[na|80]<<24|aa[na|81]<<16|aa[na|82]<<8|aa[na|83],aa[na|84]<<24|aa[na|85]<<16|aa[na|86]<<8|aa[na|87],aa[na|88]<<24|aa[na|89]<<16|aa[na|90]<<8|aa[na|91],aa[na|92]<<24|aa[na|93]<<16|aa[na|94]<<8|aa[na|95],aa[na|96]<<24|aa[na|97]<<16|aa[na|98]<<8|aa[na|99],aa[na|100]<<24|aa[na|101]<<16|aa[na|102]<<8|aa[na|103],aa[na|104]<<24|aa[na|105]<<16|aa[na|106]<<8|aa[na|107],aa[na|108]<<24|aa[na|109]<<16|aa[na|110]<<8|aa[na|111],aa[na|112]<<24|aa[na|113]<<16|aa[na|114]<<8|aa[na|115],aa[na|116]<<24|aa[na|117]<<16|aa[na|118]<<8|aa[na|119],aa[na|120]<<24|aa[na|121]<<16|aa[na|122]<<8|aa[na|123],aa[na|124]<<24|aa[na|125]<<16|aa[na|126]<<8|aa[na|127])}function da(na){na=na|0;aa[na|0]=d>>>24;aa[na|1]=d>>>16&255;aa[na|2]=d>>>8&255;aa[na|3]=d&255;aa[na|4]=e>>>24;aa[na|5]=e>>>16&255;aa[na|6]=e>>>8&255;aa[na|7]=e&255;aa[na|8]=f>>>24;aa[na|9]=f>>>16&255;aa[na|10]=f>>>8&255;aa[na|11]=f&255;aa[na|12]=g>>>24;aa[na|13]=g>>>16&255;aa[na|14]=g>>>8&255;aa[na|15]=g&255;aa[na|16]=h>>>24;aa[na|17]=h>>>16&255;aa[na|18]=h>>>8&255;aa[na|19]=h&255;aa[na|20]=i>>>24;aa[na|21]=i>>>16&255;aa[na|22]=i>>>8&255;aa[na|23]=i&255;aa[na|24]=j>>>24;aa[na|25]=j>>>16&255;aa[na|26]=j>>>8&255;aa[na|27]=j&255;aa[na|28]=k>>>24;aa[na|29]=k>>>16&255;aa[na|30]=k>>>8&255;aa[na|31]=k&255;aa[na|32]=l>>>24;aa[na|33]=l>>>16&255;aa[na|34]=l>>>8&255;aa[na|35]=l&255;aa[na|36]=m>>>24;aa[na|37]=m>>>16&255;aa[na|38]=m>>>8&255;aa[na|39]=m&255;aa[na|40]=n>>>24;aa[na|41]=n>>>16&255;aa[na|42]=n>>>8&255;aa[na|43]=n&255;aa[na|44]=o>>>24;aa[na|45]=o>>>16&255;aa[na|46]=o>>>8&255;aa[na|47]=o&255;aa[na|48]=p>>>24;aa[na|49]=p>>>16&255;aa[na|50]=p>>>8&255;aa[na|51]=p&255;aa[na|52]=q>>>24;aa[na|53]=q>>>16&255;aa[na|54]=q>>>8&255;aa[na|55]=q&255;aa[na|56]=s>>>24;aa[na|57]=s>>>16&255;aa[na|58]=s>>>8&255;aa[na|59]=s&255;aa[na|60]=t>>>24;aa[na|61]=t>>>16&255;aa[na|62]=t>>>8&255;aa[na|63]=t&255}function ea(){d=1779033703;e=4089235720;f=3144134277;g=2227873595;h=1013904242;i=4271175723;j=2773480762;k=1595750129;l=1359893119;m=2917565137;n=2600822924;o=725511199;p=528734635;q=4215389547;s=1541459225;t=327033209;u=v=0}function fa(na,oa,pa,qa,ra,sa,ta,ua,va,wa,xa,ya,za,Aa,Ba,Ca,Da,Ea){na=na|0;oa=oa|0;pa=pa|0;qa=qa|0;ra=ra|0;sa=sa|0;ta=ta|0;ua=ua|0;va=va|0;wa=wa|0;xa=xa|0;ya=ya|0;za=za|0;Aa=Aa|0;Ba=Ba|0;Ca=Ca|0;Da=Da|0;Ea=Ea|0;d=na;e=oa;f=pa;g=qa;h=ra;i=sa;j=ta;k=ua;l=va;m=wa;n=xa;o=ya;p=za;q=Aa;s=Ba;t=Ca;u=Da;v=Ea}function ga(na,oa){na=na|0;oa=oa|0;var pa=0;if(na&127)return-1;while((oa|0)>=128){ca(na);na=na+128|0;oa=oa-128|0;pa=pa+128|0}u=u+pa|0;if(u>>>0<pa>>>0)v=v+1|0;return pa|0}function ha(na,oa,pa){na=na|0;oa=oa|0;pa=pa|0;var qa=0,ra=0;if(na&127)return-1;if(~pa)if(pa&63)return-1;if((oa|0)>=128){qa=ga(na,oa)|0;if((qa|0)==-1)return-1;na=na+qa|0;oa=oa-qa|0}qa=qa+oa|0;u=u+oa|0;if(u>>>0<oa>>>0)v=v+1|0;aa[na|oa]=128;if((oa|0)>=112){for(ra=oa+1|0;(ra|0)<128;ra=ra+1|0)aa[na|ra]=0;ca(na);oa=0;aa[na|0]=0}for(ra=oa+1|0;(ra|0)<123;ra=ra+1|0)aa[na|ra]=0;aa[na|120]=v>>>21&255;aa[na|121]=v>>>13&255;aa[na|122]=v>>>5&255;aa[na|123]=v<<3&255|u>>>29;aa[na|124]=u>>>21&255;aa[na|125]=u>>>13&255;aa[na|126]=u>>>5&255;aa[na|127]=u<<3&255;ca(na);if(~pa)da(pa);return qa|0}function ia(){d=w;e=x;f=y;g=z;h=A;i=B;j=C;k=D;l=E;m=F;n=G;o=H;p=I;q=J;s=K;t=L;u=128;v=0}function ja(){d=M;e=N;f=O;g=P;h=Q;i=R;j=S;k=T;l=U;m=V;n=W;o=X;p=Y;q=Z;s=$;t=_;u=128;v=0}function ka(na,oa,pa,qa,ra,sa,ta,ua,va,wa,xa,ya,za,Aa,Ba,Ca,Da,Ea,Fa,Ga,Ha,Ia,Ja,Ka,La,Ma,Na,Oa,Pa,Qa,Ra,Sa){na=na|0;oa=oa|0;pa=pa|0;qa=qa|0;ra=ra|0;sa=sa|0;ta=ta|0;ua=ua|0;va=va|0;wa=wa|0;xa=xa|0;ya=ya|0;za=za|0;Aa=Aa|0;Ba=Ba|0;Ca=Ca|0;Da=Da|0;Ea=Ea|0;Fa=Fa|0;Ga=Ga|0;Ha=Ha|0;Ia=Ia|0;Ja=Ja|0;Ka=Ka|0;La=La|0;Ma=Ma|0;Na=Na|0;Oa=Oa|0;Pa=Pa|0;Qa=Qa|0;Ra=Ra|0;Sa=Sa|0;ea();ba(na^1549556828,oa^1549556828,pa^1549556828,qa^1549556828,ra^1549556828,sa^1549556828,ta^1549556828,ua^1549556828,va^1549556828,wa^1549556828,xa^1549556828,ya^1549556828,za^1549556828,Aa^1549556828,Ba^1549556828,Ca^1549556828,Da^1549556828,Ea^1549556828,Fa^1549556828,Ga^1549556828,Ha^1549556828,Ia^1549556828,Ja^1549556828,Ka^1549556828,La^1549556828,Ma^1549556828,Na^1549556828,Oa^1549556828,Pa^1549556828,Qa^1549556828,Ra^1549556828,Sa^1549556828);M=d;N=e;O=f;P=g;Q=h;R=i;S=j;T=k;U=l;V=m;W=n;X=o;Y=p;Z=q;$=s;_=t;ea();ba(na^909522486,oa^909522486,pa^909522486,qa^909522486,ra^909522486,sa^909522486,ta^909522486,ua^909522486,va^909522486,wa^909522486,xa^909522486,ya^909522486,za^909522486,Aa^909522486,Ba^909522486,Ca^909522486,Da^909522486,Ea^909522486,Fa^909522486,Ga^909522486,Ha^909522486,Ia^909522486,Ja^909522486,Ka^909522486,La^909522486,Ma^909522486,Na^909522486,Oa^909522486,Pa^909522486,Qa^909522486,Ra^909522486,Sa^909522486);w=d;x=e;y=f;z=g;A=h;B=i;C=j;D=k;E=l;F=m;G=n;H=o;I=p;J=q;K=s;L=t;u=128;v=0}function la(na,oa,pa){na=na|0;oa=oa|0;pa=pa|0;var qa=0,ra=0,sa=0,ta=0,ua=0,va=0,wa=0,xa=0,ya=0,za=0,Aa=0,Ba=0,Ca=0,Da=0,Ea=0,Fa=0,Ga=0;if(na&127)return-1;if(~pa)if(pa&63)return-1;Ga=ha(na,oa,-1)|0;qa=d;ra=e;sa=f;ta=g;ua=h;va=i;wa=j;xa=k;ya=l;za=m;Aa=n;Ba=o;Ca=p;Da=q;Ea=s;Fa=t;ja();ba(qa,ra,sa,ta,ua,va,wa,xa,ya,za,Aa,Ba,Ca,Da,Ea,Fa,2147483648,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1536);if(~pa)da(pa);return Ga|0}function ma(na,oa,pa,qa,ra){na=na|0;oa=oa|0;pa=pa|0;qa=qa|0;ra=ra|0;var sa=0,ta=0,ua=0,va=0,wa=0,xa=0,ya=0,za=0,Aa=0,Ba=0,Ca=0,Da=0,Ea=0,Fa=0,Ga=0,Ha=0,Ia=0,Ja=0,Ka=0,La=0,Ma=0,Na=0,Oa=0,Pa=0,Qa=0,Ra=0,Sa=0,Ta=0,Ua=0,Va=0,Wa=0,Xa=0;if(na&127)return-1;if(~ra)if(ra&63)return-1;aa[na+oa|0]=pa>>>24;aa[na+oa+1|0]=pa>>>16&255;aa[na+oa+2|0]=pa>>>8&255;aa[na+oa+3|0]=pa&255;la(na,oa+4|0,-1)|0;sa=Ia=d;ta=Ja=e;ua=Ka=f;va=La=g;wa=Ma=h;xa=Na=i;ya=Oa=j;za=Pa=k;Aa=Qa=l;Ba=Ra=m;Ca=Sa=n;Da=Ta=o;Ea=Ua=p;Fa=Va=q;Ga=Wa=s;Ha=Xa=t;qa=qa-1|0;while((qa|0)>0){ia();ba(Ia,Ja,Ka,La,Ma,Na,Oa,Pa,Qa,Ra,Sa,Ta,Ua,Va,Wa,Xa,2147483648,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1536);Ia=d;Ja=e;Ka=f;La=g;Ma=h;Na=i;Oa=j;Pa=k;Qa=l;Ra=m;Sa=n;Ta=o;Ua=p;Va=q;Wa=s;Xa=t;ja();ba(Ia,Ja,Ka,La,Ma,Na,Oa,Pa,Qa,Ra,Sa,Ta,Ua,Va,Wa,Xa,2147483648,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1536);Ia=d;Ja=e;Ka=f;La=g;Ma=h;Na=i;Oa=j;Pa=k;Qa=l;Ra=m;Sa=n;Ta=o;Ua=p;Va=q;Wa=s;Xa=t;sa=sa^d;ta=ta^e;ua=ua^f;va=va^g;wa=wa^h;xa=xa^i;ya=ya^j;za=za^k;Aa=Aa^l;Ba=Ba^m;Ca=Ca^n;Da=Da^o;Ea=Ea^p;Fa=Fa^q;Ga=Ga^s;Ha=Ha^t;qa=qa-1|0}d=sa;e=ta;f=ua;g=va;h=wa;i=xa;j=ya;k=za;l=Aa;m=Ba;n=Ca;o=Da;p=Ea;q=Fa;s=Ga;t=Ha;if(~ra)da(ra);return 0}return{reset:ea,init:fa,process:ga,finish:ha,hmac_reset:ia,hmac_init:ka,hmac_finish:la,pbkdf2_generate_block:ma}}function s(a){a=a||{},this.heap=m(Uint8Array,a),this.asm=a.asm||r(b,null,this.heap.buffer),this.BLOCK_SIZE=N,this.HASH_SIZE=O,this.reset()}function t(){return null===Q&&(Q=new s({heapSize:1048576})),Q}function u(a){if(a=a||{},!a.hash)throw new SyntaxError("option 'hash' is required");if(!a.hash.HASH_SIZE)throw new SyntaxError("option 'hash' supplied doesn't seem to be a valid hash function");return this.hash=a.hash,this.BLOCK_SIZE=this.hash.BLOCK_SIZE,this.HMAC_SIZE=this.hash.HASH_SIZE,this.key=null,this.verify=null,this.result=null,(void 0!==a.password||void 0!==a.verify)&&this.reset(a),this}function v(a,b){if(k(b)&&(b=new Uint8Array(b)),j(b)&&(b=f(b)),!l(b))throw new TypeError("password isn't of expected type");var c=new Uint8Array(a.BLOCK_SIZE);return c.set(b.length>a.BLOCK_SIZE?a.reset().process(b).finish().result:b),c}function w(a){if(k(a)||l(a))a=new Uint8Array(a);else{if(!j(a))throw new TypeError("verify tag isn't of expected type");a=f(a)}if(a.length!==this.HMAC_SIZE)throw new d("illegal verification tag size");this.verify=a}function x(a){a=a||{};var b=a.password;if(null===this.key&&!j(b)&&!b)throw new c("no key is associated with the instance");this.result=null,this.hash.reset(),(b||j(b))&&(this.key=v(this.hash,b));for(var d=new Uint8Array(this.key),e=0;e<d.length;++e)d[e]^=54;this.hash.process(d);var f=a.verify;return void 0!==f?w.call(this,f):this.verify=null,this}function y(a){if(null===this.key)throw new c("no key is associated with the instance");if(null!==this.result)throw new c("state must be reset before processing new data");return this.hash.process(a),this}function z(){if(null===this.key)throw new c("no key is associated with the instance");if(null!==this.result)throw new c("state must be reset before processing new data");for(var a=this.hash.finish().result,b=new Uint8Array(this.key),d=0;d<b.length;++d)b[d]^=92;var e=this.verify,f=this.hash.reset().process(b).process(a).finish().result;if(e)if(e.length===f.length){for(var g=0,d=0;d<e.length;d++)g|=e[d]^f[d];this.result=!g}else this.result=!1;else this.result=f;return this}function A(a){return a=a||{},a.hash instanceof s||(a.hash=t()),u.call(this,a),this}function B(a){a=a||{},this.result=null,this.hash.reset();var b=a.password;if(void 0!==b){j(b)&&(b=f(b));var c=this.key=v(this.hash,b);this.hash.reset().asm.hmac_init(c[0]<<24|c[1]<<16|c[2]<<8|c[3],c[4]<<24|c[5]<<16|c[6]<<8|c[7],c[8]<<24|c[9]<<16|c[10]<<8|c[11],c[12]<<24|c[13]<<16|c[14]<<8|c[15],c[16]<<24|c[17]<<16|c[18]<<8|c[19],c[20]<<24|c[21]<<16|c[22]<<8|c[23],c[24]<<24|c[25]<<16|c[26]<<8|c[27],c[28]<<24|c[29]<<16|c[30]<<8|c[31],c[32]<<24|c[33]<<16|c[34]<<8|c[35],c[36]<<24|c[37]<<16|c[38]<<8|c[39],c[40]<<24|c[41]<<16|c[42]<<8|c[43],c[44]<<24|c[45]<<16|c[46]<<8|c[47],c[48]<<24|c[49]<<16|c[50]<<8|c[51],c[52]<<24|c[53]<<16|c[54]<<8|c[55],c[56]<<24|c[57]<<16|c[58]<<8|c[59],c[60]<<24|c[61]<<16|c[62]<<8|c[63],c[64]<<24|c[65]<<16|c[66]<<8|c[67],c[68]<<24|c[69]<<16|c[70]<<8|c[71],c[72]<<24|c[73]<<16|c[74]<<8|c[75],c[76]<<24|c[77]<<16|c[78]<<8|c[79],c[80]<<24|c[81]<<16|c[82]<<8|c[83],c[84]<<24|c[85]<<16|c[86]<<8|c[87],c[88]<<24|c[89]<<16|c[90]<<8|c[91],c[92]<<24|c[93]<<16|c[94]<<8|c[95],c[96]<<24|c[97]<<16|c[98]<<8|c[99],c[100]<<24|c[101]<<16|c[102]<<8|c[103],c[104]<<24|c[105]<<16|c[106]<<8|c[107],c[108]<<24|c[109]<<16|c[110]<<8|c[111],c[112]<<24|c[113]<<16|c[114]<<8|c[115],c[116]<<24|c[117]<<16|c[118]<<8|c[119],c[120]<<24|c[121]<<16|c[122]<<8|c[123],c[124]<<24|c[125]<<16|c[126]<<8|c[127])}else this.hash.asm.hmac_reset();var d=a.verify;return void 0!==d?w.call(this,d):this.verify=null,this}function C(){if(null===this.key)throw new c("no key is associated with the instance");if(null!==this.result)throw new c("state must be reset before processing new data");var a=this.hash,b=this.hash.asm,d=this.hash.heap;b.hmac_finish(a.pos,a.len,0);var e=this.verify,f=new Uint8Array(O);if(f.set(d.subarray(0,O)),e)if(e.length===f.length){for(var g=0,h=0;h<e.length;h++)g|=e[h]^f[h];this.result=!g}else this.result=!1;else this.result=f;return this}function D(){return null===T&&(T=new A),T}function E(a){if(a=a||{},!a.hmac)throw new SyntaxError("option 'hmac' is required");if(!a.hmac.HMAC_SIZE)throw new SyntaxError("option 'hmac' supplied doesn't seem to be a valid HMAC function");this.hmac=a.hmac,this.count=a.count||4096,this.length=a.length||this.hmac.HMAC_SIZE,this.result=null;var b=a.password;return(b||j(b))&&this.reset(a),this}function F(a){return this.result=null,this.hmac.reset(a),this}function G(a,b,e){if(null!==this.result)throw new c("state must be reset before processing new data");if(!a&&!j(a))throw new d("bad 'salt' value");b=b||this.count,e=e||this.length,this.result=new Uint8Array(e);for(var f=Math.ceil(e/this.hmac.HMAC_SIZE),g=1;f>=g;++g){var h=(g-1)*this.hmac.HMAC_SIZE,i=(f>g?0:e%this.hmac.HMAC_SIZE)||this.hmac.HMAC_SIZE,k=new Uint8Array(this.hmac.reset().process(a).process(new Uint8Array([g>>>24&255,g>>>16&255,g>>>8&255,255&g])).finish().result);this.result.set(k.subarray(0,i),h);for(var l=1;b>l;++l){k=new Uint8Array(this.hmac.reset().process(k).finish().result);for(var m=0;i>m;++m)this.result[h+m]^=k[m]}}return this}function H(a){return a=a||{},a.hmac instanceof A||(a.hmac=D()),E.call(this,a),this}function I(a,b,e){if(null!==this.result)throw new c("state must be reset before processing new data");if(!a&&!j(a))throw new d("bad 'salt' value");b=b||this.count,e=e||this.length,this.result=new Uint8Array(e);for(var f=Math.ceil(e/this.hmac.HMAC_SIZE),g=1;f>=g;++g){var h=(g-1)*this.hmac.HMAC_SIZE,i=(f>g?0:e%this.hmac.HMAC_SIZE)||this.hmac.HMAC_SIZE;this.hmac.reset().process(a),this.hmac.hash.asm.pbkdf2_generate_block(this.hmac.hash.pos,this.hmac.hash.len,g,b,0),this.result.set(this.hmac.hash.heap.subarray(0,i),h)}return this}function J(){return null===W&&(W=new H),W}function K(a,b,c,d){if(void 0===a)throw new SyntaxError("password required");if(void 0===b)throw new SyntaxError("salt required");return J().reset({password:a}).generate(b,c,d).result}function L(a,b,c,d){var e=K(a,b,c,d);return h(e)}function M(a,b,c,d){var e=K(a,b,c,d);return i(e)}c.prototype=Object.create(Error.prototype,{name:{value:"IllegalStateError"}}),d.prototype=Object.create(Error.prototype,{name:{value:"IllegalArgumentError"}}),e.prototype=Object.create(Error.prototype,{name:{value:"SecurityError"}});var N=(b.Float64Array||b.Float32Array,128),O=64;s.BLOCK_SIZE=N,s.HASH_SIZE=O;var P=s.prototype;P.reset=o,P.process=p,P.finish=q;var Q=null,R=u.prototype;R.reset=x,R.process=y,R.finish=z,A.BLOCK_SIZE=s.BLOCK_SIZE,A.HMAC_SIZE=s.HASH_SIZE;var S=A.prototype;S.reset=B,S.process=y,S.finish=C;var T=null,U=E.prototype;U.reset=F,U.generate=G;var V=H.prototype;V.reset=F,V.generate=I;var W=null;return a.PBKDF2_HMAC_SHA512={bytes:K,hex:L,base64:M},"function"==typeof define&&define.amd?define([],function(){return a}):"object"==typeof module&&module.exports?module.exports=a:b.asmCrypto=a,a}({},function(){return this}());
+function IllegalArgumentError () { var err = Error.apply( this, arguments ); this.message = err.message, this.stack = err.stack; }
+IllegalArgumentError.prototype = Object.create( Error.prototype, { name: { value: 'IllegalArgumentError' } } );
+
+function SecurityError () { var err = Error.apply( this, arguments ); this.message = err.message, this.stack = err.stack; }
+SecurityError.prototype = Object.create( Error.prototype, { name: { value: 'SecurityError' } } );
+
+var FloatArray = global.Float64Array || global.Float32Array; // make PhantomJS happy
+
+function string_to_bytes ( str, utf8 ) {
+    utf8 = !!utf8;
+
+    var len = str.length,
+        bytes = new Uint8Array( utf8 ? 4*len : len );
+
+    for ( var i = 0, j = 0; i < len; i++ ) {
+        var c = str.charCodeAt(i);
+
+        if ( utf8 && 0xd800 <= c && c <= 0xdbff ) {
+            if ( ++i >= len ) throw new Error( "Malformed string, low surrogate expected at position " + i );
+            c = ( (c ^ 0xd800) << 10 ) | 0x10000 | ( str.charCodeAt(i) ^ 0xdc00 );
+        }
+        else if ( !utf8 && c >>> 8 ) {
+            throw new Error("Wide characters are not allowed.");
+        }
+
+        if ( !utf8 || c <= 0x7f ) {
+            bytes[j++] = c;
+        }
+        else if ( c <= 0x7ff ) {
+            bytes[j++] = 0xc0 | (c >> 6);
+            bytes[j++] = 0x80 | (c & 0x3f);
+        }
+        else if ( c <= 0xffff ) {
+            bytes[j++] = 0xe0 | (c >> 12);
+            bytes[j++] = 0x80 | (c >> 6 & 0x3f);
+            bytes[j++] = 0x80 | (c & 0x3f);
+        }
+        else {
+            bytes[j++] = 0xf0 | (c >> 18);
+            bytes[j++] = 0x80 | (c >> 12 & 0x3f);
+            bytes[j++] = 0x80 | (c >> 6 & 0x3f);
+            bytes[j++] = 0x80 | (c & 0x3f);
+        }
+    }
+
+    return bytes.subarray(0, j);
+}
+
+function hex_to_bytes ( str ) {
+    var len = str.length;
+    if ( len & 1 ) {
+        str = '0'+str;
+        len++;
+    }
+    var bytes = new Uint8Array(len>>1);
+    for ( var i = 0; i < len; i += 2 ) {
+        bytes[i>>1] = parseInt( str.substr( i, 2), 16 );
+    }
+    return bytes;
+}
+
+function base64_to_bytes ( str ) {
+    return string_to_bytes( atob( str ) );
+}
+
+function bytes_to_string ( bytes, utf8 ) {
+    utf8 = !!utf8;
+
+    var len = bytes.length,
+        chars = new Array(len);
+
+    for ( var i = 0, j = 0; i < len; i++ ) {
+        var b = bytes[i];
+        if ( !utf8 || b < 128 ) {
+            chars[j++] = b;
+        }
+        else if ( b >= 192 && b < 224 && i+1 < len ) {
+            chars[j++] = ( (b & 0x1f) << 6 ) | (bytes[++i] & 0x3f);
+        }
+        else if ( b >= 224 && b < 240 && i+2 < len ) {
+            chars[j++] = ( (b & 0xf) << 12 ) | ( (bytes[++i] & 0x3f) << 6 ) | (bytes[++i] & 0x3f);
+        }
+        else if ( b >= 240 && b < 248 && i+3 < len ) {
+            var c = ( (b & 7) << 18 ) | ( (bytes[++i] & 0x3f) << 12 ) | ( (bytes[++i] & 0x3f) << 6 ) | (bytes[++i] & 0x3f);
+            if ( c <= 0xffff ) {
+                chars[j++] = c;
+            }
+            else {
+                c ^= 0x10000;
+                chars[j++] = 0xd800 | (c >> 10);
+                chars[j++] = 0xdc00 | (c & 0x3ff);
+            }
+        }
+        else {
+            throw new Error("Malformed UTF8 character at byte offset " + i);
+        }
+    }
+
+    var str = '',
+        bs = 16384;
+    for ( var i = 0; i < j; i += bs ) {
+        str += String.fromCharCode.apply( String, chars.slice( i, i+bs <= j ? i+bs : j ) );
+    }
+
+    return str;
+}
+
+function bytes_to_hex ( arr ) {
+    var str = '';
+    for ( var i = 0; i < arr.length; i++ ) {
+        var h = ( arr[i] & 0xff ).toString(16);
+        if ( h.length < 2 ) str += '0';
+        str += h;
+    }
+    return str;
+}
+
+function bytes_to_base64 ( arr ) {
+    return btoa( bytes_to_string(arr) );
+}
+
+function pow2_ceil ( a ) {
+    a -= 1;
+    a |= a >>> 1;
+    a |= a >>> 2;
+    a |= a >>> 4;
+    a |= a >>> 8;
+    a |= a >>> 16;
+    a += 1;
+    return a;
+}
+
+function is_number ( a ) {
+    return ( typeof a === 'number' );
+}
+
+function is_string ( a ) {
+    return ( typeof a === 'string' );
+}
+
+function is_buffer ( a ) {
+    return ( a instanceof ArrayBuffer );
+}
+
+function is_bytes ( a ) {
+    return ( a instanceof Uint8Array );
+}
+
+function is_typed_array ( a ) {
+    return ( a instanceof Int8Array ) || ( a instanceof Uint8Array )
+        || ( a instanceof Int16Array ) || ( a instanceof Uint16Array )
+        || ( a instanceof Int32Array ) || ( a instanceof Uint32Array )
+        || ( a instanceof Float32Array )
+        || ( a instanceof Float64Array );
+}
+
+function _heap_init ( constructor, options ) {
+    var heap = options.heap,
+        size = heap ? heap.byteLength : options.heapSize || 65536;
+
+    if ( size & 0xfff || size <= 0 )
+        throw new Error("heap size must be a positive integer and a multiple of 4096");
+
+    heap = heap || new constructor( new ArrayBuffer(size) );
+
+    return heap;
+}
+
+function _heap_write ( heap, hpos, data, dpos, dlen ) {
+    var hlen = heap.length - hpos,
+        wlen = ( hlen < dlen ) ? hlen : dlen;
+
+    heap.set( data.subarray( dpos, dpos+wlen ), hpos );
+
+    return wlen;
+}
+
+function hash_reset () {
+    this.result = null;
+    this.pos = 0;
+    this.len = 0;
+
+    this.asm.reset();
+
+    return this;
+}
+
+function hash_process ( data ) {
+    if ( this.result !== null )
+        throw new IllegalStateError("state must be reset before processing new data");
+
+    if ( is_string(data) )
+        data = string_to_bytes(data);
+
+    if ( is_buffer(data) )
+        data = new Uint8Array(data);
+
+    if ( !is_bytes(data) )
+        throw new TypeError("data isn't of expected type");
+
+    var asm = this.asm,
+        heap = this.heap,
+        hpos = this.pos,
+        hlen = this.len,
+        dpos = 0,
+        dlen = data.length,
+        wlen = 0;
+
+    while ( dlen > 0 ) {
+        wlen = _heap_write( heap, hpos+hlen, data, dpos, dlen );
+        hlen += wlen;
+        dpos += wlen;
+        dlen -= wlen;
+
+        wlen = asm.process( hpos, hlen );
+
+        hpos += wlen;
+        hlen -= wlen;
+
+        if ( !hlen ) hpos = 0;
+    }
+
+    this.pos = hpos;
+    this.len = hlen;
+
+    return this;
+}
+
+function hash_finish () {
+    if ( this.result !== null )
+        throw new IllegalStateError("state must be reset before processing new data");
+
+    this.asm.finish( this.pos, this.len, 0 );
+
+    this.result = new Uint8Array(this.HASH_SIZE);
+    this.result.set( this.heap.subarray( 0, this.HASH_SIZE ) );
+
+    this.pos = 0;
+    this.len = 0;
+
+    return this;
+}
+
+function sha512_asm ( stdlib, foreign, buffer ) {
+    "use asm";
+
+    // SHA512 state
+    var H0h = 0, H0l = 0, H1h = 0, H1l = 0, H2h = 0, H2l = 0, H3h = 0, H3l = 0,
+        H4h = 0, H4l = 0, H5h = 0, H5l = 0, H6h = 0, H6l = 0, H7h = 0, H7l = 0,
+        TOTAL0 = 0, TOTAL1 = 0;
+
+    // HMAC state
+    var I0h = 0, I0l = 0, I1h = 0, I1l = 0, I2h = 0, I2l = 0, I3h = 0, I3l = 0,
+        I4h = 0, I4l = 0, I5h = 0, I5l = 0, I6h = 0, I6l = 0, I7h = 0, I7l = 0,
+        O0h = 0, O0l = 0, O1h = 0, O1l = 0, O2h = 0, O2l = 0, O3h = 0, O3l = 0,
+        O4h = 0, O4l = 0, O5h = 0, O5l = 0, O6h = 0, O6l = 0, O7h = 0, O7l = 0;
+
+    // I/O buffer
+    var HEAP = new stdlib.Uint8Array(buffer);
+
+    function _core ( w0h, w0l, w1h, w1l, w2h, w2l, w3h, w3l, w4h, w4l, w5h, w5l, w6h, w6l, w7h, w7l, w8h, w8l, w9h, w9l, w10h, w10l, w11h, w11l, w12h, w12l, w13h, w13l, w14h, w14l, w15h, w15l ) {
+        w0h = w0h|0;
+        w0l = w0l|0;
+        w1h = w1h|0;
+        w1l = w1l|0;
+        w2h = w2h|0;
+        w2l = w2l|0;
+        w3h = w3h|0;
+        w3l = w3l|0;
+        w4h = w4h|0;
+        w4l = w4l|0;
+        w5h = w5h|0;
+        w5l = w5l|0;
+        w6h = w6h|0;
+        w6l = w6l|0;
+        w7h = w7h|0;
+        w7l = w7l|0;
+        w8h = w8h|0;
+        w8l = w8l|0;
+        w9h = w9h|0;
+        w9l = w9l|0;
+        w10h = w10h|0;
+        w10l = w10l|0;
+        w11h = w11h|0;
+        w11l = w11l|0;
+        w12h = w12h|0;
+        w12l = w12l|0;
+        w13h = w13h|0;
+        w13l = w13l|0;
+        w14h = w14h|0;
+        w14l = w14l|0;
+        w15h = w15h|0;
+        w15l = w15l|0;
+
+        var ah = 0, al = 0, bh = 0, bl = 0, ch = 0, cl = 0, dh = 0, dl = 0, eh = 0, el = 0, fh = 0, fl = 0, gh = 0, gl = 0, hh = 0, hl = 0,
+            th = 0, tl = 0, xl = 0;
+
+        ah = H0h;
+        al = H0l;
+        bh = H1h;
+        bl = H1l;
+        ch = H2h;
+        cl = H2l;
+        dh = H3h;
+        dl = H3l;
+        eh = H4h;
+        el = H4l;
+        fh = H5h;
+        fl = H5l;
+        gh = H6h;
+        gl = H6l;
+        hh = H7h;
+        hl = H7l;
+
+        // 0
+        tl = ( 0xd728ae22 + w0l )|0;
+        th = ( 0x428a2f98 + w0h + ((tl >>> 0) < (w0l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 1
+        tl = ( 0x23ef65cd + w1l )|0;
+        th = ( 0x71374491 + w1h + ((tl >>> 0) < (w1l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 2
+        tl = ( 0xec4d3b2f + w2l )|0;
+        th = ( 0xb5c0fbcf + w2h + ((tl >>> 0) < (w2l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 3
+        tl = ( 0x8189dbbc + w3l )|0;
+        th = ( 0xe9b5dba5 + w3h + ((tl >>> 0) < (w3l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 4
+        tl = ( 0xf348b538 + w4l )|0;
+        th = ( 0x3956c25b + w4h + ((tl >>> 0) < (w4l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 5
+        tl = ( 0xb605d019 + w5l )|0;
+        th = ( 0x59f111f1 + w5h + ((tl >>> 0) < (w5l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 6
+        tl = ( 0xaf194f9b + w6l )|0;
+        th = ( 0x923f82a4 + w6h + ((tl >>> 0) < (w6l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 7
+        tl = ( 0xda6d8118 + w7l )|0;
+        th = ( 0xab1c5ed5 + w7h + ((tl >>> 0) < (w7l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 8
+        tl = ( 0xa3030242 + w8l )|0;
+        th = ( 0xd807aa98 + w8h + ((tl >>> 0) < (w8l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 9
+        tl = ( 0x45706fbe + w9l )|0;
+        th = ( 0x12835b01 + w9h + ((tl >>> 0) < (w9l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 10
+        tl = ( 0x4ee4b28c + w10l )|0;
+        th = ( 0x243185be + w10h + ((tl >>> 0) < (w10l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 11
+        tl = ( 0xd5ffb4e2 + w11l )|0;
+        th = ( 0x550c7dc3 + w11h + ((tl >>> 0) < (w11l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 12
+        tl = ( 0xf27b896f + w12l )|0;
+        th = ( 0x72be5d74 + w12h + ((tl >>> 0) < (w12l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 13
+        tl = ( 0x3b1696b1 + w13l )|0;
+        th = ( 0x80deb1fe + w13h + ((tl >>> 0) < (w13l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 14
+        tl = ( 0x25c71235 + w14l )|0;
+        th = ( 0x9bdc06a7 + w14h + ((tl >>> 0) < (w14l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 15
+        tl = ( 0xcf692694 + w15l )|0;
+        th = ( 0xc19bf174 + w15h + ((tl >>> 0) < (w15l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 16
+        w0l = ( w0l + w9l )|0;
+        w0h = ( w0h + w9h + ((w0l >>> 0) < (w9l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w1l >>> 1) | (w1h << 31)) ^ ((w1l >>> 8) | (w1h << 24)) ^ ((w1l >>> 7) | (w1h << 25)) )|0;
+        w0l = ( w0l + xl)|0;
+        w0h = ( w0h + ( ((w1h >>> 1) | (w1l << 31)) ^ ((w1h >>> 8) | (w1l << 24)) ^ (w1h >>> 7) ) + ((w0l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w14l >>> 19) | (w14h << 13)) ^ ((w14l << 3) | (w14h >>> 29)) ^ ((w14l >>> 6) | (w14h << 26)) )|0;
+        w0l = ( w0l + xl)|0;
+        w0h = ( w0h + ( ((w14h >>> 19) | (w14l << 13)) ^ ((w14h << 3) | (w14l >>> 29)) ^ (w14h >>> 6) ) + ((w0l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x9ef14ad2 + w0l )|0;
+        th = ( 0xe49b69c1 + w0h + ((tl >>> 0) < (w0l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 17
+        w1l = ( w1l + w10l )|0;
+        w1h = ( w1h + w10h + ((w1l >>> 0) < (w10l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w2l >>> 1) | (w2h << 31)) ^ ((w2l >>> 8) | (w2h << 24)) ^ ((w2l >>> 7) | (w2h << 25)) )|0;
+        w1l = ( w1l + xl)|0;
+        w1h = ( w1h + ( ((w2h >>> 1) | (w2l << 31)) ^ ((w2h >>> 8) | (w2l << 24)) ^ (w2h >>> 7) ) + ((w1l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w15l >>> 19) | (w15h << 13)) ^ ((w15l << 3) | (w15h >>> 29)) ^ ((w15l >>> 6) | (w15h << 26)) )|0;
+        w1l = ( w1l + xl)|0;
+        w1h = ( w1h + ( ((w15h >>> 19) | (w15l << 13)) ^ ((w15h << 3) | (w15l >>> 29)) ^ (w15h >>> 6) ) + ((w1l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x384f25e3 + w1l )|0;
+        th = ( 0xefbe4786 + w1h + ((tl >>> 0) < (w1l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 18
+        w2l = ( w2l + w11l )|0;
+        w2h = ( w2h + w11h + ((w2l >>> 0) < (w11l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w3l >>> 1) | (w3h << 31)) ^ ((w3l >>> 8) | (w3h << 24)) ^ ((w3l >>> 7) | (w3h << 25)) )|0;
+        w2l = ( w2l + xl)|0;
+        w2h = ( w2h + ( ((w3h >>> 1) | (w3l << 31)) ^ ((w3h >>> 8) | (w3l << 24)) ^ (w3h >>> 7) ) + ((w2l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w0l >>> 19) | (w0h << 13)) ^ ((w0l << 3) | (w0h >>> 29)) ^ ((w0l >>> 6) | (w0h << 26)) )|0;
+        w2l = ( w2l + xl)|0;
+        w2h = ( w2h + ( ((w0h >>> 19) | (w0l << 13)) ^ ((w0h << 3) | (w0l >>> 29)) ^ (w0h >>> 6) ) + ((w2l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x8b8cd5b5 + w2l )|0;
+        th = ( 0xfc19dc6 + w2h + ((tl >>> 0) < (w2l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 19
+        w3l = ( w3l + w12l )|0;
+        w3h = ( w3h + w12h + ((w3l >>> 0) < (w12l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w4l >>> 1) | (w4h << 31)) ^ ((w4l >>> 8) | (w4h << 24)) ^ ((w4l >>> 7) | (w4h << 25)) )|0;
+        w3l = ( w3l + xl)|0;
+        w3h = ( w3h + ( ((w4h >>> 1) | (w4l << 31)) ^ ((w4h >>> 8) | (w4l << 24)) ^ (w4h >>> 7) ) + ((w3l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w1l >>> 19) | (w1h << 13)) ^ ((w1l << 3) | (w1h >>> 29)) ^ ((w1l >>> 6) | (w1h << 26)) )|0;
+        w3l = ( w3l + xl)|0;
+        w3h = ( w3h + ( ((w1h >>> 19) | (w1l << 13)) ^ ((w1h << 3) | (w1l >>> 29)) ^ (w1h >>> 6) ) + ((w3l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x77ac9c65 + w3l )|0;
+        th = ( 0x240ca1cc + w3h + ((tl >>> 0) < (w3l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 20
+        w4l = ( w4l + w13l )|0;
+        w4h = ( w4h + w13h + ((w4l >>> 0) < (w13l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w5l >>> 1) | (w5h << 31)) ^ ((w5l >>> 8) | (w5h << 24)) ^ ((w5l >>> 7) | (w5h << 25)) )|0;
+        w4l = ( w4l + xl)|0;
+        w4h = ( w4h + ( ((w5h >>> 1) | (w5l << 31)) ^ ((w5h >>> 8) | (w5l << 24)) ^ (w5h >>> 7) ) + ((w4l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w2l >>> 19) | (w2h << 13)) ^ ((w2l << 3) | (w2h >>> 29)) ^ ((w2l >>> 6) | (w2h << 26)) )|0;
+        w4l = ( w4l + xl)|0;
+        w4h = ( w4h + ( ((w2h >>> 19) | (w2l << 13)) ^ ((w2h << 3) | (w2l >>> 29)) ^ (w2h >>> 6) ) + ((w4l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x592b0275 + w4l )|0;
+        th = ( 0x2de92c6f + w4h + ((tl >>> 0) < (w4l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 21
+        w5l = ( w5l + w14l )|0;
+        w5h = ( w5h + w14h + ((w5l >>> 0) < (w14l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w6l >>> 1) | (w6h << 31)) ^ ((w6l >>> 8) | (w6h << 24)) ^ ((w6l >>> 7) | (w6h << 25)) )|0;
+        w5l = ( w5l + xl)|0;
+        w5h = ( w5h + ( ((w6h >>> 1) | (w6l << 31)) ^ ((w6h >>> 8) | (w6l << 24)) ^ (w6h >>> 7) ) + ((w5l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w3l >>> 19) | (w3h << 13)) ^ ((w3l << 3) | (w3h >>> 29)) ^ ((w3l >>> 6) | (w3h << 26)) )|0;
+        w5l = ( w5l + xl)|0;
+        w5h = ( w5h + ( ((w3h >>> 19) | (w3l << 13)) ^ ((w3h << 3) | (w3l >>> 29)) ^ (w3h >>> 6) ) + ((w5l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x6ea6e483 + w5l )|0;
+        th = ( 0x4a7484aa + w5h + ((tl >>> 0) < (w5l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 22
+        w6l = ( w6l + w15l )|0;
+        w6h = ( w6h + w15h + ((w6l >>> 0) < (w15l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w7l >>> 1) | (w7h << 31)) ^ ((w7l >>> 8) | (w7h << 24)) ^ ((w7l >>> 7) | (w7h << 25)) )|0;
+        w6l = ( w6l + xl)|0;
+        w6h = ( w6h + ( ((w7h >>> 1) | (w7l << 31)) ^ ((w7h >>> 8) | (w7l << 24)) ^ (w7h >>> 7) ) + ((w6l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w4l >>> 19) | (w4h << 13)) ^ ((w4l << 3) | (w4h >>> 29)) ^ ((w4l >>> 6) | (w4h << 26)) )|0;
+        w6l = ( w6l + xl)|0;
+        w6h = ( w6h + ( ((w4h >>> 19) | (w4l << 13)) ^ ((w4h << 3) | (w4l >>> 29)) ^ (w4h >>> 6) ) + ((w6l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xbd41fbd4 + w6l )|0;
+        th = ( 0x5cb0a9dc + w6h + ((tl >>> 0) < (w6l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 23
+        w7l = ( w7l + w0l )|0;
+        w7h = ( w7h + w0h + ((w7l >>> 0) < (w0l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w8l >>> 1) | (w8h << 31)) ^ ((w8l >>> 8) | (w8h << 24)) ^ ((w8l >>> 7) | (w8h << 25)) )|0;
+        w7l = ( w7l + xl)|0;
+        w7h = ( w7h + ( ((w8h >>> 1) | (w8l << 31)) ^ ((w8h >>> 8) | (w8l << 24)) ^ (w8h >>> 7) ) + ((w7l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w5l >>> 19) | (w5h << 13)) ^ ((w5l << 3) | (w5h >>> 29)) ^ ((w5l >>> 6) | (w5h << 26)) )|0;
+        w7l = ( w7l + xl)|0;
+        w7h = ( w7h + ( ((w5h >>> 19) | (w5l << 13)) ^ ((w5h << 3) | (w5l >>> 29)) ^ (w5h >>> 6) ) + ((w7l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x831153b5 + w7l )|0;
+        th = ( 0x76f988da + w7h + ((tl >>> 0) < (w7l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 24
+        w8l = ( w8l + w1l )|0;
+        w8h = ( w8h + w1h + ((w8l >>> 0) < (w1l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w9l >>> 1) | (w9h << 31)) ^ ((w9l >>> 8) | (w9h << 24)) ^ ((w9l >>> 7) | (w9h << 25)) )|0;
+        w8l = ( w8l + xl)|0;
+        w8h = ( w8h + ( ((w9h >>> 1) | (w9l << 31)) ^ ((w9h >>> 8) | (w9l << 24)) ^ (w9h >>> 7) ) + ((w8l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w6l >>> 19) | (w6h << 13)) ^ ((w6l << 3) | (w6h >>> 29)) ^ ((w6l >>> 6) | (w6h << 26)) )|0;
+        w8l = ( w8l + xl)|0;
+        w8h = ( w8h + ( ((w6h >>> 19) | (w6l << 13)) ^ ((w6h << 3) | (w6l >>> 29)) ^ (w6h >>> 6) ) + ((w8l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xee66dfab + w8l )|0;
+        th = ( 0x983e5152 + w8h + ((tl >>> 0) < (w8l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 25
+        w9l = ( w9l + w2l )|0;
+        w9h = ( w9h + w2h + ((w9l >>> 0) < (w2l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w10l >>> 1) | (w10h << 31)) ^ ((w10l >>> 8) | (w10h << 24)) ^ ((w10l >>> 7) | (w10h << 25)) )|0;
+        w9l = ( w9l + xl)|0;
+        w9h = ( w9h + ( ((w10h >>> 1) | (w10l << 31)) ^ ((w10h >>> 8) | (w10l << 24)) ^ (w10h >>> 7) ) + ((w9l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w7l >>> 19) | (w7h << 13)) ^ ((w7l << 3) | (w7h >>> 29)) ^ ((w7l >>> 6) | (w7h << 26)) )|0;
+        w9l = ( w9l + xl)|0;
+        w9h = ( w9h + ( ((w7h >>> 19) | (w7l << 13)) ^ ((w7h << 3) | (w7l >>> 29)) ^ (w7h >>> 6) ) + ((w9l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x2db43210 + w9l )|0;
+        th = ( 0xa831c66d + w9h + ((tl >>> 0) < (w9l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 26
+        w10l = ( w10l + w3l )|0;
+        w10h = ( w10h + w3h + ((w10l >>> 0) < (w3l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w11l >>> 1) | (w11h << 31)) ^ ((w11l >>> 8) | (w11h << 24)) ^ ((w11l >>> 7) | (w11h << 25)) )|0;
+        w10l = ( w10l + xl)|0;
+        w10h = ( w10h + ( ((w11h >>> 1) | (w11l << 31)) ^ ((w11h >>> 8) | (w11l << 24)) ^ (w11h >>> 7) ) + ((w10l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w8l >>> 19) | (w8h << 13)) ^ ((w8l << 3) | (w8h >>> 29)) ^ ((w8l >>> 6) | (w8h << 26)) )|0;
+        w10l = ( w10l + xl)|0;
+        w10h = ( w10h + ( ((w8h >>> 19) | (w8l << 13)) ^ ((w8h << 3) | (w8l >>> 29)) ^ (w8h >>> 6) ) + ((w10l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x98fb213f + w10l )|0;
+        th = ( 0xb00327c8 + w10h + ((tl >>> 0) < (w10l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 27
+        w11l = ( w11l + w4l )|0;
+        w11h = ( w11h + w4h + ((w11l >>> 0) < (w4l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w12l >>> 1) | (w12h << 31)) ^ ((w12l >>> 8) | (w12h << 24)) ^ ((w12l >>> 7) | (w12h << 25)) )|0;
+        w11l = ( w11l + xl)|0;
+        w11h = ( w11h + ( ((w12h >>> 1) | (w12l << 31)) ^ ((w12h >>> 8) | (w12l << 24)) ^ (w12h >>> 7) ) + ((w11l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w9l >>> 19) | (w9h << 13)) ^ ((w9l << 3) | (w9h >>> 29)) ^ ((w9l >>> 6) | (w9h << 26)) )|0;
+        w11l = ( w11l + xl)|0;
+        w11h = ( w11h + ( ((w9h >>> 19) | (w9l << 13)) ^ ((w9h << 3) | (w9l >>> 29)) ^ (w9h >>> 6) ) + ((w11l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xbeef0ee4 + w11l )|0;
+        th = ( 0xbf597fc7 + w11h + ((tl >>> 0) < (w11l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 28
+        w12l = ( w12l + w5l )|0;
+        w12h = ( w12h + w5h + ((w12l >>> 0) < (w5l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w13l >>> 1) | (w13h << 31)) ^ ((w13l >>> 8) | (w13h << 24)) ^ ((w13l >>> 7) | (w13h << 25)) )|0;
+        w12l = ( w12l + xl)|0;
+        w12h = ( w12h + ( ((w13h >>> 1) | (w13l << 31)) ^ ((w13h >>> 8) | (w13l << 24)) ^ (w13h >>> 7) ) + ((w12l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w10l >>> 19) | (w10h << 13)) ^ ((w10l << 3) | (w10h >>> 29)) ^ ((w10l >>> 6) | (w10h << 26)) )|0;
+        w12l = ( w12l + xl)|0;
+        w12h = ( w12h + ( ((w10h >>> 19) | (w10l << 13)) ^ ((w10h << 3) | (w10l >>> 29)) ^ (w10h >>> 6) ) + ((w12l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x3da88fc2 + w12l )|0;
+        th = ( 0xc6e00bf3 + w12h + ((tl >>> 0) < (w12l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 29
+        w13l = ( w13l + w6l )|0;
+        w13h = ( w13h + w6h + ((w13l >>> 0) < (w6l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w14l >>> 1) | (w14h << 31)) ^ ((w14l >>> 8) | (w14h << 24)) ^ ((w14l >>> 7) | (w14h << 25)) )|0;
+        w13l = ( w13l + xl)|0;
+        w13h = ( w13h + ( ((w14h >>> 1) | (w14l << 31)) ^ ((w14h >>> 8) | (w14l << 24)) ^ (w14h >>> 7) ) + ((w13l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w11l >>> 19) | (w11h << 13)) ^ ((w11l << 3) | (w11h >>> 29)) ^ ((w11l >>> 6) | (w11h << 26)) )|0;
+        w13l = ( w13l + xl)|0;
+        w13h = ( w13h + ( ((w11h >>> 19) | (w11l << 13)) ^ ((w11h << 3) | (w11l >>> 29)) ^ (w11h >>> 6) ) + ((w13l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x930aa725 + w13l )|0;
+        th = ( 0xd5a79147 + w13h + ((tl >>> 0) < (w13l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 30
+        w14l = ( w14l + w7l )|0;
+        w14h = ( w14h + w7h + ((w14l >>> 0) < (w7l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w15l >>> 1) | (w15h << 31)) ^ ((w15l >>> 8) | (w15h << 24)) ^ ((w15l >>> 7) | (w15h << 25)) )|0;
+        w14l = ( w14l + xl)|0;
+        w14h = ( w14h + ( ((w15h >>> 1) | (w15l << 31)) ^ ((w15h >>> 8) | (w15l << 24)) ^ (w15h >>> 7) ) + ((w14l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w12l >>> 19) | (w12h << 13)) ^ ((w12l << 3) | (w12h >>> 29)) ^ ((w12l >>> 6) | (w12h << 26)) )|0;
+        w14l = ( w14l + xl)|0;
+        w14h = ( w14h + ( ((w12h >>> 19) | (w12l << 13)) ^ ((w12h << 3) | (w12l >>> 29)) ^ (w12h >>> 6) ) + ((w14l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xe003826f + w14l )|0;
+        th = ( 0x6ca6351 + w14h + ((tl >>> 0) < (w14l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 31
+        w15l = ( w15l + w8l )|0;
+        w15h = ( w15h + w8h + ((w15l >>> 0) < (w8l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w0l >>> 1) | (w0h << 31)) ^ ((w0l >>> 8) | (w0h << 24)) ^ ((w0l >>> 7) | (w0h << 25)) )|0;
+        w15l = ( w15l + xl)|0;
+        w15h = ( w15h + ( ((w0h >>> 1) | (w0l << 31)) ^ ((w0h >>> 8) | (w0l << 24)) ^ (w0h >>> 7) ) + ((w15l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w13l >>> 19) | (w13h << 13)) ^ ((w13l << 3) | (w13h >>> 29)) ^ ((w13l >>> 6) | (w13h << 26)) )|0;
+        w15l = ( w15l + xl)|0;
+        w15h = ( w15h + ( ((w13h >>> 19) | (w13l << 13)) ^ ((w13h << 3) | (w13l >>> 29)) ^ (w13h >>> 6) ) + ((w15l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xa0e6e70 + w15l )|0;
+        th = ( 0x14292967 + w15h + ((tl >>> 0) < (w15l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 32
+        w0l = ( w0l + w9l )|0;
+        w0h = ( w0h + w9h + ((w0l >>> 0) < (w9l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w1l >>> 1) | (w1h << 31)) ^ ((w1l >>> 8) | (w1h << 24)) ^ ((w1l >>> 7) | (w1h << 25)) )|0;
+        w0l = ( w0l + xl)|0;
+        w0h = ( w0h + ( ((w1h >>> 1) | (w1l << 31)) ^ ((w1h >>> 8) | (w1l << 24)) ^ (w1h >>> 7) ) + ((w0l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w14l >>> 19) | (w14h << 13)) ^ ((w14l << 3) | (w14h >>> 29)) ^ ((w14l >>> 6) | (w14h << 26)) )|0;
+        w0l = ( w0l + xl)|0;
+        w0h = ( w0h + ( ((w14h >>> 19) | (w14l << 13)) ^ ((w14h << 3) | (w14l >>> 29)) ^ (w14h >>> 6) ) + ((w0l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x46d22ffc + w0l )|0;
+        th = ( 0x27b70a85 + w0h + ((tl >>> 0) < (w0l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 33
+        w1l = ( w1l + w10l )|0;
+        w1h = ( w1h + w10h + ((w1l >>> 0) < (w10l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w2l >>> 1) | (w2h << 31)) ^ ((w2l >>> 8) | (w2h << 24)) ^ ((w2l >>> 7) | (w2h << 25)) )|0;
+        w1l = ( w1l + xl)|0;
+        w1h = ( w1h + ( ((w2h >>> 1) | (w2l << 31)) ^ ((w2h >>> 8) | (w2l << 24)) ^ (w2h >>> 7) ) + ((w1l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w15l >>> 19) | (w15h << 13)) ^ ((w15l << 3) | (w15h >>> 29)) ^ ((w15l >>> 6) | (w15h << 26)) )|0;
+        w1l = ( w1l + xl)|0;
+        w1h = ( w1h + ( ((w15h >>> 19) | (w15l << 13)) ^ ((w15h << 3) | (w15l >>> 29)) ^ (w15h >>> 6) ) + ((w1l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x5c26c926 + w1l )|0;
+        th = ( 0x2e1b2138 + w1h + ((tl >>> 0) < (w1l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 34
+        w2l = ( w2l + w11l )|0;
+        w2h = ( w2h + w11h + ((w2l >>> 0) < (w11l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w3l >>> 1) | (w3h << 31)) ^ ((w3l >>> 8) | (w3h << 24)) ^ ((w3l >>> 7) | (w3h << 25)) )|0;
+        w2l = ( w2l + xl)|0;
+        w2h = ( w2h + ( ((w3h >>> 1) | (w3l << 31)) ^ ((w3h >>> 8) | (w3l << 24)) ^ (w3h >>> 7) ) + ((w2l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w0l >>> 19) | (w0h << 13)) ^ ((w0l << 3) | (w0h >>> 29)) ^ ((w0l >>> 6) | (w0h << 26)) )|0;
+        w2l = ( w2l + xl)|0;
+        w2h = ( w2h + ( ((w0h >>> 19) | (w0l << 13)) ^ ((w0h << 3) | (w0l >>> 29)) ^ (w0h >>> 6) ) + ((w2l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x5ac42aed + w2l )|0;
+        th = ( 0x4d2c6dfc + w2h + ((tl >>> 0) < (w2l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 35
+        w3l = ( w3l + w12l )|0;
+        w3h = ( w3h + w12h + ((w3l >>> 0) < (w12l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w4l >>> 1) | (w4h << 31)) ^ ((w4l >>> 8) | (w4h << 24)) ^ ((w4l >>> 7) | (w4h << 25)) )|0;
+        w3l = ( w3l + xl)|0;
+        w3h = ( w3h + ( ((w4h >>> 1) | (w4l << 31)) ^ ((w4h >>> 8) | (w4l << 24)) ^ (w4h >>> 7) ) + ((w3l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w1l >>> 19) | (w1h << 13)) ^ ((w1l << 3) | (w1h >>> 29)) ^ ((w1l >>> 6) | (w1h << 26)) )|0;
+        w3l = ( w3l + xl)|0;
+        w3h = ( w3h + ( ((w1h >>> 19) | (w1l << 13)) ^ ((w1h << 3) | (w1l >>> 29)) ^ (w1h >>> 6) ) + ((w3l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x9d95b3df + w3l )|0;
+        th = ( 0x53380d13 + w3h + ((tl >>> 0) < (w3l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 36
+        w4l = ( w4l + w13l )|0;
+        w4h = ( w4h + w13h + ((w4l >>> 0) < (w13l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w5l >>> 1) | (w5h << 31)) ^ ((w5l >>> 8) | (w5h << 24)) ^ ((w5l >>> 7) | (w5h << 25)) )|0;
+        w4l = ( w4l + xl)|0;
+        w4h = ( w4h + ( ((w5h >>> 1) | (w5l << 31)) ^ ((w5h >>> 8) | (w5l << 24)) ^ (w5h >>> 7) ) + ((w4l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w2l >>> 19) | (w2h << 13)) ^ ((w2l << 3) | (w2h >>> 29)) ^ ((w2l >>> 6) | (w2h << 26)) )|0;
+        w4l = ( w4l + xl)|0;
+        w4h = ( w4h + ( ((w2h >>> 19) | (w2l << 13)) ^ ((w2h << 3) | (w2l >>> 29)) ^ (w2h >>> 6) ) + ((w4l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x8baf63de + w4l )|0;
+        th = ( 0x650a7354 + w4h + ((tl >>> 0) < (w4l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 37
+        w5l = ( w5l + w14l )|0;
+        w5h = ( w5h + w14h + ((w5l >>> 0) < (w14l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w6l >>> 1) | (w6h << 31)) ^ ((w6l >>> 8) | (w6h << 24)) ^ ((w6l >>> 7) | (w6h << 25)) )|0;
+        w5l = ( w5l + xl)|0;
+        w5h = ( w5h + ( ((w6h >>> 1) | (w6l << 31)) ^ ((w6h >>> 8) | (w6l << 24)) ^ (w6h >>> 7) ) + ((w5l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w3l >>> 19) | (w3h << 13)) ^ ((w3l << 3) | (w3h >>> 29)) ^ ((w3l >>> 6) | (w3h << 26)) )|0;
+        w5l = ( w5l + xl)|0;
+        w5h = ( w5h + ( ((w3h >>> 19) | (w3l << 13)) ^ ((w3h << 3) | (w3l >>> 29)) ^ (w3h >>> 6) ) + ((w5l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x3c77b2a8 + w5l )|0;
+        th = ( 0x766a0abb + w5h + ((tl >>> 0) < (w5l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 38
+        w6l = ( w6l + w15l )|0;
+        w6h = ( w6h + w15h + ((w6l >>> 0) < (w15l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w7l >>> 1) | (w7h << 31)) ^ ((w7l >>> 8) | (w7h << 24)) ^ ((w7l >>> 7) | (w7h << 25)) )|0;
+        w6l = ( w6l + xl)|0;
+        w6h = ( w6h + ( ((w7h >>> 1) | (w7l << 31)) ^ ((w7h >>> 8) | (w7l << 24)) ^ (w7h >>> 7) ) + ((w6l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w4l >>> 19) | (w4h << 13)) ^ ((w4l << 3) | (w4h >>> 29)) ^ ((w4l >>> 6) | (w4h << 26)) )|0;
+        w6l = ( w6l + xl)|0;
+        w6h = ( w6h + ( ((w4h >>> 19) | (w4l << 13)) ^ ((w4h << 3) | (w4l >>> 29)) ^ (w4h >>> 6) ) + ((w6l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x47edaee6 + w6l )|0;
+        th = ( 0x81c2c92e + w6h + ((tl >>> 0) < (w6l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 39
+        w7l = ( w7l + w0l )|0;
+        w7h = ( w7h + w0h + ((w7l >>> 0) < (w0l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w8l >>> 1) | (w8h << 31)) ^ ((w8l >>> 8) | (w8h << 24)) ^ ((w8l >>> 7) | (w8h << 25)) )|0;
+        w7l = ( w7l + xl)|0;
+        w7h = ( w7h + ( ((w8h >>> 1) | (w8l << 31)) ^ ((w8h >>> 8) | (w8l << 24)) ^ (w8h >>> 7) ) + ((w7l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w5l >>> 19) | (w5h << 13)) ^ ((w5l << 3) | (w5h >>> 29)) ^ ((w5l >>> 6) | (w5h << 26)) )|0;
+        w7l = ( w7l + xl)|0;
+        w7h = ( w7h + ( ((w5h >>> 19) | (w5l << 13)) ^ ((w5h << 3) | (w5l >>> 29)) ^ (w5h >>> 6) ) + ((w7l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x1482353b + w7l )|0;
+        th = ( 0x92722c85 + w7h + ((tl >>> 0) < (w7l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 40
+        w8l = ( w8l + w1l )|0;
+        w8h = ( w8h + w1h + ((w8l >>> 0) < (w1l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w9l >>> 1) | (w9h << 31)) ^ ((w9l >>> 8) | (w9h << 24)) ^ ((w9l >>> 7) | (w9h << 25)) )|0;
+        w8l = ( w8l + xl)|0;
+        w8h = ( w8h + ( ((w9h >>> 1) | (w9l << 31)) ^ ((w9h >>> 8) | (w9l << 24)) ^ (w9h >>> 7) ) + ((w8l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w6l >>> 19) | (w6h << 13)) ^ ((w6l << 3) | (w6h >>> 29)) ^ ((w6l >>> 6) | (w6h << 26)) )|0;
+        w8l = ( w8l + xl)|0;
+        w8h = ( w8h + ( ((w6h >>> 19) | (w6l << 13)) ^ ((w6h << 3) | (w6l >>> 29)) ^ (w6h >>> 6) ) + ((w8l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x4cf10364 + w8l )|0;
+        th = ( 0xa2bfe8a1 + w8h + ((tl >>> 0) < (w8l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 41
+        w9l = ( w9l + w2l )|0;
+        w9h = ( w9h + w2h + ((w9l >>> 0) < (w2l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w10l >>> 1) | (w10h << 31)) ^ ((w10l >>> 8) | (w10h << 24)) ^ ((w10l >>> 7) | (w10h << 25)) )|0;
+        w9l = ( w9l + xl)|0;
+        w9h = ( w9h + ( ((w10h >>> 1) | (w10l << 31)) ^ ((w10h >>> 8) | (w10l << 24)) ^ (w10h >>> 7) ) + ((w9l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w7l >>> 19) | (w7h << 13)) ^ ((w7l << 3) | (w7h >>> 29)) ^ ((w7l >>> 6) | (w7h << 26)) )|0;
+        w9l = ( w9l + xl)|0;
+        w9h = ( w9h + ( ((w7h >>> 19) | (w7l << 13)) ^ ((w7h << 3) | (w7l >>> 29)) ^ (w7h >>> 6) ) + ((w9l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xbc423001 + w9l )|0;
+        th = ( 0xa81a664b + w9h + ((tl >>> 0) < (w9l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 42
+        w10l = ( w10l + w3l )|0;
+        w10h = ( w10h + w3h + ((w10l >>> 0) < (w3l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w11l >>> 1) | (w11h << 31)) ^ ((w11l >>> 8) | (w11h << 24)) ^ ((w11l >>> 7) | (w11h << 25)) )|0;
+        w10l = ( w10l + xl)|0;
+        w10h = ( w10h + ( ((w11h >>> 1) | (w11l << 31)) ^ ((w11h >>> 8) | (w11l << 24)) ^ (w11h >>> 7) ) + ((w10l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w8l >>> 19) | (w8h << 13)) ^ ((w8l << 3) | (w8h >>> 29)) ^ ((w8l >>> 6) | (w8h << 26)) )|0;
+        w10l = ( w10l + xl)|0;
+        w10h = ( w10h + ( ((w8h >>> 19) | (w8l << 13)) ^ ((w8h << 3) | (w8l >>> 29)) ^ (w8h >>> 6) ) + ((w10l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xd0f89791 + w10l )|0;
+        th = ( 0xc24b8b70 + w10h + ((tl >>> 0) < (w10l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 43
+        w11l = ( w11l + w4l )|0;
+        w11h = ( w11h + w4h + ((w11l >>> 0) < (w4l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w12l >>> 1) | (w12h << 31)) ^ ((w12l >>> 8) | (w12h << 24)) ^ ((w12l >>> 7) | (w12h << 25)) )|0;
+        w11l = ( w11l + xl)|0;
+        w11h = ( w11h + ( ((w12h >>> 1) | (w12l << 31)) ^ ((w12h >>> 8) | (w12l << 24)) ^ (w12h >>> 7) ) + ((w11l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w9l >>> 19) | (w9h << 13)) ^ ((w9l << 3) | (w9h >>> 29)) ^ ((w9l >>> 6) | (w9h << 26)) )|0;
+        w11l = ( w11l + xl)|0;
+        w11h = ( w11h + ( ((w9h >>> 19) | (w9l << 13)) ^ ((w9h << 3) | (w9l >>> 29)) ^ (w9h >>> 6) ) + ((w11l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x654be30 + w11l )|0;
+        th = ( 0xc76c51a3 + w11h + ((tl >>> 0) < (w11l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 44
+        w12l = ( w12l + w5l )|0;
+        w12h = ( w12h + w5h + ((w12l >>> 0) < (w5l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w13l >>> 1) | (w13h << 31)) ^ ((w13l >>> 8) | (w13h << 24)) ^ ((w13l >>> 7) | (w13h << 25)) )|0;
+        w12l = ( w12l + xl)|0;
+        w12h = ( w12h + ( ((w13h >>> 1) | (w13l << 31)) ^ ((w13h >>> 8) | (w13l << 24)) ^ (w13h >>> 7) ) + ((w12l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w10l >>> 19) | (w10h << 13)) ^ ((w10l << 3) | (w10h >>> 29)) ^ ((w10l >>> 6) | (w10h << 26)) )|0;
+        w12l = ( w12l + xl)|0;
+        w12h = ( w12h + ( ((w10h >>> 19) | (w10l << 13)) ^ ((w10h << 3) | (w10l >>> 29)) ^ (w10h >>> 6) ) + ((w12l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xd6ef5218 + w12l )|0;
+        th = ( 0xd192e819 + w12h + ((tl >>> 0) < (w12l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 45
+        w13l = ( w13l + w6l )|0;
+        w13h = ( w13h + w6h + ((w13l >>> 0) < (w6l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w14l >>> 1) | (w14h << 31)) ^ ((w14l >>> 8) | (w14h << 24)) ^ ((w14l >>> 7) | (w14h << 25)) )|0;
+        w13l = ( w13l + xl)|0;
+        w13h = ( w13h + ( ((w14h >>> 1) | (w14l << 31)) ^ ((w14h >>> 8) | (w14l << 24)) ^ (w14h >>> 7) ) + ((w13l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w11l >>> 19) | (w11h << 13)) ^ ((w11l << 3) | (w11h >>> 29)) ^ ((w11l >>> 6) | (w11h << 26)) )|0;
+        w13l = ( w13l + xl)|0;
+        w13h = ( w13h + ( ((w11h >>> 19) | (w11l << 13)) ^ ((w11h << 3) | (w11l >>> 29)) ^ (w11h >>> 6) ) + ((w13l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x5565a910 + w13l )|0;
+        th = ( 0xd6990624 + w13h + ((tl >>> 0) < (w13l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 46
+        w14l = ( w14l + w7l )|0;
+        w14h = ( w14h + w7h + ((w14l >>> 0) < (w7l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w15l >>> 1) | (w15h << 31)) ^ ((w15l >>> 8) | (w15h << 24)) ^ ((w15l >>> 7) | (w15h << 25)) )|0;
+        w14l = ( w14l + xl)|0;
+        w14h = ( w14h + ( ((w15h >>> 1) | (w15l << 31)) ^ ((w15h >>> 8) | (w15l << 24)) ^ (w15h >>> 7) ) + ((w14l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w12l >>> 19) | (w12h << 13)) ^ ((w12l << 3) | (w12h >>> 29)) ^ ((w12l >>> 6) | (w12h << 26)) )|0;
+        w14l = ( w14l + xl)|0;
+        w14h = ( w14h + ( ((w12h >>> 19) | (w12l << 13)) ^ ((w12h << 3) | (w12l >>> 29)) ^ (w12h >>> 6) ) + ((w14l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x5771202a + w14l )|0;
+        th = ( 0xf40e3585 + w14h + ((tl >>> 0) < (w14l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 47
+        w15l = ( w15l + w8l )|0;
+        w15h = ( w15h + w8h + ((w15l >>> 0) < (w8l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w0l >>> 1) | (w0h << 31)) ^ ((w0l >>> 8) | (w0h << 24)) ^ ((w0l >>> 7) | (w0h << 25)) )|0;
+        w15l = ( w15l + xl)|0;
+        w15h = ( w15h + ( ((w0h >>> 1) | (w0l << 31)) ^ ((w0h >>> 8) | (w0l << 24)) ^ (w0h >>> 7) ) + ((w15l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w13l >>> 19) | (w13h << 13)) ^ ((w13l << 3) | (w13h >>> 29)) ^ ((w13l >>> 6) | (w13h << 26)) )|0;
+        w15l = ( w15l + xl)|0;
+        w15h = ( w15h + ( ((w13h >>> 19) | (w13l << 13)) ^ ((w13h << 3) | (w13l >>> 29)) ^ (w13h >>> 6) ) + ((w15l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x32bbd1b8 + w15l )|0;
+        th = ( 0x106aa070 + w15h + ((tl >>> 0) < (w15l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 48
+        w0l = ( w0l + w9l )|0;
+        w0h = ( w0h + w9h + ((w0l >>> 0) < (w9l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w1l >>> 1) | (w1h << 31)) ^ ((w1l >>> 8) | (w1h << 24)) ^ ((w1l >>> 7) | (w1h << 25)) )|0;
+        w0l = ( w0l + xl)|0;
+        w0h = ( w0h + ( ((w1h >>> 1) | (w1l << 31)) ^ ((w1h >>> 8) | (w1l << 24)) ^ (w1h >>> 7) ) + ((w0l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w14l >>> 19) | (w14h << 13)) ^ ((w14l << 3) | (w14h >>> 29)) ^ ((w14l >>> 6) | (w14h << 26)) )|0;
+        w0l = ( w0l + xl)|0;
+        w0h = ( w0h + ( ((w14h >>> 19) | (w14l << 13)) ^ ((w14h << 3) | (w14l >>> 29)) ^ (w14h >>> 6) ) + ((w0l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xb8d2d0c8 + w0l )|0;
+        th = ( 0x19a4c116 + w0h + ((tl >>> 0) < (w0l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 49
+        w1l = ( w1l + w10l )|0;
+        w1h = ( w1h + w10h + ((w1l >>> 0) < (w10l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w2l >>> 1) | (w2h << 31)) ^ ((w2l >>> 8) | (w2h << 24)) ^ ((w2l >>> 7) | (w2h << 25)) )|0;
+        w1l = ( w1l + xl)|0;
+        w1h = ( w1h + ( ((w2h >>> 1) | (w2l << 31)) ^ ((w2h >>> 8) | (w2l << 24)) ^ (w2h >>> 7) ) + ((w1l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w15l >>> 19) | (w15h << 13)) ^ ((w15l << 3) | (w15h >>> 29)) ^ ((w15l >>> 6) | (w15h << 26)) )|0;
+        w1l = ( w1l + xl)|0;
+        w1h = ( w1h + ( ((w15h >>> 19) | (w15l << 13)) ^ ((w15h << 3) | (w15l >>> 29)) ^ (w15h >>> 6) ) + ((w1l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x5141ab53 + w1l )|0;
+        th = ( 0x1e376c08 + w1h + ((tl >>> 0) < (w1l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 50
+        w2l = ( w2l + w11l )|0;
+        w2h = ( w2h + w11h + ((w2l >>> 0) < (w11l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w3l >>> 1) | (w3h << 31)) ^ ((w3l >>> 8) | (w3h << 24)) ^ ((w3l >>> 7) | (w3h << 25)) )|0;
+        w2l = ( w2l + xl)|0;
+        w2h = ( w2h + ( ((w3h >>> 1) | (w3l << 31)) ^ ((w3h >>> 8) | (w3l << 24)) ^ (w3h >>> 7) ) + ((w2l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w0l >>> 19) | (w0h << 13)) ^ ((w0l << 3) | (w0h >>> 29)) ^ ((w0l >>> 6) | (w0h << 26)) )|0;
+        w2l = ( w2l + xl)|0;
+        w2h = ( w2h + ( ((w0h >>> 19) | (w0l << 13)) ^ ((w0h << 3) | (w0l >>> 29)) ^ (w0h >>> 6) ) + ((w2l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xdf8eeb99 + w2l )|0;
+        th = ( 0x2748774c + w2h + ((tl >>> 0) < (w2l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 51
+        w3l = ( w3l + w12l )|0;
+        w3h = ( w3h + w12h + ((w3l >>> 0) < (w12l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w4l >>> 1) | (w4h << 31)) ^ ((w4l >>> 8) | (w4h << 24)) ^ ((w4l >>> 7) | (w4h << 25)) )|0;
+        w3l = ( w3l + xl)|0;
+        w3h = ( w3h + ( ((w4h >>> 1) | (w4l << 31)) ^ ((w4h >>> 8) | (w4l << 24)) ^ (w4h >>> 7) ) + ((w3l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w1l >>> 19) | (w1h << 13)) ^ ((w1l << 3) | (w1h >>> 29)) ^ ((w1l >>> 6) | (w1h << 26)) )|0;
+        w3l = ( w3l + xl)|0;
+        w3h = ( w3h + ( ((w1h >>> 19) | (w1l << 13)) ^ ((w1h << 3) | (w1l >>> 29)) ^ (w1h >>> 6) ) + ((w3l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xe19b48a8 + w3l )|0;
+        th = ( 0x34b0bcb5 + w3h + ((tl >>> 0) < (w3l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 52
+        w4l = ( w4l + w13l )|0;
+        w4h = ( w4h + w13h + ((w4l >>> 0) < (w13l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w5l >>> 1) | (w5h << 31)) ^ ((w5l >>> 8) | (w5h << 24)) ^ ((w5l >>> 7) | (w5h << 25)) )|0;
+        w4l = ( w4l + xl)|0;
+        w4h = ( w4h + ( ((w5h >>> 1) | (w5l << 31)) ^ ((w5h >>> 8) | (w5l << 24)) ^ (w5h >>> 7) ) + ((w4l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w2l >>> 19) | (w2h << 13)) ^ ((w2l << 3) | (w2h >>> 29)) ^ ((w2l >>> 6) | (w2h << 26)) )|0;
+        w4l = ( w4l + xl)|0;
+        w4h = ( w4h + ( ((w2h >>> 19) | (w2l << 13)) ^ ((w2h << 3) | (w2l >>> 29)) ^ (w2h >>> 6) ) + ((w4l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xc5c95a63 + w4l )|0;
+        th = ( 0x391c0cb3 + w4h + ((tl >>> 0) < (w4l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 53
+        w5l = ( w5l + w14l )|0;
+        w5h = ( w5h + w14h + ((w5l >>> 0) < (w14l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w6l >>> 1) | (w6h << 31)) ^ ((w6l >>> 8) | (w6h << 24)) ^ ((w6l >>> 7) | (w6h << 25)) )|0;
+        w5l = ( w5l + xl)|0;
+        w5h = ( w5h + ( ((w6h >>> 1) | (w6l << 31)) ^ ((w6h >>> 8) | (w6l << 24)) ^ (w6h >>> 7) ) + ((w5l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w3l >>> 19) | (w3h << 13)) ^ ((w3l << 3) | (w3h >>> 29)) ^ ((w3l >>> 6) | (w3h << 26)) )|0;
+        w5l = ( w5l + xl)|0;
+        w5h = ( w5h + ( ((w3h >>> 19) | (w3l << 13)) ^ ((w3h << 3) | (w3l >>> 29)) ^ (w3h >>> 6) ) + ((w5l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xe3418acb + w5l )|0;
+        th = ( 0x4ed8aa4a + w5h + ((tl >>> 0) < (w5l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 54
+        w6l = ( w6l + w15l )|0;
+        w6h = ( w6h + w15h + ((w6l >>> 0) < (w15l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w7l >>> 1) | (w7h << 31)) ^ ((w7l >>> 8) | (w7h << 24)) ^ ((w7l >>> 7) | (w7h << 25)) )|0;
+        w6l = ( w6l + xl)|0;
+        w6h = ( w6h + ( ((w7h >>> 1) | (w7l << 31)) ^ ((w7h >>> 8) | (w7l << 24)) ^ (w7h >>> 7) ) + ((w6l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w4l >>> 19) | (w4h << 13)) ^ ((w4l << 3) | (w4h >>> 29)) ^ ((w4l >>> 6) | (w4h << 26)) )|0;
+        w6l = ( w6l + xl)|0;
+        w6h = ( w6h + ( ((w4h >>> 19) | (w4l << 13)) ^ ((w4h << 3) | (w4l >>> 29)) ^ (w4h >>> 6) ) + ((w6l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x7763e373 + w6l )|0;
+        th = ( 0x5b9cca4f + w6h + ((tl >>> 0) < (w6l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 55
+        w7l = ( w7l + w0l )|0;
+        w7h = ( w7h + w0h + ((w7l >>> 0) < (w0l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w8l >>> 1) | (w8h << 31)) ^ ((w8l >>> 8) | (w8h << 24)) ^ ((w8l >>> 7) | (w8h << 25)) )|0;
+        w7l = ( w7l + xl)|0;
+        w7h = ( w7h + ( ((w8h >>> 1) | (w8l << 31)) ^ ((w8h >>> 8) | (w8l << 24)) ^ (w8h >>> 7) ) + ((w7l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w5l >>> 19) | (w5h << 13)) ^ ((w5l << 3) | (w5h >>> 29)) ^ ((w5l >>> 6) | (w5h << 26)) )|0;
+        w7l = ( w7l + xl)|0;
+        w7h = ( w7h + ( ((w5h >>> 19) | (w5l << 13)) ^ ((w5h << 3) | (w5l >>> 29)) ^ (w5h >>> 6) ) + ((w7l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xd6b2b8a3 + w7l )|0;
+        th = ( 0x682e6ff3 + w7h + ((tl >>> 0) < (w7l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 56
+        w8l = ( w8l + w1l )|0;
+        w8h = ( w8h + w1h + ((w8l >>> 0) < (w1l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w9l >>> 1) | (w9h << 31)) ^ ((w9l >>> 8) | (w9h << 24)) ^ ((w9l >>> 7) | (w9h << 25)) )|0;
+        w8l = ( w8l + xl)|0;
+        w8h = ( w8h + ( ((w9h >>> 1) | (w9l << 31)) ^ ((w9h >>> 8) | (w9l << 24)) ^ (w9h >>> 7) ) + ((w8l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w6l >>> 19) | (w6h << 13)) ^ ((w6l << 3) | (w6h >>> 29)) ^ ((w6l >>> 6) | (w6h << 26)) )|0;
+        w8l = ( w8l + xl)|0;
+        w8h = ( w8h + ( ((w6h >>> 19) | (w6l << 13)) ^ ((w6h << 3) | (w6l >>> 29)) ^ (w6h >>> 6) ) + ((w8l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x5defb2fc + w8l )|0;
+        th = ( 0x748f82ee + w8h + ((tl >>> 0) < (w8l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 57
+        w9l = ( w9l + w2l )|0;
+        w9h = ( w9h + w2h + ((w9l >>> 0) < (w2l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w10l >>> 1) | (w10h << 31)) ^ ((w10l >>> 8) | (w10h << 24)) ^ ((w10l >>> 7) | (w10h << 25)) )|0;
+        w9l = ( w9l + xl)|0;
+        w9h = ( w9h + ( ((w10h >>> 1) | (w10l << 31)) ^ ((w10h >>> 8) | (w10l << 24)) ^ (w10h >>> 7) ) + ((w9l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w7l >>> 19) | (w7h << 13)) ^ ((w7l << 3) | (w7h >>> 29)) ^ ((w7l >>> 6) | (w7h << 26)) )|0;
+        w9l = ( w9l + xl)|0;
+        w9h = ( w9h + ( ((w7h >>> 19) | (w7l << 13)) ^ ((w7h << 3) | (w7l >>> 29)) ^ (w7h >>> 6) ) + ((w9l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x43172f60 + w9l )|0;
+        th = ( 0x78a5636f + w9h + ((tl >>> 0) < (w9l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 58
+        w10l = ( w10l + w3l )|0;
+        w10h = ( w10h + w3h + ((w10l >>> 0) < (w3l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w11l >>> 1) | (w11h << 31)) ^ ((w11l >>> 8) | (w11h << 24)) ^ ((w11l >>> 7) | (w11h << 25)) )|0;
+        w10l = ( w10l + xl)|0;
+        w10h = ( w10h + ( ((w11h >>> 1) | (w11l << 31)) ^ ((w11h >>> 8) | (w11l << 24)) ^ (w11h >>> 7) ) + ((w10l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w8l >>> 19) | (w8h << 13)) ^ ((w8l << 3) | (w8h >>> 29)) ^ ((w8l >>> 6) | (w8h << 26)) )|0;
+        w10l = ( w10l + xl)|0;
+        w10h = ( w10h + ( ((w8h >>> 19) | (w8l << 13)) ^ ((w8h << 3) | (w8l >>> 29)) ^ (w8h >>> 6) ) + ((w10l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xa1f0ab72 + w10l )|0;
+        th = ( 0x84c87814 + w10h + ((tl >>> 0) < (w10l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 59
+        w11l = ( w11l + w4l )|0;
+        w11h = ( w11h + w4h + ((w11l >>> 0) < (w4l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w12l >>> 1) | (w12h << 31)) ^ ((w12l >>> 8) | (w12h << 24)) ^ ((w12l >>> 7) | (w12h << 25)) )|0;
+        w11l = ( w11l + xl)|0;
+        w11h = ( w11h + ( ((w12h >>> 1) | (w12l << 31)) ^ ((w12h >>> 8) | (w12l << 24)) ^ (w12h >>> 7) ) + ((w11l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w9l >>> 19) | (w9h << 13)) ^ ((w9l << 3) | (w9h >>> 29)) ^ ((w9l >>> 6) | (w9h << 26)) )|0;
+        w11l = ( w11l + xl)|0;
+        w11h = ( w11h + ( ((w9h >>> 19) | (w9l << 13)) ^ ((w9h << 3) | (w9l >>> 29)) ^ (w9h >>> 6) ) + ((w11l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x1a6439ec + w11l )|0;
+        th = ( 0x8cc70208 + w11h + ((tl >>> 0) < (w11l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 60
+        w12l = ( w12l + w5l )|0;
+        w12h = ( w12h + w5h + ((w12l >>> 0) < (w5l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w13l >>> 1) | (w13h << 31)) ^ ((w13l >>> 8) | (w13h << 24)) ^ ((w13l >>> 7) | (w13h << 25)) )|0;
+        w12l = ( w12l + xl)|0;
+        w12h = ( w12h + ( ((w13h >>> 1) | (w13l << 31)) ^ ((w13h >>> 8) | (w13l << 24)) ^ (w13h >>> 7) ) + ((w12l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w10l >>> 19) | (w10h << 13)) ^ ((w10l << 3) | (w10h >>> 29)) ^ ((w10l >>> 6) | (w10h << 26)) )|0;
+        w12l = ( w12l + xl)|0;
+        w12h = ( w12h + ( ((w10h >>> 19) | (w10l << 13)) ^ ((w10h << 3) | (w10l >>> 29)) ^ (w10h >>> 6) ) + ((w12l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x23631e28 + w12l )|0;
+        th = ( 0x90befffa + w12h + ((tl >>> 0) < (w12l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 61
+        w13l = ( w13l + w6l )|0;
+        w13h = ( w13h + w6h + ((w13l >>> 0) < (w6l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w14l >>> 1) | (w14h << 31)) ^ ((w14l >>> 8) | (w14h << 24)) ^ ((w14l >>> 7) | (w14h << 25)) )|0;
+        w13l = ( w13l + xl)|0;
+        w13h = ( w13h + ( ((w14h >>> 1) | (w14l << 31)) ^ ((w14h >>> 8) | (w14l << 24)) ^ (w14h >>> 7) ) + ((w13l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w11l >>> 19) | (w11h << 13)) ^ ((w11l << 3) | (w11h >>> 29)) ^ ((w11l >>> 6) | (w11h << 26)) )|0;
+        w13l = ( w13l + xl)|0;
+        w13h = ( w13h + ( ((w11h >>> 19) | (w11l << 13)) ^ ((w11h << 3) | (w11l >>> 29)) ^ (w11h >>> 6) ) + ((w13l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xde82bde9 + w13l )|0;
+        th = ( 0xa4506ceb + w13h + ((tl >>> 0) < (w13l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 62
+        w14l = ( w14l + w7l )|0;
+        w14h = ( w14h + w7h + ((w14l >>> 0) < (w7l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w15l >>> 1) | (w15h << 31)) ^ ((w15l >>> 8) | (w15h << 24)) ^ ((w15l >>> 7) | (w15h << 25)) )|0;
+        w14l = ( w14l + xl)|0;
+        w14h = ( w14h + ( ((w15h >>> 1) | (w15l << 31)) ^ ((w15h >>> 8) | (w15l << 24)) ^ (w15h >>> 7) ) + ((w14l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w12l >>> 19) | (w12h << 13)) ^ ((w12l << 3) | (w12h >>> 29)) ^ ((w12l >>> 6) | (w12h << 26)) )|0;
+        w14l = ( w14l + xl)|0;
+        w14h = ( w14h + ( ((w12h >>> 19) | (w12l << 13)) ^ ((w12h << 3) | (w12l >>> 29)) ^ (w12h >>> 6) ) + ((w14l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xb2c67915 + w14l )|0;
+        th = ( 0xbef9a3f7 + w14h + ((tl >>> 0) < (w14l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 63
+        w15l = ( w15l + w8l )|0;
+        w15h = ( w15h + w8h + ((w15l >>> 0) < (w8l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w0l >>> 1) | (w0h << 31)) ^ ((w0l >>> 8) | (w0h << 24)) ^ ((w0l >>> 7) | (w0h << 25)) )|0;
+        w15l = ( w15l + xl)|0;
+        w15h = ( w15h + ( ((w0h >>> 1) | (w0l << 31)) ^ ((w0h >>> 8) | (w0l << 24)) ^ (w0h >>> 7) ) + ((w15l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w13l >>> 19) | (w13h << 13)) ^ ((w13l << 3) | (w13h >>> 29)) ^ ((w13l >>> 6) | (w13h << 26)) )|0;
+        w15l = ( w15l + xl)|0;
+        w15h = ( w15h + ( ((w13h >>> 19) | (w13l << 13)) ^ ((w13h << 3) | (w13l >>> 29)) ^ (w13h >>> 6) ) + ((w15l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xe372532b + w15l )|0;
+        th = ( 0xc67178f2 + w15h + ((tl >>> 0) < (w15l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 64
+        w0l = ( w0l + w9l )|0;
+        w0h = ( w0h + w9h + ((w0l >>> 0) < (w9l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w1l >>> 1) | (w1h << 31)) ^ ((w1l >>> 8) | (w1h << 24)) ^ ((w1l >>> 7) | (w1h << 25)) )|0;
+        w0l = ( w0l + xl)|0;
+        w0h = ( w0h + ( ((w1h >>> 1) | (w1l << 31)) ^ ((w1h >>> 8) | (w1l << 24)) ^ (w1h >>> 7) ) + ((w0l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w14l >>> 19) | (w14h << 13)) ^ ((w14l << 3) | (w14h >>> 29)) ^ ((w14l >>> 6) | (w14h << 26)) )|0;
+        w0l = ( w0l + xl)|0;
+        w0h = ( w0h + ( ((w14h >>> 19) | (w14l << 13)) ^ ((w14h << 3) | (w14l >>> 29)) ^ (w14h >>> 6) ) + ((w0l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xea26619c + w0l )|0;
+        th = ( 0xca273ece + w0h + ((tl >>> 0) < (w0l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 65
+        w1l = ( w1l + w10l )|0;
+        w1h = ( w1h + w10h + ((w1l >>> 0) < (w10l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w2l >>> 1) | (w2h << 31)) ^ ((w2l >>> 8) | (w2h << 24)) ^ ((w2l >>> 7) | (w2h << 25)) )|0;
+        w1l = ( w1l + xl)|0;
+        w1h = ( w1h + ( ((w2h >>> 1) | (w2l << 31)) ^ ((w2h >>> 8) | (w2l << 24)) ^ (w2h >>> 7) ) + ((w1l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w15l >>> 19) | (w15h << 13)) ^ ((w15l << 3) | (w15h >>> 29)) ^ ((w15l >>> 6) | (w15h << 26)) )|0;
+        w1l = ( w1l + xl)|0;
+        w1h = ( w1h + ( ((w15h >>> 19) | (w15l << 13)) ^ ((w15h << 3) | (w15l >>> 29)) ^ (w15h >>> 6) ) + ((w1l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x21c0c207 + w1l )|0;
+        th = ( 0xd186b8c7 + w1h + ((tl >>> 0) < (w1l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 66
+        w2l = ( w2l + w11l )|0;
+        w2h = ( w2h + w11h + ((w2l >>> 0) < (w11l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w3l >>> 1) | (w3h << 31)) ^ ((w3l >>> 8) | (w3h << 24)) ^ ((w3l >>> 7) | (w3h << 25)) )|0;
+        w2l = ( w2l + xl)|0;
+        w2h = ( w2h + ( ((w3h >>> 1) | (w3l << 31)) ^ ((w3h >>> 8) | (w3l << 24)) ^ (w3h >>> 7) ) + ((w2l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w0l >>> 19) | (w0h << 13)) ^ ((w0l << 3) | (w0h >>> 29)) ^ ((w0l >>> 6) | (w0h << 26)) )|0;
+        w2l = ( w2l + xl)|0;
+        w2h = ( w2h + ( ((w0h >>> 19) | (w0l << 13)) ^ ((w0h << 3) | (w0l >>> 29)) ^ (w0h >>> 6) ) + ((w2l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xcde0eb1e + w2l )|0;
+        th = ( 0xeada7dd6 + w2h + ((tl >>> 0) < (w2l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 67
+        w3l = ( w3l + w12l )|0;
+        w3h = ( w3h + w12h + ((w3l >>> 0) < (w12l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w4l >>> 1) | (w4h << 31)) ^ ((w4l >>> 8) | (w4h << 24)) ^ ((w4l >>> 7) | (w4h << 25)) )|0;
+        w3l = ( w3l + xl)|0;
+        w3h = ( w3h + ( ((w4h >>> 1) | (w4l << 31)) ^ ((w4h >>> 8) | (w4l << 24)) ^ (w4h >>> 7) ) + ((w3l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w1l >>> 19) | (w1h << 13)) ^ ((w1l << 3) | (w1h >>> 29)) ^ ((w1l >>> 6) | (w1h << 26)) )|0;
+        w3l = ( w3l + xl)|0;
+        w3h = ( w3h + ( ((w1h >>> 19) | (w1l << 13)) ^ ((w1h << 3) | (w1l >>> 29)) ^ (w1h >>> 6) ) + ((w3l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xee6ed178 + w3l )|0;
+        th = ( 0xf57d4f7f + w3h + ((tl >>> 0) < (w3l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 68
+        w4l = ( w4l + w13l )|0;
+        w4h = ( w4h + w13h + ((w4l >>> 0) < (w13l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w5l >>> 1) | (w5h << 31)) ^ ((w5l >>> 8) | (w5h << 24)) ^ ((w5l >>> 7) | (w5h << 25)) )|0;
+        w4l = ( w4l + xl)|0;
+        w4h = ( w4h + ( ((w5h >>> 1) | (w5l << 31)) ^ ((w5h >>> 8) | (w5l << 24)) ^ (w5h >>> 7) ) + ((w4l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w2l >>> 19) | (w2h << 13)) ^ ((w2l << 3) | (w2h >>> 29)) ^ ((w2l >>> 6) | (w2h << 26)) )|0;
+        w4l = ( w4l + xl)|0;
+        w4h = ( w4h + ( ((w2h >>> 19) | (w2l << 13)) ^ ((w2h << 3) | (w2l >>> 29)) ^ (w2h >>> 6) ) + ((w4l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x72176fba + w4l )|0;
+        th = ( 0x6f067aa + w4h + ((tl >>> 0) < (w4l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 69
+        w5l = ( w5l + w14l )|0;
+        w5h = ( w5h + w14h + ((w5l >>> 0) < (w14l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w6l >>> 1) | (w6h << 31)) ^ ((w6l >>> 8) | (w6h << 24)) ^ ((w6l >>> 7) | (w6h << 25)) )|0;
+        w5l = ( w5l + xl)|0;
+        w5h = ( w5h + ( ((w6h >>> 1) | (w6l << 31)) ^ ((w6h >>> 8) | (w6l << 24)) ^ (w6h >>> 7) ) + ((w5l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w3l >>> 19) | (w3h << 13)) ^ ((w3l << 3) | (w3h >>> 29)) ^ ((w3l >>> 6) | (w3h << 26)) )|0;
+        w5l = ( w5l + xl)|0;
+        w5h = ( w5h + ( ((w3h >>> 19) | (w3l << 13)) ^ ((w3h << 3) | (w3l >>> 29)) ^ (w3h >>> 6) ) + ((w5l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xa2c898a6 + w5l )|0;
+        th = ( 0xa637dc5 + w5h + ((tl >>> 0) < (w5l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 70
+        w6l = ( w6l + w15l )|0;
+        w6h = ( w6h + w15h + ((w6l >>> 0) < (w15l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w7l >>> 1) | (w7h << 31)) ^ ((w7l >>> 8) | (w7h << 24)) ^ ((w7l >>> 7) | (w7h << 25)) )|0;
+        w6l = ( w6l + xl)|0;
+        w6h = ( w6h + ( ((w7h >>> 1) | (w7l << 31)) ^ ((w7h >>> 8) | (w7l << 24)) ^ (w7h >>> 7) ) + ((w6l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w4l >>> 19) | (w4h << 13)) ^ ((w4l << 3) | (w4h >>> 29)) ^ ((w4l >>> 6) | (w4h << 26)) )|0;
+        w6l = ( w6l + xl)|0;
+        w6h = ( w6h + ( ((w4h >>> 19) | (w4l << 13)) ^ ((w4h << 3) | (w4l >>> 29)) ^ (w4h >>> 6) ) + ((w6l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xbef90dae + w6l )|0;
+        th = ( 0x113f9804 + w6h + ((tl >>> 0) < (w6l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 71
+        w7l = ( w7l + w0l )|0;
+        w7h = ( w7h + w0h + ((w7l >>> 0) < (w0l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w8l >>> 1) | (w8h << 31)) ^ ((w8l >>> 8) | (w8h << 24)) ^ ((w8l >>> 7) | (w8h << 25)) )|0;
+        w7l = ( w7l + xl)|0;
+        w7h = ( w7h + ( ((w8h >>> 1) | (w8l << 31)) ^ ((w8h >>> 8) | (w8l << 24)) ^ (w8h >>> 7) ) + ((w7l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w5l >>> 19) | (w5h << 13)) ^ ((w5l << 3) | (w5h >>> 29)) ^ ((w5l >>> 6) | (w5h << 26)) )|0;
+        w7l = ( w7l + xl)|0;
+        w7h = ( w7h + ( ((w5h >>> 19) | (w5l << 13)) ^ ((w5h << 3) | (w5l >>> 29)) ^ (w5h >>> 6) ) + ((w7l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x131c471b + w7l )|0;
+        th = ( 0x1b710b35 + w7h + ((tl >>> 0) < (w7l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 72
+        w8l = ( w8l + w1l )|0;
+        w8h = ( w8h + w1h + ((w8l >>> 0) < (w1l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w9l >>> 1) | (w9h << 31)) ^ ((w9l >>> 8) | (w9h << 24)) ^ ((w9l >>> 7) | (w9h << 25)) )|0;
+        w8l = ( w8l + xl)|0;
+        w8h = ( w8h + ( ((w9h >>> 1) | (w9l << 31)) ^ ((w9h >>> 8) | (w9l << 24)) ^ (w9h >>> 7) ) + ((w8l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w6l >>> 19) | (w6h << 13)) ^ ((w6l << 3) | (w6h >>> 29)) ^ ((w6l >>> 6) | (w6h << 26)) )|0;
+        w8l = ( w8l + xl)|0;
+        w8h = ( w8h + ( ((w6h >>> 19) | (w6l << 13)) ^ ((w6h << 3) | (w6l >>> 29)) ^ (w6h >>> 6) ) + ((w8l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x23047d84 + w8l )|0;
+        th = ( 0x28db77f5 + w8h + ((tl >>> 0) < (w8l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 73
+        w9l = ( w9l + w2l )|0;
+        w9h = ( w9h + w2h + ((w9l >>> 0) < (w2l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w10l >>> 1) | (w10h << 31)) ^ ((w10l >>> 8) | (w10h << 24)) ^ ((w10l >>> 7) | (w10h << 25)) )|0;
+        w9l = ( w9l + xl)|0;
+        w9h = ( w9h + ( ((w10h >>> 1) | (w10l << 31)) ^ ((w10h >>> 8) | (w10l << 24)) ^ (w10h >>> 7) ) + ((w9l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w7l >>> 19) | (w7h << 13)) ^ ((w7l << 3) | (w7h >>> 29)) ^ ((w7l >>> 6) | (w7h << 26)) )|0;
+        w9l = ( w9l + xl)|0;
+        w9h = ( w9h + ( ((w7h >>> 19) | (w7l << 13)) ^ ((w7h << 3) | (w7l >>> 29)) ^ (w7h >>> 6) ) + ((w9l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x40c72493 + w9l )|0;
+        th = ( 0x32caab7b + w9h + ((tl >>> 0) < (w9l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 74
+        w10l = ( w10l + w3l )|0;
+        w10h = ( w10h + w3h + ((w10l >>> 0) < (w3l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w11l >>> 1) | (w11h << 31)) ^ ((w11l >>> 8) | (w11h << 24)) ^ ((w11l >>> 7) | (w11h << 25)) )|0;
+        w10l = ( w10l + xl)|0;
+        w10h = ( w10h + ( ((w11h >>> 1) | (w11l << 31)) ^ ((w11h >>> 8) | (w11l << 24)) ^ (w11h >>> 7) ) + ((w10l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w8l >>> 19) | (w8h << 13)) ^ ((w8l << 3) | (w8h >>> 29)) ^ ((w8l >>> 6) | (w8h << 26)) )|0;
+        w10l = ( w10l + xl)|0;
+        w10h = ( w10h + ( ((w8h >>> 19) | (w8l << 13)) ^ ((w8h << 3) | (w8l >>> 29)) ^ (w8h >>> 6) ) + ((w10l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x15c9bebc + w10l )|0;
+        th = ( 0x3c9ebe0a + w10h + ((tl >>> 0) < (w10l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 75
+        w11l = ( w11l + w4l )|0;
+        w11h = ( w11h + w4h + ((w11l >>> 0) < (w4l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w12l >>> 1) | (w12h << 31)) ^ ((w12l >>> 8) | (w12h << 24)) ^ ((w12l >>> 7) | (w12h << 25)) )|0;
+        w11l = ( w11l + xl)|0;
+        w11h = ( w11h + ( ((w12h >>> 1) | (w12l << 31)) ^ ((w12h >>> 8) | (w12l << 24)) ^ (w12h >>> 7) ) + ((w11l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w9l >>> 19) | (w9h << 13)) ^ ((w9l << 3) | (w9h >>> 29)) ^ ((w9l >>> 6) | (w9h << 26)) )|0;
+        w11l = ( w11l + xl)|0;
+        w11h = ( w11h + ( ((w9h >>> 19) | (w9l << 13)) ^ ((w9h << 3) | (w9l >>> 29)) ^ (w9h >>> 6) ) + ((w11l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x9c100d4c + w11l )|0;
+        th = ( 0x431d67c4 + w11h + ((tl >>> 0) < (w11l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 76
+        w12l = ( w12l + w5l )|0;
+        w12h = ( w12h + w5h + ((w12l >>> 0) < (w5l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w13l >>> 1) | (w13h << 31)) ^ ((w13l >>> 8) | (w13h << 24)) ^ ((w13l >>> 7) | (w13h << 25)) )|0;
+        w12l = ( w12l + xl)|0;
+        w12h = ( w12h + ( ((w13h >>> 1) | (w13l << 31)) ^ ((w13h >>> 8) | (w13l << 24)) ^ (w13h >>> 7) ) + ((w12l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w10l >>> 19) | (w10h << 13)) ^ ((w10l << 3) | (w10h >>> 29)) ^ ((w10l >>> 6) | (w10h << 26)) )|0;
+        w12l = ( w12l + xl)|0;
+        w12h = ( w12h + ( ((w10h >>> 19) | (w10l << 13)) ^ ((w10h << 3) | (w10l >>> 29)) ^ (w10h >>> 6) ) + ((w12l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xcb3e42b6 + w12l )|0;
+        th = ( 0x4cc5d4be + w12h + ((tl >>> 0) < (w12l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 77
+        w13l = ( w13l + w6l )|0;
+        w13h = ( w13h + w6h + ((w13l >>> 0) < (w6l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w14l >>> 1) | (w14h << 31)) ^ ((w14l >>> 8) | (w14h << 24)) ^ ((w14l >>> 7) | (w14h << 25)) )|0;
+        w13l = ( w13l + xl)|0;
+        w13h = ( w13h + ( ((w14h >>> 1) | (w14l << 31)) ^ ((w14h >>> 8) | (w14l << 24)) ^ (w14h >>> 7) ) + ((w13l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w11l >>> 19) | (w11h << 13)) ^ ((w11l << 3) | (w11h >>> 29)) ^ ((w11l >>> 6) | (w11h << 26)) )|0;
+        w13l = ( w13l + xl)|0;
+        w13h = ( w13h + ( ((w11h >>> 19) | (w11l << 13)) ^ ((w11h << 3) | (w11l >>> 29)) ^ (w11h >>> 6) ) + ((w13l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0xfc657e2a + w13l )|0;
+        th = ( 0x597f299c + w13h + ((tl >>> 0) < (w13l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 78
+        w14l = ( w14l + w7l )|0;
+        w14h = ( w14h + w7h + ((w14l >>> 0) < (w7l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w15l >>> 1) | (w15h << 31)) ^ ((w15l >>> 8) | (w15h << 24)) ^ ((w15l >>> 7) | (w15h << 25)) )|0;
+        w14l = ( w14l + xl)|0;
+        w14h = ( w14h + ( ((w15h >>> 1) | (w15l << 31)) ^ ((w15h >>> 8) | (w15l << 24)) ^ (w15h >>> 7) ) + ((w14l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w12l >>> 19) | (w12h << 13)) ^ ((w12l << 3) | (w12h >>> 29)) ^ ((w12l >>> 6) | (w12h << 26)) )|0;
+        w14l = ( w14l + xl)|0;
+        w14h = ( w14h + ( ((w12h >>> 19) | (w12l << 13)) ^ ((w12h << 3) | (w12l >>> 29)) ^ (w12h >>> 6) ) + ((w14l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x3ad6faec + w14l )|0;
+        th = ( 0x5fcb6fab + w14h + ((tl >>> 0) < (w14l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        // 79
+        w15l = ( w15l + w8l )|0;
+        w15h = ( w15h + w8h + ((w15l >>> 0) < (w8l >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w0l >>> 1) | (w0h << 31)) ^ ((w0l >>> 8) | (w0h << 24)) ^ ((w0l >>> 7) | (w0h << 25)) )|0;
+        w15l = ( w15l + xl)|0;
+        w15h = ( w15h + ( ((w0h >>> 1) | (w0l << 31)) ^ ((w0h >>> 8) | (w0l << 24)) ^ (w0h >>> 7) ) + ((w15l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((w13l >>> 19) | (w13h << 13)) ^ ((w13l << 3) | (w13h >>> 29)) ^ ((w13l >>> 6) | (w13h << 26)) )|0;
+        w15l = ( w15l + xl)|0;
+        w15h = ( w15h + ( ((w13h >>> 19) | (w13l << 13)) ^ ((w13h << 3) | (w13l >>> 29)) ^ (w13h >>> 6) ) + ((w15l >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        tl = ( 0x4a475817 + w15l )|0;
+        th = ( 0x6c44198c + w15h + ((tl >>> 0) < (w15l >>> 0) ? 1 : 0) )|0;
+        tl = ( tl + hl )|0;
+        th = ( th + hh + ((tl >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9)) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + (((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9))) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        xl = ( ( gl ^ el & (fl^gl) ) )|0;
+        tl = ( tl + xl )|0;
+        th = ( th + ( gh ^ eh & (fh^gh) ) + ((tl >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+        hl = gl; hh = gh;
+        gl = fl; gh = fh;
+        fl = el; fh = eh;
+        el = ( dl + tl )|0; eh = ( dh + th + ((el >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        dl = cl; dh = ch;
+        cl = bl; ch = bh;
+        bl = al; bh = ah;
+        al = ( tl + ( (bl & cl) ^ ( dl & (bl ^ cl) ) ) )|0;
+        ah = ( th + ( (bh & ch) ^ ( dh & (bh ^ ch) ) ) + ((al >>> 0) < (tl >>> 0) ? 1 : 0) )|0;
+        xl = ( ((bl >>> 28) | (bh << 4)) ^ ((bl << 30) | (bh >>> 2)) ^ ((bl << 25) | (bh >>> 7)) )|0;
+        al = ( al + xl )|0;
+        ah = ( ah + (((bh >>> 28) | (bl << 4)) ^ ((bh << 30) | (bl >>> 2)) ^ ((bh << 25) | (bl >>> 7))) + ((al >>> 0) < (xl >>> 0) ? 1 : 0) )|0;
+
+        H0l = ( H0l + al )|0;
+        H0h = ( H0h + ah + ((H0l >>> 0) < (al >>> 0) ? 1 : 0) )|0;
+        H1l = ( H1l + bl )|0;
+        H1h = ( H1h + bh + ((H1l >>> 0) < (bl >>> 0) ? 1 : 0) )|0;
+        H2l = ( H2l + cl )|0;
+        H2h = ( H2h + ch + ((H2l >>> 0) < (cl >>> 0) ? 1 : 0) )|0;
+        H3l = ( H3l + dl )|0;
+        H3h = ( H3h + dh + ((H3l >>> 0) < (dl >>> 0) ? 1 : 0) )|0;
+        H4l = ( H4l + el )|0;
+        H4h = ( H4h + eh + ((H4l >>> 0) < (el >>> 0) ? 1 : 0) )|0;
+        H5l = ( H5l + fl )|0;
+        H5h = ( H5h + fh + ((H5l >>> 0) < (fl >>> 0) ? 1 : 0) )|0;
+        H6l = ( H6l + gl )|0;
+        H6h = ( H6h + gh + ((H6l >>> 0) < (gl >>> 0) ? 1 : 0) )|0;
+        H7l = ( H7l + hl )|0;
+        H7h = ( H7h + hh + ((H7l >>> 0) < (hl >>> 0) ? 1 : 0) )|0;
+    }
+
+    function _core_heap ( offset ) {
+        offset = offset|0;
+
+        _core(
+            HEAP[offset|0]<<24 | HEAP[offset|1]<<16 | HEAP[offset|2]<<8 | HEAP[offset|3],
+            HEAP[offset|4]<<24 | HEAP[offset|5]<<16 | HEAP[offset|6]<<8 | HEAP[offset|7],
+            HEAP[offset|8]<<24 | HEAP[offset|9]<<16 | HEAP[offset|10]<<8 | HEAP[offset|11],
+            HEAP[offset|12]<<24 | HEAP[offset|13]<<16 | HEAP[offset|14]<<8 | HEAP[offset|15],
+            HEAP[offset|16]<<24 | HEAP[offset|17]<<16 | HEAP[offset|18]<<8 | HEAP[offset|19],
+            HEAP[offset|20]<<24 | HEAP[offset|21]<<16 | HEAP[offset|22]<<8 | HEAP[offset|23],
+            HEAP[offset|24]<<24 | HEAP[offset|25]<<16 | HEAP[offset|26]<<8 | HEAP[offset|27],
+            HEAP[offset|28]<<24 | HEAP[offset|29]<<16 | HEAP[offset|30]<<8 | HEAP[offset|31],
+            HEAP[offset|32]<<24 | HEAP[offset|33]<<16 | HEAP[offset|34]<<8 | HEAP[offset|35],
+            HEAP[offset|36]<<24 | HEAP[offset|37]<<16 | HEAP[offset|38]<<8 | HEAP[offset|39],
+            HEAP[offset|40]<<24 | HEAP[offset|41]<<16 | HEAP[offset|42]<<8 | HEAP[offset|43],
+            HEAP[offset|44]<<24 | HEAP[offset|45]<<16 | HEAP[offset|46]<<8 | HEAP[offset|47],
+            HEAP[offset|48]<<24 | HEAP[offset|49]<<16 | HEAP[offset|50]<<8 | HEAP[offset|51],
+            HEAP[offset|52]<<24 | HEAP[offset|53]<<16 | HEAP[offset|54]<<8 | HEAP[offset|55],
+            HEAP[offset|56]<<24 | HEAP[offset|57]<<16 | HEAP[offset|58]<<8 | HEAP[offset|59],
+            HEAP[offset|60]<<24 | HEAP[offset|61]<<16 | HEAP[offset|62]<<8 | HEAP[offset|63],
+            HEAP[offset|64]<<24 | HEAP[offset|65]<<16 | HEAP[offset|66]<<8 | HEAP[offset|67],
+            HEAP[offset|68]<<24 | HEAP[offset|69]<<16 | HEAP[offset|70]<<8 | HEAP[offset|71],
+            HEAP[offset|72]<<24 | HEAP[offset|73]<<16 | HEAP[offset|74]<<8 | HEAP[offset|75],
+            HEAP[offset|76]<<24 | HEAP[offset|77]<<16 | HEAP[offset|78]<<8 | HEAP[offset|79],
+            HEAP[offset|80]<<24 | HEAP[offset|81]<<16 | HEAP[offset|82]<<8 | HEAP[offset|83],
+            HEAP[offset|84]<<24 | HEAP[offset|85]<<16 | HEAP[offset|86]<<8 | HEAP[offset|87],
+            HEAP[offset|88]<<24 | HEAP[offset|89]<<16 | HEAP[offset|90]<<8 | HEAP[offset|91],
+            HEAP[offset|92]<<24 | HEAP[offset|93]<<16 | HEAP[offset|94]<<8 | HEAP[offset|95],
+            HEAP[offset|96]<<24 | HEAP[offset|97]<<16 | HEAP[offset|98]<<8 | HEAP[offset|99],
+            HEAP[offset|100]<<24 | HEAP[offset|101]<<16 | HEAP[offset|102]<<8 | HEAP[offset|103],
+            HEAP[offset|104]<<24 | HEAP[offset|105]<<16 | HEAP[offset|106]<<8 | HEAP[offset|107],
+            HEAP[offset|108]<<24 | HEAP[offset|109]<<16 | HEAP[offset|110]<<8 | HEAP[offset|111],
+            HEAP[offset|112]<<24 | HEAP[offset|113]<<16 | HEAP[offset|114]<<8 | HEAP[offset|115],
+            HEAP[offset|116]<<24 | HEAP[offset|117]<<16 | HEAP[offset|118]<<8 | HEAP[offset|119],
+            HEAP[offset|120]<<24 | HEAP[offset|121]<<16 | HEAP[offset|122]<<8 | HEAP[offset|123],
+            HEAP[offset|124]<<24 | HEAP[offset|125]<<16 | HEAP[offset|126]<<8 | HEAP[offset|127]
+        );
+    }
+
+    // offset — multiple of 32
+    function _state_to_heap ( output ) {
+        output = output|0;
+
+        HEAP[output|0] = H0h>>>24;
+        HEAP[output|1] = H0h>>>16&255;
+        HEAP[output|2] = H0h>>>8&255;
+        HEAP[output|3] = H0h&255;
+        HEAP[output|4] = H0l>>>24;
+        HEAP[output|5] = H0l>>>16&255;
+        HEAP[output|6] = H0l>>>8&255;
+        HEAP[output|7] = H0l&255;
+        HEAP[output|8] = H1h>>>24;
+        HEAP[output|9] = H1h>>>16&255;
+        HEAP[output|10] = H1h>>>8&255;
+        HEAP[output|11] = H1h&255;
+        HEAP[output|12] = H1l>>>24;
+        HEAP[output|13] = H1l>>>16&255;
+        HEAP[output|14] = H1l>>>8&255;
+        HEAP[output|15] = H1l&255;
+        HEAP[output|16] = H2h>>>24;
+        HEAP[output|17] = H2h>>>16&255;
+        HEAP[output|18] = H2h>>>8&255;
+        HEAP[output|19] = H2h&255;
+        HEAP[output|20] = H2l>>>24;
+        HEAP[output|21] = H2l>>>16&255;
+        HEAP[output|22] = H2l>>>8&255;
+        HEAP[output|23] = H2l&255;
+        HEAP[output|24] = H3h>>>24;
+        HEAP[output|25] = H3h>>>16&255;
+        HEAP[output|26] = H3h>>>8&255;
+        HEAP[output|27] = H3h&255;
+        HEAP[output|28] = H3l>>>24;
+        HEAP[output|29] = H3l>>>16&255;
+        HEAP[output|30] = H3l>>>8&255;
+        HEAP[output|31] = H3l&255;
+        HEAP[output|32] = H4h>>>24;
+        HEAP[output|33] = H4h>>>16&255;
+        HEAP[output|34] = H4h>>>8&255;
+        HEAP[output|35] = H4h&255;
+        HEAP[output|36] = H4l>>>24;
+        HEAP[output|37] = H4l>>>16&255;
+        HEAP[output|38] = H4l>>>8&255;
+        HEAP[output|39] = H4l&255;
+        HEAP[output|40] = H5h>>>24;
+        HEAP[output|41] = H5h>>>16&255;
+        HEAP[output|42] = H5h>>>8&255;
+        HEAP[output|43] = H5h&255;
+        HEAP[output|44] = H5l>>>24;
+        HEAP[output|45] = H5l>>>16&255;
+        HEAP[output|46] = H5l>>>8&255;
+        HEAP[output|47] = H5l&255;
+        HEAP[output|48] = H6h>>>24;
+        HEAP[output|49] = H6h>>>16&255;
+        HEAP[output|50] = H6h>>>8&255;
+        HEAP[output|51] = H6h&255;
+        HEAP[output|52] = H6l>>>24;
+        HEAP[output|53] = H6l>>>16&255;
+        HEAP[output|54] = H6l>>>8&255;
+        HEAP[output|55] = H6l&255;
+        HEAP[output|56] = H7h>>>24;
+        HEAP[output|57] = H7h>>>16&255;
+        HEAP[output|58] = H7h>>>8&255;
+        HEAP[output|59] = H7h&255;
+        HEAP[output|60] = H7l>>>24;
+        HEAP[output|61] = H7l>>>16&255;
+        HEAP[output|62] = H7l>>>8&255;
+        HEAP[output|63] = H7l&255;
+    }
+
+    function reset () {
+        H0h = 0x6a09e667;
+        H0l = 0xf3bcc908;
+        H1h = 0xbb67ae85;
+        H1l = 0x84caa73b;
+        H2h = 0x3c6ef372;
+        H2l = 0xfe94f82b;
+        H3h = 0xa54ff53a;
+        H3l = 0x5f1d36f1;
+        H4h = 0x510e527f;
+        H4l = 0xade682d1;
+        H5h = 0x9b05688c;
+        H5l = 0x2b3e6c1f;
+        H6h = 0x1f83d9ab;
+        H6l = 0xfb41bd6b;
+        H7h = 0x5be0cd19;
+        H7l = 0x137e2179;
+
+        TOTAL0 = TOTAL1 = 0;
+    }
+
+    function init ( h0h, h0l, h1h, h1l, h2h, h2l, h3h, h3l, h4h, h4l, h5h, h5l, h6h, h6l, h7h, h7l, total0, total1 ) {
+        h0h = h0h|0;
+        h0l = h0l|0;
+        h1h = h1h|0;
+        h1l = h1l|0;
+        h2h = h2h|0;
+        h2l = h2l|0;
+        h3h = h3h|0;
+        h3l = h3l|0;
+        h4h = h4h|0;
+        h4l = h4l|0;
+        h5h = h5h|0;
+        h5l = h5l|0;
+        h6h = h6h|0;
+        h6l = h6l|0;
+        h7h = h7h|0;
+        h7l = h7l|0;
+        total0 = total0|0;
+        total1 = total1|0;
+
+        H0h = h0h;
+        H0l = h0l;
+        H1h = h1h;
+        H1l = h1l;
+        H2h = h2h;
+        H2l = h2l;
+        H3h = h3h;
+        H3l = h3l;
+        H4h = h4h;
+        H4l = h4l;
+        H5h = h5h;
+        H5l = h5l;
+        H6h = h6h;
+        H6l = h6l;
+        H7h = h7h;
+        H7l = h7l;
+        TOTAL0 = total0;
+        TOTAL1 = total1;
+    }
+
+    // offset — multiple of 128
+    function process ( offset, length ) {
+        offset = offset|0;
+        length = length|0;
+
+        var hashed = 0;
+
+        if ( offset & 127 )
+            return -1;
+
+        while ( (length|0) >= 128 ) {
+            _core_heap(offset);
+
+            offset = ( offset + 128 )|0;
+            length = ( length - 128 )|0;
+
+            hashed = ( hashed + 128 )|0;
+        }
+
+        TOTAL0 = ( TOTAL0 + hashed )|0;
+        if ( TOTAL0>>>0 < hashed>>>0 ) TOTAL1 = ( TOTAL1 + 1 )|0;
+
+        return hashed|0;
+    }
+
+    // offset — multiple of 128
+    // output — multiple of 64
+    function finish ( offset, length, output ) {
+        offset = offset|0;
+        length = length|0;
+        output = output|0;
+
+        var hashed = 0,
+            i = 0;
+
+        if ( offset & 127 )
+            return -1;
+
+        if ( ~output )
+            if ( output & 63 )
+                return -1;
+
+        if ( (length|0) >= 128 ) {
+            hashed = process( offset, length )|0;
+            if ( (hashed|0) == -1 )
+                return -1;
+
+            offset = ( offset + hashed )|0;
+            length = ( length - hashed )|0;
+        }
+
+        hashed = ( hashed + length )|0;
+        TOTAL0 = ( TOTAL0 + length )|0;
+        if ( TOTAL0>>>0 < length>>>0 ) TOTAL1 = ( TOTAL1 + 1 )|0;
+
+        HEAP[offset|length] = 0x80;
+
+        if ( (length|0) >= 112 ) {
+            for ( i = (length+1)|0; (i|0) < 128; i = (i+1)|0 )
+                HEAP[offset|i] = 0x00;
+
+            _core_heap(offset);
+
+            length = 0;
+
+            HEAP[offset|0] = 0;
+        }
+
+        for ( i = (length+1)|0; (i|0) < 123; i = (i+1)|0 )
+            HEAP[offset|i] = 0;
+
+        HEAP[offset|120] = TOTAL1>>>21&255;
+        HEAP[offset|121] = TOTAL1>>>13&255;
+        HEAP[offset|122] = TOTAL1>>>5&255;
+        HEAP[offset|123] = TOTAL1<<3&255 | TOTAL0>>>29;
+        HEAP[offset|124] = TOTAL0>>>21&255;
+        HEAP[offset|125] = TOTAL0>>>13&255;
+        HEAP[offset|126] = TOTAL0>>>5&255;
+        HEAP[offset|127] = TOTAL0<<3&255;
+        _core_heap(offset);
+
+        if ( ~output )
+            _state_to_heap(output);
+
+        return hashed|0;
+    }
+
+    function hmac_reset () {
+        H0h = I0h;
+        H0l = I0l;
+        H1h = I1h;
+        H1l = I1l;
+        H2h = I2h;
+        H2l = I2l;
+        H3h = I3h;
+        H3l = I3l;
+        H4h = I4h;
+        H4l = I4l;
+        H5h = I5h;
+        H5l = I5l;
+        H6h = I6h;
+        H6l = I6l;
+        H7h = I7h;
+        H7l = I7l;
+        TOTAL0 = 128;
+        TOTAL1 = 0;
+    }
+
+    function _hmac_opad () {
+        H0h = O0h;
+        H0l = O0l;
+        H1h = O1h;
+        H1l = O1l;
+        H2h = O2h;
+        H2l = O2l;
+        H3h = O3h;
+        H3l = O3l;
+        H4h = O4h;
+        H4l = O4l;
+        H5h = O5h;
+        H5l = O5l;
+        H6h = O6h;
+        H6l = O6l;
+        H7h = O7h;
+        H7l = O7l;
+        TOTAL0 = 128;
+        TOTAL1 = 0;
+    }
+
+    function hmac_init ( p0h, p0l, p1h, p1l, p2h, p2l, p3h, p3l, p4h, p4l, p5h, p5l, p6h, p6l, p7h, p7l, p8h, p8l, p9h, p9l, p10h, p10l, p11h, p11l, p12h, p12l, p13h, p13l, p14h, p14l, p15h, p15l ) {
+        p0h = p0h|0;
+        p0l = p0l|0;
+        p1h = p1h|0;
+        p1l = p1l|0;
+        p2h = p2h|0;
+        p2l = p2l|0;
+        p3h = p3h|0;
+        p3l = p3l|0;
+        p4h = p4h|0;
+        p4l = p4l|0;
+        p5h = p5h|0;
+        p5l = p5l|0;
+        p6h = p6h|0;
+        p6l = p6l|0;
+        p7h = p7h|0;
+        p7l = p7l|0;
+        p8h = p8h|0;
+        p8l = p8l|0;
+        p9h = p9h|0;
+        p9l = p9l|0;
+        p10h = p10h|0;
+        p10l = p10l|0;
+        p11h = p11h|0;
+        p11l = p11l|0;
+        p12h = p12h|0;
+        p12l = p12l|0;
+        p13h = p13h|0;
+        p13l = p13l|0;
+        p14h = p14h|0;
+        p14l = p14l|0;
+        p15h = p15h|0;
+        p15l = p15l|0;
+
+        // opad
+        reset();
+        _core(
+            p0h ^ 0x5c5c5c5c,
+            p0l ^ 0x5c5c5c5c,
+            p1h ^ 0x5c5c5c5c,
+            p1l ^ 0x5c5c5c5c,
+            p2h ^ 0x5c5c5c5c,
+            p2l ^ 0x5c5c5c5c,
+            p3h ^ 0x5c5c5c5c,
+            p3l ^ 0x5c5c5c5c,
+            p4h ^ 0x5c5c5c5c,
+            p4l ^ 0x5c5c5c5c,
+            p5h ^ 0x5c5c5c5c,
+            p5l ^ 0x5c5c5c5c,
+            p6h ^ 0x5c5c5c5c,
+            p6l ^ 0x5c5c5c5c,
+            p7h ^ 0x5c5c5c5c,
+            p7l ^ 0x5c5c5c5c,
+            p8h ^ 0x5c5c5c5c,
+            p8l ^ 0x5c5c5c5c,
+            p9h ^ 0x5c5c5c5c,
+            p9l ^ 0x5c5c5c5c,
+            p10h ^ 0x5c5c5c5c,
+            p10l ^ 0x5c5c5c5c,
+            p11h ^ 0x5c5c5c5c,
+            p11l ^ 0x5c5c5c5c,
+            p12h ^ 0x5c5c5c5c,
+            p12l ^ 0x5c5c5c5c,
+            p13h ^ 0x5c5c5c5c,
+            p13l ^ 0x5c5c5c5c,
+            p14h ^ 0x5c5c5c5c,
+            p14l ^ 0x5c5c5c5c,
+            p15h ^ 0x5c5c5c5c,
+            p15l ^ 0x5c5c5c5c
+        );
+        O0h = H0h;
+        O0l = H0l;
+        O1h = H1h;
+        O1l = H1l;
+        O2h = H2h;
+        O2l = H2l;
+        O3h = H3h;
+        O3l = H3l;
+        O4h = H4h;
+        O4l = H4l;
+        O5h = H5h;
+        O5l = H5l;
+        O6h = H6h;
+        O6l = H6l;
+        O7h = H7h;
+        O7l = H7l;
+
+        // ipad
+        reset();
+        _core(
+           p0h ^ 0x36363636,
+           p0l ^ 0x36363636,
+           p1h ^ 0x36363636,
+           p1l ^ 0x36363636,
+           p2h ^ 0x36363636,
+           p2l ^ 0x36363636,
+           p3h ^ 0x36363636,
+           p3l ^ 0x36363636,
+           p4h ^ 0x36363636,
+           p4l ^ 0x36363636,
+           p5h ^ 0x36363636,
+           p5l ^ 0x36363636,
+           p6h ^ 0x36363636,
+           p6l ^ 0x36363636,
+           p7h ^ 0x36363636,
+           p7l ^ 0x36363636,
+           p8h ^ 0x36363636,
+           p8l ^ 0x36363636,
+           p9h ^ 0x36363636,
+           p9l ^ 0x36363636,
+           p10h ^ 0x36363636,
+           p10l ^ 0x36363636,
+           p11h ^ 0x36363636,
+           p11l ^ 0x36363636,
+           p12h ^ 0x36363636,
+           p12l ^ 0x36363636,
+           p13h ^ 0x36363636,
+           p13l ^ 0x36363636,
+           p14h ^ 0x36363636,
+           p14l ^ 0x36363636,
+           p15h ^ 0x36363636,
+           p15l ^ 0x36363636
+        );
+        I0h = H0h;
+        I0l = H0l;
+        I1h = H1h;
+        I1l = H1l;
+        I2h = H2h;
+        I2l = H2l;
+        I3h = H3h;
+        I3l = H3l;
+        I4h = H4h;
+        I4l = H4l;
+        I5h = H5h;
+        I5l = H5l;
+        I6h = H6h;
+        I6l = H6l;
+        I7h = H7h;
+        I7l = H7l;
+
+        TOTAL0 = 128;
+        TOTAL1 = 0;
+    }
+
+    // offset — multiple of 128
+    // output — multiple of 64
+    function hmac_finish ( offset, length, output ) {
+        offset = offset|0;
+        length = length|0;
+        output = output|0;
+
+        var t0h = 0, t0l = 0, t1h = 0, t1l = 0, t2h = 0, t2l = 0, t3h = 0, t3l = 0,
+            t4h = 0, t4l = 0, t5h = 0, t5l = 0, t6h = 0, t6l = 0, t7h = 0, t7l = 0,
+            hashed = 0;
+
+        if ( offset & 127 )
+            return -1;
+
+        if ( ~output )
+            if ( output & 63 )
+                return -1;
+
+        hashed = finish( offset, length, -1 )|0;
+        t0h = H0h;
+        t0l = H0l;
+        t1h = H1h;
+        t1l = H1l;
+        t2h = H2h;
+        t2l = H2l;
+        t3h = H3h;
+        t3l = H3l;
+        t4h = H4h;
+        t4l = H4l;
+        t5h = H5h;
+        t5l = H5l;
+        t6h = H6h;
+        t6l = H6l;
+        t7h = H7h;
+        t7l = H7l;
+
+        _hmac_opad();
+        _core( t0h, t0l, t1h, t1l, t2h, t2l, t3h, t3l, t4h, t4l, t5h, t5l, t6h, t6l, t7h, t7l, 0x80000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1536 );
+
+        if ( ~output )
+            _state_to_heap(output);
+
+        return hashed|0;
+    }
+
+    // salt is assumed to be already processed
+    // offset — multiple of 128
+    // output — multiple of 64
+    function pbkdf2_generate_block ( offset, length, block, count, output ) {
+        offset = offset|0;
+        length = length|0;
+        block = block|0;
+        count = count|0;
+        output = output|0;
+
+        var h0h = 0, h0l = 0, h1h = 0, h1l = 0, h2h = 0, h2l = 0, h3h = 0, h3l = 0,
+            h4h = 0, h4l = 0, h5h = 0, h5l = 0, h6h = 0, h6l = 0, h7h = 0, h7l = 0,
+            t0h = 0, t0l = 0, t1h = 0, t1l = 0, t2h = 0, t2l = 0, t3h = 0, t3l = 0,
+            t4h = 0, t4l = 0, t5h = 0, t5l = 0, t6h = 0, t6l = 0, t7h = 0, t7l = 0;
+
+        if ( offset & 127 )
+            return -1;
+
+        if ( ~output )
+            if ( output & 63 )
+                return -1;
+
+        // pad block number into heap
+        // FIXME probable OOB write
+        HEAP[(offset+length)|0]   = block>>>24;
+        HEAP[(offset+length+1)|0] = block>>>16&255;
+        HEAP[(offset+length+2)|0] = block>>>8&255;
+        HEAP[(offset+length+3)|0] = block&255;
+
+        // finish first iteration
+        hmac_finish( offset, (length+4)|0, -1 )|0;
+
+        h0h = t0h = H0h;
+        h0l = t0l = H0l;
+        h1h = t1h = H1h;
+        h1l = t1l = H1l;
+        h2h = t2h = H2h;
+        h2l = t2l = H2l;
+        h3h = t3h = H3h;
+        h3l = t3l = H3l;
+        h4h = t4h = H4h;
+        h4l = t4l = H4l;
+        h5h = t5h = H5h;
+        h5l = t5l = H5l;
+        h6h = t6h = H6h;
+        h6l = t6l = H6l;
+        h7h = t7h = H7h;
+        h7l = t7l = H7l;
+
+        count = (count-1)|0;
+
+        // perform the rest iterations
+        while ( (count|0) > 0 ) {
+            hmac_reset();
+            _core( t0h, t0l, t1h, t1l, t2h, t2l, t3h, t3l, t4h, t4l, t5h, t5l, t6h, t6l, t7h, t7l, 0x80000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1536 );
+
+            t0h = H0h;
+            t0l = H0l;
+            t1h = H1h;
+            t1l = H1l;
+            t2h = H2h;
+            t2l = H2l;
+            t3h = H3h;
+            t3l = H3l;
+            t4h = H4h;
+            t4l = H4l;
+            t5h = H5h;
+            t5l = H5l;
+            t6h = H6h;
+            t6l = H6l;
+            t7h = H7h;
+            t7l = H7l;
+
+            _hmac_opad();
+            _core( t0h, t0l, t1h, t1l, t2h, t2l, t3h, t3l, t4h, t4l, t5h, t5l, t6h, t6l, t7h, t7l, 0x80000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1536 );
+
+            t0h = H0h;
+            t0l = H0l;
+            t1h = H1h;
+            t1l = H1l;
+            t2h = H2h;
+            t2l = H2l;
+            t3h = H3h;
+            t3l = H3l;
+            t4h = H4h;
+            t4l = H4l;
+            t5h = H5h;
+            t5l = H5l;
+            t6h = H6h;
+            t6l = H6l;
+            t7h = H7h;
+            t7l = H7l;
+
+            h0h = h0h ^ H0h;
+            h0l = h0l ^ H0l;
+            h1h = h1h ^ H1h;
+            h1l = h1l ^ H1l;
+            h2h = h2h ^ H2h;
+            h2l = h2l ^ H2l;
+            h3h = h3h ^ H3h;
+            h3l = h3l ^ H3l;
+            h4h = h4h ^ H4h;
+            h4l = h4l ^ H4l;
+            h5h = h5h ^ H5h;
+            h5l = h5l ^ H5l;
+            h6h = h6h ^ H6h;
+            h6l = h6l ^ H6l;
+            h7h = h7h ^ H7h;
+            h7l = h7l ^ H7l;
+
+            count = (count-1)|0;
+        }
+
+        H0h = h0h;
+        H0l = h0l;
+        H1h = h1h;
+        H1l = h1l;
+        H2h = h2h;
+        H2l = h2l;
+        H3h = h3h;
+        H3l = h3l;
+        H4h = h4h;
+        H4l = h4l;
+        H5h = h5h;
+        H5l = h5l;
+        H6h = h6h;
+        H6l = h6l;
+        H7h = h7h;
+        H7l = h7l;
+
+        if ( ~output )
+            _state_to_heap(output);
+
+        return 0;
+    }
+
+    return {
+        // SHA512
+        reset: reset,
+        init: init,
+        process: process,
+        finish: finish,
+
+        // HMAC-SHA512
+        hmac_reset: hmac_reset,
+        hmac_init: hmac_init,
+        hmac_finish: hmac_finish,
+
+        // PBKDF2-HMAC-SHA512
+        pbkdf2_generate_block: pbkdf2_generate_block
+    }
+}
+
+var _sha512_block_size = 128,
+    _sha512_hash_size = 64;
+
+function sha512_constructor ( options ) {
+    options = options || {};
+
+    this.heap = _heap_init( Uint8Array, options );
+    this.asm = options.asm || sha512_asm( global, null, this.heap.buffer );
+
+    this.BLOCK_SIZE = _sha512_block_size;
+    this.HASH_SIZE = _sha512_hash_size;
+
+    this.reset();
+}
+
+sha512_constructor.BLOCK_SIZE = _sha512_block_size;
+sha512_constructor.HASH_SIZE = _sha512_hash_size;
+var sha512_prototype = sha512_constructor.prototype;
+sha512_prototype.reset =   hash_reset;
+sha512_prototype.process = hash_process;
+sha512_prototype.finish =  hash_finish;
+
+var sha512_instance = null;
+
+function get_sha512_instance () {
+    if ( sha512_instance === null ) sha512_instance = new sha512_constructor( { heapSize: 0x100000 } );
+    return sha512_instance;
+}
+
+function hmac_constructor ( options ) {
+    options = options || {};
+
+    if ( !options.hash )
+        throw new SyntaxError("option 'hash' is required");
+
+    if ( !options.hash.HASH_SIZE )
+        throw new SyntaxError("option 'hash' supplied doesn't seem to be a valid hash function");
+
+    this.hash = options.hash;
+    this.BLOCK_SIZE = this.hash.BLOCK_SIZE;
+    this.HMAC_SIZE = this.hash.HASH_SIZE;
+
+    this.key = null;
+    this.verify = null;
+    this.result = null;
+
+    if ( options.password !== undefined || options.verify !== undefined )
+        this.reset(options);
+
+    return this;
+}
+
+function _hmac_key ( hash, password ) {
+    if ( is_buffer(password) )
+        password = new Uint8Array(password);
+
+    if ( is_string(password) )
+        password = string_to_bytes(password);
+
+    if ( !is_bytes(password) )
+        throw new TypeError("password isn't of expected type");
+
+    var key = new Uint8Array( hash.BLOCK_SIZE );
+
+    if ( password.length > hash.BLOCK_SIZE ) {
+        key.set( hash.reset().process(password).finish().result );
+    }
+    else {
+        key.set(password);
+    }
+
+    return key;
+}
+
+function _hmac_init_verify ( verify ) {
+    if ( is_buffer(verify) || is_bytes(verify) ) {
+        verify = new Uint8Array(verify);
+    }
+    else if ( is_string(verify) ) {
+        verify = string_to_bytes(verify);
+    }
+    else {
+        throw new TypeError("verify tag isn't of expected type");
+    }
+
+    if ( verify.length !== this.HMAC_SIZE )
+        throw new IllegalArgumentError("illegal verification tag size");
+
+    this.verify = verify;
+}
+
+function hmac_reset ( options ) {
+    options = options || {};
+    var password = options.password;
+
+    if ( this.key === null && !is_string(password) && !password )
+        throw new IllegalStateError("no key is associated with the instance");
+
+    this.result = null;
+    this.hash.reset();
+
+    if ( password || is_string(password) )
+        this.key = _hmac_key( this.hash, password );
+
+    var ipad = new Uint8Array(this.key);
+    for ( var i = 0; i < ipad.length; ++i )
+        ipad[i] ^= 0x36;
+
+    this.hash.process(ipad);
+
+    var verify = options.verify;
+    if ( verify !== undefined ) {
+        _hmac_init_verify.call( this, verify );
+    }
+    else {
+        this.verify = null;
+    }
+
+    return this;
+}
+
+function hmac_process ( data ) {
+    if ( this.key === null )
+        throw new IllegalStateError("no key is associated with the instance");
+
+    if ( this.result !== null )
+        throw new IllegalStateError("state must be reset before processing new data");
+
+    this.hash.process(data);
+
+    return this;
+}
+
+function hmac_finish () {
+    if ( this.key === null )
+        throw new IllegalStateError("no key is associated with the instance");
+
+    if ( this.result !== null )
+        throw new IllegalStateError("state must be reset before processing new data");
+
+    var inner_result = this.hash.finish().result;
+
+    var opad = new Uint8Array(this.key);
+    for ( var i = 0; i < opad.length; ++i )
+        opad[i] ^= 0x5c;
+
+    var verify = this.verify;
+    var result = this.hash.reset().process(opad).process(inner_result).finish().result;
+
+    if ( verify ) {
+        if ( verify.length === result.length ) {
+            var diff = 0;
+            for ( var i = 0; i < verify.length; i++ ) {
+                diff |= ( verify[i] ^ result[i] );
+            }
+            this.result = !diff;
+        } else {
+            this.result = false;
+        }
+    }
+    else {
+        this.result = result;
+    }
+
+    return this;
+}
+
+var hmac_prototype = hmac_constructor.prototype;
+hmac_prototype.reset =   hmac_reset;
+hmac_prototype.process = hmac_process;
+hmac_prototype.finish =  hmac_finish;
+
+function hmac_sha512_constructor ( options ) {
+    options = options || {};
+
+    if ( !( options.hash instanceof sha512_constructor ) )
+        options.hash = get_sha512_instance();
+
+    hmac_constructor.call( this, options );
+
+    return this;
+}
+
+function hmac_sha512_reset ( options ) {
+    options = options || {};
+
+    this.result = null;
+    this.hash.reset();
+
+    var password = options.password;
+    if ( password !== undefined ) {
+        if ( is_string(password) )
+            password = string_to_bytes(password);
+
+        var key = this.key = _hmac_key( this.hash, password );
+        this.hash.reset().asm.hmac_init(
+                (key[0]<<24)|(key[1]<<16)|(key[2]<<8)|(key[3]),
+                (key[4]<<24)|(key[5]<<16)|(key[6]<<8)|(key[7]),
+                (key[8]<<24)|(key[9]<<16)|(key[10]<<8)|(key[11]),
+                (key[12]<<24)|(key[13]<<16)|(key[14]<<8)|(key[15]),
+                (key[16]<<24)|(key[17]<<16)|(key[18]<<8)|(key[19]),
+                (key[20]<<24)|(key[21]<<16)|(key[22]<<8)|(key[23]),
+                (key[24]<<24)|(key[25]<<16)|(key[26]<<8)|(key[27]),
+                (key[28]<<24)|(key[29]<<16)|(key[30]<<8)|(key[31]),
+                (key[32]<<24)|(key[33]<<16)|(key[34]<<8)|(key[35]),
+                (key[36]<<24)|(key[37]<<16)|(key[38]<<8)|(key[39]),
+                (key[40]<<24)|(key[41]<<16)|(key[42]<<8)|(key[43]),
+                (key[44]<<24)|(key[45]<<16)|(key[46]<<8)|(key[47]),
+                (key[48]<<24)|(key[49]<<16)|(key[50]<<8)|(key[51]),
+                (key[52]<<24)|(key[53]<<16)|(key[54]<<8)|(key[55]),
+                (key[56]<<24)|(key[57]<<16)|(key[58]<<8)|(key[59]),
+                (key[60]<<24)|(key[61]<<16)|(key[62]<<8)|(key[63]),
+                (key[64]<<24)|(key[65]<<16)|(key[66]<<8)|(key[67]),
+                (key[68]<<24)|(key[69]<<16)|(key[70]<<8)|(key[71]),
+                (key[72]<<24)|(key[73]<<16)|(key[74]<<8)|(key[75]),
+                (key[76]<<24)|(key[77]<<16)|(key[78]<<8)|(key[79]),
+                (key[80]<<24)|(key[81]<<16)|(key[82]<<8)|(key[83]),
+                (key[84]<<24)|(key[85]<<16)|(key[86]<<8)|(key[87]),
+                (key[88]<<24)|(key[89]<<16)|(key[90]<<8)|(key[91]),
+                (key[92]<<24)|(key[93]<<16)|(key[94]<<8)|(key[95]),
+                (key[96]<<24)|(key[97]<<16)|(key[98]<<8)|(key[99]),
+                (key[100]<<24)|(key[101]<<16)|(key[102]<<8)|(key[103]),
+                (key[104]<<24)|(key[105]<<16)|(key[106]<<8)|(key[107]),
+                (key[108]<<24)|(key[109]<<16)|(key[110]<<8)|(key[111]),
+                (key[112]<<24)|(key[113]<<16)|(key[114]<<8)|(key[115]),
+                (key[116]<<24)|(key[117]<<16)|(key[118]<<8)|(key[119]),
+                (key[120]<<24)|(key[121]<<16)|(key[122]<<8)|(key[123]),
+                (key[124]<<24)|(key[125]<<16)|(key[126]<<8)|(key[127])
+        );
+    }
+    else {
+        this.hash.asm.hmac_reset();
+    }
+
+    var verify = options.verify;
+    if ( verify !== undefined ) {
+        _hmac_init_verify.call( this, verify );
+    }
+    else {
+        this.verify = null;
+    }
+
+    return this;
+}
+
+function hmac_sha512_finish () {
+    if ( this.key === null )
+        throw new IllegalStateError("no key is associated with the instance");
+
+    if ( this.result !== null )
+        throw new IllegalStateError("state must be reset before processing new data");
+
+    var hash = this.hash,
+        asm = this.hash.asm,
+        heap = this.hash.heap;
+
+    asm.hmac_finish( hash.pos, hash.len, 0 );
+
+    var verify = this.verify;
+    var result = new Uint8Array(_sha512_hash_size);
+    result.set( heap.subarray( 0, _sha512_hash_size ) );
+
+    if ( verify ) {
+        if ( verify.length === result.length ) {
+            var diff = 0;
+            for ( var i = 0; i < verify.length; i++ ) {
+                diff |= ( verify[i] ^ result[i] );
+            }
+            this.result = !diff;
+        } else {
+            this.result = false;
+        }
+    }
+    else {
+        this.result = result;
+    }
+
+    return this;
+}
+
+hmac_sha512_constructor.BLOCK_SIZE = sha512_constructor.BLOCK_SIZE;
+hmac_sha512_constructor.HMAC_SIZE = sha512_constructor.HASH_SIZE;
+
+var hmac_sha512_prototype = hmac_sha512_constructor.prototype;
+hmac_sha512_prototype.reset = hmac_sha512_reset;
+hmac_sha512_prototype.process = hmac_process;
+hmac_sha512_prototype.finish = hmac_sha512_finish;
+
+var hmac_sha512_instance = null;
+
+function get_hmac_sha512_instance () {
+    if ( hmac_sha512_instance === null ) hmac_sha512_instance = new hmac_sha512_constructor();
+    return hmac_sha512_instance;
+}
+
+function pbkdf2_constructor ( options ) {
+    options = options || {};
+
+    if ( !options.hmac )
+        throw new SyntaxError("option 'hmac' is required");
+
+    if ( !options.hmac.HMAC_SIZE )
+        throw new SyntaxError("option 'hmac' supplied doesn't seem to be a valid HMAC function");
+
+    this.hmac = options.hmac;
+    this.count = options.count || 4096;
+    this.length = options.length || this.hmac.HMAC_SIZE;
+
+    this.result = null;
+
+    var password = options.password;
+    if ( password || is_string(password) )
+        this.reset(options);
+
+    return this;
+}
+
+function pbkdf2_reset ( options ) {
+    this.result = null;
+
+    this.hmac.reset(options);
+
+    return this;
+}
+
+function pbkdf2_generate ( salt, count, length ) {
+    if ( this.result !== null )
+        throw new IllegalStateError("state must be reset before processing new data");
+
+    if ( !salt && !is_string(salt) )
+        throw new IllegalArgumentError("bad 'salt' value");
+
+    count = count || this.count;
+    length = length || this.length;
+
+    this.result = new Uint8Array(length);
+
+    var blocks = Math.ceil( length / this.hmac.HMAC_SIZE );
+
+    for ( var i = 1; i <= blocks; ++i ) {
+        var j = ( i - 1 ) * this.hmac.HMAC_SIZE;
+        var l = ( i < blocks ? 0 : length % this.hmac.HMAC_SIZE ) || this.hmac.HMAC_SIZE;
+        var tmp = new Uint8Array( this.hmac.reset().process(salt).process( new Uint8Array([ i>>>24&0xff, i>>>16&0xff, i>>>8&0xff, i&0xff ]) ).finish().result );
+        this.result.set( tmp.subarray( 0, l ), j );
+        for ( var k = 1; k < count; ++k ) {
+            tmp = new Uint8Array( this.hmac.reset().process(tmp).finish().result );
+            for ( var r = 0; r < l; ++r ) this.result[j+r] ^= tmp[r];
+        }
+    }
+
+    return this;
+}
+
+// methods
+var pbkdf2_prototype = pbkdf2_constructor.prototype;
+pbkdf2_prototype.reset =   pbkdf2_reset;
+pbkdf2_prototype.generate = pbkdf2_generate;
+
+function pbkdf2_hmac_sha512_constructor ( options ) {
+    options = options || {};
+
+    if ( !( options.hmac instanceof hmac_sha512_constructor ) )
+        options.hmac = get_hmac_sha512_instance();
+
+    pbkdf2_constructor.call( this, options );
+
+    return this;
+}
+
+function pbkdf2_hmac_sha512_generate ( salt, count, length ) {
+    if ( this.result !== null )
+        throw new IllegalStateError("state must be reset before processing new data");
+
+    if ( !salt && !is_string(salt) )
+        throw new IllegalArgumentError("bad 'salt' value");
+
+    count = count || this.count;
+    length = length || this.length;
+
+    this.result = new Uint8Array(length);
+
+    var blocks = Math.ceil( length / this.hmac.HMAC_SIZE );
+
+    for ( var i = 1; i <= blocks; ++i ) {
+        var j = ( i - 1 ) * this.hmac.HMAC_SIZE;
+        var l = ( i < blocks ? 0 : length % this.hmac.HMAC_SIZE ) || this.hmac.HMAC_SIZE;
+
+        this.hmac.reset().process(salt);
+        this.hmac.hash.asm.pbkdf2_generate_block( this.hmac.hash.pos, this.hmac.hash.len, i, count, 0 );
+
+        this.result.set( this.hmac.hash.heap.subarray( 0, l ), j );
+    }
+
+    return this;
+}
+
+var pbkdf2_hmac_sha512_prototype = pbkdf2_hmac_sha512_constructor.prototype;
+pbkdf2_hmac_sha512_prototype.reset =   pbkdf2_reset;
+pbkdf2_hmac_sha512_prototype.generate = pbkdf2_hmac_sha512_generate;
+
+var pbkdf2_hmac_sha512_instance = null;
+
+function get_pbkdf2_hmac_sha512_instance () {
+    if ( pbkdf2_hmac_sha512_instance === null ) pbkdf2_hmac_sha512_instance = new pbkdf2_hmac_sha512_constructor();
+    return pbkdf2_hmac_sha512_instance;
+}
+
+/**
+ * PBKDF2-HMAC-SHA512 exports
+ */
+
+function pbkdf2_hmac_sha512_bytes ( password, salt, iterations, dklen ) {
+    if ( password === undefined ) throw new SyntaxError("password required");
+    if ( salt === undefined ) throw new SyntaxError("salt required");
+    return get_pbkdf2_hmac_sha512_instance().reset( { password: password } ).generate( salt, iterations, dklen ).result;
+}
+
+function pbkdf2_hmac_sha512_hex ( password, salt, iterations, dklen ) {
+    var result = pbkdf2_hmac_sha512_bytes( password, salt, iterations, dklen );
+    return bytes_to_hex(result);
+}
+
+function pbkdf2_hmac_sha512_base64 ( password, salt, iterations, dklen ) {
+    var result = pbkdf2_hmac_sha512_bytes( password, salt, iterations, dklen );
+    return bytes_to_base64(result);
+}
+
+exports.PBKDF2_HMAC_SHA512 = {
+    bytes: pbkdf2_hmac_sha512_bytes,
+    hex: pbkdf2_hmac_sha512_hex,
+    base64: pbkdf2_hmac_sha512_base64
+};
+
+
+'function'==typeof define&&define.amd?define([],function(){return exports}):'object'==typeof module&&module.exports?module.exports=exports:global.asmCrypto=exports;
+
+return exports;
+})( {}, function(){return this}() );
 
 },{}]},{},[20])(20)
 });
