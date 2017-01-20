@@ -42,8 +42,10 @@ angular.module('blocktrail.wallet')
         };
 
         $scope.error = null;
+        $scope.errorDetailed = null;
         $scope.$watch('form', function() {
             $scope.error = null;
+            $scope.errorDetailed = null;
         }, true);
 
         // this automatically updates an already open modal instead of popping a new one open
@@ -58,6 +60,7 @@ angular.module('blocktrail.wallet')
             }
 
             $scope.error = null;
+            $scope.errorDetailed = null;
 
             FormHelper.setAllDirty(loginForm);
 
@@ -191,6 +194,7 @@ angular.module('blocktrail.wallet')
 
                     } else if(error) {
                         $scope.error = 'MSG_BAD_LOGIN_UNKNOWN';
+                        $scope.errorDetailed = "" + (error.message || error.msg || error);
                     } else {
                         $scope.error = 'MSG_BAD_NETWORK';
                     }
