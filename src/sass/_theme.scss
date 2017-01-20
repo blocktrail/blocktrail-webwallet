@@ -605,6 +605,10 @@ $appHeaderHeight: 80px;
     color: $good-green;
 }
 
+.text-warning {
+    color: $sunflower-dark;
+}
+
 .text-neutral {
     color: #666;
 }
@@ -824,6 +828,35 @@ $display-token-size: 50px;
     .progress-bar {
         background: none;
         background-color: $sunflower-light;
+    }
+}
+
+.password-input {
+    position: relative;
+    .password-check {
+        position: absolute;
+        right: 0px;
+        bottom: 0px;
+        font-size: 32px;
+    }
+}
+
+.password-checker {
+    padding: 3px 5px;
+    border: 1px solid $border-color;
+    border-top: 0px;
+    font-size: 11px;
+
+    &.password-checker-score-0,
+    &.password-checker-score-1 {
+        background-color: $alert-danger-bg;
+    }
+    &.password-checker-score-2 {
+        background: $alert-warning-bg;
+    }
+    &.password-checker-score-3,
+    &.password-checker-score-4 {
+        background-color: $alert-success-bg;
     }
 }
 

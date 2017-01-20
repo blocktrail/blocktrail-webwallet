@@ -205,7 +205,7 @@ angular.module('blocktrail.wallet')
         };
     })
     .controller('SetupNewAccountCtrl', function($scope, $rootScope, $state, $q, $http, $timeout, $modal, launchService, CONFIG,
-                                                settingsService, dialogService, $translate, $log) {
+                                                settingsService, dialogService, $translate, $log, PasswordStrength, $filter) {
         // display mobile app download popup
         $scope.showMobileDialogOnce();
 
@@ -217,7 +217,8 @@ angular.module('blocktrail.wallet')
             username: null,
             email: null,
             password: null,
-            registerWithEmail: 1 //can't use bool, must be number equivalent
+            registerWithEmail: 1, //can't use bool, must be number equivalent
+            passwordCheck: null
         };
 
         // this automatically updates an already open modal instead of popping a new one open
@@ -228,6 +229,21 @@ angular.module('blocktrail.wallet')
 
         $scope.toLogin = function() {
             $state.go('app.setup.login');
+        };
+
+        $scope.checkPassword = function() {
+            if (!$scope.form.password) {
+                $scope.passwordCheck = null;
+                return $q.when(false);
+            }
+
+            return PasswordStrength.check($scope.form.password, [$scope.form.username, $scope.form.email, "BTC.com", "wallet"])
+                .then(function(result) {
+                    result.duration = $filter('duration')(result.crack_times_seconds.online_no_throttling_10_per_second * 1000);
+                    $scope.form.passwordCheck = result;
+
+                    return result;
+                });
         };
 
         $scope.checkUsername = function() {
@@ -272,24 +288,31 @@ angular.module('blocktrail.wallet')
             }
 
             //confirm their password
-
-            return dialogService.prompt({
-                    title: $translate.instant('MSG_REPEAT_PASSWORD').capitalize(),
-                    body: $translate.instant('SETUP_PASSWORD_REPEAT_PLACEHOLDER'),
-                    input_type: 'password',
-                    icon: 'key'
-                }).result
-                .then(
-                    function(dialogResult) {
-                        if ($scope.form.password === dialogResult.trim()) {
-                            $scope.working = true;
-
-                            $scope.register();
-                        } else {
-                            $scope.errMsg = 'MSG_BAD_PASSWORD_REPEAT';
-                        }
+            return $scope.checkPassword()
+                .then(function(passwordCheck) {
+                    if (!passwordCheck || passwordCheck.score < CONFIG.REQUIRED_PASSWORD_STRENGTH) {
+                        $scope.errMsg = 'MSG_WEAK_PASSWORD';
+                        return false;
                     }
-                );
+
+                    return dialogService.prompt({
+                        title: $translate.instant('MSG_REPEAT_PASSWORD').capitalize(),
+                        body: $translate.instant('SETUP_PASSWORD_REPEAT_PLACEHOLDER'),
+                        input_type: 'password',
+                        icon: 'key'
+                    }).result
+                        .then(
+                            function(dialogResult) {
+                                if ($scope.form.password === dialogResult.trim()) {
+                                    $scope.working = true;
+
+                                    $scope.register();
+                                } else {
+                                    $scope.errMsg = 'MSG_BAD_PASSWORD_REPEAT';
+                                }
+                            }
+                        );
+                });
 
         };
 
@@ -298,6 +321,7 @@ angular.module('blocktrail.wallet')
                 username: $scope.form.username,
                 email: $scope.form.email,
                 password: CryptoJS.SHA512($scope.form.password).toString(),
+                password_score: $scope.form.passwordCheck && $scope.form.passwordCheck.score || 0,
                 platform: "Web",
                 version: $rootScope.appVersion,
                 device_name: navigator.userAgent || 'Unknown Browser'

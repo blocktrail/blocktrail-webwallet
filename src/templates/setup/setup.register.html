@@ -17,7 +17,25 @@
 
                         <div class="form-group form-group-lg">
                             <label class="control-label">{{ 'SETUP_PASSWORD_PLACEHOLDER' | translate }}</label>
-                            <input class="form-control" type="password" placeholder="{{ 'SETUP_PASSWORD_PLACEHOLDER' | translate }}" ng-model="form.password" required>
+                            <div class="password-input">
+                                <input class="form-control" type="password" placeholder="{{ 'SETUP_PASSWORD_PLACEHOLDER' | translate }}"
+                                       ng-model="form.password"
+                                       ng-change="checkPassword()"
+                                       required>
+                                <div class="password-check text-right">
+                                    <i class="bticon bticon-cancel-circled text-bad" ng-if="form.passwordCheck && form.passwordCheck.score < 2"></i>
+                                    <i class="bticon bticon-cancel-circled text-warning" ng-if="form.passwordCheck && form.passwordCheck.score == 2"></i>
+                                    <i class="bticon bticon-ok-circled text-good" ng-if="form.passwordCheck && form.passwordCheck.score >= 3"></i>
+                                </div>
+                            </div>
+                            <div class="password-checker password-checker-score-{{ form.passwordCheck.score }}" ng-if="form.passwordCheck">
+                                <span ng-if="form.passwordCheck.score == 0">{{ 'PASSWORD_SUPER_WEAK' | translate }} </span>
+                                <span ng-if="form.passwordCheck.score == 1">{{ 'PASSWORD_WEAK' | translate }} </span>
+                                <span ng-if="form.passwordCheck.score == 2">{{ 'PASSWORD_MEDIOCRE' | translate }} </span>
+                                <span ng-if="form.passwordCheck.score == 3">{{ 'PASSWORD_STRONG' | translate }} </span>
+                                <span ng-if="form.passwordCheck.score >= 4">{{ 'PASSWORD_SUPER_STRONG' | translate }} </span>
+                                <span ng-bind-html="'PASSWORD_TIME_TO_CRACK' | translate:form.passwordCheck"></span>
+                            </div>
                         </div>
 
                         <div class="form-group form-group-lg">

@@ -12,6 +12,8 @@
 
     "DEFAULT_WALLET_VERSION": "v3",
 
+    "REQUIRED_PASSWORD_STRENGTH": 2,
+
     "HOMEPAGE_URL": "https://btc.com",
     "EXPLORER_URL": "https://btc.com",
     "DEVELOPERS_URL": "https://www.blocktrail.com/api",

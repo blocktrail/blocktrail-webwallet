@@ -217,6 +217,7 @@ gulp.task('templates:index', ['appconfig', 'js', 'sass'], function() {
                 "./www/" + APPCONFIG.STATICSDIR + "/js/libs.js",
                 "./www/" + APPCONFIG.STATICSDIR + "/js/templates.js",
                 "./www/" + APPCONFIG.STATICSDIR + "/js/sdk.js",
+                "./www/" + APPCONFIG.STATICSDIR + "/js/zxcvbn.js",
                 "./www/" + APPCONFIG.STATICSDIR + "/css/app.css"
             ], "./www/" + APPCONFIG.STATICSDIR + "/").then(function(SRI) {
                 return streamAsPromise(gulp.src("./src/index.html")
@@ -328,6 +329,19 @@ gulp.task('js:sdk', ['appconfig'], function() {
                     except: ['Buffer', 'BigInteger', 'Point', 'Script', 'ECPubKey', 'ECKey', 'sha512_asm', 'asm']
                 }
             })))
+            .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
+        );
+    });
+});
+
+gulp.task('js:zxcvbn', ['appconfig'], function() {
+
+    return appConfig.then(function(APPCONFIG) {
+        return streamAsPromise(gulp.src([
+            "./src/lib/zxcvbn/dist/zxcvbn.js"
+        ])
+            .pipe(concat('zxcvbn.js'))
+            .pipe(gulpif(APPCONFIG.MINIFY, uglify()))
             .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
         );
     });
@@ -480,6 +494,6 @@ gulp.task('copystatics:livereload', ['copystatics'], function() {
     livereload.reload();
 });
 
-gulp.task('js', ['js:libs', 'js:app', 'js:sdk']);
+gulp.task('js', ['js:libs', 'js:app', 'js:sdk', 'js:zxcvbn']);
 gulp.task('templates', ['templates:index', 'templates:rest']);
 gulp.task('default', ['copystatics', 'sass', 'templates', 'js']);
