@@ -193,8 +193,12 @@ angular.module('blocktrail.wallet')
                         }
 
                     } else if(error) {
+                        console.log(error);
                         $scope.error = 'MSG_BAD_LOGIN_UNKNOWN';
                         $scope.errorDetailed = "" + (error.message || error.msg || error);
+                        if ($scope.errorDetailed === ("" + {})) {
+                            $scope.errorDetailed = null;
+                        }
                     } else {
                         $scope.error = 'MSG_BAD_NETWORK';
                     }
