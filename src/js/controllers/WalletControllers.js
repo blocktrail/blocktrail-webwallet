@@ -82,7 +82,8 @@ angular.module('blocktrail.wallet')
 );
 
 angular.module('blocktrail.wallet')
-    .controller('WalletSummaryCtrl', function($scope, $rootScope, $state, $log, $filter, $http, $q, $timeout, Wallet, $translate, $modal, CONFIG) {
+    .controller('WalletSummaryCtrl', function($scope, $rootScope, $state, $log, $filter, $http, $q, $timeout, Wallet,
+                                              launchService, settingsService, $translate, $modal, CONFIG) {
         $rootScope.pageTitle = 'TRANSACTIONS';
         // update balance from cache
         $scope.transactionsList         = [];   //original list of transactions
@@ -95,6 +96,26 @@ angular.module('blocktrail.wallet')
             limit: 15
         };
         $scope.lastDateHeader = 0;      //used to keep track of the last date header added
+
+        // display 2FA warning once every day when it's not enabled
+        $scope.twoFactorWarning = false;
+        launchService.getAccountInfo().then(function(accountInfo) {
+            var SECONDS_AGO = 86400;
+
+            if (!accountInfo.requires2FA) {
+                return settingsService.$isLoaded().then(function() {
+                    var last = settingsService.twoFactorWarningLastDisplayed;
+                    if (!last || last < (new Date()).getTime() - SECONDS_AGO * 1000) {
+                        settingsService.twoFactorWarningLastDisplayed = (new Date()).getTime();
+                        settingsService.$store().then(function() {
+                            settingsService.$syncSettingsUp();
+                        });
+
+                        $scope.twoFactorWarning = true;
+                    }
+                });
+            }
+        });
 
         $scope.refreshTransactions = function() {
             $log.debug('refresh transactions...');

@@ -5,6 +5,17 @@
     </div>
 
     <div ng-if="!isFirstLoad">
+
+        <div ng-if="twoFactorWarning" class="row">
+            <div class="col-xs-12">
+                <div class="alert alert-warning col-xs-12" style="border-radius:0px;border-top:0px;">
+                    <button class="btn btn-warning pull-right" ui-sref="app.wallet.settings"><i class="bticon bticon-cog"></i> {{ 'SETTINGS' | translate }}</button>
+                    <b><i class="bticon bticon-warning-empty"></i> {{ 'SECURITY_REMINDER' | translate }}</b>
+                    <p>{{ 'SECURITY_REMINDER_2FA' | translate }}</p>
+                </div>
+            </div>
+        </div>
+
         <div infinite-scroll="loadMoreTransactions()" infinite-scroll-container="'#appBody'" infinite-scroll-distance="0.3">
             <div ng-repeat="transaction in transactionsDisplayList track by $index">
 

@@ -215,6 +215,12 @@
             "css": "ok-circled",
             "code": 59426,
             "src": "fontawesome"
+        },
+        {
+            "uid": "8f28d948aa6379b1a69d2a090e7531d4",
+            "css": "warning-empty",
+            "code": 59427,
+            "src": "typicons"
         }
     ]
 }

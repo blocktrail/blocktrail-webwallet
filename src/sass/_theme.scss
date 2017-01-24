@@ -1077,7 +1077,34 @@ $display-token-size: 50px;
 
     &.state-app_wallet_summary {
         $divider-height: 35px;
+/*
+        .security-reminder {
+            padding: 10px 40px 20px 40px;
+            color: $good-green;
+            background-color: $dark-green;
 
+            .left {
+                float: left;
+                height: 35px;
+                width: 37px;
+                overflow: hidden;
+                margin-left: 10px;
+
+                .bticon {
+                    font-size: 30px;
+                }
+            }
+
+            .right {
+                margin-left: 57px;
+                min-height: 35px;
+            }
+
+            .btn {
+                color: $black-light;
+            }
+        }
+*/
         .noTransactions {
             display: block;
             padding-top: 100px;

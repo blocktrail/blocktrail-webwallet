@@ -11,6 +11,7 @@ angular.module('blocktrail.wallet').service('settingsService', function($q, stor
         receiveNewsletter: 1,
         profilePosX:  50,
         profilePosY:  50,
+        twoFactorWarningLastDisplayed: null,
         contactsLastSync: null,
         enablePolling: true,    //dev setting - disables auto polling for transactions
         useTestnet: false,      //dev setting - enables testnet for SDK
