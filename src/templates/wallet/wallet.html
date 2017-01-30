@@ -54,8 +54,8 @@
                         <div class="col-xs-8">
                             <div class="text-right">
                                 <h1 class="capitalise">
-                                    {{ (balance+uncBalance) | satoshiToCurrency: 'BTC' : bitcoinPrices : 4}}
-                                    <small>≃ {{ (balance+uncBalance) | satoshiToCurrency:settings.localCurrency : bitcoinPrices }}</small>
+                                    {{ (balance + uncBalance) | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}
+                                    <small>≃ {{ (balance + uncBalance) | satoshiToCurrency:settings.localCurrency : bitcoinPrices }}</small>
                                 </h1>
                             </div>
                         </div>
