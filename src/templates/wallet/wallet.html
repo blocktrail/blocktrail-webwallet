@@ -24,7 +24,7 @@
                             <span class="capitalise">{{ 'RECEIVE' | translate }}</span>
                         </a>
                     </li>
-                    <li ng-class="{'active':$state.includes('app.wallet.buybtc')}">
+                    <li ng-if="CONFIG.BUYBTC" ng-class="{'active':$state.includes('app.wallet.buybtc')}">
                         <a ui-sref="app.wallet.buybtc.choose">
                             <i class="bticon bticon-credit-card"></i>
                             <span class="capitalise">{{ 'BUYBTC_NAVTITLE' | translate }}</span>
