@@ -6,6 +6,9 @@
     "API_HOST": "api.blocktrail.com",
     "API_HTTPS": true,
 
+    "EXTRA_LANGUAGES": ["es", "nl", "ru", "fr", "hi", "sw"],
+    "CURRENCIES": ["USD", "EUR", "GBP", "CNY"],
+
     "STATICSDIR": "dev",
 
     "FALLBACK_LANGUAGE": false,

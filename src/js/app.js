@@ -53,13 +53,6 @@ angular.module('blocktrail.wallet').run(
         $rootScope.bodyClass = [];
         $rootScope.bodyClassStr = "";
 
-        $rootScope.currencies = [
-            {code: 'USD', symbol: '$'},
-            {code: 'EUR', symbol: '€'},
-            {code: 'GBP', symbol: '£'},
-            {code: 'CNY', symbol: '¥'}
-        ];
-
         $rootScope.changeLanguage = function(language) {
             settingsService.language = language || blocktrailLocalisation.preferredAvailableLanguage() || CONFIG.FALLBACK_LANGUAGE || 'en';
 
@@ -248,37 +241,31 @@ angular.module('blocktrail.wallet').config(
                      * check for extra languages to enable
                      * if new language is new preferred, set it
                      */
-                    preferredLanguage: function(CONFIG, $rootScope, settingsService, blocktrailLocalisation, $http) {
-                        return $http.get(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/mywallet/config?v=" + CONFIG.VERSION)
+                    preferredLanguage: function(CONFIG, $rootScope, settingsService, blocktrailLocalisation, launchService) {
+                        return launchService.getWalletConfig()
                             .then(function(result) {
-                                return result.data.extraLanguages;
+                                return result.extraLanguages.concat(CONFIG.EXTRA_LANGUAGES).unique();
                             })
                             .then(function(extraLanguages) {
-                                // filter out languages we already know
-                                var knownLanguages = blocktrailLocalisation.getLanguages();
-                                extraLanguages = extraLanguages.filter(function(language) {
-                                    return knownLanguages.indexOf(language) === -1;
-                                });
-
-                                if (extraLanguages.length === 0) {
-                                    return;
-                                }
-
-                                // enable extra languages
-                                _.each(extraLanguages, function(extraLanguage) {
-                                    blocktrailLocalisation.enableLanguage(extraLanguage, {});
-                                });
-
-                                // determine (new) preferred language
-                                var preferredLanguage = blocktrailLocalisation.setupPreferredLanguage();
-
-                                // activate preferred language
-                                $rootScope.changeLanguage(preferredLanguage);
-
-                                // store preferred language
                                 return settingsService.$isLoaded().then(function() {
+                                    // parse extra languages to determine if there's any new
+                                    var r = blocktrailLocalisation.parseExtraLanguages(extraLanguages);
+                                    var preferredLanguage;
+
+                                    // if there's any new we should store those
+                                    if (r) {
+                                        var newLanguages = r[0];
+                                        preferredLanguage = r[1];
+                                        settingsService.extraLanguages = settingsService.extraLanguages.concat(newLanguages).unique();
+                                    } else {
+                                        preferredLanguage = blocktrailLocalisation.setupPreferredLanguage();
+                                    }
+
+                                    // activate preferred language
+                                    $rootScope.changeLanguage(preferredLanguage);
+
+                                    // store preferred language
                                     settingsService.language = preferredLanguage;
-                                    settingsService.extraLanguages = settingsService.extraLanguages.concat(extraLanguages).unique();
 
                                     return settingsService.$store();
                                 });

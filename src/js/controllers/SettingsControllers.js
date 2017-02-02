@@ -1,8 +1,10 @@
 angular.module('blocktrail.wallet')
     .controller('SettingsCtrl', function($scope, $http, $rootScope, $q, sdkService, launchService, settingsService, Wallet,
                                          Contacts, storageService, $translate, $timeout, $state, $log, $sce, dialogService,
-                                         CONFIG, $modal, blocktrailLocalisation) {
+                                         CONFIG, Currencies, $modal, blocktrailLocalisation) {
         $rootScope.pageTitle = 'SETTINGS';
+
+        $scope.currencies = Currencies.getFiatCurrencies();
 
         $scope.profilePic = {
             newProfileImage: null,

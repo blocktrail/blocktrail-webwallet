@@ -23,6 +23,62 @@ angular.module('blocktrail.wallet')
          * check for extra languages to enable
          *  if one is preferred, prompt user to switch
          */
+        $rootScope.fetchExtraLanguages = launchService.getWalletConfig()
+            .then(function(result) {
+                if (result.currencies) {
+                    result.currencies.forEach(function (currency) {
+                        Currencies.enableCurrency(currency);
+                    });
+                }
+
+                return result.extraLanguages.concat(CONFIG.EXTRA_LANGUAGES).unique();
+            })
+            .then(function(extraLanguages) {
+                return settingsService.$isLoaded().then(function() {
+                    // determine (new) preferred language
+                    var r = blocktrailLocalisation.parseExtraLanguages(extraLanguages);
+                    if (r) {
+                        var newLanguages = r[0];
+                        var preferredLanguage = r[1];
+
+                        // store extra languages
+                        settingsService.extraLanguages = settingsService.extraLanguages.concat(newLanguages).unique();
+                        return settingsService.$store()
+                            .then(function () {
+                                // check if we have a new preferred language
+                                if (preferredLanguage != settingsService.language && newLanguages.indexOf(preferredLanguage) !== -1) {
+                                    // prompt to enable
+                                    return dialogService.prompt({
+                                        body: $translate.instant('MSG_BETTER_LANGUAGE', {
+                                            oldLanguage: $translate.instant(blocktrailLocalisation.languageName(settingsService.language)),
+                                            newLanguage: $translate.instant(blocktrailLocalisation.languageName(preferredLanguage))
+                                        }).sentenceCase(),
+                                        title: $translate.instant('MSG_BETTER_LANGUAGE_TITLE').sentenceCase(),
+                                        prompt: false
+                                    })
+                                        .result
+                                        .then(function() {
+                                            // enable new language
+                                            settingsService.language = preferredLanguage;
+                                            $rootScope.changeLanguage(preferredLanguage);
+
+                                            return settingsService.$store()
+                                                .then(function() {
+                                                    settingsService.$syncSettingsUp();
+                                                });
+                                        });
+                                }
+                            })
+                            ;
+                    }
+                });
+            })
+            .then(function() {}, function(e) { console.error('extraLanguages', e && (e.msg || e.message || "" + e)); });
+
+        /*
+         * check for extra languages to enable
+         *  if one is preferred, prompt user to switch
+         */
         $rootScope.fetchExtraLanguages = $http.get(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/mywallet/config?v=" + CONFIG.VERSION)
             .then(function(result) {
                 return result.data.extraLanguages;

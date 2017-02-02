@@ -98,17 +98,14 @@ angular.module('blocktrail.localisation', [
         };
 
         // enabled languages
+        //  languages should be added to CONFIG.LANGUAGES, not here
+        //  because when added here it won't result in a popup asking the user to switch to them
         var languages = [
             'en-US',
-            'en',
-            // 'fr',
-            // 'es',
-            // 'nl',
-            // 'ru',
-            // 'cn'
+            'en'
         ];
         // language aliases used to map system language to a language key
-        //  mapping won't work without these so without a working alias languages will never be abled
+        //  mapping won't work without these so without a working alias languages will never be enabled
         var aliases = {
             'en-US': 'en-US',
             'en-*': 'en',
@@ -116,7 +113,10 @@ angular.module('blocktrail.localisation', [
             'nl-*': 'nl',
             'es-*': 'es',
             'ru-*': 'ru',
-            'cn-*': 'cn'
+            'cn-*': 'cn',
+            'sw-*': 'sw',
+            'ar-*': 'ar',
+            'hi-*': 'hi'
         };
 
         // names used for translation keys
@@ -127,11 +127,14 @@ angular.module('blocktrail.localisation', [
             fr: 'FRENCH',
             es: 'SPANISH',
             cn: 'CHINESE',
-            ru: 'RUSSIAN'
+            ru: 'RUSSIAN',
+            sw: 'SWAHILI',
+            ar: 'ARABIC',
+            hi: 'HINDI'
         };
 
         var languageName = function(langKey) {
-            return names[langKey];
+            return names[langKey.replace("_", "-")];
         };
 
         var registerLanguages = function() {
@@ -144,8 +147,6 @@ angular.module('blocktrail.localisation', [
 
         var enableLanguage = function(language, _aliases) {
             if (languages.indexOf(language) === -1) {
-                console.log('enableLanguage', language);
-
                 languages.push(language);
                 _.each(_aliases, function(v, k) {
                     aliases[k] = v;
@@ -161,14 +162,12 @@ angular.module('blocktrail.localisation', [
 
         var determinePreferredLanguage = function() {
             var r = negotiateLocale(getFirstBrowserLanguage());
-            console.log('determinePreferredLanguage', r);
             return r;
         };
 
         var preferredAvailableLanguage = function() {
             var preferredLanguage = determinePreferredLanguage();
             var r = isAvailableLanguage(preferredLanguage) ? preferredLanguage : null;
-            console.log('preferredAvailableLanguage', preferredLanguage, r);
             return r;
         };
 
@@ -177,6 +176,26 @@ angular.module('blocktrail.localisation', [
             $translateProvider.preferredLanguage(language);
 
             return language;
+        };
+
+        var parseExtraLanguages = function(extraLanguages) {
+            // filter out languages we already know
+            var knownLanguages = getLanguages();
+            var newLanguages = extraLanguages.filter(function(language) {
+                return knownLanguages.indexOf(language) === -1;
+            });
+
+            if (newLanguages.length === 0) {
+                return;
+            }
+
+            // enable extra languages
+            _.each(newLanguages, function(newLanguage) {
+                enableLanguage(newLanguage, {});
+            });
+
+            // determine (new) preferred language
+            return [newLanguages, setupPreferredLanguage()];
         };
 
         // expose as provider
@@ -189,6 +208,7 @@ angular.module('blocktrail.localisation', [
         this.determinePreferredLanguage = determinePreferredLanguage;
         this.languageName = languageName;
         this.getLanguages = getLanguages;
+        this.parseExtraLanguages = parseExtraLanguages;
 
         // expose as service
         this.$get = function() {
@@ -201,7 +221,8 @@ angular.module('blocktrail.localisation', [
                 registerLanguages: registerLanguages,
                 determinePreferredLanguage: determinePreferredLanguage,
                 languageName: languageName,
-                getLanguages: getLanguages
+                getLanguages: getLanguages,
+                parseExtraLanguages: parseExtraLanguages
             };
         };
     })
