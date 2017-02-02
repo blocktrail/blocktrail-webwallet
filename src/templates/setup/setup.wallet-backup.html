@@ -5,7 +5,7 @@
             <div class="appWrapper">
                 <div class="backupWrapper">
 
-                    <h1 class="capitalise sentence-case">{{ 'SETUP_WALLET_BACKUP' | translate }}</h1>
+                    <h1 class="sentence-case">{{ 'SETUP_WALLET_BACKUP' | translate }}</h1>
 
                     <div class="sentence-case">
                         <p class="sentence-case">
@@ -13,7 +13,7 @@
                             <b>{{ 'SETUP_WALLET_BACKUP_TEXT_BOLD' | translate }}</b><br/><br/>
                             {{ 'SETUP_WALLET_BACKUP_TEXT_APPEND' | translate }}
                         </p>
-                        <button ng-class="{ 'btn-success':!backupSaved }" class="btn btn-lg btn-default downloadBackupBtn capitalise" ng-click="export()">{{ 'BACKUP_CREATE_PDF' | translate }}</button>
+                        <button ng-class="{ 'btn-success':!backupSaved }" class="btn btn-lg btn-default downloadBackupBtn" ng-click="export()">{{ 'BACKUP_CREATE_PDF' | translate }}</button>
                     </div>
 
                     <form class="form">
@@ -30,7 +30,7 @@
                             </span>
                         </div>
                         <div class="form-group form-group-lg">
-                            <button class="btn btn-alt capitalise form-control"
+                            <button class="btn btn-alt form-control"
                                     ng-class="{'btn-default': !backupSaved, 'btn-success': backupSaved}"
                                     ng-disabled="!backupSaved"
                                     ng-click="continue()">{{ 'CONTINUE' | translate }}

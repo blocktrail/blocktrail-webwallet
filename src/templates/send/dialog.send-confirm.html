@@ -1,6 +1,6 @@
 <form class="form" name="sendInputForm" novalidate ng-submit="submit(sendInputForm)">
     <div class="modal-header">
-        <h3 class="modal-title capitalise">{{ 'SENDING_CONFIRM_TITLE' | translate }}</h3>
+        <h3 class="modal-title">{{ 'SENDING_CONFIRM_TITLE' | translate }}</h3>
     </div>
 
     <div class="modal-body">
@@ -80,8 +80,8 @@
                 <span class="bticon bticon-ok transaction-ok"></span>
             </div>
             <div>
-                <h4 class="text-center text-success capitalise"> {{ 'TRANSACTION_SEND_SUCCESS' | translate }}.</h4>
-                <p class="text-center text-success capitalise">{{ 'TX_INFO_HASH' | translate }}:
+                <h4 class="text-center text-success"> {{ 'TRANSACTION_SEND_SUCCESS' | translate }}.</h4>
+                <p class="text-center text-success">{{ 'TX_INFO_HASH' | translate }}:
                     <a href="https://www.btc.com/{{txHash}}" target="_blank" class="text-ellipsis">{{ txHash | characters:8 }}
                     </a>
                 </p>

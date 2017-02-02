@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-md-6 col-md-offset-3 col-sm-12 col-xs-12">
             <div class="appWrapper">
-                <h1 class="pageTitle capitalise">{{ 'SETUP_FORGOT_PASSWORD' | translate }}</h1>
+                <h1 class="pageTitle">{{ 'SETUP_FORGOT_PASSWORD' | translate }}</h1>
 
                 <div class="formContainer">
                     <form name="forgotPassForm" class="form" novalidate>
@@ -30,7 +30,7 @@
                         </div>
 
                         <div class="form-group form-group-lg form-group-buttons">
-                            <button class="form-control btn btn-alt btn-success capitalise" ng-disabled="working" ng-click="doForgotPass(forgotPassForm)">{{ 'CONTINUE' | translate }}</button>
+                            <button class="form-control btn btn-alt btn-success" ng-disabled="working" ng-click="doForgotPass(forgotPassForm)">{{ 'CONTINUE' | translate }}</button>
                             <div ng-if="working">
                                 <loading-spinner></loading-spinner>
                                 {{ 'PLEASE_WAIT' | translate }}

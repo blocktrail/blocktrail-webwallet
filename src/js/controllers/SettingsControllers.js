@@ -105,8 +105,8 @@ angular.module('blocktrail.wallet')
          */
         $scope.resetWallet = function() {
                 return dialogService.alert(
-                    $translate.instant('MSG_RESET_WALLET').capitalize(),
-                    $translate.instant('MSG_ARE_YOU_SURE').capitalize(),
+                    $translate.instant('MSG_RESET_WALLET'),
+                    $translate.instant('MSG_ARE_YOU_SURE'),
                     null,
                     null // enable cancel button
                 )
@@ -123,7 +123,7 @@ angular.module('blocktrail.wallet')
                     .catch(function(err) {
                         // modal.dismiss will be err=undefined
                         if (err) {
-                            dialogService.alert(err.toString(), $translate.instant('FAILED').capitalize());
+                            dialogService.alert(err.toString(), $translate.instant('FAILED'));
                         }
                     })
                 ;
@@ -169,14 +169,14 @@ angular.module('blocktrail.wallet')
                     }
 
                     return dialogService.prompt({
-                        title: $translate.instant('CHANGE_PASSWORD').capitalize(),
-                        body: $translate.instant('ENTER_CURRENT_PASSWORD').capitalize(),
+                        title: $translate.instant('CHANGE_PASSWORD'),
+                        body: $translate.instant('ENTER_CURRENT_PASSWORD'),
                         input_type: 'password',
                         icon: 'key'
                     })
                         .result
                         .then(function(currentPassword) {
-                            $scope.alert($translate.instant('CHANGE_PASSWORD').capitalize(), $translate.instant('VERIFYING').capitalize(), false);
+                            $scope.alert($translate.instant('CHANGE_PASSWORD'), $translate.instant('VERIFYING'), false);
 
                             return $http.post(CONFIG.API_URL + "/v1/BTC/mywallet/check", {
                                 login: accountInfo.email || accountInfo.username,
@@ -213,16 +213,16 @@ angular.module('blocktrail.wallet')
                         })
                         .then(function(currentPassword) {
                             return dialogService.prompt({
-                                title: $translate.instant('CHANGE_PASSWORD').capitalize(),
-                                body: $translate.instant('ENTER_NEW_PASSWORD').sentenceCase(),
+                                title: $translate.instant('CHANGE_PASSWORD'),
+                                body: $translate.instant('ENTER_NEW_PASSWORD'),
                                 input_type: 'password',
                                 icon: 'key'
                             })
                                 .result
                                 .then(function(newPassword) {
                                     return dialogService.prompt({
-                                        title: $translate.instant('CHANGE_PASSWORD').capitalize(),
-                                        body: $translate.instant('ENTER_REPEAT_PASSWORD').sentenceCase(),
+                                        title: $translate.instant('CHANGE_PASSWORD'),
+                                        body: $translate.instant('ENTER_REPEAT_PASSWORD'),
                                         input_type: 'password',
                                         icon: 'key'
                                     })
@@ -239,16 +239,16 @@ angular.module('blocktrail.wallet')
                                     return $q.when(null).then(function() {
                                         if (accountInfo.requires2FA) {
                                             return dialogService.prompt({
-                                                title: $translate.instant('CHANGE_PASSWORD').capitalize(),
-                                                body: $translate.instant('MSG_MISSING_TWO_FACTOR_TOKEN').sentenceCase()
+                                                title: $translate.instant('CHANGE_PASSWORD'),
+                                                body: $translate.instant('MSG_MISSING_TWO_FACTOR_TOKEN')
                                             }).result;
                                         } else {
                                             return null;
                                         }
                                     }).then(function(twoFactorToken) {
                                         $scope.alert(
-                                            $translate.instant('CHANGE_PASSWORD').capitalize(),
-                                            $translate.instant('CHANGE_PASSWORD_WALLET_INPROGRESS').sentenceCase(),
+                                            $translate.instant('CHANGE_PASSWORD'),
+                                            $translate.instant('CHANGE_PASSWORD_WALLET_INPROGRESS'),
                                             false
                                         );
 
@@ -284,9 +284,9 @@ angular.module('blocktrail.wallet')
                                                                         });
 
                                                                         return $scope.alert({
-                                                                            title: $translate.instant('CHANGE_PASSWORD').capitalize(),
-                                                                            bodyHtml: $sce.trustAsHtml($translate.instant('CHANGE_PASSWORD_BACKUP').sentenceCase()),
-                                                                            ok: $translate.instant('BACKUP_CREATE_PDF').capitalize()
+                                                                            title: $translate.instant('CHANGE_PASSWORD'),
+                                                                            bodyHtml: $sce.trustAsHtml($translate.instant('CHANGE_PASSWORD_BACKUP')),
+                                                                            ok: $translate.instant('BACKUP_CREATE_PDF')
                                                                         }).result.then(function() {
                                                                             var backup = new sdkService.BackupGenerator(
                                                                                 wallet.identifier,
@@ -326,8 +326,8 @@ angular.module('blocktrail.wallet')
 
                                                                         if (error instanceof blocktrailSDK.WalletInvalid2FAError) {
                                                                             return dialogService.prompt({
-                                                                                title: $translate.instant('CHANGE_PASSWORD').capitalize(),
-                                                                                body: $translate.instant('MSG_INVALID_TWO_FACTOR_TOKEN').capitalize()
+                                                                                title: $translate.instant('CHANGE_PASSWORD'),
+                                                                                body: $translate.instant('MSG_INVALID_TWO_FACTOR_TOKEN')
                                                                             })
                                                                                 .result
                                                                                 .then(function(_twoFactorToken) {
@@ -356,7 +356,7 @@ angular.module('blocktrail.wallet')
             })
             .catch(function(err) {
                 if (err && err.message) {
-                    $scope.alert($translate.instant('CHANGE_PASSWORD').capitalize(), err.message);
+                    $scope.alert($translate.instant('CHANGE_PASSWORD'), err.message);
                 }
             })
         };
@@ -407,19 +407,19 @@ angular.module('blocktrail.wallet')
             return $q.when(null)
                 .then(function() {
                     return dialogService.prompt({
-                        title: $translate.instant('SETTINGS_2FA').capitalize(),
-                        subtitle: $translate.instant('SETTINGS_2FA_STEP1').capitalize(),
-                        body: $translate.instant('SETTINGS_2FA_STEP1_BODY').sentenceCase(),
-                        label: $translate.instant('SETTINGS_2FA_PASSWORD').capitalize(),
+                        title: $translate.instant('SETTINGS_2FA'),
+                        subtitle: $translate.instant('SETTINGS_2FA_STEP1'),
+                        body: $translate.instant('SETTINGS_2FA_STEP1_BODY'),
+                        label: $translate.instant('SETTINGS_2FA_PASSWORD'),
                         input_type: 'password',
-                        ok: $translate.instant('CONTINUE').capitalize()
+                        ok: $translate.instant('CONTINUE')
                     })
                         .result
                         .then(
                         function(password) {
                             pleaseWaitDialog = dialogService.alert({
-                                title: $translate.instant('SETTINGS_2FA').capitalize(),
-                                body: $translate.instant('PLEASE_WAIT').capitalize(),
+                                title: $translate.instant('SETTINGS_2FA'),
+                                body: $translate.instant('PLEASE_WAIT'),
                                 body_class: 'text-center',
                                 showSpinner: true,
                                 ok: false
@@ -430,12 +430,12 @@ angular.module('blocktrail.wallet')
 
                                     pleaseWaitDialog.dismiss();
                                     return dialogService.alert({
-                                        title: $translate.instant('SETTINGS_2FA').capitalize(),
-                                        subtitle: $translate.instant('SETTINGS_2FA_STEP2').capitalize(),
-                                        bodyHtml: $sce.trustAsHtml($translate.instant('SETTINGS_2FA_STEP2_BODY').sentenceCase()),
-                                        bodyExtra: $translate.instant('SETINGS_2FA_STEP2_CODE', {secret: result.secret}).sentenceCase(),
-                                        ok: $translate.instant('CONTINUE').capitalize(),
-                                        cancel: $translate.instant('CANCEL').capitalize(),
+                                        title: $translate.instant('SETTINGS_2FA'),
+                                        subtitle: $translate.instant('SETTINGS_2FA_STEP2'),
+                                        bodyHtml: $sce.trustAsHtml($translate.instant('SETTINGS_2FA_STEP2_BODY')),
+                                        bodyExtra: $translate.instant('SETINGS_2FA_STEP2_CODE', {secret: result.secret}),
+                                        ok: $translate.instant('CONTINUE'),
+                                        cancel: $translate.instant('CANCEL'),
                                         qr: {
                                             correctionLevel: 7,
                                             SIZE: 225,
@@ -447,17 +447,17 @@ angular.module('blocktrail.wallet')
                                         .result
                                         .then(function() {
                                             return dialogService.prompt({
-                                                title: $translate.instant('SETTINGS_2FA').capitalize(),
-                                                subtitle: $translate.instant('SETTINGS_2FA_STEP3').capitalize(),
-                                                body: $translate.instant('SETTINGS_2FA_STEP3_BODY').sentenceCase(),
-                                                label: $translate.instant('TWO_FACTOR_TOKEN').capitalize(),
-                                                ok: $translate.instant('SETTINGS_2FA_VERIFY_TOKEN').capitalize()
+                                                title: $translate.instant('SETTINGS_2FA'),
+                                                subtitle: $translate.instant('SETTINGS_2FA_STEP3'),
+                                                body: $translate.instant('SETTINGS_2FA_STEP3_BODY'),
+                                                label: $translate.instant('TWO_FACTOR_TOKEN'),
+                                                ok: $translate.instant('SETTINGS_2FA_VERIFY_TOKEN')
                                             })
                                                 .result
                                                 .then(function(twoFactorToken) {
                                                     var pleaseWaitDialog = dialogService.alert({
-                                                        title: $translate.instant('SETTINGS_2FA').capitalize(),
-                                                        body: $translate.instant('PLEASE_WAIT').capitalize(),
+                                                        title: $translate.instant('SETTINGS_2FA'),
+                                                        body: $translate.instant('PLEASE_WAIT'),
                                                         body_class: 'text-center',
                                                         showSpinner: true,
                                                         ok: false
@@ -465,8 +465,8 @@ angular.module('blocktrail.wallet')
 
                                                     return sdk.enable2FA(twoFactorToken).then(function() {
                                                         pleaseWaitDialog.update({
-                                                            title: $translate.instant('SETTINGS_2FA').capitalize(),
-                                                            body: $translate.instant('SETTINGS_2FA_DONE').capitalize(),
+                                                            title: $translate.instant('SETTINGS_2FA'),
+                                                            body: $translate.instant('SETTINGS_2FA_DONE'),
                                                             body_class: 'text-center',
                                                             ok: false
                                                         });
@@ -504,7 +504,7 @@ angular.module('blocktrail.wallet')
                         return;
                     } else {
                         dialogService.alert({
-                            title: $translate.instant('SETTINGS_2FA').capitalize(),
+                            title: $translate.instant('SETTINGS_2FA'),
                             body: e.message || e
                         });
                     }
@@ -518,17 +518,17 @@ angular.module('blocktrail.wallet')
             return $q.when(null)
                 .then(function() {
                     return dialogService.prompt({
-                        title: $translate.instant('SETTINGS_2FA').capitalize(),
-                        subtitle: $translate.instant('SETTINGS_2FA_DISABLE_2FA').capitalize(),
-                        body: $translate.instant('SETTINGS_2FA_DISABLE_BODY').sentenceCase(),
-                        label: $translate.instant('TWO_FACTOR_TOKEN').capitalize(),
-                        ok: $translate.instant('SETTINGS_2FA_DISABLE_2FA').capitalize()
+                        title: $translate.instant('SETTINGS_2FA'),
+                        subtitle: $translate.instant('SETTINGS_2FA_DISABLE_2FA'),
+                        body: $translate.instant('SETTINGS_2FA_DISABLE_BODY'),
+                        label: $translate.instant('TWO_FACTOR_TOKEN'),
+                        ok: $translate.instant('SETTINGS_2FA_DISABLE_2FA')
                     })
                         .result
                         .then(function(twoFactorToken) {
                             var pleaseWaitDialog = dialogService.alert({
-                                title: $translate.instant('SETTINGS_2FA').capitalize(),
-                                body: $translate.instant('PLEASE_WAIT').capitalize(),
+                                title: $translate.instant('SETTINGS_2FA'),
+                                body: $translate.instant('PLEASE_WAIT'),
                                 body_class: 'text-center',
                                 showSpinner: true,
                                 ok: false
@@ -538,8 +538,8 @@ angular.module('blocktrail.wallet')
                             return sdkService.sdk().then(function(sdk) {
                                 return sdk.disable2FA(twoFactorToken).then(function() {
                                     pleaseWaitDialog.update({
-                                        title: $translate.instant('SETTINGS_2FA').capitalize(),
-                                        body: $translate.instant('SETTINGS_2FA_DISABLE_DONE').capitalize(),
+                                        title: $translate.instant('SETTINGS_2FA'),
+                                        body: $translate.instant('SETTINGS_2FA_DISABLE_DONE'),
                                         body_class: 'text-center',
                                         ok: false
                                     });
@@ -571,7 +571,7 @@ angular.module('blocktrail.wallet')
                         return;
                     } else {
                         dialogService.alert({
-                            title: $translate.instant('SETTINGS_2FA').capitalize(),
+                            title: $translate.instant('SETTINGS_2FA'),
                             body: e.message || e
                         });
                     }

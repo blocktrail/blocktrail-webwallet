@@ -11,7 +11,7 @@
                     <label class="control-label">
                         {{ 'SETTINGS_PROFILE_PICTURE' | translate }}
                     </label>
-                    <div ng-show="profilePic.saved" class="alert alert-success capitalise">
+                    <div ng-show="profilePic.saved" class="alert alert-success">
                         <i class="bticon bticon-ok"></i> {{ 'SETTINGS_PROFILE_PIC_SAVED' | translate }}
                     </div>
                     <div class="text-center" ng-show="profilePic.working">
@@ -87,7 +87,7 @@
                         {{ 'SETTINGS_LANGUAGE' | translate }}
                     </label>
                     <div class="">
-                        <label class="radio-inline capitalise" ng-repeat="language in languages">
+                        <label class="radio-inline" ng-repeat="language in languages">
                             <input type="radio" name="groupLang" ng-model="settings.language" value="{{ language.code }}">
                             {{ language.name | translate }}
                         </label>
@@ -98,10 +98,10 @@
 
         <div class="form-group form-group-lg">
             <label class="control-label">
-                {{ 'PASSWORD' | translate }}
+                {{ 'WALLET_PASSWORD' | translate }}
             </label>
             <p>
-                <a ng-href class="capitalise btn btn-default" ng-click="changePassword()">
+                <a ng-href class="sentence-case btn btn-default" ng-click="changePassword()">
                     {{ 'SETTINGS_CHANGE_PASSWORD' | translate }}
                 </a>
             </p>

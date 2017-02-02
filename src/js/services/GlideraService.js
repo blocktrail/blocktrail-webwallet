@@ -109,8 +109,8 @@ angular.module('blocktrail.wallet').factory(
 
                                 return settingsService.$isLoaded().then(function() {
                                     return dialogService.prompt({
-                                        body: $translate.instant('MSG_BUYBTC_PASSWORD_TO_ENCRYPT').sentenceCase(),
-                                        title: $translate.instant('ENTER_CURRENT_PASSWORD').sentenceCase(),
+                                        body: $translate.instant('MSG_BUYBTC_PASSWORD_TO_ENCRYPT'),
+                                        title: $translate.instant('ENTER_CURRENT_PASSWORD'),
                                         input_type: 'password',
                                         icon: 'key'
                                     })
@@ -190,8 +190,8 @@ angular.module('blocktrail.wallet').factory(
                     return dialogService.prompt({
                         body: $translate.instant('MSG_BUYBTC_GLIDERA_2FA_BODY', {
                             mode: twoFactorMode
-                        }).sentenceCase(),
-                        title: $translate.instant('MSG_BUYBTC_GLIDERA_2FA_TITLE').sentenceCase()
+                        }),
+                        title: $translate.instant('MSG_BUYBTC_GLIDERA_2FA_TITLE')
                     })
                     .result;
                 }
@@ -259,8 +259,8 @@ angular.module('blocktrail.wallet').factory(
             $timeout(function() {
                 var unlockWallet = function() {
                     return dialogService.prompt({
-                        body: $translate.instant('MSG_BUYBTC_PASSWORD_TO_DECRYPT').sentenceCase(),
-                        title: $translate.instant('ENTER_CURRENT_PASSWORD').sentenceCase(),
+                        body: $translate.instant('MSG_BUYBTC_PASSWORD_TO_DECRYPT'),
+                        title: $translate.instant('ENTER_CURRENT_PASSWORD'),
                         input_type: 'password',
                         icon: 'key'
                     })

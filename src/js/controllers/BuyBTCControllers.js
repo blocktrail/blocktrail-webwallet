@@ -53,9 +53,9 @@ angular.module('blocktrail.wallet')
                                     return $cordovaDialogs.confirm(
                                         $translate.instant('MSG_BUYBTC_SETUP_MORE_GLIDERA_BODY', {
                                             message: settingsService.glideraAccessToken.userCanTransactInfo.message
-                                        }).sentenceCase(),
-                                        $translate.instant('MSG_BUYBTC_SETUP_MORE_GLIDERA_TITLE').sentenceCase(),
-                                        [$translate.instant('OK'), $translate.instant('CANCEL').sentenceCase()]
+                                        }),
+                                        $translate.instant('MSG_BUYBTC_SETUP_MORE_GLIDERA_TITLE'),
+                                        [$translate.instant('OK'), $translate.instant('CANCEL')]
                                     )
                                         .then(function(dialogResult) {
                                             if (dialogResult == 2) {
@@ -75,8 +75,8 @@ angular.module('blocktrail.wallet')
 
                         } else {
                             return dialogService.prompt({
-                                body: $translate.instant('MSG_BUYBTC_SETUP_GLIDERA_BODY').sentenceCase(),
-                                title: $translate.instant('MSG_BUYBTC_SETUP_GLIDERA_TITLE').sentenceCase(),
+                                body: $translate.instant('MSG_BUYBTC_SETUP_GLIDERA_BODY'),
+                                title: $translate.instant('MSG_BUYBTC_SETUP_GLIDERA_TITLE'),
                                 prompt: false
                             })
                                 .result
@@ -321,8 +321,8 @@ angular.module('blocktrail.wallet')
                                 price: $filter('number')(result.total, 2),
                                 fee: $filter('number')(result.fees, 2),
                                 currencySymbol: $filter('toCurrencySymbol')('USD')
-                            }).sentenceCase(),
-                            title: $translate.instant('MSG_BUYBTC_CONFIRM_TITLE').sentenceCase(),
+                            }),
+                            title: $translate.instant('MSG_BUYBTC_CONFIRM_TITLE'),
                             prompt: false
                         })
                             .result
@@ -339,8 +339,8 @@ angular.module('blocktrail.wallet')
                                                 price: $filter('number')(result.total, 2),
                                                 fee: $filter('number')(result.fees, 2),
                                                 currencySymbol: $filter('toCurrencySymbol')('USD')
-                                            }).sentenceCase(),
-                                            title: $translate.instant('MSG_BUYBTC_BOUGHT_TITLE').sentenceCase()
+                                            }),
+                                            title: $translate.instant('MSG_BUYBTC_BOUGHT_TITLE')
                                         });
 
                                         $state.go('app.wallet.summary');

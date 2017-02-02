@@ -9,31 +9,31 @@
                     <li ng-class="{'active':$state.includes('app.wallet.summary')}">
                         <a ui-sref="app.wallet.summary">
                             <i class="bticon bticon-doc-text"></i>
-                            <span class="capitalise">{{ 'MY_WALLET' | translate }}</span>
+                            <span>{{ 'MY_WALLET' | translate }}</span>
                         </a>
                     </li>
                     <li ng-class="{'active':$state.includes('app.wallet.send')}">
                         <a ui-sref="app.wallet.send">
                             <i class="bticon bticon-forward-outline"></i>
-                            <span class="capitalise">{{ 'SEND' | translate }}</span>
+                            <span>{{ 'SEND' | translate }}</span>
                         </a>
                     </li>
                     <li ng-class="{'active':$state.includes('app.wallet.receive')}">
                         <a ui-sref="app.wallet.receive">
                             <i class="bticon bticon-reply-outline"></i>
-                            <span class="capitalise">{{ 'RECEIVE' | translate }}</span>
+                            <span>{{ 'RECEIVE' | translate }}</span>
                         </a>
                     </li>
                     <li ng-if="CONFIG.BUYBTC" ng-class="{'active':$state.includes('app.wallet.buybtc')}">
                         <a ui-sref="app.wallet.buybtc.choose">
                             <i class="bticon bticon-credit-card"></i>
-                            <span class="capitalise">{{ 'BUYBTC_NAVTITLE' | translate }}</span>
+                            <span>{{ 'BUYBTC_NAVTITLE' | translate }}</span>
                         </a>
                     </li>
                     <li ng-class="{'active':$state.includes('app.wallet.settings')}">
                         <a ui-sref="app.wallet.settings">
                             <i class="bticon bticon-cog"></i>
-                            <span class="capitalise">{{ 'SETTINGS' | translate }}</span>
+                            <span>{{ 'SETTINGS' | translate }}</span>
                         </a>
                     </li>
                 </ul>
@@ -55,11 +55,11 @@
                 <div class="appHeaderContent">
                     <div class="row">
                         <div class="col-xs-4">
-                            <h1 class="capitalise pageTitle">{{ pageTitle | translate }}</h1>
+                            <h1 class="pageTitle">{{ pageTitle | translate }}</h1>
                         </div>
                         <div class="col-xs-8">
                             <div class="text-right">
-                                <h1 class="capitalise">
+                                <h1>
                                     {{ (balance + uncBalance) | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}
                                     <small>≃ {{ (balance + uncBalance) | satoshiToCurrency:settings.localCurrency : bitcoinPrices }}</small>
                                 </h1>

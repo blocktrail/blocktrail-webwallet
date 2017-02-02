@@ -12,28 +12,28 @@
 
             <ul class="nav navbar-nav pull-right" ng-if="( $state.is('app.setup.register') || $state.is('app.setup.login') || $state.is('app.setup.loggedout'))">
                 <li ng-class="{'active':$state.is('app.setup.register')}">
-                    <a ui-sref="app.setup.register" class="capitalise">{{ 'NAVBAR_SIGNUP' | translate }}</a>
+                    <a ui-sref="app.setup.register">{{ 'NAVBAR_SIGNUP' | translate }}</a>
                 </li>
                 <li ng-class="{'active':$state.is('app.setup.login')}">
-                    <a ui-sref="app.setup.login" class="capitalise">{{ 'NAVBAR_LOGIN' | translate }}</a>
+                    <a ui-sref="app.setup.login">{{ 'NAVBAR_LOGIN' | translate }}</a>
                 </li>
             </ul>
 
             <ul class="nav navbar-nav" ng-if="!$state.includes('app.wallet') && !$state.includes('app.setup')">
                 <li>
-                    <a href="/" class="capitalise">{{ 'NAVBAR_HOME' | translate }}</a>
+                    <a href="/">{{ 'NAVBAR_HOME' | translate }}</a>
                 </li>
                 <li>
-                    <a href="/blocks" class="capitalise">{{ 'NAVBAR_BLOCKS' | translate }}</a>
+                    <a href="/blocks">{{ 'NAVBAR_BLOCKS' | translate }}</a>
                 </li>
                 <li>
-                    <a href="/stats" class="capitalise">{{ 'NAVBAR_STATS' | translate }}</a>
+                    <a href="/stats">{{ 'NAVBAR_STATS' | translate }}</a>
                 </li>
                 <li>
-                    <a href="/tools" class="capitalise">{{ 'NAVBAR_TOOLS' | translate }}</a>
+                    <a href="/tools">{{ 'NAVBAR_TOOLS' | translate }}</a>
                 </li>
                 <li>
-                    <a href="/applications" class="capitalise">{{ 'NAVBAR_APPLICATIONS' | translate }}</a>
+                    <a href="/applications">{{ 'NAVBAR_APPLICATIONS' | translate }}</a>
                 </li>
             </ul>
 
@@ -57,7 +57,7 @@
 
             <ul class="nav navbar-nav navbar-right" ng-if="$state.includes('app.wallet')">
                 <li>
-                    <a ui-sref="app.logout" class="capitalise">{{ 'LOGOUT' | translate }}</a>
+                    <a ui-sref="app.logout">{{ 'LOGOUT' | translate }}</a>
                 </li>
             </ul>
 

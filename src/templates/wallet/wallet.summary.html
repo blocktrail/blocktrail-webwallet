@@ -49,7 +49,7 @@
                                                 <span ng-if="transaction.buybtc">{{ 'TX_INFO_BUYBTC_FROM' | translate }}</span>
                                                 <span ng-if="!transaction.buybtc && transaction.wallet_value_change <= 0">{{ 'TX_INFO_SENT_TO' | translate }}</span>
                                                 <span ng-if="!transaction.buybtc && transaction.wallet_value_change > 0">{{ 'TX_INFO_RECEIVED_FROM' | translate }}</span>
-                                                <span class="capitalise">{{ transaction.contact.displayName }}</span>
+                                                <span>{{ transaction.contact.displayName }}</span>
                                             </span>
                                             <span ng-if="!transaction.contact || !transaction.contact.displayName" class="sentence-case">{{ transaction.altDisplay }}</span>
                                         </div>
@@ -61,7 +61,7 @@
                             </div>
                         </div>
                         <div class="col-xs-2 text-center">
-                            <div class="pending capitalise"  ng-if="!transaction.block_height">
+                            <div class="pending"  ng-if="!transaction.block_height">
                                <i class="bticon bticon-clock"></i><br/><em>{{ 'TX_INFO_PENDING' | translate}}</em>
                            </div>
                         </div>
@@ -78,7 +78,7 @@
                 <div ng-if="transactionsDisplayList.length==0">
                     <div class="noTransactions ">
                         <i class="bticon bticon-doc-text"></i>
-                        <h1 class="capitalise">
+                        <h1>
                             {{ 'WALLET_NO_TXS' | translate }}
                         </h1>
                         <h2 class="sentence-case">

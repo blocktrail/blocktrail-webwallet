@@ -9,12 +9,12 @@
     <div class="modal-body">
 
         <small class="tx-hash text-ellipsis">
-            <span class="label capitalise">{{ 'TX_INFO_HASH' | translate }}</span>
+            <span class="label">{{ 'TX_INFO_HASH' | translate }}</span>
             <span class="value">{{ data.hash }}</span>
         </small>
 
         <div ng-if="data.buybtc">
-            <div class="label capitalise">
+            <div class="label">
                 {{ 'TX_INFO_BUYBTC' | translate }}
             </div>
             <div class="value">
@@ -35,7 +35,7 @@
         </div>
 
         <div class="date">
-            <div class="label capitalise">
+            <div class="label">
                 <span ng-if="data.wallet_value_change <= 0">{{ 'TX_INFO_DATE_SENT' | translate }}</span>
                 <span ng-if="data.wallet_value_change > 0">{{ 'TX_INFO_DATE_RECEIVED' | translate }}</span>
             </div>
@@ -43,7 +43,7 @@
         </div>
 
         <div class="confirmations">
-            <div class="label capitalise">
+            <div class="label">
                 {{ 'TX_INFO_CONFIRMATIONS_TITLE' | translate }}
             </div>
             <div class="value">
@@ -53,7 +53,7 @@
         </div>
 
         <div class="contact" ng-if="!data.buybtc && (data.contact && data.contact.displayName || data.otherAddresses || data.is_internal)">
-            <div class="label capitalise">
+            <div class="label">
                 <span ng-if="data.wallet_value_change <= 0">{{ 'TX_INFO_SENT_TO' | translate }}</span>
                 <span ng-if="data.wallet_value_change > 0">{{ 'TX_INFO_RECEIVED_FROM' | translate }}</span>
             </div>
@@ -61,7 +61,7 @@
         </div>
 
         <div class="more-info">
-            <div class="label capitalise">
+            <div class="label">
                 {{ 'TX_INFO_MORE_TITLE' | translate }} <i class="ion-android-open"></i>
             </div>
             <div class="value">

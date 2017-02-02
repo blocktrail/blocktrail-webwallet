@@ -55,24 +55,6 @@ angular.module('blocktrail.wallet')
         // set default BTC
         $scope.updateCurrentType('BTC');
 
-        $scope.translations = null;
-        $scope.getTranslations = function() {
-            if ($scope.translations) {
-                return $q.when($scope.translations);
-            } else {
-                var requiredTranslations = [
-                    'OK',
-                    'CANCEL',
-                    'SETTINGS_PHONE_REQUIRE_VERIFY',
-                    'MSG_PHONE_REQUIRE_VERIFY'
-                ];
-                return $translate(requiredTranslations).then(function(translations) {
-                    $scope.translations = translations;
-                    return $q.when(translations);
-                });
-            }
-        };
-
         $scope.confirmSend = function() {
             if ($scope.working) {
                 return false;

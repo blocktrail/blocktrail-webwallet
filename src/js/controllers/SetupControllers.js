@@ -146,14 +146,14 @@ angular.module('blocktrail.wallet')
 
                         if (error.requires_sha512) {
                             return dialogService.alert({
-                                title: $translate.instant('SETUP_LOGIN_FAILED').sentenceCase(),
-                                bodyHtml: $sce.trustAsHtml($translate.instant('MSG_UPGRADE_REQUIRED').sentenceCase())
+                                title: $translate.instant('SETUP_LOGIN_FAILED'),
+                                bodyHtml: $sce.trustAsHtml($translate.instant('MSG_UPGRADE_REQUIRED'))
                             });
 
                         } else if (error instanceof blocktrailSDK.WalletMissing2FAError) {
                             return dialogService.prompt(
-                                $translate.instant('SETUP_LOGIN').sentenceCase(),
-                                $translate.instant('MSG_MISSING_TWO_FACTOR_TOKEN').capitalize()
+                                $translate.instant('SETUP_LOGIN'),
+                                $translate.instant('MSG_MISSING_TWO_FACTOR_TOKEN')
                             )
                                 .result
                                 .then(
@@ -171,8 +171,8 @@ angular.module('blocktrail.wallet')
                             ;
                         } else if (error instanceof blocktrailSDK.WalletInvalid2FAError) {
                             return dialogService.prompt(
-                                $translate.instant('SETUP_LOGIN').sentenceCase(),
-                                $translate.instant('MSG_INCORRECT_TWO_FACTOR_TOKEN').capitalize()
+                                $translate.instant('SETUP_LOGIN'),
+                                $translate.instant('MSG_INCORRECT_TWO_FACTOR_TOKEN')
                             )
                                 .result
                                 .then(
@@ -300,7 +300,7 @@ angular.module('blocktrail.wallet')
                     }
 
                     return dialogService.prompt({
-                        title: $translate.instant('MSG_REPEAT_PASSWORD').capitalize(),
+                        title: $translate.instant('MSG_REPEAT_PASSWORD'),
                         body: $translate.instant('SETUP_PASSWORD_REPEAT_PLACEHOLDER'),
                         input_type: 'password',
                         icon: 'key'
@@ -526,8 +526,8 @@ angular.module('blocktrail.wallet')
                         $log.debug("wallet with identifier [" + $scope.setupInfo.identifier + "] already exists, prompting for old password");
 
                         return $scope.alert({
-                            title: $translate.instant('SETUP_EXISTING_WALLET').capitalize(),
-                            body: $translate.instant('MSG_WALLET_PASSWORD_MISMATCH').sentenceCase()
+                            title: $translate.instant('SETUP_EXISTING_WALLET'),
+                            body: $translate.instant('MSG_WALLET_PASSWORD_MISMATCH')
                         }).result
                             .then(function() {
                                 return $scope.promptWalletPassword();
@@ -617,8 +617,8 @@ angular.module('blocktrail.wallet')
         $scope.promptWalletPassword = function() {
             //prompt for a correct wallet password and retry the wallet creation process
             return dialogService.prompt({
-                title: $translate.instant('SETUP_WALLET_PASSWORD').capitalize(),
-                body: $translate.instant('MSG_WALLET_PASSWORD').sentenceCase(),
+                title: $translate.instant('SETUP_WALLET_PASSWORD'),
+                body: $translate.instant('MSG_WALLET_PASSWORD'),
                 input_type: 'password',
                 icon: 'key'
             }).result
@@ -635,7 +635,7 @@ angular.module('blocktrail.wallet')
                             }, function(error) {
                                 if (error.message.match(/password/) || error instanceof blocktrailSDK.WalletDecryptError) {
                                     //password still incorrect, try again
-                                    return $scope.alert($translate.instant('MSG_BAD_PWD').capitalize(), $translate.instant('MSG_TRY_AGAIN').sentenceCase())
+                                    return $scope.alert($translate.instant('MSG_BAD_PWD'), $translate.instant('MSG_TRY_AGAIN'))
                                         .result
                                         .then(function() {
                                             return $scope.promptWalletPassword();
