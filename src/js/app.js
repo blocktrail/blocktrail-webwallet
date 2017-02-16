@@ -19,7 +19,6 @@ var blocktrail = angular.module('blocktrail.wallet', [
     'angularMoment',
     'ja.qr',
     'ngImgCrop',
-    'ngSanitize',
     'blocktrail.localisation',
 
     'angulartics',
