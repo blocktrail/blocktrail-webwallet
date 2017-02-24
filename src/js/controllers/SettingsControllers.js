@@ -4,12 +4,6 @@ angular.module('blocktrail.wallet')
                                          CONFIG, $modal) {
         $rootScope.pageTitle = 'SETTINGS';
 
-        $scope.translationsEnabled = false;
-
-        $scope.$on('translationsEnabled', function(n, o) {
-            console.log('translationsEnabled', n, v);
-        });
-
         $scope.profilePic = {
             newProfileImage: null,
             croppedProfileImage: null,
