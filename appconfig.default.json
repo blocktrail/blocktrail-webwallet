@@ -7,7 +7,7 @@
     "API_HTTPS": true,
     "BUYBTC": false,
 
-    "EXTRA_LANGUAGES": ["es", "nl", "ru", "fr", "hi", "sw"],
+    "EXTRA_LANGUAGES": ["es", "nl", "ru", "fr", "hi", "sw", "cn"],
     "CURRENCIES": ["USD", "EUR", "GBP", "CNY"],
 
     "STATICSDIR": "dev",
