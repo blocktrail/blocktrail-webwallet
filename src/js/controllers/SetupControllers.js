@@ -785,4 +785,9 @@ angular.module('blocktrail.wallet')
     .controller('SetupLoggedoutCtrl', function($scope, CONFIG) {
         $scope.CONFIG = CONFIG;
     })
+
+    .controller('BannedIpCtrl', function($scope, CONFIG, $stateParams) {
+        $scope.CONFIG = CONFIG;
+        $scope.bannedIp = $stateParams.bannedIp;
+    })
 ;

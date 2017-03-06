@@ -1,0 +1,18 @@
+<div>
+    <div ng-include="'templates/common/navbar.html'"></div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3 col-sm-12 col-xs-12">
+                <div class="appWrapper">
+                    <h1 class="pageTitle text-center">{{ 'BANNED_IP_TITLE' | translate }}</h1>
+                    <div class="formContainer text-center" style="padding: 20px;font-size:16px;">
+                        <div ng-bind-html="'BANNED_IP_BODY' | translate:{bannedIp: bannedIp} | nl2br"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div ng-include="'templates/common/footer.html'"></div>
+</div>

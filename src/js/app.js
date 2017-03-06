@@ -230,6 +230,12 @@ angular.module('blocktrail.wallet').config(
                 url: "/logout",
                 controller: "LogoutCtrl"
             })
+            .state('app.bannedip', {
+                url: "/bannedip?bannedIp",
+                cache: false,
+                controller: "BannedIpCtrl",
+                templateUrl: "templates/setup/setup.bannedip.html"
+            })
 
             /*---Setup---*/
             .state('app.setup', {
@@ -242,9 +248,12 @@ angular.module('blocktrail.wallet').config(
                      * check for extra languages to enable
                      * if new language is new preferred, set it
                      */
-                    preferredLanguage: function(CONFIG, $rootScope, settingsService, blocktrailLocalisation, launchService) {
+                    preferredLanguage: function(CONFIG, $rootScope, $state, settingsService, blocktrailLocalisation, launchService) {
+                        var bannedIp = false;
+
                         return launchService.getWalletConfig()
                             .then(function(result) {
+                                bannedIp = result.is_banned_ip;
                                 return result.extraLanguages.concat(CONFIG.EXTRA_LANGUAGES).unique();
                             })
                             .then(function(extraLanguages) {
@@ -272,6 +281,9 @@ angular.module('blocktrail.wallet').config(
                                 });
                             })
                             .then(function() {
+                                if (bannedIp) {
+                                    $state.go('app.bannedip', {bannedIp: bannedIp});
+                                }
                             }, function(e) {
                                 console.error(e);
                             });

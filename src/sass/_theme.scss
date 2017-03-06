@@ -270,6 +270,8 @@ body {
 
 $appHeaderHeight: 80px;
 .appWrapper {
+    min-height: 400px;
+
     @extend .height-100;
 
     .appContainer {
@@ -864,7 +866,8 @@ $display-token-size: 50px;
     }
 }
 
-.state-app_setup {
+.state-app_setup,
+.state-app_bannedip {
     &.state-app_setup_wallet,
     &.state-app_setup_backup {
         h1 {
