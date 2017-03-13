@@ -4,7 +4,7 @@
     </div>
     <button class="btn btn-alt btn-hidden" style="float: right;" ng-click="resetBuyBTC()"></button>
 
-    <div ng-if="chooseRegion">
+    <div ng-if="chooseRegion" class="row">
         <!-- CHOOSE REGION -->
         <div ng-if="!chooseRegion.code" ng-controller="BuyBTCChooseRegionCtrl">
             <h2>{{ 'BUYBTC_CHOOSE_REGION_TITLE' | translate }}</h2>
@@ -12,27 +12,49 @@
 
             <div ng-if="!usSelected">
                 <h3>{{ 'BUYBTC_REGIONS' | translate }}</h3>
-                <div class="buybtc-list">
-                    <div ng-click="selectUS()">
-                        <span class="sentence-case">USA</span>
-                    </div>
-                    <div ng-repeat="region in regions" ng-click="selectRegion(region.code, region.name)">
-                        <span class="sentence-case">{{ region.name | translate }}</span>
-                    </div>
-                    <div ng-click="selectRegion('OTHER_REGIONS', 'OTHER_REGIONS')">
-                        <span class="sentence-case">{{ 'OTHER_REGIONS' | translate }}</span>
-                    </div>
-                </div>
+                <ul class="buybtc-list list-group">
+                    <li class="list-group-item"
+                        ng-click="selectUS()">
+                        <span class="sentence-case"><i class="bticon bticon-right-open"></i> USA</span>
+                    </li>
+                    <li ng-repeat="region in regions"
+                        ng-click="selectRegion(region.code, region.name)"
+                        class="list-group-item">
+                        <span class="sentence-case"><i class="bticon bticon-right-open"></i> {{ region.name | translate }}</span>
+                    </li>
+                    <li class="list-group-item"
+                        ng-click="selectRegion('OTHER_REGIONS', 'OTHER_REGIONS')">
+                        <span class="sentence-case"><i class="bticon bticon-right-open"></i> {{ 'OTHER_REGIONS' | translate }}</span>
+                    </li>
+                </ul>
             </div>
 
             <div ng-if="usSelected">
                 <h3>{{ 'BUYBTC_REGIONS' | translate }}</h3>
-                <div class="buybtc-list">
-                    <div ng-repeat="usState in usStates" ng-click="selectRegion(usState.code, usState.name)">
-                        <span class="sentence-case">{{ usState.name }} ({{ usState.code.replace('US-', '') }})</span>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <ul class="buybtc-list list-group">
+                            <li ng-repeat="usState in usStates"
+                                ng-if="$even"
+                                ng-click="selectRegion(usState.code, usState.name)"
+                                class="list-group-item">
+                                <span class="sentence-case"><i class="bticon bticon-right-open"></i> {{ usState.name }} ({{ usState.code.replace('US-', '') }})</span>
+                            </li>
+                        </ul>
                     </div>
-                    <div ng-click="selectRegion('OTHER_REGIONS', 'OTHER_REGIONS')">
-                        <span class="sentence-case">Other</span>
+                    <div class="col-xs-6">
+                        <ul class="buybtc-list list-group">
+                            <li ng-repeat="usState in usStates"
+                                ng-if="$odd"
+                                ng-click="selectRegion(usState.code, usState.name)"
+                                class="list-group-item">
+                                <span class="sentence-case"><i class="bticon bticon-right-open"></i> {{ usState.name }} ({{ usState.code.replace('US-', '') }})</span>
+                            </li>
+                            <li ng-click="selectRegion('OTHER_REGIONS', 'OTHER_REGIONS')"
+                                class="list-group-item">
+                                <span class="sentence-case"><i class="bticon bticon-right-open"></i> Other</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -46,7 +68,7 @@
             </div>
 
             <div>
-                <button class="button send-button button-block button-energized" ng-click="selectRegion(null, null)">
+                <button class="btn btn-primary" ng-click="selectRegion(null, null)">
                     {{ 'BUYBTC_CHANGE_REGION' | translate }}
                 </button>
             </div>
@@ -56,15 +78,20 @@
         <div ng-if="chooseRegion.code && chooseRegion.regionOk">
             <div>
                 <h2>{{ 'BUYBTC_CHOOSE_TITLE' | translate }}</h2>
-                <p ng-bind-html="'BUYBTC_CHOOSE_SUBTITLE' | translate | nl2br"></p>
+                <p translate="BUYBTC_CHOOSE_SUBTITLE"
+                   translate-compile
+                   translate-value-region="{{ chooseRegion.name | translate }}"
+                   translate-value-href="href ng-click='selectRegion(null, null)'"></p>
             </div>
 
-            <h3>{{ 'BUYBTC_PROVIDERS' | translate }}</h3>
-            <div class="buybtc-list">
-                 <div ng-if="brokers.indexOf('glidera') !== -1" ng-click="goGlideraBrowser()">
-                     <img src="{{ CONFIG.STATICSURL }}/img/glidera-bright.png" alt="Glidera" title="Glidera" />
+            <hr />
+
+            <div class="buybtc-list list-group">
+                 <div class="partner-btn btn btn-lg btn-default" ng-if="brokers.indexOf('glidera') !== -1" ng-click="goGlideraBrowser()">
+                     <i class="bticon bticon-right-open"></i>
+                     <img ng-src="{{ CONFIG.STATICSURL }}/img/glidera-bright.png" alt="Glidera" title="Glidera" />
                 </div>
-            </div>
+            </ul>
         </div>
     </div>
 </div>
