@@ -227,6 +227,12 @@ angular.module('blocktrail.localisation', [
         };
     })
 
+    .filter('languageName', function(blocktrailLocalisation) {
+        return function(input) {
+            return blocktrailLocalisation.languageName(input);
+        };
+    })
+
     .config(function($translateProvider, TRANSLATIONS, CONFIG, blocktrailLocalisationProvider) {
         var processTranslations = function(translations) {
             _.forEach(translations, function(v, k) {

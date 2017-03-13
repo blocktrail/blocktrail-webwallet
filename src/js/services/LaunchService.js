@@ -8,13 +8,22 @@ angular.module('blocktrail.wallet').factory(
             self._accountInfo = null;
             self._walletInfo = null;
             self._backupInfo = null;
+            self._walletConfig = null;
         };
 
         LaunchService.prototype.getWalletConfig = function() {
-            return $http.get(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/mywallet/config?v=" + CONFIG.VERSION)
-                .then(function(result) {
-                    return result.data;
-                });
+            var self = this;
+
+            if (!self._walletConfig || (self._walletConfig.ts > (new Date()).getTime() + (600 * 1000))) {
+                self._walletConfig = $http.get(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/mywallet/config?v=" + CONFIG.VERSION)
+                    .then(function(result) {
+                        return result.data;
+                    });
+
+                self._walletConfig.ts = (new Date()).getTime();
+            }
+
+            return self._walletConfig;
         };
 
         LaunchService.prototype.handleSetupState = function(currentState, $state) {

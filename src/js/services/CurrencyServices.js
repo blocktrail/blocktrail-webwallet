@@ -182,4 +182,9 @@ angular.module('blocktrail.wallet')
 
             return parseFloat((btcValue * coin).toFixed(0));
         };
+    })
+    .filter('currencySymbol', function(Currencies) {
+        return function(input) {
+            return Currencies.currencies[input].symbol;
+        }
     });

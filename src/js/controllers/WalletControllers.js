@@ -1,7 +1,7 @@
 angular.module('blocktrail.wallet')
     .controller('WalletCtrl', function($q, $log, $scope, $state, $rootScope, $interval, storageService, sdkService, Wallet,
                                        Contacts, CONFIG, settingsService, $timeout, launchService, blocktrailLocalisation,
-                                       dialogService, $http, $translate, buyBTCService) {
+                                       dialogService, $http, $translate, buyBTCService, Currencies) {
 
         $timeout(function() {
             $rootScope.hideLoadingScreen = true;
@@ -79,58 +79,55 @@ angular.module('blocktrail.wallet')
          * check for extra languages to enable
          *  if one is preferred, prompt user to switch
          */
-        $rootScope.fetchExtraLanguages = $http.get(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/mywallet/config?v=" + CONFIG.VERSION)
-            .then(function(result) {
-                return result.data.extraLanguages;
-            })
-            .then(function(extraLanguages) {
-                return settingsService.$isLoaded().then(function() {
-                    // filter out languages we already know
-                    var knownLanguages = blocktrailLocalisation.getLanguages();
-                    extraLanguages = extraLanguages.filter(function(language) {
-                        return knownLanguages.indexOf(language) === -1;
-                    });
-
-                    if (extraLanguages.length === 0) {
-                        return;
+        $rootScope.fetchExtraLanguages =
+            /*
+             * check for extra languages to enable
+             *  if one is preferred, prompt user to switch
+             */
+            launchService.getWalletConfig()
+                .then(function(result) {
+                    if (result.currencies) {
+                        result.currencies.forEach(function (currency) {
+                            Currencies.enableCurrency(currency);
+                        });
                     }
 
-                    // enable extra languages
-                    _.each(extraLanguages, function(extraLanguage) {
-                        blocktrailLocalisation.enableLanguage(extraLanguage, {});
-                    });
-
+                    return result.extraLanguages.concat(CONFIG.EXTRA_LANGUAGES).unique();
+                })
+            .then(function(extraLanguages) {
+                return settingsService.$isLoaded().then(function() {
                     // determine (new) preferred language
-                    var preferredLanguage = blocktrailLocalisation.setupPreferredLanguage();
+                    var r = blocktrailLocalisation.parseExtraLanguages(extraLanguages);
+                    if (r) {
+                        var newLanguages = r[0];
+                        var preferredLanguage = r[1];
 
-                    // store extra languages
-                    settingsService.extraLanguages = settingsService.extraLanguages.concat(extraLanguages).unique();
-
-                    return settingsService.$store()
-                        .then(function() {
-                            // check if we have a new preferred language
-                            if (preferredLanguage != settingsService.language && extraLanguages.indexOf(preferredLanguage) !== -1) {
-                                // prompt to enable
-                                return dialogService.prompt({
-                                    body: $translate.instant('MSG_BETTER_LANGUAGE', {
-                                        oldLanguage: $translate.instant(blocktrailLocalisation.languageName(settingsService.language)),
-                                        newLanguage: $translate.instant(blocktrailLocalisation.languageName(preferredLanguage))
-                                    }),
-                                    title: $translate.instant('MSG_BETTER_LANGUAGE_TITLE'),
-                                    prompt: false
-                                })
-                                    .result
-                                    .then(function() {
-                                        // enable new language
-                                        settingsService.language = preferredLanguage;
-                                        $rootScope.changeLanguage(preferredLanguage);
-
-                                        return settingsService.$store();
+                        // store extra languages
+                        settingsService.extraLanguages = settingsService.extraLanguages.concat(newLanguages).unique();
+                        return settingsService.$store()
+                            .then(function() {
+                                // check if we have a new preferred language
+                                if (preferredLanguage != settingsService.language && extraLanguages.indexOf(preferredLanguage) !== -1) {
+                                    // prompt to enable
+                                    return dialogService.prompt({
+                                        body: $translate.instant('MSG_BETTER_LANGUAGE', {
+                                            oldLanguage: $translate.instant(blocktrailLocalisation.languageName(settingsService.language)),
+                                            newLanguage: $translate.instant(blocktrailLocalisation.languageName(preferredLanguage))
+                                        }),
+                                        title: $translate.instant('MSG_BETTER_LANGUAGE_TITLE'),
+                                        prompt: false
                                     })
-                                    ;
-                            }
-                        })
-                        ;
+                                        .result
+                                        .then(function() {
+                                            // enable new language
+                                            settingsService.language = preferredLanguage;
+                                            $rootScope.changeLanguage(preferredLanguage);
+
+                                            return settingsService.$store();
+                                        });
+                                }
+                            });
+                    }
                 });
             })
             .then(function() {
@@ -140,10 +137,10 @@ angular.module('blocktrail.wallet')
 
 
         $rootScope.getPrice = function() {
-            //get a live prices update
-            return $q.when(Wallet.price(false).then(function(data) {
-                return $rootScope.bitcoinPrices = data;
-            }));
+            return Currencies.updatePrices(false)
+                .then(function(prices) {
+                    $rootScope.bitcoinPrices = prices;
+                });
         };
 
         $rootScope.getBlockHeight = function() {

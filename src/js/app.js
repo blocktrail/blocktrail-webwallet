@@ -14,6 +14,7 @@ ionic.Platform.isWebView = function() { return true; };
 var blocktrail = angular.module('blocktrail.wallet', [
     'ui.router',
     'ui.bootstrap',
+    'ui.bootstrap.dropdown',
     'toggle-switch',
     'infinite-scroll',
     'angularMoment',
@@ -367,11 +368,11 @@ angular.module('blocktrail.wallet').config(
                      * @param $rootScope
                      * @param $log
                      */
-                    loadingData: function(handleSetupState, Wallet, settingsService, $q, $rootScope, $log) {
+                    loadingData: function(handleSetupState, Wallet, settingsService, $q, $rootScope, $log, Currencies) {
                         //do an initial load of cached user data
                         return $q.all([
                             Wallet.balance(true),
-                            Wallet.price(true),
+                            Currencies.updatePrices(true),
                             settingsService.$isLoaded()
                         ]).then(function(results) {
                             $log.debug('initial load complete');

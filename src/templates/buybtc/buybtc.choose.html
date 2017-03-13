@@ -19,7 +19,7 @@
                     <div ng-repeat="region in regions" ng-click="selectRegion(region.code, region.name)">
                         <span class="sentence-case">{{ region.name | translate }}</span>
                     </div>
-                    <div ng-click="selectRegion('OTHER_REGIONS')">
+                    <div ng-click="selectRegion('OTHER_REGIONS', 'OTHER_REGIONS')">
                         <span class="sentence-case">{{ 'OTHER_REGIONS' | translate }}</span>
                     </div>
                 </div>
@@ -31,7 +31,7 @@
                     <div ng-repeat="usState in usStates" ng-click="selectRegion(usState.code, usState.name)">
                         <span class="sentence-case">{{ usState.name }} ({{ usState.code.replace('US-', '') }})</span>
                     </div>
-                    <div ng-click="selectRegion('OTHER_REGIONS')">
+                    <div ng-click="selectRegion('OTHER_REGIONS', 'OTHER_REGIONS')">
                         <span class="sentence-case">Other</span>
                     </div>
                 </div>

@@ -1,10 +1,10 @@
 angular.module('blocktrail.wallet').factory(
     'buyBTCService',
-    function(CONFIG, $log, $q, $translate, $http, glideraService) {
+    function(CONFIG, $log, $q, $translate, $http, glideraService, launchService) {
         var SUPPORTED_BROKERS = ['glidera'];
 
         var _regions = [
-            {code: 'NL', name: 'NETHERLANDS'}
+            // {code: 'NL', name: 'NETHERLANDS'}
         ];
         var _usStates = [
             {code: 'US-AL', name: 'Alabama'},
@@ -62,11 +62,11 @@ angular.module('blocktrail.wallet').factory(
 
         var _brokers = null;
         var getBrokers = function() {
-            return $http.get(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/mywallet/config?v=" + CONFIG.VERSION)
-                .then(function(result) {
-                    glideraService.setClientId(result.data.glidera_client_id);
+            return launchService.getWalletConfig()
+                .then(function(walletConfig) {
+                    glideraService.setClientId(walletConfig.glidera_client_id);
 
-                    return result.data.brokers;
+                    return walletConfig.brokers;
                 })
                 .then(function(brokers) {
                     _.each(_regions, function(region, idx) {
