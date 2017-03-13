@@ -22,6 +22,9 @@ angular.module('blocktrail.localisation', [
         var spanish = angular.extend({}, TRANSLATIONS.spanish);
         var russian = angular.extend({}, TRANSLATIONS.russian);
         var chinese = angular.extend({}, TRANSLATIONS.chinese);
+        var swahili = angular.extend({}, TRANSLATIONS.swahili);
+        var arabic = angular.extend({}, TRANSLATIONS.arabic);
+        var hindi = angular.extend({}, TRANSLATIONS.hindi);
 
         $translateProvider.translations('en_US', processTranslations(americanEnglish));
         $translateProvider.translations('en', processTranslations(english));
@@ -30,18 +33,24 @@ angular.module('blocktrail.localisation', [
         $translateProvider.translations('ru', processTranslations(russian));
         $translateProvider.translations('cn', processTranslations(chinese));
         $translateProvider.translations('es', processTranslations(spanish));
+        $translateProvider.translations('sw', processTranslations(swahili));
+        $translateProvider.translations('ar', processTranslations(arabic));
+        $translateProvider.translations('hi', processTranslations(hindi));
 
         if (CONFIG.FALLBACK_LANGUAGE) {
             $translateProvider.fallbackLanguage(CONFIG.FALLBACK_LANGUAGE);
         }
 
         $translateProvider.useSanitizeValueStrategy(['escapeParameters']);
-        $translateProvider.registerAvailableLanguageKeys(['en', 'fr', 'es', 'nl', 'ru', 'cn'], {
+        $translateProvider.registerAvailableLanguageKeys(['en', 'fr', 'es', 'nl', 'ru', 'cn', 'sw', 'ar', 'hi'], {
             'en_*': 'en',
             'fr_*': 'fr',
             'nl_*': 'nl',
             'ru_*': 'ru',
-            'cn_*': 'cn'
+            'cn_*': 'cn',
+            'sw-*': 'sw',
+            'ar-*': 'ar',
+            'hi-*': 'hi'
         });
 
         $translateProvider.determinePreferredLanguage();

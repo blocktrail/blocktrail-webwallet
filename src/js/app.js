@@ -148,20 +148,87 @@ angular.module('blocktrail.wallet')
         //preprocess: 'unix', // optional
         //timezone: 'Europe/London' // optional
     })
-    .run(function(amMoment) {
-        moment.locale('en-custom', {
+    .run(function(TRANSLATIONS, CONFIG, $filter) {
+        var translate = function(key, language) {
+            if (!TRANSLATIONS[language]) {
+                throw new Error(language);
+            }
+
+            return TRANSLATIONS[language][key] || (CONFIG.FALLBACK_LANGUAGE && TRANSLATIONS['english'][key]) || key;
+        };
+
+        var MMMMDoYYYYLocales = {
+            'en': 'english',
+            'en-US': 'english'
+        };
+        Object.keys(MMMMDoYYYYLocales).forEach(function(locale) {
+            var translationsKey = MMMMDoYYYYLocales[locale];
+
+            moment.locale(locale, {
+                calendar: {
+                    lastDay: '[' + translate('YESTERDAY', translationsKey).sentenceCase() + ']',
+                    sameDay: '[' + translate('TODAY', translationsKey).sentenceCase() + ']',
+                    nextDay: '[' + translate('TOMORROW', translationsKey).sentenceCase() + ']',
+                    lastWeek : 'MMMM D',
+                    nextWeek : 'MMMM Do YYYY',
+                    sameElse : 'MMMM Do YYYY'
+                }
+            });
+        });
+
+        moment.locale('es', {
             calendar : {
-                lastDay : '[Yesterday]',
-                sameDay : '[Today]',
-                nextDay : '[Tomorrow]',
-                lastWeek : 'MMMM D',
-                nextWeek : 'MMMM Do YYYY',
-                sameElse : 'MMMM Do YYYY'
+                lastDay : '[' + translate('YESTERDAY', 'spanish').sentenceCase() + ']',
+                sameDay : '[' + translate('TODAY', 'spanish').sentenceCase() + ']',
+                nextDay : '[' + translate('TOMORROW', 'spanish').sentenceCase() + ']',
+                lastWeek : 'D [de] MMMM',
+                nextWeek : 'D [de] MMMM [de] YYYY',
+                sameElse : 'D [de] MMMM [de] YYYY'
             }
         });
 
-        amMoment.changeLocale('en-custom');
+        var DMMMMYYYYLocales = {
+            'ru': 'russian',
+            'fr': 'french',
+            'nl': 'dutch'
+        };
+        Object.keys(DMMMMYYYYLocales).forEach(function(locale) {
+            var translationsKey = DMMMMYYYYLocales[locale];
+
+            moment.locale(locale, {
+                calendar: {
+                    lastDay: '[' + translate('YESTERDAY', translationsKey).sentenceCase() + ']',
+                    sameDay: '[' + translate('TODAY', translationsKey).sentenceCase() + ']',
+                    nextDay: '[' + translate('TOMORROW', translationsKey).sentenceCase() + ']',
+                    lastWeek: 'YYYY-MM-DD',
+                    nextWeek: 'YYYY-MM-DD',
+                    sameElse: 'YYYY-MM-DD'
+                }
+            });
+        });
+
+        var yyyymmddLocales = {
+            'zh-cn': 'chinese',
+            'sw': 'swahili',
+            'ar': 'arabic',
+            'hi': 'hindi'
+        };
+        Object.keys(yyyymmddLocales).forEach(function(locale) {
+            var translationsKey = yyyymmddLocales[locale];
+
+            moment.locale(locale, {
+                calendar: {
+                    lastDay: '[' + translate('YESTERDAY', translationsKey).sentenceCase() + ']',
+                    sameDay: '[' + translate('TODAY', translationsKey).sentenceCase() + ']',
+                    nextDay: '[' + translate('TOMORROW', translationsKey).sentenceCase() + ']',
+                    lastWeek: 'YYYY-MM-DD',
+                    nextWeek: 'YYYY-MM-DD',
+                    sameElse: 'YYYY-MM-DD'
+                }
+            });
+        });
     });
+
 angular.module('blocktrail.wallet').config(
     function($compileProvider, $stateProvider, $urlRouterProvider, $logProvider, $analyticsProvider, $sceDelegateProvider, CONFIG) {
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|bitcoin):/);

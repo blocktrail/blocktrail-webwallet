@@ -192,14 +192,9 @@ gulp.task('templates:index', ['appconfig', 'js', 'sass'], function() {
             './src/translations/translations/chinese.json',
             './src/translations/translations/spanish.json',
             './src/translations/translations/russian.json',
-
-            './src/translations/translations/mobile/english.json',
-            './src/translations/translations/mobile/americanEnglish.json',
-            './src/translations/translations/mobile/french.json',
-            './src/translations/translations/mobile/dutch.json',
-            './src/translations/translations/mobile/chinese.json',
-            './src/translations/translations/mobile/spanish.json',
-            './src/translations/translations/mobile/russian.json'
+            './src/translations/translations/swahili.json',
+            './src/translations/translations/arabic.json',
+            './src/translations/translations/hindi.json'
         ], function(filename) {
             var language = path.basename(filename, '.json');
             var isMobile = filename.indexOf('mobile/') !== -1;
