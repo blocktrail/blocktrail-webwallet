@@ -379,6 +379,7 @@ angular.module('blocktrail.wallet').config(
                      * @param $q
                      * @param $rootScope
                      * @param $log
+                     * @param Currencies
                      */
                     loadingData: function(handleSetupState, Wallet, settingsService, $q, $rootScope, $log, Currencies) {
                         //do an initial load of cached user data
