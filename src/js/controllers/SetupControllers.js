@@ -538,8 +538,15 @@ angular.module('blocktrail.wallet')
                     }
                 })
                 .then(function(wallet) {
+                    var secretHex = null;
+                    if (wallet.walletVersion === 'v2') {
+                        secretHex = wallet.secret;
+                    } else {
+                        secretHex = wallet.secret.toString('hex');
+                    }
+
                     // while logging in we stash the secret so we can decrypt the glidera accesstoken
-                    launchService.stashWalletSecret(wallet.secret);
+                    launchService.stashWalletSecret(secretHex);
                     wallet.lock();
                 })
                 .then(function() {

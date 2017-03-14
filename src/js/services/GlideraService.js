@@ -119,7 +119,14 @@ angular.module('blocktrail.wallet').factory(
                                             return Wallet.unlockWithPassword(password)
                                         })
                                         .then(function(wallet) {
-                                            glideraAccessToken.encryptedAccessToken = CryptoJS.AES.encrypt(accessToken, wallet.secret).toString();
+                                            var secretHex = null;
+                                            if (wallet.walletVersion === 'v2') {
+                                                secretHex = wallet.secret;
+                                            } else {
+                                                secretHex = wallet.secret.toString('hex');
+                                            }
+
+                                            glideraAccessToken.encryptedAccessToken = CryptoJS.AES.encrypt(accessToken, secretHex).toString();
 
                                             wallet.lock();
                                         })
@@ -275,11 +282,16 @@ angular.module('blocktrail.wallet').factory(
 
                 return unlockWallet()
                     .then(function(wallet) {
-                        var walletSecret = wallet.secret;
+                        var secretHex = null;
+                        if (wallet.walletVersion === 'v2') {
+                            secretHex = wallet.secret;
+                        } else {
+                            secretHex = wallet.secret.toString('hex');
+                        }
 
                         wallet.lock();
 
-                        return decryptAccessToken(walletSecret);
+                        return decryptAccessToken(secretHex);
                     })
                     .then(function(r) {
                         $log.debug('DONE');
