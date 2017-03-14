@@ -7,6 +7,10 @@ angular.module('blocktrail.wallet').factory(
             self.dialogId = 0;
         };
 
+        DialogService.prototype.isCancel = function(err) {
+            return (err === "CANCELED" || err === "dismiss" || err === "backdrop click");
+        };
+
         DialogService.prototype.alert = function(title, body, ok, cancel) {
             var self = this;
             var dialogId = ++self.dialogId;

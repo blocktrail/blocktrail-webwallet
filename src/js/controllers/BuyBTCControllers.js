@@ -37,7 +37,9 @@ angular.module('blocktrail.wallet')
 
                 settingsService.$isLoaded().then(function() {
                     settingsService.buyBTCRegion = _.defaults({}, $scope.chooseRegion);
-                    return settingsService.$store();
+                    return settingsService.$store().then(function() {
+                        return settingsService.$syncSettingsUp();
+                    });
                 })
             });
         };
@@ -50,21 +52,19 @@ angular.module('blocktrail.wallet')
                             return settingsService.$isLoaded().then(function() {
                                 // 2: Additional user verification information is required
                                 if (settingsService.glideraAccessToken.userCanTransactInfo.code == 2) {
-                                    return $cordovaDialogs.confirm(
-                                        $translate.instant('MSG_BUYBTC_SETUP_MORE_GLIDERA_BODY', {
+                                    return dialogService.prompt({
+                                        body: $translate.instant('MSG_BUYBTC_SETUP_MORE_GLIDERA_BODY', {
                                             message: settingsService.glideraAccessToken.userCanTransactInfo.message
                                         }),
-                                        $translate.instant('MSG_BUYBTC_SETUP_MORE_GLIDERA_TITLE'),
-                                        [$translate.instant('OK'), $translate.instant('CANCEL')]
-                                    )
-                                        .then(function(dialogResult) {
-                                            if (dialogResult == 2) {
-                                                return;
-                                            }
-
+                                        title: $translate.instant('MSG_BUYBTC_SETUP_MORE_GLIDERA_TITLE'),
+                                        prompt: false
+                                    })
+                                        .result
+                                        .then(function() {
                                             return glideraService.setup();
-                                        })
-                                    ;
+                                        }, function() {
+                                            // -
+                                        });
 
                                 } else if (settingsService.glideraAccessToken.userCanTransactInfo) {
                                     throw new Error("User can't transact because: " + settingsService.glideraAccessToken.userCanTransactInfo.message);
@@ -95,7 +95,9 @@ angular.module('blocktrail.wallet')
                 .then(function() {
                     // -
                 }, function(err) {
-                    alert(err);
+                    if (!dialogService.isCancel(err)) {
+                        alert(err);
+                    }
                 })
             ;
         };

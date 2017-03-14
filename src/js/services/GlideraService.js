@@ -4,16 +4,15 @@ angular.module('blocktrail.wallet').factory(
              $timeout, $interval, settingsService, launchService, sdkService) {
         var clientId;
         var returnuri = CONFIG.WALLET_URL + "/#/wallet/buy/glidera/oaoth2/callback";
-        var SANDBOX = CONFIG.GLIDERA_URL.indexOf('sandbox.') !== -1;
         var decryptedAccessToken = null;
         var DECRYPTED_TOKEN_TTL = 30 * 60 * 1000; // 30min
-        DECRYPTED_TOKEN_TTL = 5000;
 
         var encodeOpenURI = function(uri) {
             return uri.replace('#', '%23');
         };
 
         var setDecryptedAccessToken = function(accessToken) {
+            $log.debug('setDecryptedAccessToken');
             decryptedAccessToken = accessToken;
 
             $timeout(function() {
@@ -35,7 +34,9 @@ angular.module('blocktrail.wallet').factory(
                 https: true,
                 host: CONFIG.GLIDERA_URL.replace(/https?:\/\//, ''),
                 endpoint: '/api/v1',
-                params: {},
+                params: {
+                    platform: 'web'
+                },
                 headers: _.defaults({}, (options.headers || {}), headers),
                 contentMd5: false
             });
@@ -98,7 +99,7 @@ angular.module('blocktrail.wallet').factory(
                     spinner = dialogService.spinner({title: 'WORKING'});
 
                     return sdkService.sdk().then(function(sdk) {
-                        return sdk.glideraOauth(qs.code, returnuri, SANDBOX)
+                        return sdk.glideraOauth(qs.code, returnuri)
                             .then(function(result) {
                                 $log.debug('oauthtoken', JSON.stringify(result, null, 4));
 
@@ -310,7 +311,7 @@ angular.module('blocktrail.wallet').factory(
 
         var buyPrices = function(qty, fiat) {
             return sdkService.sdk().then(function(sdk) {
-                return sdk.glideraBuyPrices(qty, fiat, SANDBOX)
+                return sdk.glideraBuyPrices(qty, fiat)
                     .then(function(result) {
                         console.log('buyPrices ' + JSON.stringify(result));
 

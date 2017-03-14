@@ -15,7 +15,7 @@ angular.module('blocktrail.wallet').factory(
             var self = this;
 
             if (!self._walletConfig || (self._walletConfig.ts > (new Date()).getTime() + (600 * 1000))) {
-                self._walletConfig = $http.get(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/mywallet/config?v=" + CONFIG.VERSION)
+                self._walletConfig = $http.get(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/mywallet/config?v=" + CONFIG.VERSION + "&platform=web")
                     .then(function(result) {
                         return result.data;
                     });

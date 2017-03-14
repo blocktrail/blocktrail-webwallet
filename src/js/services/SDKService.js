@@ -75,16 +75,16 @@ angular.module('blocktrail.wallet').factory(
             return self.client.post("/mywallet/phone/verify", null, {token: token}, cb);
         };
 
-        blocktrailSDK.prototype.glideraOauth = function (code, redirect_uri, sandbox) {
+        blocktrailSDK.prototype.glideraOauth = function (code, redirect_uri) {
             var self = this;
 
-            return self.client.post("/mywallet/glidera/oauth", null, {code: code, redirect_uri: redirect_uri, sandbox: sandbox});
+            return self.client.post("/mywallet/glidera/oauth", {platform: 'web'}, {code: code, redirect_uri: redirect_uri});
         };
 
-        blocktrailSDK.prototype.glideraBuyPrices = function (qty, fiat, sandbox) {
+        blocktrailSDK.prototype.glideraBuyPrices = function (qty, fiat) {
             var self = this;
 
-            return self.client.get("/mywallet/glidera/prices/buy", {qty: qty, fiat: fiat, sandbox: sandbox});
+            return self.client.get("/mywallet/glidera/prices/buy", {qty: qty, fiat: fiat, platform: 'web'});
         };
 
         blocktrailSDK.prototype.passwordChange = function (oldPassword, newPassword, encryptedSecret, twoFactorToken, walletsData) {
