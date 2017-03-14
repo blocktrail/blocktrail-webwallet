@@ -55,8 +55,8 @@
                 </div>
             </div>
 
-            <div class="row" ng-if="false && CONFIG.DEBUG && (buyInput.btcValue || buyInput.fiatValue)">
-                <div class="col-xs-12">
+            <div ng-if="CONFIG.DEBUG && (buyInput.btcValue || buyInput.fiatValue)">
+                <div class="pull-right">
                     {{ 'BUYBTC_INCL_FEE' | translate }} ({{ buyInput.feePercentage | number:1 }}%): {{ buyInput.fiatCurrency | toCurrencySymbol }}{{ buyInput.feeValue | number: 2 }}
                 </div>
             </div>

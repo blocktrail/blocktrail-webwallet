@@ -1457,6 +1457,11 @@ $display-token-size: 50px;
         }
 
         .buybtc-list {
+
+            .list-group-item {
+                cursor: pointer;
+            }
+
             .partner-btn {
                 img {
                     max-width: 100px;
