@@ -252,61 +252,67 @@ angular.module('blocktrail.wallet').factory(
 
         var accessTokenPromise = null; // use promise to avoid doing things twice
         var accessToken = function() {
-            if (decryptedAccessToken) {
-                $log.debug('decryptedAccessToken');
-                return $q.when(decryptedAccessToken);
-            } else if (accessTokenPromise) {
-                $log.debug('accessTokenPromise');
-                return accessTokenPromise;
-            }
+            return settingsService.$isLoaded().then(function() {
+                if (decryptedAccessToken) {
+                    $log.debug('decryptedAccessToken');
+                    return decryptedAccessToken;
+                } else if (accessTokenPromise) {
+                    $log.debug('accessTokenPromise');
+                    return accessTokenPromise;
+                }
 
-            var def = $q.defer();
+                if (!settingsService.glideraAccessToken) {
+                    return null;
+                }
 
-            accessTokenPromise = def.promise;
+                var def = $q.defer();
 
-            $timeout(function() {
-                var unlockWallet = function() {
-                    return dialogService.prompt({
-                        body: $translate.instant('MSG_BUYBTC_PASSWORD_TO_DECRYPT'),
-                        title: $translate.instant('ENTER_CURRENT_PASSWORD'),
-                        input_type: 'password',
-                        icon: 'key'
-                    })
-                        .result
-                        .then(function(password) {
-                            return Wallet.unlockWithPassword(password)
-                                .catch(function(e) {
-                                    return unlockWallet();
-                                })
+                accessTokenPromise = def.promise;
+
+                $timeout(function() {
+                    var unlockWallet = function() {
+                        return dialogService.prompt({
+                            body: $translate.instant('MSG_BUYBTC_PASSWORD_TO_DECRYPT'),
+                            title: $translate.instant('ENTER_CURRENT_PASSWORD'),
+                            input_type: 'password',
+                            icon: 'key'
+                        })
+                            .result
+                            .then(function(password) {
+                                return Wallet.unlockWithPassword(password)
+                                    .catch(function(e) {
+                                        return unlockWallet();
+                                    })
+                            });
+                    };
+
+                    return unlockWallet()
+                        .then(function(wallet) {
+                            var secretHex = null;
+                            if (wallet.walletVersion === 'v2') {
+                                secretHex = wallet.secret;
+                            } else {
+                                secretHex = wallet.secret.toString('hex');
+                            }
+
+                            wallet.lock();
+
+                            return decryptAccessToken(secretHex);
+                        })
+                        .then(function(r) {
+                            $log.debug('DONE');
+                            accessTokenPromise = null;
+                            def.resolve(r);
+                        }, function(err) {
+                            $log.debug('DONE ERR');
+                            accessTokenPromise = null;
+                            $log.debug(err);
+                            def.reject(err);
                         });
-                };
+                }, 100);
 
-                return unlockWallet()
-                    .then(function(wallet) {
-                        var secretHex = null;
-                        if (wallet.walletVersion === 'v2') {
-                            secretHex = wallet.secret;
-                        } else {
-                            secretHex = wallet.secret.toString('hex');
-                        }
-
-                        wallet.lock();
-
-                        return decryptAccessToken(secretHex);
-                    })
-                    .then(function(r) {
-                        $log.debug('DONE');
-                        accessTokenPromise = null;
-                        def.resolve(r);
-                    }, function(err) {
-                        $log.debug('DONE ERR');
-                        accessTokenPromise = null;
-                        $log.debug(err);
-                        def.reject(err);
-                    });
-            }, 100);
-
-            return accessTokenPromise;
+                return accessTokenPromise;
+            });
         };
 
         var buyPrices = function(qty, fiat) {
