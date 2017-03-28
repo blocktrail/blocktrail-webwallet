@@ -34,7 +34,7 @@
                                 <span ng-if="form.passwordCheck.score == 2">{{ 'PASSWORD_MEDIOCRE' | translate }} </span>
                                 <span ng-if="form.passwordCheck.score == 3">{{ 'PASSWORD_STRONG' | translate }} </span>
                                 <span ng-if="form.passwordCheck.score >= 4">{{ 'PASSWORD_SUPER_STRONG' | translate }} </span>
-                                <span ng-bind-html="'PASSWORD_TIME_TO_CRACK' | translate:form.passwordCheck"></span>
+                                <span translate="PASSWORD_TIME_TO_CRACK" translate-values="form.passwordCheck"></span>
                             </div>
                         </div>
 
