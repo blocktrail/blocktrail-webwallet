@@ -526,7 +526,7 @@ angular.module('blocktrail.wallet')
                     })
                         .result
                         .then(function(twoFactorToken) {
-                            var pleaseWaitDialog = dialogService.alert({
+                            pleaseWaitDialog = dialogService.alert({
                                 title: $translate.instant('SETTINGS_2FA'),
                                 body: $translate.instant('PLEASE_WAIT'),
                                 body_class: 'text-center',
@@ -552,7 +552,7 @@ angular.module('blocktrail.wallet')
 
                                             $timeout(function() {
                                                 pleaseWaitDialog.dismiss();
-                                            }, 800);
+                                            }, 200);
                                         });
                                     });
                                 });
@@ -563,7 +563,9 @@ angular.module('blocktrail.wallet')
                 .catch(function(e) {
                     $scope.enabled2faToggle = true;
                     if (pleaseWaitDialog) {
-                        pleaseWaitDialog.dismiss();
+                        $timeout(function() {
+                            pleaseWaitDialog.dismiss();
+                        }, 200);
                     }
 
                     if (e === "dismiss" || e === "backdrop click" || e === "escape key press") {
