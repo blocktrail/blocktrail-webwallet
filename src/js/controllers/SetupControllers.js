@@ -126,7 +126,12 @@ angular.module('blocktrail.wallet')
                                 settingsService.$store().then(function() {
                                     return settingsService.$syncProfileDown()
                                         .then(function() {
-                                            return settingsService.$syncSettingsDown();
+                                            return settingsService.$syncSettingsDown()
+                                                .then(function() {
+                                                    if (settingsService.language) {
+                                                        $rootScope.changeLanguage(settingsService.language);
+                                                    }
+                                                });
                                         })
                                         .then(function() {
                                             $state.go('app.setup.wallet');

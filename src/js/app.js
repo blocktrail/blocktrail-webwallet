@@ -248,7 +248,7 @@ angular.module('blocktrail.wallet').config(
                      * check for extra languages to enable
                      * if new language is new preferred, set it
                      */
-                    preferredLanguage: function(CONFIG, $rootScope, $state, settingsService, blocktrailLocalisation, launchService) {
+                    preferredLanguage: function(CONFIG, $rootScope, $state, blocktrailLocalisation, launchService) {
                         var bannedIp = false;
 
                         return launchService.getWalletConfig()
@@ -257,28 +257,20 @@ angular.module('blocktrail.wallet').config(
                                 return result.extraLanguages.concat(CONFIG.EXTRA_LANGUAGES).unique();
                             })
                             .then(function(extraLanguages) {
-                                return settingsService.$isLoaded().then(function() {
-                                    // parse extra languages to determine if there's any new
-                                    var r = blocktrailLocalisation.parseExtraLanguages(extraLanguages);
-                                    var preferredLanguage;
+                                // parse extra languages to determine if there's any new
+                                var r = blocktrailLocalisation.parseExtraLanguages(extraLanguages);
+                                var preferredLanguage;
 
-                                    // if there's any new we should store those
-                                    if (r) {
-                                        var newLanguages = r[0];
-                                        preferredLanguage = r[1];
-                                        settingsService.extraLanguages = settingsService.extraLanguages.concat(newLanguages).unique();
-                                    } else {
-                                        preferredLanguage = blocktrailLocalisation.setupPreferredLanguage();
-                                    }
+                                // if there's any new we should store those
+                                if (r) {
+                                    var newLanguages = r[0];
+                                    preferredLanguage = r[1];
+                                } else {
+                                    preferredLanguage = blocktrailLocalisation.setupPreferredLanguage();
+                                }
 
-                                    // activate preferred language
-                                    $rootScope.changeLanguage(preferredLanguage);
-
-                                    // store preferred language
-                                    settingsService.language = preferredLanguage;
-
-                                    return settingsService.$store();
-                                });
+                                // activate preferred language
+                                $rootScope.changeLanguage(preferredLanguage);
                             })
                             .then(function() {
                                 if (bannedIp) {

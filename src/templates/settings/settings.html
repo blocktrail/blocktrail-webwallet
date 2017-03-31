@@ -96,8 +96,8 @@
                             <ul class="dropdown-menu" uib-dropdown-menu>
                                 <li ng-repeat="currency in currencies"
                                     ng-class="{active: currency.code == settings.localCurrency}"
-                                    ng-click="settings.localCurrency = currency.code">
-                                    <a href="#">{{ currency.code }} ({{ currency.symbol }})</a>
+                                    ng-click="settings.localCurrency = currency.code; $event.preventDefault();">
+                                    <a href>{{ currency.code }} ({{ currency.symbol }})</a>
                                 </li>
                             </ul>
                         </div>
@@ -115,8 +115,8 @@
                             <ul class="dropdown-menu" uib-dropdown-menu>
                                 <li ng-repeat="language in languages"
                                     ng-class="{active: language.code == settings.language}"
-                                    ng-click="settings.language = language.code">
-                                    <a href="#">{{ language.name | translate }}</a>
+                                    ng-click="settings.language = language.code; $event.preventDefault();">
+                                    <a href>{{ language.name | translate }}</a>
                                 </li>
                             </ul>
                         </div>

@@ -3,7 +3,7 @@ angular.module('blocktrail.wallet').service('settingsService', function($q, stor
         displayName:  null,
         username:  '',
         email:  null,
-        language: 'en',
+        language: null,
         extraLanguages: [],
         timezone:  "GMT+1",
         localCurrency:  "EUR",
