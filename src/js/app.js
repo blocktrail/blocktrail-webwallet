@@ -46,7 +46,7 @@ angular.module('blocktrail.wallet').config(function() {
 });
 
 angular.module('blocktrail.wallet').run(
-    function($rootScope, $state, $log, $interval, $timeout, settingsService, CONFIG, $locale, $translate, amMoment) {
+    function($rootScope, $state, $log, $interval, $timeout, settingsService, blocktrailLocalisation, CONFIG, $locale, $translate, amMoment) {
         $rootScope.CONFIG       = CONFIG || {};
         $rootScope.$state       = $state;
         $rootScope.appVersion   = CONFIG.VERSION;
