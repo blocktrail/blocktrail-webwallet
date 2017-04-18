@@ -1,11 +1,18 @@
 angular.module('blocktrail.wallet').factory(
     'storageService',
-    function(CONFIG) {
+    function(CONFIG, $log) {
         var dbs = {};
+        var adapter = CONFIG.POUCHDB_DRIVER;
+
+        // use in-memory adapter when ixdb isn't supported
+        $log.debug('window.supportsIndexedDB: ' + window.supportsIndexedDB);
+        if (window.supportsIndexedDB === false) {
+            adapter = 'memory';
+        }
 
         var db = function(name) {
             if (!dbs[name]) {
-                dbs[name] = new PouchDB(name, {adapter: CONFIG.POUCHDB_DRIVER});
+                dbs[name] = new PouchDB(name, {adapter: adapter});
             }
 
             return dbs[name];

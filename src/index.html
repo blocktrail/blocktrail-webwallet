@@ -11,9 +11,64 @@
         <link crossorigin="anonymous"
               <% if (SRI) { %>integrity="sha256-<%= SRI['css/app.css'] %>"<% } %>
               href="<%= STATICSURL %>/css/app.css" rel="stylesheet">
+
+        <script>
+            window.supportsIndexedDB = null;
+            (function checkSupportsIndexedDB() {
+                var bootstrapAngular = function() {
+                    // keep checking if we're ready to bootstrap (once supportsIndexedDB is set)
+                    //  and then bootstrap angular
+                    var check = setInterval(function() {
+                        if (window.supportsIndexedDB !== null) {
+                            angular.bootstrap(document, ['blocktrail.wallet']);
+                            clearInterval(check);
+                        }
+                    }, 5);
+                };
+
+                // attack onload handler to bootstrap angular once we're ready
+                if (window.attachEvent != null) {
+                    window.attachEvent('onload', bootstrapAngular);
+                } else {
+                    window.addEventListener('load', bootstrapAngular, false);
+                }
+                
+                // check if we can use indexedDB
+                var _supportsIndexedDB = null;
+                try {
+                    var indexedDB = indexedDB || this.indexedDB || this.webkitIndexedDB ||
+                        this.mozIndexedDB || this.OIndexedDB ||
+                        this.msIndexedDB;
+
+                    // attempt to open a test DB
+                    var test = indexedDB.open('_idb_spec_test', 1);
+
+                    // onsuccess we know for sure we can use it
+                    test.onsuccess = function() {
+                        _supportsIndexedDB = true;
+                    };
+                    // onerror we know for sure we can't use it
+                    test.onerror = function() {
+                        _supportsIndexedDB = false;
+                    };
+                } catch (e) {
+                    // if an error is thrown we know for sure we can't use it
+                    _supportsIndexedDB = false;
+                }
+
+                // keep checking if either the sucess or failure cases have set _supportsIndexedDB
+                //  and then set window.supportsIndexedDB
+                var check = setInterval(function() {
+                    if (_supportsIndexedDB !== null) {
+                        window.supportsIndexedDB = _supportsIndexedDB;
+                        clearInterval(check);
+                    }
+                }, 5);
+            })();
+        </script>
     </head>
 
-    <body ng-app="blocktrail.wallet" ng-class="bodyClassStr">
+    <body ng-class="bodyClassStr">
         <div class="bodyViewContainer" ui-view>
 
             <div class="loading-page">
