@@ -265,6 +265,7 @@ gulp.task('js:libs', ['appconfig'], function() {
             "./src/lib/angular-toggle-switch/angular-toggle-switch.js",
 
             "./src/lib/pouchdb/dist/pouchdb.js",
+            "./src/lib/pouchdb/dist/pouchdb.memory.js",
 
             "./src/lib/bowser/src/bowser.js",
 
