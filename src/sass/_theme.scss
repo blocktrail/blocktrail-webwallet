@@ -1252,19 +1252,36 @@ $display-token-size: 50px;
         .amount {
             //    font-size: 18px;
         }
-        .advancedOptions {
-            margin-bottom: 30px;
-            .bticon {
-                font-size: 8px;
+        .fee-toggle {
+
+            margin-top: -20px;
+            margin-bottom: 25px;
+
+            .toggle-switch span {
+                line-height: 25px;
+                width: 33.33%;
             }
-            .caret {
-                margin-right: 1px;
+
+            .checkbox label {
+                padding-left: 0px;
             }
-            a {
-                text-decoration: none;
+
+            .switch-left {
+                color: #609dd2;
+                background-color: #609dd2;
             }
-            .checkbox {
-                line-height: 22px;
+
+            .switch-right {
+                color: #eeeeee;
+            }
+
+            .help-block {
+                margin-top: 0px;
+            }
+
+            .fee-label {
+                display: inline-block;
+                min-width: 105px;
             }
         }
     }

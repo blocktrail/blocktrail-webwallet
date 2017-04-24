@@ -26,7 +26,7 @@
 
                     <label class="control-label" for="recipient">{{ 'AMOUNT' | translate }}</label>
                     <div class="input-group input-group-lg">
-                        <input ng-model="sendInput.amount" ng-change="setAltCurrency()" type="text" class="form-control"  name="amount" placeholder="0.00000000" autocomplete="off" type="number" min="0" required />
+                        <input ng-model="sendInput.amount" ng-change="setAltCurrency(); fetchFee();" type="text" class="form-control"  name="amount" placeholder="0.00000000" autocomplete="off" type="number" min="0" required />
                         <span class="input-group-addon currency">
                             <span class="altCurrency">
                                 {{ altCurrency.code | toCurrencySymbol}} {{altCurrency.amount}}
@@ -52,47 +52,44 @@
                 </div>
             </div>
         </div>
-        <div class="row advancedOptions">
+        <div class="row">
             <div class="col-xs-12">
-                <div>
-                    <a ng-href="#" ng-click="showAdvanced = !showAdvanced">
-                        <span class="bticon bticon-right-open" ng-if="!showAdvanced"></span>
-                        <i class="caret"  ng-if="showAdvanced"></i>
-                        <span class="sentence-case">{{ 'ADVANCED_SEND_OPTIONS' | translate }}</span>
-                    </a>
-                </div>
-                <div class="form-group form-group-lg" ng-show="showAdvanced">
+                <div class="form-group form-group-lg fee-toggle form-slim">
                     <div class="checkbox">
-                        <label>
-                            <input id="low_priority"
-                                   type="checkbox"
-                                   ng-model="sendInput.lowPriority"
-                                   name="low_priority"
-                                   required />
-                            <span>
-                                {{ 'LOW_PRIORITY_LABEL' | translate }}
-                            </span>
-                        </label>
-                        <span class="help-block">
-                            <span class=" text-warning sentence-case">
-                                <b class="uppercase">{{ 'WARNING' | translate }}!</b> {{ 'LOW_PRIORITY_WARNING' | translate }}
-                            </span>
-                        </span>
+                        <div class="row">
+                            <div class="col-xs-2">
+                                <toggle-switch ng-model="sendInput.useOptimalFee"
+                                               ng-change="updateFee()"
+                                               style="text-align: center"
+                                >
+                                </toggle-switch>
+
+                            </div>
+                            <div class="col-xs-10">
+                                <span class="fee-label">
+                                    {{ sendInput.useOptimalFee ? ( 'OPTIMAL_FEE' | translate ): ( 'LOW_PRIORITY_FEE' | translate) }}{{ displayFee ? ':' : '' }}
+                                </span>
+
+                                <span ng-show="displayFee && sendInput.amount > 0">
+                                    {{ fee | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}
+                                </span>
+                                <br>
+                                <span class="help help-block sentence-case" ng-show="!sendInput.useOptimalFee">{{ 'LOW_PRIORITY_NOTICE' | translate }}</span>
+                                <span class="help help-block sentence-case" ng-show="sendInput.useOptimalFee">{{ 'OPTIMAL_PRIORITY_NOTICE' | translate }}</span>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
-
             </div>
         </div>
+
         <div class="row">
             <div class="col-xs-12">
                 <div class="form-group form-group-lg form-group-buttons">
                     <button class="btn btn-lg btn-primary" ng-click="confirmSend()">
                         <span>&nbsp;&nbsp; {{ 'SEND' | translate }} &nbsp;&nbsp;</span>
                     </button>
-                    &nbsp;
-                    <a ui-sref="app.wallet.summary">
-                        <span>{{ 'CANCEL' | translate }}</span>
-                    </a>
                 </div>
             </div>
         </div>
