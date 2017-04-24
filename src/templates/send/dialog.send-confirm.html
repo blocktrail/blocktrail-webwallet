@@ -9,7 +9,7 @@
                 {{ 'SENDING_CONFIRM_MSG' | translate }} <b>{{ sendData.amount }} BTC</b> {{ 'TO' | translate }} <b>{{ sendData.recipientAddress }}</b>
             </div>
         </div>
-        <div class="alert alert-warning" ng-if="sendData.lowPriority">
+        <div class="alert alert-warning" ng-if="!sendData.useOptimalFee">
             <div class="sentence-case">
                 <b class="uppercase">{{ 'WARNING' | translate }}!</b> <span class="sentence-case">{{ 'LOW_PRIORITY_SEND_WARNING' | translate }}</span>
             </div>
@@ -95,7 +95,6 @@
                 <div class="sentence-case help-block" ng-if="fee !== false" style="margin-top:10px;margin-bottom:0px;">
                     {{ 'ESITIMATED_FEE' | translate }}
                     <span ng-if="!fee">
-                        &nbsp;
                         <loading-spinner style="display: inline-block;" ng-if="!fee"></loading-spinner>
                     </span>
                     <span ng-if="fee">{{ fee | satoshiToCurrency : 'BTC' : bitcoinPrices : 8 }}</span>
