@@ -1,7 +1,7 @@
 angular.module('blocktrail.wallet').factory(
     'glideraService',
     function(CONFIG, $log, $q, Wallet, dialogService, $state, $rootScope, $translate, $http,
-             $timeout, $interval, settingsService, launchService, sdkService) {
+             $timeout, $interval, settingsService, launchService, sdkService, trackingService) {
         var clientId;
         var returnuri = CONFIG.WALLET_URL + "/#/wallet/buy/glidera/oaoth2/callback";
         var decryptedAccessToken = null;
@@ -107,6 +107,7 @@ angular.module('blocktrail.wallet').factory(
                         return sdk.glideraOauth(qs.code, returnuri)
                             .then(function(result) {
                                 $log.debug('oauthtoken', JSON.stringify(result, null, 4));
+                                trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_SETUP_DONE);
 
                                 var accessToken = result.access_token;
                                 var glideraAccessToken = {

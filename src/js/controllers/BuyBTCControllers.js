@@ -1,6 +1,6 @@
 angular.module('blocktrail.wallet')
     .controller('BuyBTCChooseCtrl', function($q, $scope, $state, $rootScope, dialogService, settingsService,
-                                             $translate, glideraService, buyBTCService, $log, $timeout) {
+                                             $translate, glideraService, buyBTCService, $log, $timeout, trackingService) {
         $scope.brokers = [];
 
         // load chooseRegion from settingsService
@@ -35,6 +35,12 @@ angular.module('blocktrail.wallet')
                 $scope.brokers = brokers;
                 $scope.chooseRegion.regionOk = $scope.brokers.length;
 
+                if ($scope.chooseRegion.regionOk) {
+                    trackingService.trackEvent(trackingService.EVENTS.BUYBTC.REGION_OK);
+                } else {
+                    trackingService.trackEvent(trackingService.EVENTS.BUYBTC.REGION_NOTOK);
+                }
+
                 settingsService.$isLoaded().then(function() {
                     settingsService.buyBTCRegion = _.defaults({}, $scope.chooseRegion);
                     return settingsService.$store().then(function() {
@@ -52,6 +58,7 @@ angular.module('blocktrail.wallet')
                             return settingsService.$isLoaded().then(function() {
                                 // 2: Additional user verification information is required
                                 if (settingsService.glideraAccessToken.userCanTransactInfo.code == 2) {
+                                    trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_SETUP_UPDATE);
                                     return dialogService.prompt({
                                         body: $translate.instant('MSG_BUYBTC_SETUP_MORE_GLIDERA_BODY', {
                                             message: settingsService.glideraAccessToken.userCanTransactInfo.message
@@ -74,6 +81,7 @@ angular.module('blocktrail.wallet')
                             });
 
                         } else {
+                            trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_SETUP_INIT);
                             return dialogService.prompt({
                                 body: $translate.instant('MSG_BUYBTC_SETUP_GLIDERA_BODY'),
                                 title: $translate.instant('MSG_BUYBTC_SETUP_GLIDERA_TITLE'),
@@ -156,7 +164,8 @@ angular.module('blocktrail.wallet')
 
 angular.module('blocktrail.wallet')
     .controller('BuyBTCBuyCtrl', function($scope, $state, $rootScope, dialogService, glideraService, buyBTCService,
-                                          $stateParams, $log, $timeout, $interval, $translate, $filter) {
+                                          $stateParams, $log, $timeout, $interval, $translate, $filter, trackingService) {
+        trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_OPEN);
         $scope.broker = $stateParams.broker;
 
         $scope.initializing = true;
@@ -317,6 +326,7 @@ angular.module('blocktrail.wallet')
 
                 return glideraService.buyPricesUuid(btcValue, fiatValue)
                     .then(function(result) {
+                        trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_BUY_CONFIRM);
                         return dialogService.prompt({
                             body: $translate.instant('MSG_BUYBTC_CONFIRM_BODY', {
                                 qty: $filter('number')(result.qty, 6),
@@ -335,6 +345,8 @@ angular.module('blocktrail.wallet')
                                     .then(function() {
                                         spinner.close();
 
+                                        trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_BUY_DONE);
+
                                         dialogService.alert({
                                             body: $translate.instant('MSG_BUYBTC_BOUGHT_BODY', {
                                                 qty: $filter('number')(result.qty, 6),
@@ -346,6 +358,9 @@ angular.module('blocktrail.wallet')
                                         });
 
                                         $state.go('app.wallet.summary');
+                                    }, function(e) {
+                                        trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_BUY_ERR);
+                                        throw e;
                                     })
                                     ;
                             });

@@ -593,12 +593,12 @@ angular.module('blocktrail.wallet')
                 .then(function() {
                     $log.debug('All done. Onwards to victory!');
                     if ($scope.setupInfo.backupInfo) {
-                        trackingService.trackRegistration();
+                        trackingService.trackEvent(trackingService.EVENTS.REGISTRATION);
 
                         //if a new wallet has been created, go to the wallet backup page
                         $state.go('app.setup.backup');
                     } else {
-                        trackingService.trackLogin();
+                        trackingService.trackEvent(trackingService.EVENTS.LOGIN);
 
                         //else continue to wallet
                         settingsService.$load().then(function() {
