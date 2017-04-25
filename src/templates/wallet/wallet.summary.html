@@ -17,6 +17,57 @@
         </div>
 
         <div infinite-scroll="loadMoreTransactions()" infinite-scroll-container="'#appBody'" infinite-scroll-distance="0.3">
+            <div ng-if="buybtcPendingOrders.length > 0">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="item-divider isFirst">
+                            <div class="date-group">
+                                {{ 'BUYBTC_PENDING_ORDERS' | translate }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-repeat="buybtcPendingOrder in buybtcPendingOrders track by $index">
+                    <div class="item-transaction item-buybtc-pending-order">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div class="transaction-info">
+                                    <div class="media">
+                                        <div class="media-left media-media">
+                                            <div class="display-token contact-token">
+                                                <span class="avatar received" style="background-image: url('data:image/jpeg;base64, {{ buybtcPendingOrder.avatarUrl }}');"></span>
+                                            </div>
+                                        </div>
+                                        <div class="media-body media-top">
+                                            <div class="tx-type">
+                                                <span>{{ 'BUYBTC_PENDING_ORDER' | translate: {order: buybtcPendingOrder} }}</span>
+                                            </div>
+                                            <div class="timestamp">
+                                                {{ buybtcPendingOrder.time | amDateFormat: 'h:mm a' : 'unix' }} |
+                                                <span>{{ 'BUYBTC_PENDING_ORDER_SUBTITLE' | translate: {order: buybtcPendingOrder} }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-2 text-center">
+                                <!--
+                                <div class="pending">
+                                    <i class="bticon bticon-clock"></i><br/><em>{{ 'TX_INFO_PENDING' | translate}}</em>
+                                </div>
+                                -->
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <div class="value received">
+                                    {{ buybtcPendingOrder.qty | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div ng-repeat="transaction in transactionsDisplayList track by $index">
 
                 <div ng-if="transaction.isHeader" class="row">

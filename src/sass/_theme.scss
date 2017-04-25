@@ -1148,6 +1148,10 @@ $display-token-size: 50px;
             .item-transaction {
                 padding: 10px 30px;
 
+                &.item-buybtc-pending-order {
+                    cursor: default !important;
+                }
+
                 .transaction-info {
                     position: relative;
                     display: inline-block;
