@@ -2,8 +2,8 @@ var _ = require('lodash');
 var stripJsonComments = require('strip-json-comments');
 var fs = require('fs');
 
-var readAppConfig = function(config) {
-    config = config || {};
+var readAppConfig = function(baseConfig) {
+    var config = {};
 
     ['./appconfig.json', './appconfig.default.json'].forEach(function(filename) {
         var json = fs.readFileSync(filename);
@@ -13,6 +13,8 @@ var readAppConfig = function(config) {
             config = _.defaults(config, data);
         }
     });
+
+    config = _.defaults(config, baseConfig);
 
     return config;
 };
