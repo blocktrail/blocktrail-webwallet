@@ -41,28 +41,31 @@ var buildAppConfig = function() {
 
     gitRev.branch(function(branch) {
         gitRev.short(function(rev) {
-            var config = {
-                VERSION: branch + ":" + rev
-            };
+            gitRev.tag(function(tag) {
+                var config = {
+                    VERSION: tag || null,
+                    VERSION_REV: branch + ":" + rev
+                };
 
-            config = readAppConfig(config);
+                config = readAppConfig(config);
 
-            if (typeof config.API_HTTPS !== "undefined" && config.API_HTTPS === false) {
-                config.API_URL = "http://" + config.API_HOST;
-            } else {
-                config.API_URL = "https://" + config.API_HOST;
-            }
+                if (typeof config.API_HTTPS !== "undefined" && config.API_HTTPS === false) {
+                    config.API_URL = "http://" + config.API_HOST;
+                } else {
+                    config.API_URL = "https://" + config.API_HOST;
+                }
 
-            config.STATICSDIR = config.STATICSDIR || config.VERSION.replace(":", "-");
-            if (config.CDN) {
-                if (config.CDN.substr(-1) != "/") throw new Error("CDN should have trailing /");
-                config.STATICSURL = config.CDN + config.STATICSDIR;
-            } else {
-                config.STATICSURL = config.STATICSDIR;
-            }
+                config.STATICSDIR = config.STATICSDIR || (config.VERSION || config.VERSION_REV).replace(":", "-").replace(".", "-");
+                if (config.CDN) {
+                    if (config.CDN.substr(-1) != "/") throw new Error("CDN should have trailing /");
+                    config.STATICSURL = config.CDN + config.STATICSDIR;
+                } else {
+                    config.STATICSURL = config.STATICSDIR;
+                }
 
 
-            def.resolve(config);
+                def.resolve(config);
+            });
         });
     });
 
