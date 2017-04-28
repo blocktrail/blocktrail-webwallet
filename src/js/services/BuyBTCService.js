@@ -60,13 +60,13 @@ angular.module('blocktrail.wallet').factory(
             {code: 'US-WY', name: 'Wyoming'}
         ];
 
-        var _brokers = null;
+        var _brokers = [];
         var getBrokers = function() {
             return launchService.getWalletConfig()
-                .then(function(walletConfig) {
-                    glideraService.setClientId(walletConfig.glidera_client_id);
+                .then(function(result) {
+                    glideraService.setClientId(result.glidera_client_id);
 
-                    return walletConfig.brokers;
+                    return result.brokers;
                 })
                 .then(function(brokers) {
                     if (CONFIG.DEBUG_OVERLOAD_BROKERS) {
@@ -81,6 +81,7 @@ angular.module('blocktrail.wallet').factory(
                             _regions[idx].brokers = brokers[region.code].filter(function(broker) {
                                 return SUPPORTED_BROKERS.indexOf(broker) !== -1;
                             });
+                            _brokers = _brokers.concat(_regions[idx].brokers).unique();
                         } else {
                             // otherwise unset
                             _regions[idx].brokers = [];
@@ -93,31 +94,32 @@ angular.module('blocktrail.wallet').factory(
                             _usStates[idx].brokers = brokers[region.code].filter(function(broker) {
                                 return SUPPORTED_BROKERS.indexOf(broker) !== -1;
                             });
+                            _brokers = _brokers.concat(_usStates[idx].brokers).unique();
                         } else {
                             // otherwise unset
                             _usStates[idx].brokers = [];
                         }
                     });
                 })
-                .then(function(r) {
-                    return r;
+                .then(function() {
+                    return _brokers;
                 }, function(e) {
                     console.error('getBrokers' + (e.msg || e.message || "" + e));
-
                     var deferred = $q.defer();
                     $timeout(function() {
                         deferred.resolve(getBrokers());
                     }, 3000);
                     return deferred.promise;
-                })
+                });
         };
 
+        var _brokersPromise = null;
         var brokers = function() {
-            if (!_brokers) {
-                _brokers = getBrokers();
+            if (!_brokersPromise) {
+                _brokersPromise = getBrokers();
             }
 
-            return _brokers;
+            return _brokersPromise;
         };
         brokers();
 

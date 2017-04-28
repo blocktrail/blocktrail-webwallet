@@ -1,7 +1,7 @@
 angular.module('blocktrail.wallet')
     .controller('WalletCtrl', function($q, $log, $scope, $state, $rootScope, $interval, storageService, sdkService, Wallet,
                                        Contacts, CONFIG, settingsService, $timeout, launchService, blocktrailLocalisation,
-                                       dialogService, $http, $translate, buyBTCService, Currencies) {
+                                       dialogService, $http, $translate, buyBTCService, Currencies, AppVersionService) {
 
         $timeout(function() {
             $rootScope.hideLoadingScreen = true;
@@ -23,21 +23,29 @@ angular.module('blocktrail.wallet')
          * check for extra languages to enable
          *  if one is preferred, prompt user to switch
          */
-        $rootScope.fetchExtraLanguages =
-            /*
-             * check for extra languages to enable
-             *  if one is preferred, prompt user to switch
-             */
-            launchService.getWalletConfig()
-                .then(function(result) {
-                    if (result.currencies) {
-                        result.currencies.forEach(function (currency) {
-                            Currencies.enableCurrency(currency);
+        $rootScope.fetchExtraLanguages = launchService.getWalletConfig()
+            .then(function(result) {
+                settingsService.$isLoaded().then(function() {
+                    // check if we need to display any update notices
+                    AppVersionService.checkVersion(settingsService.latestVersionWeb, result.versionInfo.web, AppVersionService.CHECKS.LOGGEDIN);
+
+                    // store the latest version we've used
+                    if (!settingsService.latestVersionWeb || semver.lt(CONFIG.VERSION, settingsService.latestVersionWeb)) {
+                        settingsService.latestVersionWeb = CONFIG.VERSION;
+                        settingsService.$store().then(function() {
+                            settingsService.$syncSettingsUp();
                         });
                     }
+                });
 
-                    return result.extraLanguages.concat(CONFIG.EXTRA_LANGUAGES).unique();
-                })
+                if (result.currencies) {
+                    result.currencies.forEach(function (currency) {
+                        Currencies.enableCurrency(currency);
+                    });
+                }
+
+                return result.extraLanguages.concat(CONFIG.EXTRA_LANGUAGES).unique();
+            })
             .then(function(extraLanguages) {
                 return settingsService.$isLoaded().then(function() {
                     (settingsService.extraLanguages || []).forEach(function(language) {
