@@ -1,15 +1,12 @@
 var _ = require('lodash');
 var gulp = require('gulp');
 var stripJsonComments = require('strip-json-comments');
-var gutil = require('gulp-util');
 var bower = require('bower');
 var ngAnnotate = require('gulp-ng-annotate');
 var concat = require('gulp-concat');
 var sass = require('gulp-sass');
 var minifyCss = require('gulp-minify-css');
 var rename = require('gulp-rename');
-var sh = require('shelljs');
-var gitRev = require('git-rev');
 var template = require('gulp-template');
 var uglify = require('gulp-uglify');
 var fs = require('fs');
@@ -20,108 +17,12 @@ var notifier = require('node-notifier');
 var livereload = require('gulp-livereload');
 var fontello = require('gulp-fontello');
 var del = require('del');
-var CryptoJS = require('crypto-js');
 var html2js = require('gulp-html2js');
 
-/**
- * helper to wrap a stream with a promise for easy chaining
- * @param stream
- * @returns {Q.Promise}
- */
-var streamAsPromise = function(stream) {
-    var def = Q.defer();
-
-    stream
-        .on('end', function() {
-            def.resolve();
-        })
-        .on('error', function(e) {
-            def.reject(e);
-        })
-    ;
-
-    return def.promise;
-};
-
-var readAppConfig = function(config) {
-    config = config || {};
-
-    ['./appconfig.json', './appconfig.default.json'].forEach(function(filename) {
-        var json = fs.readFileSync(filename);
-
-        if (json) {
-            var data = JSON.parse(stripJsonComments(json.toString('utf8')));
-            config = _.defaults(config, data);
-        }
-    });
-
-    return config;
-};
-
-/**
- * build appconfig from .json files
- *
- * @returns {Q.Promise}
- */
-var buildAppConfig = function() {
-    var def = Q.defer();
-
-    gitRev.branch(function(branch) {
-        gitRev.short(function(rev) {
-            var config = {
-                VERSION: branch + ":" + rev
-            };
-
-            config = readAppConfig(config);
-
-            if (typeof config.API_HTTPS !== "undefined" && config.API_HTTPS === false) {
-                config.API_URL = "http://" + config.API_HOST;
-            } else {
-                config.API_URL = "https://" + config.API_HOST;
-            }
-
-            config.STATICSDIR = config.STATICSDIR || config.VERSION.replace(":", "-");
-            if (config.CDN) {
-                if (config.CDN.substr(-1) != "/") throw new Error("CDN should have trailing /");
-                config.STATICSURL = config.CDN + config.STATICSDIR;
-            } else {
-                config.STATICSURL = config.STATICSDIR;
-            }
-
-
-            def.resolve(config);
-        });
-    });
-
-    return def.promise;
-};
-
-var buildSRIMap = function(files, basepath) {
-    return Q.all(files.map(function(file) {
-        var def = Q.defer();
-
-        fs.readFile(file, function(err, filedata) {
-            if (err) {
-                def.reject(err);
-                return;
-            }
-
-            var sha = CryptoJS.SHA256(CryptoJS.enc.Base64.parse(filedata.toString('base64'))).toString(CryptoJS.enc.Base64);
-
-            def.resolve({filename: file, sha256: sha});
-        });
-
-        return def.promise;
-    })).then(function(results) {
-        var map = {};
-
-        _.forEach(results, function(r) {
-            map[r.filename.replace(basepath, "")] = r.sha256;
-        });
-
-        return map;
-    });
-};
+var readAppConfig = require('./gulp/readappconfig');
+var buildAppConfig = require('./gulp/buildappconfig');
+var streamAsPromise = require('./gulp/streamaspromise');
+var buildSRIMap = require('./gulp/sri');
 
 var isWatch = false;
 var isLiveReload = process.argv.indexOf('--live-reload') !== -1 || process.argv.indexOf('--livereload') !== -1;
@@ -267,6 +168,7 @@ gulp.task('js:libs', ['appconfig'], function() {
             "./src/lib/pouchdb/dist/pouchdb.js",
 
             "./src/lib/bowser/src/bowser.js",
+            "./src/lib/semver/semver.browser.js",
 
             "./src/lib/angular-translate/angular-translate.js",
             "./src/lib/libphonenumber/dist/libphonenumber.js",

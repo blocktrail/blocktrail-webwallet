@@ -49,7 +49,7 @@ angular.module('blocktrail.wallet').run(
     function($rootScope, $state, $log, $interval, $timeout, settingsService, blocktrailLocalisation, CONFIG, $locale, $translate, amMoment) {
         $rootScope.CONFIG       = CONFIG || {};
         $rootScope.$state       = $state;
-        $rootScope.appVersion   = CONFIG.VERSION;
+        $rootScope.appVersion   = CONFIG.VERSION || CONFIG.VERSION_REV;
 
         $rootScope.bodyClass = [];
         $rootScope.bodyClassStr = "";
