@@ -571,11 +571,11 @@ angular.module('blocktrail.wallet').factory(
                 var walletSecretBuf = new blocktrailSDK.Buffer(walletSecret, 'hex');
 
                 return decryptAccessToken(walletSecretBuf);
-            }, function(e) { console.log('initDecryptAccessToken ERR ' + e)})
+            })
             .then(function() {
                 // updateAllTransactions(); // @TODO: DEBUG
                 return updatePendingTransactions();
-            });
+            }, function(e) { $log.debug('initDecryptAccessToken2 ERR ' + e); });
 
         Wallet.addTransactionMetaResolver(function(transaction) {
             return firstUpdate.then(function() {
