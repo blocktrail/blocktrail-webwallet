@@ -14,12 +14,12 @@
     "test",
     "tests"
   ],
-  "_release": "e26828e",
+  "_release": "be96b3a",
   "_resolution": {
     "type": "commit",
-    "commit": "e26828e"
+    "commit": "be96b3a"
   },
   "_source": "git@github.com:blocktrail/blocktrail-sdk-nodejs.git",
-  "_target": "e26828e",
+  "_target": "be96b3a",
   "_originalSource": "git@github.com:blocktrail/blocktrail-sdk-nodejs.git"
 }

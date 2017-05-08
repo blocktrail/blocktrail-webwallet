@@ -117,8 +117,7 @@ module.exports = function (grunt) {
         },
 
         exec: {
-            // does 'sources concat' as tasks, because we don't want it minified by the asmcrypto grunt
-            asmcryptobuild: 'cd ./vendor/asmcrypto.js; npm install; grunt sources concat --with pbkdf2-hmac-sha512'
+            asmcryptobuild: 'cd ./vendor/asmcrypto.js; npm install; grunt --with pbkdf2-hmac-sha512'
         },
 
         /*
@@ -152,18 +151,14 @@ module.exports = function (grunt) {
         uglify : {
             options: {
                 mangle: {
-                    except: ['Buffer', 'BigInteger', 'Point', 'Script', 'ECPubKey', 'ECKey', 'sha512_asm']
+                    except: ['Buffer', 'BigInteger', 'Point', 'Script', 'ECPubKey', 'ECKey', 'sha512_asm', 'asm']
                 }
             },
-            sdk: {
+            dist : {
                 files : {
-                    'build/blocktrail-sdk.min.js'      : ['<%= browserify.sdk.dest %>'],
-                    'build/blocktrail-sdk-full.min.js' : ['<%= concat.sdkfull.dest %>']
-                }
-            },
-            test: {
-                files : {
-                    'build/test.min.js' : ['<%= browserify.test.dest %>']
+                    'build/jsPDF.min.js'                : ['<%= concat.jsPDF.dest %>'],
+                    'build/blocktrail-sdk.min.js'       : ['<%= browserify.sdk.dest %>'],
+                    'build/blocktrail-sdk-full.min.js'  : ['<%= concat.sdkfull.dest %>']
                 }
             }
         },
@@ -204,12 +199,8 @@ module.exports = function (grunt) {
                 tasks : ['default']
             },
             browserify : {
-                files : ['main.js', 'lib/*', 'lib/**/*'],
-                tasks : ['browserify:sdk', 'concat:sdkfull']
-            },
-            browserify_test : {
                 files : ['main.js', 'test.js', 'test/*', 'test/**/*', 'lib/*', 'lib/**/*', '!test/run-tests.html'],
-                tasks : ['browserify:test', 'uglify:test', 'template']
+                tasks : ['browserify', 'concat', 'template']
             },
             deps : {
                 files : ['vendor/**/*.js'],
