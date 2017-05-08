@@ -26,11 +26,6 @@ var gitRev = {
     }
 };
 
-
-gitRev.tag(function(tag) {
-    console.log(tag);
-});
-
 /**
  * build appconfig from .json files
  *
