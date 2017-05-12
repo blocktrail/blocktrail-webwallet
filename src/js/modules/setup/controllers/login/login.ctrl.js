@@ -6,7 +6,7 @@
 
     // TODO Review this part, decrease dependencies, create login service and move $http request to service
     function SetupLoginCtrl($rootScope, $scope, $state, $sce, $translate, $log, $q, $http, _, cryptoJS, CONFIG,
-                            launchService, setupService, dialogService, FormHelper) {
+                            launchService, setupService, dialogService, FormHelper, trackingService) {
         // display mobile app download popup
         $scope.showMobileDialogOnce();
 
@@ -50,16 +50,27 @@
         };
 
         $scope.login = function() {
+            return trackingService.getBrowserFingerprint().then(function(fingerprint) {
+                return fingerprint.hash;
+            }, function(e) {
+                return null;
+            }).then(function(fingerprint) {
+                return $scope._login(fingerprint);
+            });
+        };
+
+        $scope._login = function(fingerprint) {
             var twoFactorToken = $scope.twoFactorToken;
             $scope.twoFactorToken = null; // consumed
 
-            $http.post(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "t" : "") + CONFIG.NETWORK + "/mywallet/enable", {
+            return $http.post(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "t" : "") + CONFIG.NETWORK + "/mywallet/enable", {
                 login: $scope.form.username,
                 password: cryptoJS.SHA512($scope.form.password).toString(),
                 platform: "Web",
                 version: $rootScope.appVersion,
                 two_factor_token: twoFactorToken,
-                device_name: navigator.userAgent || "Unknown Browser"
+                device_name: navigator.userAgent || "Unknown Browser",
+                browser_fingerprint: fingerprint || null
             }).then(
                 function(result) {
                     $q.when(result.data.encrypted_secret)
