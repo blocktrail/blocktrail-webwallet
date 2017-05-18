@@ -29,10 +29,6 @@
             <div ng-if="!message.icon">
                 <input autocomplete="{{ message.autocomplete || 'off' }}" autofocus type="{{ message.input_type || 'text' }}" ng-model="form.prompt" id="prompt" class="form-control"/>
             </div>
-
-            <span class="help help-block">
-               {{ altCurrency.code | toCurrencySymbol}} {{altCurrency.amount}}
-            </span>
         </div>
     </div>
     <div class="modal-footer" ng-class="message.footer_class">
