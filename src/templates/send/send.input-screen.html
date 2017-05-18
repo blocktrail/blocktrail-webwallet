@@ -52,7 +52,39 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row" ng-show="prioboostCredits > 0 && prioboostEstSize < PRIOBOOST_MAX_SIZE">
+            <div class="col-xs-12">
+                <div class="form-group form-group-lg fee-toggle form-slim">
+                    <div class="checkbox">
+                        <div class="row">
+                            <div class="col-xs-2">
+                                <div style="font-size: 40px; text-align: left; cursor: pointer;">
+                                    <i style="position: relative; right: 3px;" class="bticon bticon-check-empty"
+                                       ng-if="!sendInput.prioboostTx" ng-click="sendInput.prioboostTx = true; updateFee();"></i>
+                                    <i class="bticon bticon-check"
+                                       ng-if="sendInput.prioboostTx" ng-click="sendInput.prioboostTx = false; updateFee();"></i>
+                                </div>
+                            </div>
+                            <div class="col-xs-10">
+                                <span class="fee-label">
+                                    You have <b>{{ prioboostCredits }}</b> transaction boost credits!
+                                </span>
+                                <br>
+                                <span class="help help-block sentence-case">
+                                    You can use these credits to get a transaction mined with priority while just only having to pay the minimum fee required to relay your transaction accross the network. <br />
+                                    This will give you a ~{{ prioboostDiscountPercentage | number:2 }}% discount!
+                                    <span ng-if="displayFee && fees.minRelayFee > 0">
+                                        Fee: {{ fees.minRelayFee | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}
+                                    </span>
+                                </span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" ng-show="!sendInput.prioboostTx">
             <div class="col-xs-12">
                 <div class="form-group form-group-lg fee-toggle form-slim">
                     <div class="checkbox">
