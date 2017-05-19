@@ -44,7 +44,6 @@
                         </span>
                     </div>
                     <span class="help help-block text-danger">
-                        &nbsp;
                         <span class="sentence-case" ng-if="errors.amount">
                             {{ errors.amount | translate }}
                         </span>
@@ -52,38 +51,166 @@
                 </div>
             </div>
         </div>
-        <div class="row" ng-show="prioboostCredits > 0 && prioboostEstSize < PRIOBOOST_MAX_SIZE">
+
+        <div class="row">
             <div class="col-xs-12">
-                <div class="form-group form-group-lg fee-toggle form-slim">
-                    <div class="checkbox">
-                        <div class="row">
-                            <div class="col-xs-2">
-                                <div style="font-size: 40px; text-align: left; cursor: pointer;">
-                                    <i style="position: relative; right: 3px;" class="bticon bticon-check-empty"
-                                       ng-if="!sendInput.prioboostTx" ng-click="sendInput.prioboostTx = true; updateFee();"></i>
-                                    <i class="bticon bticon-check"
-                                       ng-if="sendInput.prioboostTx" ng-click="sendInput.prioboostTx = false; updateFee();"></i>
+                <div class="form-group form-group-lg form-slim">
+                    <label class="control-label">{{ 'TRANSACTION_FEES' | translate }}</label>
+                    <div class="custom-select" ng-init="showselect=false" style="min-width: 400px;">
+                        <div class="custom-select-choice" ng-click="showselect=true">
+                            <span class="custom-select-arrow">
+                                <i class="bticon bticon-down-open" ng-click=""></i>
+                            </span>
+                            <div class="custom-option" ng-show="sendInput.feeChoice == OPTIMAL_FEE">
+                                <div class="row">
+                                    <div class="col-xs-9">
+                                        <span class="custom-option-title">
+                                            {{ 'OPTIMAL_FEE' | translate }}
+                                        </span>
+                                        <span class="help help-block custom-option-subtitle">
+                                            {{ 'OPTIMAL_PRIORITY_NOTICE' | translate }}
+                                        </span>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <span class="custom-option-fee" ng-if="fees.optimal">{{ fees.optimal | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-xs-10">
-                                <span class="fee-label">
-                                    You have <b>{{ prioboostCredits }}</b> transaction boost credits!
-                                </span>
-                                <br>
-                                <span class="help help-block sentence-case">
-                                    You can use these credits to get a transaction mined with priority while just only having to pay the minimum fee required to relay your transaction accross the network. <br />
-                                    This will give you a ~{{ prioboostDiscountPercentage | number:2 }}% discount!
-                                    <span ng-if="displayFee && fees.minRelayFee > 0">
-                                        Fee: {{ fees.minRelayFee | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}
-                                    </span>
-                                </span>
+                            <div class="custom-option" ng-show="sendInput.feeChoice == LOW_PRIORITY_FEE">
+                                <div class="row">
+                                    <div class="col-xs-9">
+                                        <span class="custom-option-title">
+                                            {{ 'LOW_PRIORITY_FEE' | translate }}
+                                        </span>
+                                        <span class="help help-block custom-option-subtitle">
+                                            {{ 'LOW_PRIORITY_NOTICE' | translate }}
+                                        </span>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <span class="custom-option-fee" ng-if="fees.lowPriority">{{ fees.lowPriority | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}</span>
+                                    </div>
+                                </div>
                             </div>
-
+                            <div class="custom-option"
+                                 ng-show="sendInput.feeChoice == PRIOBOOST"
+                                 ng-class="{error: prioboostEstSize > PRIOBOOST_MAX_SIZE}">
+                                <div class="row">
+                                    <div class="col-xs-9">
+                                        <span class="custom-option-title">
+                                            {{ 'PRIOBOOST' | translate }}
+                                        </span>
+                                        <span class="help help-block custom-option-subtitle">
+                                            {{ 'PRIOBOOST_NOTICE' | translate }}
+                                            <br/>
+                                            {{ 'PRIOBOOST_YOU_HAVE' | translate }}
+                                            {{ prioboostCredits }}
+                                            {{ 'PRIOBOOST_CREDITS_REMAINING' | translate }}
+                                        </span>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <span class="custom-option-fee extra-top" ng-if="fees.minRelayFee && (prioboostEstSize < PRIOBOOST_MAX_SIZE)">{{ fees.minRelayFee | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}</span>
+                                        <span class="error pull-right extra-top" ng-if="prioboostEstSize > PRIOBOOST_MAX_SIZE">{{ 'PRIOBOOST_TOO_LARGE' | translate }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-select-menu"
+                             ng-show="showselect"
+                             click-anywhere-but-here="showselect = false" is-active="showselect == true">
+                            <div class="custom-option"
+                                 ng-class="{selected: sendInput.feeChoice == OPTIMAL_FEE}"
+                                 ng-click="sendInput.feeChoice = OPTIMAL_FEE; showselect = false;">
+                                <div class="row">
+                                    <div class="col-xs-9">
+                                        <span class="custom-option-title sentence-case">
+                                            {{ 'OPTIMAL_FEE' | translate }}
+                                        </span>
+                                        <span class="help help-block custom-option-subtitle">
+                                            {{ 'OPTIMAL_PRIORITY_NOTICE' | translate }}
+                                        </span>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <span class="custom-option-fee" ng-if="fees.optimal">{{ fees.optimal | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr style="margin:0px;" />
+                            <div class="custom-option"
+                                 ng-class="{selected: sendInput.feeChoice == LOW_PRIORITY_FEE}"
+                                 ng-click="sendInput.feeChoice = LOW_PRIORITY_FEE; showselect = false;">
+                                <div class="row">
+                                    <div class="col-xs-9">
+                                        <span class="custom-option-title sentence-case">
+                                            {{ 'LOW_PRIORITY_FEE' | translate }}
+                                        </span>
+                                        <span class="help help-block custom-option-subtitle">
+                                            {{ 'LOW_PRIORITY_NOTICE' | translate }}
+                                        </span>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <span class="custom-option-fee" ng-if="fees.lowPriority">{{ fees.lowPriority | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr style="margin:0px;" />
+                            <div class="custom-option"
+                                 ng-class="{selected: sendInput.feeChoice == PRIOBOOST, error: prioboostEstSize > PRIOBOOST_MAX_SIZE}"
+                                 ng-click="sendInput.feeChoice = PRIOBOOST; showselect = false;">
+                                <div class="row">
+                                    <div class="col-xs-9">
+                                        <span class="custom-option-title sentence-case">
+                                            <span class="custom-option-title sentence-case">
+                                                {{ 'PRIOBOOST' | translate }}
+                                            </span>
+                                        </span>
+                                        <span class="help help-block custom-option-subtitle">
+                                            {{ 'PRIOBOOST_NOTICE' | translate }}
+                                            <br/>
+                                            {{ 'PRIOBOOST_YOU_HAVE' | translate }}
+                                            {{ prioboostCredits }}
+                                            {{ 'PRIOBOOST_CREDITS_REMAINING' | translate }}
+                                        </span>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <span class="custom-option-fee extra-top" ng-if="fees.minRelayFee && (prioboostEstSize < PRIOBOOST_MAX_SIZE)">{{ fees.minRelayFee | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}</span>
+                                        <span class="error custom-option-fee extra-top" ng-if="prioboostEstSize > PRIOBOOST_MAX_SIZE">{{ 'PRIOBOOST_TOO_LARGE' | translate }}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+<!--
+        <div class="row" ng-show="prioboostCredits > 0">
+            <div class="form-group form-group-lg fee-toggle form-slim alert alert-info">
+                <div class="col-xs-2">
+                    <div style="font-size: 30px; text-align: left; cursor: pointer;">
+                        <i style="position: relative; right: 2px;" class="bticon bticon-check-empty"
+                           ng-if="!sendInput.prioboostTx" ng-click="sendInput.prioboostTx = true; updateFee();"></i>
+                        <i class="bticon bticon-check"
+                           ng-if="sendInput.prioboostTx" ng-click="sendInput.prioboostTx = false; updateFee();"></i>
+                    </div>
+                </div>
+                <div class="col-xs-11">
+                    <span class="fee-label">
+                        <b>Transaction Accelerator</b>
+                    </span>
+                    <br>
+                    <span class="sentence-case">
+
+                        <br />
+                        <span ng-if="displayFee && fees.minRelayFee > 0">
+                            Fee: {{ fees.minRelayFee | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </div>
+//-->
+
+        <!--
         <div class="row" ng-show="!sendInput.prioboostTx">
             <div class="col-xs-12">
                 <div class="form-group form-group-lg fee-toggle form-slim">
@@ -95,11 +222,12 @@
                                                style="text-align: center"
                                 >
                                 </toggle-switch>
-
                             </div>
                             <div class="col-xs-10">
                                 <span class="fee-label">
-                                    {{ sendInput.useOptimalFee ? ( 'OPTIMAL_FEE' | translate ): ( 'LOW_PRIORITY_FEE' | translate) }}{{ displayFee ? ':' : '' }}
+                                   <b>
+                                       {{ sendInput.useOptimalFee ? ( 'OPTIMAL_FEE' | translate ): ( 'LOW_PRIORITY_FEE' | translate) }}{{ displayFee ? ':' : '' }}
+                                   </b>
                                 </span>
 
                                 <span ng-show="displayFee && sendInput.amount > 0">
@@ -115,6 +243,10 @@
                 </div>
             </div>
         </div>
+    //-->
+
+
+
 
         <div class="row">
             <div class="col-xs-12">

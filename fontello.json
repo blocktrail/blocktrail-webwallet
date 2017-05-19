@@ -239,6 +239,12 @@
             "css": "check",
             "code": 59429,
             "src": "fontawesome"
+        },
+        {
+            "uid": "ccddff8e8670dcd130e3cb55fdfc2fd0",
+            "css": "down-open",
+            "code": 59430,
+            "src": "fontawesome"
         }
     ]
 }

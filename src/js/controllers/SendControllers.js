@@ -2,6 +2,10 @@ angular.module('blocktrail.wallet')
     .controller('SendCtrl', function($scope, $log, $modal, CurrencyConverter, Currencies, Contacts, Wallet, $timeout, dialogService,
                                      QR, $q, $state, $rootScope, $translate, launchService, CONFIG) {
         //$scope.fiatFirst = false;
+        $scope.OPTIMAL_FEE = 'optimal_fee';
+        $scope.LOW_PRIORITY_FEE = 'low_priority_fee';
+        $scope.PRIOBOOST = 'prioboost';
+
         $rootScope.pageTitle = 'SEND';
         $scope.PRIOBOOST_MAX_SIZE = 3000;
         $scope.prioboostEstSize = null;
@@ -10,8 +14,7 @@ angular.module('blocktrail.wallet')
             referenceMessage: "",
             pin: null,
             amount: "",
-            useOptimalFee: true,
-            prioboostTx: false
+            feeChoice: $scope.OPTIMAL_FEE
         };
 
         $scope.fees = {
@@ -103,7 +106,7 @@ angular.module('blocktrail.wallet')
             $scope.fees.lowPriority = null;
             $scope.fees.optimal = null;
             $scope.fees.minRelayFee = null;
-            $scope.fees.minRelayFeeSize = null;
+            $scope.prioboostEstSize = null;
             $scope.displayFee = false;
 
             Wallet.sdk.then(function(sdk) {
@@ -209,10 +212,14 @@ angular.module('blocktrail.wallet')
         };
 
         $scope.updateFee = function() {
-            if ($scope.sendInput.prioboostTx) {
+            if ($scope.sendInput.feeChoice === $scope.OPTIMAL_FEE) {
+                $scope.fee = $scope.fees.optimal;
+            } else if ($scope.sendInput.feeChoice === $scope.LOW_PRIORITY_FEE) {
+                $scope.fee = $scope.fees.lowPriority;
+            } else if ($scope.sendInput.feeChoice === $scope.PRIOBOOST) {
                 $scope.fee = $scope.fees.minRelayFee;
             } else {
-                $scope.fee = ($scope.sendInput.useOptimalFee) ? $scope.fees.optimal : $scope.fees.lowPriority;
+                throw new Error("Invalid");
             }
         };
 
@@ -264,8 +271,7 @@ angular.module('blocktrail.wallet')
                         resolve: {
                             sendData: function() {
                                 return {
-                                    prioboostTx: $scope.sendInput.prioboostTx,
-                                    useOptimalFee: $scope.sendInput.useOptimalFee,
+                                    feeChoice: $scope.sendInput.feeChoice,
                                     recipientAddress: $scope.sendInput.recipientAddress,
                                     amount: sendAmount,
                                     requires2FA: $scope.requires2FA
@@ -313,7 +319,7 @@ angular.module('blocktrail.wallet')
 
         $scope.pay = {};
         $scope.pay[$scope.sendData.recipientAddress] = parseInt(CurrencyConverter.toSatoshi($scope.sendData.amount, "BTC"));
-        $scope.feeStrategy = $scope.sendData.prioboostTx ? 'min_relay_fee' : ($scope.sendData.useOptimalFee ? null : 'low_priority');
+        $scope.feeStrategy = $scope.sendData.feeChoice == 'prioboost' ? 'min_relay_fee' : $scope.sendData.feeChoice;
         $scope.useZeroConf = true;
 
         $scope.passwordCapsLockOn = false;
@@ -373,7 +379,7 @@ angular.module('blocktrail.wallet')
 
                     $analytics.eventTrack('pre-pay', {category: 'Events'});
 
-                    return $q.when(wallet.pay($scope.pay, false, $scope.useZeroConf, false, $scope.feeStrategy, $scope.form.two_factor_token, {prioboost: $scope.sendData.prioboostTx})).then(function(txHash) {
+                    return $q.when(wallet.pay($scope.pay, false, $scope.useZeroConf, false, $scope.feeStrategy, $scope.form.two_factor_token, {prioboost: $scope.sendData.feeChoice == 'prioboost'})).then(function(txHash) {
                         wallet.lock();
                         return $q.when(txHash);
                     }, function(err) {
