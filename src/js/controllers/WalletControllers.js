@@ -30,7 +30,7 @@ angular.module('blocktrail.wallet')
                     AppVersionService.checkVersion(settingsService.latestVersionWeb, result.versionInfo.web, AppVersionService.CHECKS.LOGGEDIN);
 
                     // store the latest version we've used
-                    if (!settingsService.latestVersionWeb || semver.lt(CONFIG.VERSION, settingsService.latestVersionWeb)) {
+                    if (!settingsService.latestVersionWeb || semver.gt(CONFIG.VERSION, settingsService.latestVersionWeb)) {
                         settingsService.latestVersionWeb = CONFIG.VERSION;
                         settingsService.$store().then(function() {
                             settingsService.$syncSettingsUp();
