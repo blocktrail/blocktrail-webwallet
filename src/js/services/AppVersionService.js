@@ -8,7 +8,7 @@ angular.module('blocktrail.wallet').factory(
 
         // priority order, first one met is used (allows older version update messages to be prioritized when a user jumps multiple versions)
         var UPDATE_MESSAGES = [
-            // ["0.0.0", "EXAMPLE"]
+            ["3.3.4", "UPDATE_NOTICE_030304"]
         ];
 
         var checkGlideraActivated = function() {
