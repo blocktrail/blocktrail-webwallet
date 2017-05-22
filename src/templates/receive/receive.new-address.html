@@ -13,7 +13,7 @@
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="form-group form-group-lg">
                     <label class="control-label">{{ 'BITCOIN_ADDRESS' | translate }}</label>
-                    <p class="address">{{ newRequest.address }}</p>
+                    <p class="address">{{ newRequest.address || '...' }}</p>
                     <span class="help-block">
                         {{ 'BITCOIN_ADDRESS_RECEIVE_HELP' | translate }}
                     </span>
