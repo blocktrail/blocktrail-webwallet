@@ -362,7 +362,7 @@ $appHeaderHeight: 80px;
     .navbar-header {
         width: 159px;
         height: auto;
-        padding: 12px 0px 0px 12px;
+        padding: 16px 0px 0px 0px;
 
         .navbar-brand {
             margin: 0px 0px 0px 0px;
@@ -372,7 +372,7 @@ $appHeaderHeight: 80px;
             img {
                 border: 0px;
                 margin: 0px;
-                width: 66px;
+                width: 160px;
             }
         }
     }
@@ -748,8 +748,8 @@ $display-token-size: 50px;
 
 .form {
     .form-group {
-        margin-top: 20px;
-        margin-bottom: 20px;
+        margin-top: 15px;
+        margin-bottom: 10px;
 
         .control-label {
             &::first-letter {
@@ -818,7 +818,7 @@ $display-token-size: 50px;
         }
     }
     .form-group-buttons {
-        margin-top: 0px;
+        margin-top: 20px;
         padding: 0px;
         margin-bottom: 0px;
 
