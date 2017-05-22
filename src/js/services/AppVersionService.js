@@ -24,7 +24,7 @@ angular.module('blocktrail.wallet').factory(
                         });
 
                         dialogService.alert({
-                            body: $translate.instant('WEBWALLET_UPDATE_030100'),
+                            body: $translate.instant('GLIDERA_UPDATE'),
                             title: $translate.instant('UPDATED_NOTICE')
                         });
                     }
