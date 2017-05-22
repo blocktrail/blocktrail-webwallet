@@ -1,6 +1,6 @@
 angular.module('blocktrail.wallet').factory(
     'AppVersionService',
-    function(AppVersionBaseService, $translate, $rootScope, $state, settingsService, CONFIG, dialogService) {
+    function(AppVersionBaseService, $translate, $rootScope, $state, settingsService, CONFIG, dialogService, $sce, $filter) {
         var _CHECKS = AppVersionBaseService.CHECKS;
         var isCheck = AppVersionBaseService.isCheck;
 
@@ -67,7 +67,7 @@ angular.module('blocktrail.wallet').factory(
                 if (match === _CHECKS.UPDATED) {
                     if (meta) {
                         dialogService.alert({
-                            body: $translate.instant(meta),
+                            bodyHtml: $filter('nl2br')($translate.instant(meta)),
                             title: $translate.instant('UPDATED_NOTICE')
                         });
                     }

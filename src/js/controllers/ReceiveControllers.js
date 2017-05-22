@@ -2,7 +2,7 @@ angular.module('blocktrail.wallet')
     .controller('ReceiveCtrl', function($scope, $rootScope, Wallet, CurrencyConverter, Currencies, $q, $timeout, $translate) {
         $rootScope.pageTitle = 'RECEIVE';
 
-        $scope.paymentReceived       = false;
+        $scope.paymentReceived = false;
 
         $scope.address      = null;
         $scope.path         = null;

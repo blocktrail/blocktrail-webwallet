@@ -1260,7 +1260,8 @@ $display-token-size: 50px;
             .custom-select-choice {
                 .custom-select-arrow {
                     position: absolute;
-                    top: 19px;
+                    top: 50%;
+                    margin-top: -10px;
                     right: 10px;
                 }
 
@@ -1275,16 +1276,10 @@ $display-token-size: 50px;
                 padding: 10px;
 
                 .custom-option-title {
-                    font-weight:400;
+                    font-weight: 400;
                     display: inline-block;
-
-
-                    .custom-option-fee {
-                        color:$muted;
-                        position: absolute;
-                        right:20px;
-                    }
                 }
+
                 .custom-option-subtitle {
                     margin: 0px;
                     font-size: 0.9em;
@@ -1293,21 +1288,22 @@ $display-token-size: 50px;
                 .custom-option-fee {
                     float: right;
                     line-height: 36px;
+
                     &.extra-top {
-                        padding-top:12px;
+                        padding-top: 12px;
                     }
                 }
+
                 .error {
-                    //      border: 1px solid red;
-                    //background-color:$alert-danger-bg;
-                    color:$alert-danger-text;
-                    padding:4px;
+                    color: $alert-danger-text;
+                    padding: 4px;
                     font-size: $font-size-small;
-                    border-radius:4px;
-                    text-align:center;
-                    line-height:1.1em;
+                    border-radius: 4px;
+                    text-align: center;
+                    line-height: 1.1em;
+
                     &.extra-top {
-                        padding-top:12px;
+                        padding-top: 12px;
                     }
                 }
 
@@ -1331,40 +1327,6 @@ $display-token-size: 50px;
                 border: 1px solid $border-color;
             }
         }
-
-        /*
-        .fee-toggle {
-
-
-            .toggle-switch span {
-                line-height: 25px;
-                width: 33.33%;
-            }
-
-            .checkbox label {
-                padding-left: 0px;
-            }
-
-            .switch-left {
-                color: #609dd2;
-                background-color: #609dd2;
-            }
-
-            .switch-right {
-                color: #eeeeee;
-            }
-
-            .help-block {
-                margin-top: 0px;
-            }
-
-            .fee-label {
-                display: inline-block;
-                min-width: 105px;
-            }
-        }
-        */
-
     }
 
     //--- settings screens ---
