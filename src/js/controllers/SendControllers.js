@@ -30,7 +30,6 @@ angular.module('blocktrail.wallet')
             minRelayFee: null
         };
 
-        $scope.working = false;
         $scope.complete = false;
         $scope.displayFee = false;
         $scope.useZeroConf = true;
@@ -120,7 +119,7 @@ angular.module('blocktrail.wallet')
             $scope.prioboost.estSize = null;
             $scope.prioboost.zeroConf = null;
 
-            Wallet.sdk.then(function(sdk) {
+            return Wallet.sdk.then(function(sdk) {
                 var localPay = {};
                 var amount = 0;
 
@@ -145,7 +144,7 @@ angular.module('blocktrail.wallet')
                     localPay[fakeAddress.toString()] = amount;
                 }
 
-                Wallet.wallet.then(function (wallet) {
+                return Wallet.wallet.then(function (wallet) {
                     return $q.all([
                         wallet.coinSelection(localPay, false, $scope.useZeroConf, blocktrailSDK.Wallet.FEE_STRATEGY_LOW_PRIORITY)
                             .spread(function (utxos, fee, change, res) {
@@ -218,7 +217,7 @@ angular.module('blocktrail.wallet')
                             $scope.fees.minRelayFee = minRelayFee;
                             $scope.displayFee = true;
 
-                            $scope.updateFee();
+                            return $scope.updateFee();
                         }, function (e) {
                             $log.debug("fetchFee ERR " + e);
                         });
@@ -239,76 +238,81 @@ angular.module('blocktrail.wallet')
         };
 
         $scope.confirmSend = function() {
-            if ($scope.working) {
-                return false;
-            }
+            var spinner = dialogService.spinner({});
 
-            if ($scope.sendInput.feeChoice === $scope.PRIOBOOST && $scope.prioboost.possible === false) {
-                dialogService.alert({
-                    body: $scope.prioboost.credits <= 0 ? $translate.instant("PRIOBOOST_NO_CREDITS") : ($scope.prioboost.tooLarge ? $translate.instant("PRIOBOOST_TOO_LARGE") : $translate.instant("PRIOBOOST_ZERO_CONF")),
-                    title: $translate.instant("PRIOBOOST_NOT_POSSIBLE")
-                });
-                return;
-            }
+            return $scope.fetchFee().then(function() {
+                spinner.close();
 
-            $scope.clearErrors();
-
-            // input amount
-            // https://stackoverflow.com/questions/7810446/regex-validation-of-numeric-with-up-to-4-decimal-places
-            if (!$scope.sendInput.amount || !$scope.sendInput.amount.match('^[0-9]*(?:\.[0-9]{0,8})?$')) {
-                $scope.errors.amount = 'MSG_INVALID_AMOUNT';
-                return;
-                //throw blocktrail.Error('MSG_INVALID_AMOUNT');
-            }
-
-            if (parseFloat($scope.sendInput.amount).toFixed(8) == '0.00000000') {
-                $scope.errors.amount = 'MSG_INVALID_AMOUNT';
-                return;
-            }
-
-            var sendAmount = 0;
-            if ($scope.currencyType == 'BTC') {
-                sendAmount = $scope.sendInput.amount;
-            } else {
-                sendAmount = $scope.altCurrency.amount;
-            }
-
-            if (parseInt(CurrencyConverter.toSatoshi(sendAmount, "BTC")) >= ($rootScope.balance + $rootScope.uncBalance)) {
-                $scope.errors.amount = 'MSG_INSUFFICIENT_FUNDS';
-                return;
-            }
-
-            //no send address
-            if (!$scope.sendInput.recipientAddress) {
-                $scope.errors.recipient = 'MSG_MISSING_RECIPIENT';
-                return;
-            }
-
-            Wallet.validateAddress($scope.sendInput.recipientAddress)
-                .then(function() {
-                    var modalInstance = $modal.open({
-                        controller: 'SendConfirmCtrl',
-                        templateUrl: 'templates/send/dialog.send-confirm.html',
-                        size: 'md',
-                        backdrop: 'static',
-                        resolve: {
-                            sendData: function() {
-                                return {
-                                    feeChoice: $scope.sendInput.feeChoice,
-                                    recipientAddress: $scope.sendInput.recipientAddress,
-                                    amount: sendAmount,
-                                    requires2FA: $scope.requires2FA
-                                };
-                            }
-                        }
+                if ($scope.sendInput.feeChoice === $scope.PRIOBOOST && $scope.prioboost.possible === false) {
+                    dialogService.alert({
+                        body: $scope.prioboost.credits <= 0 ? $translate.instant("PRIOBOOST_NO_CREDITS") : ($scope.prioboost.tooLarge ? $translate.instant("PRIOBOOST_TOO_LARGE") : $translate.instant("PRIOBOOST_ZERO_CONF")),
+                        title: $translate.instant("PRIOBOOST_NOT_POSSIBLE")
                     });
-                },
-                function(err) {
-                    $timeout(function() {
-                        $scope.errors.recipient = 'MSG_INVALID_RECIPIENT';
-                    });
-                })
-            ;
+                    return;
+                }
+
+                $scope.clearErrors();
+
+                // input amount
+                // https://stackoverflow.com/questions/7810446/regex-validation-of-numeric-with-up-to-4-decimal-places
+                if (!$scope.sendInput.amount || !$scope.sendInput.amount.match('^[0-9]*(?:\.[0-9]{0,8})?$')) {
+                    $scope.errors.amount = 'MSG_INVALID_AMOUNT';
+                    return;
+                    //throw blocktrail.Error('MSG_INVALID_AMOUNT');
+                }
+
+                if (parseFloat($scope.sendInput.amount).toFixed(8) == '0.00000000') {
+                    $scope.errors.amount = 'MSG_INVALID_AMOUNT';
+                    return;
+                }
+
+                var sendAmount = 0;
+                if ($scope.currencyType == 'BTC') {
+                    sendAmount = $scope.sendInput.amount;
+                } else {
+                    sendAmount = $scope.altCurrency.amount;
+                }
+
+                if (parseInt(CurrencyConverter.toSatoshi(sendAmount, "BTC")) >= ($rootScope.balance + $rootScope.uncBalance)) {
+                    $scope.errors.amount = 'MSG_INSUFFICIENT_FUNDS';
+                    return;
+                }
+
+                //no send address
+                if (!$scope.sendInput.recipientAddress) {
+                    $scope.errors.recipient = 'MSG_MISSING_RECIPIENT';
+                    return;
+                }
+
+                Wallet.validateAddress($scope.sendInput.recipientAddress)
+                    .then(function() {
+                            var modalInstance = $modal.open({
+                                controller: 'SendConfirmCtrl',
+                                templateUrl: 'templates/send/dialog.send-confirm.html',
+                                size: 'md',
+                                backdrop: 'static',
+                                resolve: {
+                                    sendData: function() {
+                                        return {
+                                            feeChoice: $scope.sendInput.feeChoice,
+                                            recipientAddress: $scope.sendInput.recipientAddress,
+                                            amount: sendAmount,
+                                            requires2FA: $scope.requires2FA
+                                        };
+                                    }
+                                }
+                            });
+                        },
+                        function(err) {
+                            $timeout(function() {
+                                $scope.errors.recipient = 'MSG_INVALID_RECIPIENT';
+                            });
+                        })
+                ;
+            })
+            .finally(function() {
+                spinner.close();
+            });
         };
     })
     .controller('SendResultCtrl', function($scope, $modalInstance, result) {
