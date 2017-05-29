@@ -1,0 +1,81 @@
+<div class="appPage">
+
+    <div class="searchBox">
+        <input type="text" ng-model="searchText" maxlength="100" placeholder="{{ 'ADDRESS_LOOKUP_SEARCH_PLACEHOLDER' | translate }}">
+        <div>
+            <label for="checkOnlyUsed">
+                <input id="checkOnlyUsed" class="searchCheckbox" type="checkbox" ng-model="checkOnlyUsed"> {{ 'ADDRESS_LOOKUP_CHECKONLY_USAGE' | translate }}
+            </label>
+            <label for="checkOnlyLabeled">
+                <input id="checkOnlyLabeled" class="searchCheckbox" type="checkbox" ng-model="checkOnlyLabeled"> {{ 'ADDRESS_LOOKUP_CHECKONLY_LABELED' | translate }}
+            </label>
+        </div>
+    </div>
+
+    <div style="position: relative;">
+        <div class="spinner" ng-if="isLoading">
+            <loading-spinner loading-spinner-size="lg"></loading-spinner>
+        </div>
+        <div class="loading-overlay" ng-if="isLoading">
+
+        </div>
+        <table class="table table-striped table-condensed table-hover">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>{{ 'ADDRESS' | translate }}</th>
+                <th>{{ 'ADDRESS_LABEL' | translate }}</th>
+                <th><!--{{ 'EDIT_LABEL' | translate }}--></th>
+                <th class="text-center">{{ 'USAGES' | translate }}</th>
+                <th class="text-center">{{ 'BALANCE' | translate }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="item in items">
+                <td class="colCounter"> {{ (currentPage - 1) * itemsPerPage + items.indexOf(item) + 1 }}</td>
+                <td class="colAddress">
+                    <a title="{{ 'CHECKOUT_AT_BTCCOM' | translate }}"
+                       href="{{ explorerURL + '/' + item.address }}"
+                       target="_blank">
+                        {{ item.address }}
+                    </a>
+                </td>
+                <td class="colCurrLabel">{{ item.label ? item.label : "" }}</td>
+                <td class="colEditLabel">
+                    <span style="float: right;">
+                        <a class="pointer-clickable"
+                           ng-click="addLabel(items.indexOf(item));"
+                           title="{{ 'EDIT_LABEL' | translate }}">
+                            <i class="bticon bticon-edit"></i></a>
+                        <a class="pointer-clickable"
+                           ng-if="item.label"
+                           ng-click="removeLabel(items.indexOf(item))"
+                           title="{{ 'DELETE_LABEL' | translate }}">
+                            <i class="bticon bticon-trash"></i></a>
+                        <a ng-if="!item.label">
+                            <i class="bticon bticon-trash bticon-hide"></i></a>
+                    </span>
+                </td>
+                <td class="colTxCount text-center">{{ item.tx_cnt }}</td>
+                <td class="colBalance text-center"
+                    ng-class="{ 'positive-balance' : item.balance > 0 }">
+                    {{ item.balance | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 : false }}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-centered">
+        <ul uib-pagination
+            total-items="totalItems"
+            items-per-page="itemsPerPage"
+            max-size="8"
+            boundary-links="true"
+            rotate="true"
+            next-text="&gt;" previous-text="&lt;" first-text="&lt;&lt;" last-text="&gt;&gt;"
+            ng-model="currentPage"
+            ng-click="changePage()"></ul>
+    </div>
+</div>
+

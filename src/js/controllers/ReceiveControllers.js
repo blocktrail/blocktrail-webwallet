@@ -113,4 +113,142 @@ angular.module('blocktrail.wallet')
             });
         });
     })
+
+    .controller('AddressLookupCtrl', function($scope, $rootScope, dialogService, $translate, Wallet, $q, CONFIG, $cacheFactory, $timeout, $log) {
+        $rootScope.pageTitle = 'ADDRESS_LOOKUP';
+
+        var $cache = $cacheFactory.get('address-lookup') || $cacheFactory('address-lookup', {capacity: 10});
+
+        $scope.items = [];
+        $scope.totalItems = null;
+        $scope.itemsPerPage = 15;
+        $scope.currentPage = 1;
+
+        // Search related
+        $scope.searchText = "";
+        $scope.isLoading = false;
+        $scope.checkOnlyUsed = false;
+        $scope.checkOnlyLabeled = false;
+        $scope.searchSortOrder = 'asc';
+
+        $scope.alert = dialogService.alertSingleton();
+        $scope.explorerURL = CONFIG.EXPLORER_URL;
+
+        $scope.$on("$destroy", function(){
+            $log.log("Address cache cleared on leaving lookup state");
+            $cache.removeAll();
+        });
+
+        $scope.addLabel = function(addrNumber) {
+            return dialogService.prompt({
+                title: $translate.instant('EDIT_LABEL'),
+                body: $translate.instant('ENTER_NEW_LABEL'),
+                input_type: 'text',
+                icon: ''
+            }).result.then(function(data) {
+                if(data.length > 100) {
+                    $scope.alert({
+                        title: $translate.instant('EDIT_LABEL'),
+                        body: $translate.instant('LABEL_MAX_LENGTH_INFO'),
+                        ok: $translate.instant('OK')
+                    });
+                } else {
+                    return Wallet.wallet.then(function (wallet) {
+                        return wallet.labelAddress($scope.items[addrNumber].address, data).then(function () {
+                            $scope.items[addrNumber].label = data;
+                            $cache.removeAll(); // flush cache
+                        });
+                    }).catch(function(err) {
+                        $log.log("Labeling address failed", err);
+                    });
+                }
+            });
+        };
+
+        $scope.removeLabel = function(addrNumber) {
+            return dialogService.alert({
+                title: $translate.instant('DELETE_LABEL'),
+                body: $translate.instant('CONFIRM_DELETE_LABEL_QUESTION'),
+                ok: $translate.instant('OK'),
+                cancel: $translate.instant('CANCEL')
+            }).result.then(function() {
+                return Wallet.wallet.then(function (wallet) {
+                    return wallet.labelAddress($scope.items[addrNumber].address, "").then(function (res) {
+                        $scope.items[addrNumber].label = "";
+                        $cache.removeAll(); // flush cache
+                    });
+                });
+            });
+        };
+
+        /**
+         * Filters addresses (uses pagination, max 20 res per request) by a search text, usage and labels.
+         * @param page Page of search results
+         * @param limit Limit of results per page (max 20)
+         * @param sort_dir Sort order ('asc' or 'desc')
+         * @param searchText Search for this text (in addresses and labels)
+         * @param hideUnused Hide unused addresses
+         * @param hideUnlabeled Hide unlabeled addresses
+         */
+        $scope.filterAddresses = function(page, limit, sort_dir, searchText, hideUnused, hideUnlabeled) {
+            $scope.isLoading = true;
+            if (!searchText) searchText = "";
+
+            var cacheKey = [searchText, limit, sort_dir, hideUnused, hideUnlabeled, page].join(":");
+            var cached = $cache.get(cacheKey);
+
+            return $q.when(cached)
+                .then(function(cached) {
+                    if (cached) {
+                        return cached;
+                    } else {
+                        return Wallet.wallet.then(function (wallet) {
+                            var options = {
+                                page: page,
+                                limit: limit,
+                                sort_dir: sort_dir,
+                                hide_unused: hideUnused,
+                                hide_unlabeled: hideUnlabeled
+                            };
+
+                            if (searchText.length > 0) {
+                                options.search = searchText;
+                                options.search_label = searchText;
+                            }
+
+                            return wallet.addresses(options).then(function (addrs) {
+                                $cache.put(cacheKey, addrs);
+                                return addrs;
+                            });
+                        });
+                    }
+                }).finally(function() {
+                    // Just show a little loading, even from cache
+                    $timeout(function() {
+                        $scope.isLoading = false;
+                    }, 200);
+                });
+        };
+
+        $scope.changePage = function() {
+            $scope.filterAddresses(
+                $scope.currentPage,
+                $scope.itemsPerPage,
+                $scope.searchSortOrder,
+                $scope.searchText,
+                $scope.checkOnlyUsed,
+                $scope.checkOnlyLabeled
+            ).then(
+                function (addrs) {
+                    $scope.items = addrs.data;
+                    $scope.totalItems = addrs.total;
+                    $scope.pagesCount = Math.ceil($scope.totalItems / $scope.itemsPerPage);
+                });
+        };
+
+        $scope.$watchGroup(['searchText', 'checkOnlyUsed', 'checkOnlyLabeled'], function(newVal, oldVal) {
+            $scope.currentPage = 1;
+            $scope.changePage();
+        });
+    })
 ;

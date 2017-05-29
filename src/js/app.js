@@ -15,6 +15,7 @@ var blocktrail = angular.module('blocktrail.wallet', [
     'ui.router',
     'ui.bootstrap',
     'ui.bootstrap.dropdown',
+    'ui.bootstrap.pagination',
     'toggle-switch',
     'infinite-scroll',
     'angularMoment',
@@ -421,6 +422,17 @@ angular.module('blocktrail.wallet').config(
                     "mainView@app.wallet": {
                         templateUrl: "templates/receive/receive.new-address.html",
                         controller: 'ReceiveCtrl'
+                    }
+                }
+            })
+
+            .state('app.wallet.receive.address-lookup', {
+                url: "/address-lookup",
+                cache: false,
+                views: {
+                    "mainView@app.wallet": {
+                        templateUrl: "templates/receive/receive.address-lookup.html",
+                        controller: 'AddressLookupCtrl'
                     }
                 }
             })
