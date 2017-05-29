@@ -4,6 +4,7 @@ angular.module('blocktrail.wallet')
         var EVENTS = {
             REGISTRATION: "registration",
             LOGIN: "login",
+            RECEIVE_CUSTOM_AMOUNT: "receive_custom_amount",
             BUYBTC: {
                 REGION_OK: "region_ok",
                 REGION_NOTOK: "region_notok",

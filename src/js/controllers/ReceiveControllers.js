@@ -1,5 +1,5 @@
 angular.module('blocktrail.wallet')
-    .controller('ReceiveCtrl', function($scope, $rootScope, Wallet, CurrencyConverter, Currencies, $q, $timeout, $translate) {
+    .controller('ReceiveCtrl', function($scope, $rootScope, Wallet, CurrencyConverter, Currencies, $q, $timeout, $translate, trackingService) {
         $rootScope.pageTitle = 'RECEIVE';
 
         $scope.paymentReceived = false;
@@ -51,6 +51,10 @@ angular.module('blocktrail.wallet')
             } else {
                 $scope.altCurrency.code     = 'BTC';
                 $scope.altCurrency.amount   = parseFloat(CurrencyConverter.toBTC($scope.newRequest.btcValue, $scope.currencyType, 6)) || 0;
+            }
+
+            if ($scope.altCurrency.amount > 0) {
+                trackingService.trackEvent(trackingService.EVENTS.RECEIVE_CUSTOM_AMOUNT);
             }
         };
 
