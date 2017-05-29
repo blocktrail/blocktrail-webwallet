@@ -31,11 +31,16 @@ angular.module('blocktrail.wallet')
         $scope.currencies   = null;
         $scope.currencyType = null;
         $scope.altCurrency  = {};
+
+        $scope.$on('enabled_currency', function() {
+            $scope.updateCurrentType($scope.currencyType);
+        });
+
         $scope.updateCurrentType = function(currencyType) {
             $scope.currencies = Currencies.getFiatCurrencies();
             $scope.currencies.unshift({code: 'BTC', 'symbol': 'BTC'});
             $scope.currencies = $scope.currencies.filter(function(currency) {
-                return currency.code != currencyType;
+                return currency.code !== currencyType;
             });
 
             $scope.currencyType = currencyType;
@@ -45,7 +50,7 @@ angular.module('blocktrail.wallet')
         };
 
         $scope.setAltCurrency = function() {
-             if ($scope.currencyType == 'BTC') {
+             if ($scope.currencyType === 'BTC') {
                 $scope.altCurrency.code     = $scope.settings.localCurrency;
                 $scope.altCurrency.amount   = parseFloat(CurrencyConverter.fromBTC($scope.newRequest.btcValue, $scope.settings.localCurrency, 2)) || 0;
             } else {
@@ -76,7 +81,7 @@ angular.module('blocktrail.wallet')
 
             $scope.newRequest.bitcoinUri = "bitcoin:" + $scope.newRequest.address;
             $scope.newRequest.qrValue = 0;
-            if ($scope.currencyType=='BTC') {
+            if ($scope.currencyType === 'BTC') {
                 $scope.newRequest.qrValue = parseFloat($scope.newRequest.btcValue);
             } else {
                 $scope.newRequest.qrValue = parseFloat($scope.altCurrency.amount);
@@ -89,7 +94,7 @@ angular.module('blocktrail.wallet')
 
         //update the URI and QR code when address or value change
         $scope.$watchGroup(['newRequest.btcValue', 'newRequest.address', 'currencyType'], function(newValues, oldValues) {
-            if (oldValues != newValues) {
+            if (oldValues !== newValues) {
                 //ignore call from scope initialisation
                 $scope.generateQR();
             }

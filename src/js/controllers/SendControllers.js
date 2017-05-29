@@ -53,15 +53,19 @@ angular.module('blocktrail.wallet')
             $scope.currencies = Currencies.getFiatCurrencies();
             $scope.currencies.unshift({code: 'BTC', 'symbol': 'BTC'});
             $scope.currencies = $scope.currencies.filter(function(currency) {
-                return currency.code != currencyType;
+                return currency.code !== currencyType;
             });
 
             $scope.currencyType = currencyType;
             $scope.setAltCurrency();
         };
 
+        $scope.$on('enabled_currency', function() {
+            $scope.updateCurrentType($scope.currencyType);
+        });
+
         $scope.setAltCurrency = function() {
-            if ($scope.currencyType == 'BTC') {
+            if ($scope.currencyType === 'BTC') {
                 $scope.altCurrency.code     = $scope.settings.localCurrency;
                 $scope.altCurrency.amount   = parseFloat(CurrencyConverter.fromBTC($scope.sendInput.amount, $scope.settings.localCurrency, 2)) || 0;
             } else {

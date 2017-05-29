@@ -29,7 +29,7 @@
                         <input ng-model="sendInput.amount" ng-change="setAltCurrency(); fetchFee();" type="text" class="form-control"  name="amount" placeholder="0.00000000" autocomplete="off" type="number" min="0" required />
                         <span class="input-group-addon currency">
                             <span class="altCurrency">
-                                {{ altCurrency.code | toCurrencySymbol}} {{altCurrency.amount}}
+                                {{ altCurrency.code | toCurrencySymbol }} {{ altCurrency.amount }}
                             </span>
                         </span>
                         <span class="input-group-btn">
@@ -38,7 +38,7 @@
                                     {{ currencyType }} <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li ng-repeat="currency in currencies"><a ng-click="updateCurrentType(currency.code)">{{ currency.code }}</a></li>
+                                    <li ng-repeat="currency in currencies"><a ng-click="updateCurrentType(currency.code)">{{ currency.code }} ({{ currency.symbol }})</a></li>
                                 </ul>
                             </div>
                         </span>

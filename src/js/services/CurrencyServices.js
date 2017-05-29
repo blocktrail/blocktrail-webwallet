@@ -132,9 +132,15 @@ angular.module('blocktrail.wallet')
                 return false;
             }
 
+            var isNew = typeof self.currencies[code] === "undefined";
+
             self.currencies[code] = _currencies[code];
             self.currencies[code].isFiat = self.currencies[code].code !== "BTC";
             self.currencies[code].btcRate = 0;
+
+            if (isNew) {
+                $rootScope.$broadcast("enabled_currency", code);
+            }
 
             return true;
         };
