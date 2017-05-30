@@ -424,9 +424,7 @@ angular.module('blocktrail.wallet').factory(
         };
 
         var pollPendingTransactions = true;
-        var $updateStatus;
         var updatePendingTransactions = function() {
-            $updateStatus = $q.defer();
 
             var _update = function() {
                 pollPendingTransactions = false;
@@ -486,8 +484,6 @@ angular.module('blocktrail.wallet').factory(
                     })
                     .then(function() {
                         if (delay) {
-                            $updateStatus.resolve();
-
                             if (pollPendingTransactions) {
                                 $timeout(updatePendingTransactions, delay);
                             }
@@ -502,8 +498,6 @@ angular.module('blocktrail.wallet').factory(
             _update();
         };
         var updateAllTransactions = function(initLoop) {
-            $updateStatus = $q.defer();
-
             return accessToken().then(function(accessToken) {
                 if (accessToken) {
                     var updateTxs = [];
@@ -550,8 +544,6 @@ angular.module('blocktrail.wallet').factory(
             })
                 .then(function(r) { return r; }, function(e) { $log.error('updateAllTransactions ' + e); })
                 .then(function(r) {
-                    $updateStatus.resolve();
-
                     if (initLoop) {
                         if (r) {
                             $timeout(updatePendingTransactions, 10000);
@@ -573,7 +565,7 @@ angular.module('blocktrail.wallet').factory(
                 return decryptAccessToken(walletSecretBuf);
             })
             .then(function() {
-                // updateAllTransactions(); // @TODO: DEBUG
+                // return updateAllTransactions(); // @TODO: DEBUG
                 return updatePendingTransactions();
             }, function(e) { $log.debug('initDecryptAccessToken2 ERR ' + e); });
 
@@ -603,9 +595,6 @@ angular.module('blocktrail.wallet').factory(
         });
 
         return {
-            $updateStatus: function() {
-                return $updateStatus.promise;
-            },
             setClientId: setClientId,
             createRequest: createRequest,
             oauth2: oauth2,
