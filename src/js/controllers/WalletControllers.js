@@ -1,7 +1,7 @@
 angular.module('blocktrail.wallet')
     .controller('WalletCtrl', function($q, $log, $scope, $state, $rootScope, $interval, storageService, sdkService, Wallet,
                                        Contacts, CONFIG, settingsService, $timeout, launchService, blocktrailLocalisation,
-                                       dialogService, $http, $translate, buyBTCService, Currencies, AppVersionService) {
+                                       dialogService, $http, $translate, buyBTCService, Currencies, AppVersionService, $filter) {
 
         $timeout(function() {
             $rootScope.hideLoadingScreen = true;
@@ -25,6 +25,22 @@ angular.module('blocktrail.wallet')
          */
         $rootScope.fetchExtraLanguages = launchService.getWalletConfig()
             .then(function(result) {
+                if (result.api_key && (result.api_key !== 'ok')) {
+                    // alert user session is invalid
+                    dialogService.alert({
+                        title: $translate.instant('INVALID_SESSION'),
+                        bodyHtml: $filter('nl2br')($translate.instant('INVALID_SESSION_LOGOUT_NOW'))
+                    })
+                        .result
+                        .finally(function() {
+                            $state.go('app.logout');
+                        });
+
+                    // force flushing the storage already
+                    storageService.resetAll();
+                    return;
+                }
+
                 settingsService.$isLoaded().then(function() {
                     // check if we need to display any update notices
                     AppVersionService.checkVersion(settingsService.latestVersionWeb, result.versionInfo.web, AppVersionService.CHECKS.LOGGEDIN);

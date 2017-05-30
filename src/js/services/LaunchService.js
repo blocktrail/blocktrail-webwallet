@@ -15,9 +15,25 @@ angular.module('blocktrail.wallet').factory(
             var self = this;
 
             if (!self._walletConfig || (self._walletConfig.ts > (new Date()).getTime() + (600 * 1000))) {
-                self._walletConfig = $http.get(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/mywallet/config?v=" + (CONFIG.VERSION || "") + "&platform=web")
-                    .then(function(result) {
-                        return result.data;
+                self._walletConfig = self.getAccountInfo(true)
+                    .catch(function() {
+                        return {};
+                    })
+                    .then(function(accountInfo) {
+                        var url = CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/mywallet/config?";
+                        var params = [
+                            "v=" + (CONFIG.VERSION || ""),
+                            "platform=web"
+                        ];
+
+                        if (accountInfo && accountInfo.api_key) {
+                            params.push("api_key=" + accountInfo.api_key);
+                        }
+
+                        return $http.get(url + params.join("&"))
+                            .then(function(result) {
+                                return result.data;
+                            });
                     });
 
                 self._walletConfig.ts = (new Date()).getTime();
@@ -99,6 +115,8 @@ angular.module('blocktrail.wallet').factory(
                 self._accountInfo = $q.when(self.storage.get('account_info'))
                     .then(function(doc) {
                         return doc;
+                    }, function() {
+                        self._accountInfo = null;
                     })
                 ;
             }
