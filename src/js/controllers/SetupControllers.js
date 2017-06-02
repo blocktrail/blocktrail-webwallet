@@ -149,7 +149,10 @@ angular.module('blocktrail.wallet')
                     if (error.data) {
                         error = blocktrailSDK.Request.handleFailure(error.data);
 
-                        if (error.requires_sha512) {
+                        if (error.is_banned) {
+                            return $state.go('app.bannedip', {bannedIp: error.is_banned});
+
+                        } else if (error.requires_sha512) {
                             return dialogService.alert({
                                 title: $translate.instant('SETUP_LOGIN_FAILED'),
                                 bodyHtml: $sce.trustAsHtml($translate.instant('MSG_UPGRADE_REQUIRED'))
