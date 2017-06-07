@@ -4,7 +4,7 @@ angular.module('blocktrail.wallet').factory(
         var _CHECKS = AppVersionBaseService.CHECKS;
         var isCheck = AppVersionBaseService.isCheck;
 
-        var GLIDERA_VERSION = 'v3.0.0';
+        var GLIDERA_VERSION = 'v3.4.5';
 
         // priority order, first one met is used (allows older version update messages to be prioritized when a user jumps multiple versions)
         var UPDATE_MESSAGES = [
