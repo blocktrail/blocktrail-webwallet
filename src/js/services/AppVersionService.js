@@ -1,6 +1,6 @@
 angular.module('blocktrail.wallet').factory(
     'AppVersionService',
-    function(AppVersionBaseService, $translate, $rootScope, $state, settingsService, CONFIG, dialogService, $sce, $filter) {
+    function(AppVersionBaseService, $translate, $timeout, $rootScope, $state, settingsService, CONFIG, dialogService, $sce, $filter) {
         var _CHECKS = AppVersionBaseService.CHECKS;
         var isCheck = AppVersionBaseService.isCheck;
 
@@ -47,14 +47,16 @@ angular.module('blocktrail.wallet').factory(
             if (latestVersion && isCheck(checks, _CHECKS.UPDATED) && $state.includes('app.wallet') && semver.lt(latestVersion, GLIDERA_VERSION)) {
                 settingsService.$isLoaded().then(function() {
                     if (settingsService.glideraActivationNoticePending === null) {
-                        settingsService.glideraActivationNoticePending = true;
-                        settingsService.$store()
-                            .then(function () {
-                                return settingsService.$syncSettingsUp();
-                            })
-                            .then(function () {
-                                return checkGlideraActivated();
-                            });
+                        $timeout(function() {
+                            settingsService.glideraActivationNoticePending = true;
+                            settingsService.$store()
+                                .then(function() {
+                                    return settingsService.$syncSettingsUp();
+                                })
+                                .then(function() {
+                                    return checkGlideraActivated();
+                                });
+                        }, 2000);
                     }
                 });
             }
