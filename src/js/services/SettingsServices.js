@@ -1,4 +1,9 @@
 angular.module('blocktrail.wallet').service('settingsService', function($q, storageService, sdkService, $log) {
+    var self = this;
+
+    // default settings
+    //  Object.keys(defaults) is also used to know all settings that are supposed to exist
+    //  so all settings must have a default
     var defaults = {
         displayName:  null,
         username:  '',
@@ -16,7 +21,6 @@ angular.module('blocktrail.wallet').service('settingsService', function($q, stor
         contactsLastSync: null,
         enablePolling: true,    //dev setting - disables auto polling for transactions
         useTestnet: false,      //dev setting - enables testnet for SDK
-        setupComplete: false,
 
         glideraRequest: null,
         glideraAccessToken: null,
@@ -31,161 +35,216 @@ angular.module('blocktrail.wallet').service('settingsService', function($q, stor
 
         buyBTCRegion: null
     };
-    angular.extend(this, defaults);
+    // doc will hold the settings
+    var doc = {};
 
+    // syncingDown is a promise when we're syncing down
+    // pending will hold settings changed while we syncing
+    var syncingDown = null;
+    var pending = {};
+
+    // we only load from localstorage once, after that this is set to TRUE
+    var loaded = false;
+
+    angular.forEach(defaults, function(value, key) {
+        Object.defineProperty(self, key, {
+            set: function(v) {
+                doc[key] = v;
+
+                // if we're syncing down we store the property as pending
+                //  so the syncing down doesn't overwrite this
+                if (syncingDown) {
+                    pending[key] = v;
+                }
+            },
+            get: function() {
+               return doc[key];
+            }
+        });
+    });
+
+    // init storage DB
     var storage = storageService.db('settings');
+    // id of the document we keep in storage
+    var _id = "user_settings";
 
-    this._id = "user_settings";
-
-    this._$isLoaded = null;
     /**
-     * returns a promise to get the data, does not force update
+     * @deprecated
+     * used to wait for stuff to be loaded, now we just assume loading was done by some external force
+     *
      * @returns {null|*}
      */
-    this.$isLoaded = function() {
-        if (!this._$isLoaded) {
-            this._$isLoaded = this.$load();
-        }
-
-        return this._$isLoaded;
+    self.$isLoaded = function() {
+        return $q.when(true);
     };
 
     /**
-     * load the data from the database
+     * @deprecated
+     * used to store stuff to local storage, now this is done as part of $syncSettingsUp and $syncProfileUp
+     *
+     * @returns {null|*}
+     */
+    self.$store = function() {
+        return $q.when(true);
+    };
+
+    /**
+     * initial load,
+     * shouldn't be called more than once
+     * we assume some external force will ensure calling this at the right moment
+     *
      * @returns {*}
      */
-    this.$load = function() {
-        var self = this;
+    self.$load = function() {
+        if (loaded) {
+            console.error("shouldn't $load more than once");
+            return $q.when(true);
+        }
 
-        return $q.when(storage.get('user_settings')
+        loaded = true;
+
+        return $q.when(storage.get(_id)
             .then(
-                function(doc) { return angular.extend(self, doc); },
-                function() { return angular.extend(self, defaults); }
+                function(_doc) { return angular.extend(doc, _doc); },
+                // error is acceptable here cuz it will happen when the document doesn't exist yet
+                function() { return angular.extend(doc, defaults); }
             )
-        );
+        )
+            .then(function() {
+                return self.$syncSettingsDown();
+            })
+            .then(function() {
+                return self.$syncProfileDown();
+            })
+            .then(function() {
+                // update localstorage with the stuff we synced down
+                return self.$updateLocalStorage();
+            });
     };
 
     /**
-     * update database copy of the data
+     * update local copy of the data
      * @returns {*}     promise
      */
-    this.$store = function() {
-        var self = this;
+    self.$updateLocalStorage = function() {
+        return $q.when(storage.get(_id)
+            .then(
+                function(doc) { return doc; },
+                // when the document doesn't exist yet we will get an error
+                // in that case we just pretend an empty document with the correct _id exists
+                function() { return {_id: _id}; }
+                )
+            .then(function(doc) {
+                // update each of the values as defined in the defaults array
+                angular.forEach(defaults, function(value, key) {
+                    doc[key] = self[key];
+                });
 
-        return $q.when(storage.get('user_settings')
-                .then(function(doc) { return doc; }, function() { return {_id: "user_settings"}; })
-                .then(function(doc) {
-                    //update each of the values as defined in the defaults array
-                    angular.forEach(defaults, function(value, key) {
-                        doc[key] = self[key];
-                    });
-
-                    return storage.put(doc).then(function() {
-                        return doc;
-                    });
-                })
+                return storage.put(doc).then(function() {
+                    return doc;
+                }, function(e) { /* supress error, worst case it wasn't stored locally... */ });
+            })
         );
     };
 
-    this.$syncSettingsUp = function() {
-        var self = this;
-
-        return $q.when(sdkService.sdk())
-            .then(function(sdk) {
-                var settingsData = {
-                    localCurrency: self.localCurrency,
-                    language: self.language,
-                    receiveNewsletter: self.receiveNewsletter,
-                    glideraAccessToken: self.glideraAccessToken,
-                    glideraTransactions: self.glideraTransactions || [],
-                    latestVersionWeb: self.latestVersionWeb,
-                    glideraActivationNoticePending: self.glideraActivationNoticePending,
-                    buyBTCRegion: self.buyBTCRegion,
-                    username: self.username,
-                    email: self.email
-                };
-
-                return sdk.syncSettings(settingsData);
+    self.$syncSettingsUp = function() {
+        // wait for syncing down to be done before syncing up
+        if (syncingDown) {
+            syncingDown.then(function() {
+                return self.$syncSettingsUp();
             })
-        ;
+        }
+
+        return self.$updateLocalStorage().then(function() {
+            return $q.when(sdkService.sdk())
+                .then(function(sdk) {
+                    var settingsData = {
+                        localCurrency: doc.localCurrency,
+                        language: doc.language,
+                        receiveNewsletter: doc.receiveNewsletter,
+                        glideraAccessToken: doc.glideraAccessToken,
+                        glideraTransactions: doc.glideraTransactions || [],
+                        latestVersionWeb: doc.latestVersionWeb,
+                        glideraActivationNoticePending: doc.glideraActivationNoticePending,
+                        buyBTCRegion: doc.buyBTCRegion,
+                        username: doc.username,
+                        email: doc.email
+                    };
+
+                    return sdk.syncSettings(settingsData);
+                });
+        });
+    };
+
+    self.$syncSettingsDown = function() {
+        var _syncingDown = $q.when(sdkService.sdk())
+            .then(function(sdk) {
+                return sdk.getSettings();
+            })
+            .then(function(result) {
+                doc.receiveNewsletter = result.receiveNewsletter !== null ? result.receiveNewsletter : doc.receiveNewsletter;
+                doc.language = result.language !== null ? result.language : doc.language;
+                doc.localCurrency = result.localCurrency !== null ? result.localCurrency : doc.localCurrency;
+                doc.glideraAccessToken = result.glideraAccessToken;
+                doc.glideraTransactions = result.glideraTransactions || [];
+                doc.username = result.username;
+                doc.email = result.email;
+                doc.buyBTCRegion = result.buyBTCRegion;
+                doc.latestVersionWeb = result.latestVersionWeb;
+                doc.glideraActivationNoticePending = result.glideraActivationNoticePending;
+            })
+            .finally(function() {
+                // only NULL the promise var if this is the promise stored in it
+                // when it was triggered again the promise wouldn't be the same anymore
+                if (syncingDown === _syncingDown) {
+                    syncingDown = null;
+                }
+
+                // copy the pending changes into the doc
+                if (Object.keys(pending).length) {
+                    angular.forEach(pending, function(value, key) {
+                        doc[key] = pending[key];
+                    });
+                    pending = {};
+                }
+            });
+
+        // set global promise object for syncing
+        syncingDown = _syncingDown;
+
+        return syncingDown;
     };
 
     /**
      * update server copy of profile data, and store in settings the success/failure of syncing
      * @returns {*}     promise
      */
-    this.$syncProfileUp = function() {
-        var self = this;
-        return $q.when(sdkService.sdk())
-            .then(function(sdk) {
-                var profileData = {
-                    profilePic: self.profilePic
-                };
-                return sdk.syncProfile(profileData).then(function(result) {
-                    //profile synced successfully
-                    return $q.when(self.profileSynced = true);
-                }, function(err) {
-                    //profile not synced
-                    return $q.when(self.profileSynced = false);
+    self.$syncProfileUp = function() {
+        return self.$updateLocalStorage().then(function() {
+            return $q.when(sdkService.sdk())
+                .then(function(sdk) {
+                    var profileData = {
+                        profilePic: self.profilePic
+                    };
+                    return sdk.syncProfile(profileData);
                 });
-            })
-            .then(function(result) {
-                return storage.get('user_settings').then(function(doc) {
-                    doc.profileSynced = self.profileSynced;
-                    $log.debug('syncing profile');
-                    return storage.put(doc).then(function() {
-                        $log.debug('profile synced');
-                        return doc;
-                    });
-                });
-            });
+        });
     };
 
     /**
      * update local copy of profile data from server
      * @returns {*}     promise
      */
-    this.$syncProfileDown = function() {
-        var self = this;
+    self.$syncProfileDown = function() {
         return $q.when(sdkService.sdk())
             .then(function(sdk) {
                 return sdk.getProfile();
             })
             .then(function(result) {
-                return storage.get('user_settings').then(function(doc) {
-                    //store profile data
-                    doc.profilePic = result.profilePic && ("data:image/jpeg;base64, " + result.profilePic) || null;
-                    return $q.when(storage.put(doc)).then(function() {
-                        //update service attrs
-                        self.profilePic = doc.profilePic;
-                        return doc;
-                    });
-                });
+                //store profile data
+                doc.profilePic = result.profilePic && ("data:image/jpeg;base64, " + result.profilePic) || null;
+
+                return self.$updateLocalStorage();
             });
     };
-
-    this.$syncSettingsDown = function() {
-        var self = this;
-        return $q.when(sdkService.sdk())
-            .then(function(sdk) {
-                return sdk.getSettings();
-            })
-            .then(function(result) {
-                return self.$isLoaded().then(function() {
-                    self.receiveNewsletter = result.receiveNewsletter !== null ? result.receiveNewsletter : self.receiveNewsletter;
-                    self.language = result.language !== null ? result.language : self.language;
-                    self.localCurrency = result.localCurrency !== null ? result.localCurrency : self.localCurrency;
-                    self.glideraAccessToken = result.glideraAccessToken;
-                    self.glideraTransactions = result.glideraTransactions || [];
-                    self.username = result.username;
-                    self.email = result.email;
-                    self.buyBTCRegion = result.buyBTCRegion;
-                    self.latestVersionWeb = result.latestVersionWeb;
-                    self.glideraActivationNoticePending = result.glideraActivationNoticePending;
-
-                    return self.$store();
-                });
-            });
-    };
-
 });

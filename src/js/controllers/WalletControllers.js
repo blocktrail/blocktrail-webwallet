@@ -1,6 +1,6 @@
 angular.module('blocktrail.wallet')
     .controller('WalletCtrl', function($q, $log, $scope, $state, $rootScope, $interval, storageService, sdkService, Wallet,
-                                       Contacts, CONFIG, settingsService, $timeout, launchService, blocktrailLocalisation,
+                                       Contacts, CONFIG, settingsService, setupService, $timeout, launchService, blocktrailLocalisation,
                                        dialogService, $http, $translate, buyBTCService, Currencies, AppVersionService, $filter) {
 
         $timeout(function() {
@@ -9,6 +9,19 @@ angular.module('blocktrail.wallet')
         if (!$rootScope.settings.enablePolling) {
             Wallet.disablePolling();
         }
+        // add info from setup process to the settings
+        setupService.getUserInfo().then(function(userInfo) {
+            if (userInfo.username || userInfo.displayName || userInfo.email) {
+                settingsService.username = userInfo.username || settingsService.username;
+                settingsService.displayName = userInfo.displayName || settingsService.displayName;
+                settingsService.email = userInfo.email || settingsService.email;
+
+                setupService.clearUserInfo();
+                settingsService.$syncSettingsUp();
+            }
+        }, function(e) {
+            console.error('getUserInfo', e);
+        });
 
         $scope.$on('glidera_complete', function(event, transaction) {
             dialogService.alert({
@@ -140,13 +153,6 @@ angular.module('blocktrail.wallet')
             }));
         };
 
-        $rootScope.syncProfile = function() {
-            //sync profile if a pending update is present
-            if (!settingsService.profileSynced) {
-                settingsService.$syncProfileUp();
-            }
-        };
-
         $rootScope.syncContacts = function() {
             //sync any changes to contacts
             Contacts.list()
@@ -163,9 +169,6 @@ angular.module('blocktrail.wallet')
         $timeout(function() {
             $rootScope.getPrice();
         }, 1000);
-        $timeout(function() {
-            $rootScope.syncProfile();
-        }, 2000);
 
         var pricePolling = $interval(function() {
             $rootScope.getPrice();
@@ -183,11 +186,6 @@ angular.module('blocktrail.wallet')
             $rootScope.syncContacts();
         }, 300500); // 5 min + slight offset not to collide
 
-        var profileSyncPolling = $interval(function() {
-            $rootScope.syncProfile();
-        }, 301500); // 5 min + slight offset not to collide
-
-        settingsService.$syncSettingsDown();
         var settingsSyncPolling = $interval(function() {
             settingsService.$syncSettingsDown();
         }, 302000); // 5 min + slight offset not to collide

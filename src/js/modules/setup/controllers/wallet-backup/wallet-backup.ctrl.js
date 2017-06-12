@@ -5,7 +5,7 @@
         .controller("SetupWalletBackupCtrl", SetupWalletBackupCtrl);
 
     function SetupWalletBackupCtrl(backupInfo, $scope, $state, $translate, $log, bitcoinJS,
-             settingsService, sdkService, dialogService, launchService, $injector) {
+                                   setupService, sdkService, dialogService, launchService, $injector) {
 
         $scope.displayTextBackup = true;
         $scope.backupSaved = false;
@@ -42,36 +42,42 @@
         $scope.export = function() {
             var extraInfo = [];
 
-            if (settingsService.username) {
-                extraInfo.push({title: "Username", value: settingsService.username});
-            }
-            if (settingsService.email) {
-                extraInfo.push({title: "Email", value: settingsService.email});
-            }
-            if ($scope.setupInfo.backupInfo.supportSecret) {
-                extraInfo.push({title: "Support Secret", subtitle: "this can be shared with helpdesk to proof ownership of backup document", value: $scope.setupInfo.backupInfo.supportSecret});
-            }
+            setupService.getUserInfo().then(function(userInfo) {
+                if (userInfo.username) {
+                    extraInfo.push({title: "Username", value: userInfo.username});
+                }
+                if (userInfo.email) {
+                    extraInfo.push({title: "Email", value: userInfo.email});
+                }
+                if ($scope.setupInfo.backupInfo.supportSecret) {
+                    extraInfo.push({
+                        title: "Support Secret",
+                        subtitle: "this can be shared with helpdesk to proof ownership of backup document",
+                        value: $scope.setupInfo.backupInfo.supportSecret
+                    });
+                }
 
-            var backup = new sdkService.BackupGenerator(
-                $scope.setupInfo.identifier,
-                $scope.setupInfo.backupInfo,
-                extraInfo
-            );
+                var backup = new sdkService.BackupGenerator(
+                    $scope.setupInfo.identifier,
+                    $scope.setupInfo.backupInfo,
+                    extraInfo
+                );
 
-            try {
-                backup.generatePDF(function (err, pdf) {
-                    if (err) {
-                        $log.error(err);
-                        dialogService.alert(err, $translate.instant("ERROR"), $translate.instant("OK"));
-                    } else {
-                        $scope.backupSaved = true;
-                        $scope.backupPDF = pdf;
-                        $scope.backupPDF.save("BTC.com Wallet Recovery Backup Sheet - " + $scope.setupInfo.identifier + ".pdf");
-                    }
-                });
-            } catch(error) {
-                $log.error("Backup generation error", error);
-            }
+                try {
+                    backup.generatePDF(function(err, pdf) {
+                        if (err) {
+                            $log.error(err);
+                            dialogService.alert(err, $translate.instant("ERROR"), $translate.instant("OK"));
+                        } else {
+                            $scope.backupSaved = true;
+                            $scope.backupPDF = pdf;
+                            $scope.backupPDF.save("BTC.com Wallet Recovery Backup Sheet - " + $scope.setupInfo.identifier + ".pdf");
+                        }
+                    });
+                } catch (error) {
+                    $log.error("Backup generation error", error);
+                }
+            });
         };
 
         $scope.continue = function() {
@@ -81,16 +87,11 @@
                 // delete all temp backup info
                 launchService.clearBackupInfo()
                     .then(function() {
-                        settingsService.$load().then(function() {
-                            //load the settings so we can update them
-                            settingsService.setupComplete = true;
-                            settingsService.$store().then(function() {
-                                var Wallet = $injector.get("Wallet");
-
-                                Wallet.pollTransactions().then(function() {
-                                    $state.go("app.wallet.summary");
-                                });
-                            });
+                        // we don't want to get the Wallet service until we're finally ready to send the user onwards
+                        //  then we want to poll for transactions before sending him onwards
+                        var Wallet = $injector.get('Wallet');
+                        Wallet.pollTransactions().then(function() {
+                            $state.go('app.wallet.summary');
                         });
                     })
                 ;
