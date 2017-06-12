@@ -136,11 +136,8 @@ angular.module('blocktrail.wallet')
 
             // chain on $scope.$storingSettings so that any previous already saving happens first
             $scope.$storingSettings = $scope.$storingSettings.then(function() {
-                return settingsService.$store();
+                return settingsService.$syncSettingsUp();
             })
-                .then(function() {
-                    return settingsService.$syncSettingsUp();
-                })
                 .then(function() {
                     $scope.savingSettings = false;
                     $scope.settingsSaved = true;
@@ -164,7 +161,7 @@ angular.module('blocktrail.wallet')
         $scope.changePassword = function() {
             launchService.getAccountInfo().then(function(accountInfo) {
                 return Wallet.wallet.then(function(wallet) {
-                    if (wallet.walletVersion == blocktrailSDK.Wallet.WALLET_VERSION_V1) {
+                    if (wallet.walletVersion === blocktrailSDK.Wallet.WALLET_VERSION_V1) {
                         throw new Error("You're using a beta wallet, can't upgrade! Contact the Blocktrail team!");
                     }
 

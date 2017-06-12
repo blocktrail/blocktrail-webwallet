@@ -36,7 +36,7 @@ angular.module('blocktrail.wallet').config(function() {
 });
 
 angular.module('blocktrail.wallet').run(
-    function($rootScope, $state, $log, $interval, $timeout, settingsService, blocktrailLocalisation, CONFIG, $locale, $translate, amMoment) {
+    function($rootScope, $state, $log, $interval, $timeout, blocktrailLocalisation, CONFIG, $locale, $translate, amMoment) {
         $rootScope.CONFIG       = CONFIG || {};
         $rootScope.$state       = $state;
         $rootScope.appVersion   = CONFIG.VERSION || CONFIG.VERSION_REV;
@@ -45,24 +45,16 @@ angular.module('blocktrail.wallet').run(
         $rootScope.bodyClassStr = "";
 
         $rootScope.changeLanguage = function(language) {
-            settingsService.language = language || blocktrailLocalisation.preferredAvailableLanguage() || CONFIG.FALLBACK_LANGUAGE || 'en';
+            language = language || blocktrailLocalisation.preferredAvailableLanguage() || CONFIG.FALLBACK_LANGUAGE || 'en';
 
-            var momentLocale = settingsService.language;
+            var momentLocale = language;
             if (momentLocale == 'cn') {
                 momentLocale = 'zh-cn';
             }
 
             amMoment.changeLocale(momentLocale);
-            $translate.use(settingsService.language);
+            $translate.use(language);
         };
-
-        // start loading settings
-        settingsService.$isLoaded().then(function() {
-            $rootScope.settings = settingsService;
-
-            // set the preferred/detected language
-            $rootScope.changeLanguage(settingsService.language);
-        });
 
         $rootScope.$on("$stateChangeError", function(event, toState, toParams, fromState, fromParams, error) {
             $log.error('Error transitioning to '+toState.name + ' from  '+fromState.name, toState, fromState, error);
@@ -235,13 +227,17 @@ angular.module('blocktrail.wallet').config(
                         return $q.all([
                             Wallet.balance(true),
                             Currencies.updatePrices(true),
-                            settingsService.$isLoaded()
+                            settingsService.$load()
                         ]).then(function(results) {
                             $log.debug('initial load complete');
                             $rootScope.balance = results[0].balance;
                             $rootScope.uncBalance = results[0].uncBalance;
 
                             $rootScope.bitcoinPrices = results[1];
+
+                            $rootScope.settings = settingsService;
+                            $rootScope.changeLanguage(settingsService.language);
+
                             return true;
                         });
                     }

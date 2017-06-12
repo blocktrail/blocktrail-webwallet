@@ -6,7 +6,7 @@
 
     // TODO Review this part, decrease dependencies, create login service and move $http request to service
     function SetupLoginCtrl($rootScope, $scope, $state, $sce, $translate, $log, $q, $http, _, cryptoJS, CONFIG,
-                            launchService, settingsService, dialogService, FormHelper) {
+                            launchService, setupService, dialogService, FormHelper) {
         // display mobile app download popup
         $scope.showMobileDialogOnce();
 
@@ -94,26 +94,14 @@
                                 }
                                 $scope.setupInfo.password = $scope.form.password;
 
-                                //save the default settings and do a profile sync
-                                settingsService.username = $scope.form.username || result.data.username;
-                                settingsService.displayName = settingsService.username;
-                                settingsService.email = $scope.form.email || result.data.email;
-                                settingsService.$store().then(function() {
-                                    return settingsService.$syncProfileDown()
-                                        .then(function() {
-                                            return settingsService.$syncSettingsDown()
-                                                .then(function() {
-                                                    if (settingsService.language) {
-                                                        $rootScope.changeLanguage(settingsService.language);
-                                                    }
-                                                });
-                                        })
-                                        .then(function() {
-                                            $state.go("app.setup.wallet");
-                                        }, function() {
-                                            $state.go("app.setup.wallet");
-                                        });
+                                // save the default settings
+                                setupService.setUserInfo({
+                                    username: $scope.form.username || result.data.username,
+                                    displayName: $scope.form.username || result.data.username,
+                                    email: $scope.form.email || result.data.email
                                 });
+
+                                $state.go('app.setup.wallet');
                             });
                         })
                     ;

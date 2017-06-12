@@ -5,7 +5,7 @@
         .controller("SetupNewAccountCtrl", SetupNewAccountCtrl);
 
     function SetupNewAccountCtrl($scope, $rootScope, $state, $q, $http, $timeout, cryptoJS, launchService, CONFIG,
-             settingsService, dialogService, $translate, $log, PasswordStrength, $filter) {
+             setupService, dialogService, $translate, $log, PasswordStrength, $filter) {
         // display mobile app download popup
         $scope.showMobileDialogOnce();
 
@@ -134,16 +134,16 @@
 
                             $scope.working = false;
 
-                            //save the default user settings
-                            settingsService.username = $scope.form.username;
-                            settingsService.displayName = $scope.form.username; //@TODO maybe try and determine a display name from their email
-                            settingsService.email = $scope.form.email;
-
-                            settingsService.$store().then(function() {
-                                $timeout(function() {
-                                    $state.go("app.setup.wallet");
-                                }, 300);
+                            // save the default settings
+                            setupService.setUserInfo({
+                                username: $scope.form.username,
+                                displayName: $scope.form.username,
+                                email: $scope.form.email
                             });
+
+                            $timeout(function() {
+                                $state.go('app.setup.wallet');
+                            }, 200);
                         });
                     },
                     function(error) {

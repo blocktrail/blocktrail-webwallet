@@ -5,7 +5,7 @@
         .controller("SetupWalletInitCtrl", SetupWalletInitCtrl);
 
     function SetupWalletInitCtrl($q, $scope, $state, launchService, sdkService, $log, $translate, $timeout,
-                                 CONFIG, settingsService, dialogService, $analytics, trackingService) {
+                                 CONFIG, dialogService, $analytics, trackingService) {
 
         $scope.progressStatus = {};
         // this automatically updates an already open modal instead of popping a new one open
@@ -64,7 +64,7 @@
                     $analytics.eventTrack("initWallet", {category: "Events"});
 
                     // time to upgrade to V3 ppl!
-                    if (wallet.walletVersion != blocktrailSDK.Wallet.WALLET_VERSION_V3) {
+                    if (wallet.walletVersion !== blocktrailSDK.Wallet.WALLET_VERSION_V3) {
                         $scope.updateProgress({title: "UPGRADING_WALLET", body: "UPGRADING_WALLET_BODY"});
 
                         return wallet.upgradeToV3($scope.setupInfo.password)
@@ -242,14 +242,7 @@
                     } else {
                         trackingService.trackEvent(trackingService.EVENTS.LOGIN);
 
-                        //else continue to wallet
-                        settingsService.$load().then(function() {
-                            //load the settings so we can update them
-                            settingsService.setupComplete = true;
-                            settingsService.$store().then(function() {
-                                $state.go("app.wallet.summary");
-                            });
-                        });
+                        $state.go('app.wallet.summary');
                     }
                 })
                 .catch(function(e) {
