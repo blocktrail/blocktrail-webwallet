@@ -288,6 +288,7 @@ angular.module('blocktrail.wallet')
                                 qtyBTC: glideraTxInfo.qty,
                                 currency: glideraTxInfo.currency,
                                 price: glideraTxInfo.price,
+                                total: (glideraTxInfo.price * glideraTxInfo.qty).toFixed(2),
                                 time: glideraTxInfo.time,
                                 avatarUrl: buyBTCService.BROKERS.glidera.avatarUrl,
                                 displayName: buyBTCService.BROKERS.glidera.displayName
