@@ -681,6 +681,7 @@ angular.module('blocktrail.wallet')
                                                   settingsService, $log, sdkService, dialogService, launchService, $injector) {
         $scope.displayTextBackup = true;
         $scope.backupSaved = false;
+        $scope.backupSavedCheck = false;
         $scope.qrSettings = {
             correctionLevel: 7,
             SIZE: 150,
@@ -735,6 +736,7 @@ angular.module('blocktrail.wallet')
                         $log.error(err);
                         dialogService.alert(err, $translate.instant('ERROR'), $translate.instant('OK'));
                     } else {
+                        $scope.backupSaved = true;
                         $scope.backupPDF = pdf;
                         $scope.backupPDF.save("BTC.com Wallet Recovery Backup Sheet - " + $scope.setupInfo.identifier + ".pdf");
                     }
@@ -745,7 +747,7 @@ angular.module('blocktrail.wallet')
         };
 
         $scope.continue = function() {
-            if (!$scope.backupSaved) {
+            if (!$scope.backupSaved || !$scope.backupSavedCheck) {
                 $scope.backupPageError = $translate.instant('SETUP_WALLET_BACKUP_CHECKBOX');
             } else {
                 //delete all temp backup info

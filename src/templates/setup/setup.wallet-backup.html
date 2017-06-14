@@ -17,10 +17,10 @@
                     </div>
 
                     <form class="form">
-                        <div class="form-group form-group-lg" ng-class="{'has-error':backupPageError}">
+                        <div ng-show="backupSaved" class="form-group form-group-lg" ng-class="{'has-error':backupPageError}">
                             <div class="checkbox">
                                 <label>
-                                    <input id="backupSaved" type="checkbox" ng-model="backupSaved">
+                                    <input id="backupSavedCheck" type="checkbox" ng-model="backupSavedCheck">
                                     {{ 'BACKUP_CHECKBOX' | translate }}
                                 </label>
                             </div>
@@ -31,8 +31,8 @@
                         </div>
                         <div class="form-group form-group-lg">
                             <button class="btn btn-alt form-control"
-                                    ng-class="{'btn-default': !backupSaved, 'btn-success': backupSaved}"
-                                    ng-disabled="!backupSaved"
+                                    ng-class="{'btn-default': !backupSaved || !backupSavedCheck, 'btn-success': backupSaved && backupSavedCheck}"
+                                    ng-disabled="!backupSaved || !backupSavedCheck"
                                     ng-click="continue()">{{ 'CONTINUE' | translate }}
                             </button>
                         </div>
