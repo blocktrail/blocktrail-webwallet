@@ -1288,6 +1288,7 @@ $display-token-size: 50px;
         .colCurrLabel {
             width: 23%;
             word-wrap: break-word;
+            word-break: break-all;
             text-align: center;
         }
 
