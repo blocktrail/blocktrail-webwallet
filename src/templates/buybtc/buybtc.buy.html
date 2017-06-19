@@ -4,18 +4,25 @@
             <loading-spinner></loading-spinner>
         </div>
 
-        <div ng-show="!initializing" class="broker-{{ broker }}">
+        <div ng-if="brokerNotExistent">
+            <h2 style="text-align: center">The selected broker does not exist</h2>
+        </div>
+
+        <div ng-show="!initializing" class="broker-{{ broker }}" ng-if="!brokerNotExistent">
+
             <h2 class="broker-title">
                 <img ng-if="broker === 'glidera'"
                      ng-src="{{ CONFIG.STATICSURL }}/img/glidera-bright.png" alt="Glidera" title="Glidera" />
-                <span>{{ broker }}</span>
+
+                <img ng-if="broker === 'bitonic'"
+                     ng-src="{{ CONFIG.STATICSURL }}/img/bitonic-logo.png" alt="Bitonic" title="Bitonic" />
             </h2>
 
             <section class="buybtc-currentprice">
                 <div class="row">
                     <div class="col-xs-6">
                         <div class="currentprice-label">
-                            {{ 'CURRENT_PRICE' | translate }}
+                            {{ 'CURRENT_PRICE' | translate }} ({{ ('APPROXIMATE' | translate).toLowerCase() }})
                         </div>
                     </div>
                     <div class="col-xs-6">
@@ -33,7 +40,7 @@
                     <div class="form-group form-group-lg">
                         <label class="control-label" for="amount">{{ 'AMOUNT' | translate }}</label>
                         <div class="input-group input-group-lg">
-                            <input ng-model="buyInput.amount" ng-change="updateInputPrice()" type="text" class="form-control"
+                            <input ng-model="buyInput.amount" ng-change="triggerUpdate()" type="text" class="form-control"
                                    id="amount" name="amount" placeholder="0.00000000" autocomplete="off" type="number" min="0" required />
                             <span class="input-group-addon currency" style="min-width: 120px;">
                                 <span class="altCurrency">
@@ -42,8 +49,9 @@
                             </span>
                             <span class="input-group-btn">
                                 <div class="btn-group" dropdown>
-                                    <button type="button" class="btn btn-alt btn-default btn-lg" dropdown-toggle>
-                                        {{ buyInput.currencyType }} <span class="caret"></span>
+                                    <button type="button" class="btn btn-alt btn-default btn-lg" dropdown-toggle ng-model="buyInput.currencyType">
+                                        {{ buyInput.currencyType }}
+                                        <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu">
                                         <li ng-repeat="currency in currencies"><a ng-click="updateCurrentType(currency.code)">{{ currency.code }}</a></li>

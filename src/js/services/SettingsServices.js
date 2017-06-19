@@ -22,6 +22,10 @@ angular.module('blocktrail.wallet').service('settingsService', function($q, stor
         glideraAccessToken: null,
         glideraTransactions: [],
 
+        bitonicRequest: null,
+        bitonicAccessToken: null,
+        bitonicTransactions: [],
+
         latestVersionWeb: null,
         glideraActivationNoticePending: null,
 

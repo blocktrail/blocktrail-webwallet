@@ -483,11 +483,11 @@ angular.module('blocktrail.wallet').config(
                 }
             })
             .state('app.wallet.buybtc.buy', {
-                url: "/buy?broker",
+                url: "/broker/:broker",
                 views: {
                     "mainView@app.wallet": {
                         templateUrl: "templates/buybtc/buybtc.buy.html",
-                        controller: 'BuyBTCBuyCtrl'
+                        controller: 'BuyBTCBrokerCtrl'
                     }
                 }
             })

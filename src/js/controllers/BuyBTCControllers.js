@@ -50,6 +50,10 @@ angular.module('blocktrail.wallet')
             });
         };
 
+        $scope.goBuyBTCState = function (broker) {
+            $state.go('app.wallet.buybtc.buy', {broker: broker});
+        };
+
         $scope.goGlideraBrowser = function() {
             glideraService.userCanTransact().then(function(userCanTransact) {
                 if (!userCanTransact) {
@@ -163,10 +167,11 @@ angular.module('blocktrail.wallet')
 ;
 
 angular.module('blocktrail.wallet')
-    .controller('BuyBTCBuyCtrl', function($scope, $state, $rootScope, dialogService, glideraService, buyBTCService,
+    .controller('BuyBTCBrokerCtrl', function($scope, $state, $rootScope, dialogService, glideraService, bitonicService, buyBTCService,
                                           $stateParams, $log, $timeout, $interval, $translate, $filter, trackingService) {
-        trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_OPEN);
+
         $scope.broker = $stateParams.broker;
+        $scope.brokerNotExistent = false;
 
         $scope.initializing = true;
         $scope.fetchingMainPrice = true;
@@ -182,19 +187,102 @@ angular.module('blocktrail.wallet')
             feeValue: null,
             feePercentage: null
         };
-        $scope.currencies = null;
+        $scope.currencies = [];
         $scope.altCurrency = {};
+
+        var doneTypingInterval = 200;
+        var typingTimer = null;
+        
+        var lastPriceResponse = null;
+
+        switch ($scope.broker) {
+            case 'glidera':
+                trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_OPEN);
+                $scope.buyInput.currencyType = 'USD';
+                $scope.buyInput.fiatCurrency = 'USD';
+                break;
+            case 'bitonic':
+                trackingService.trackEvent(trackingService.EVENTS.BUYBTC.BITONIC_OPEN);
+                $scope.buyInput.currencyType = 'EUR';
+                $scope.buyInput.fiatCurrency = 'EUR';
+                break;
+            default:
+                return null;
+                break;
+        }
+
+        var fetchBrokerService = function () {
+            switch ($scope.broker) {
+                case 'glidera':
+                    return glideraService;
+                    break;
+                case 'bitonic':
+                    return bitonicService;
+                    break;
+                default:
+                    return null;
+                    break;
+            }
+        };
+
+        var updateBrokerCurrencies = function () {
+            switch ($scope.broker) {
+                case 'glidera':
+                    $scope.currencies = [{code: 'USD', symbol: 'USD'}];
+                    return true;
+                    break;
+                case 'bitonic':
+                    $scope.currencies = [{code: 'EUR', symbol: 'EUR'}];
+                    return true;
+                    break;
+                default:
+                    return false;
+                    break;
+            }
+        };
+
+        var evaluateResponseErrors = function(result) {
+            // These are Bitonic-specific - 'success' key in result object
+            if ("success" in result) {
+                if (!result.success && result.error.indexOf('Invalid value') !== -1) {
+                    return dialogService.prompt({
+                        body: $translate.instant('MSG_BUYBTC_ERROR_INVALID_AMOUNT'),
+                        title: $translate.instant('MSG_INVALID_AMOUNT'),
+                        prompt: false
+                    });
+                }else if (!result.success) {
+                    return dialogService.prompt({
+                        body: $translate.instant('MSG_BUYBTC_ERROR_TRY_AGAIN_LATER'),
+                        title: $translate.instant('ERROR_TITLE_3'),
+                        prompt: false
+                    });
+                }
+            }
+        };
 
         var updateMainPrice = function() {
             $scope.fetchingMainPrice = true;
 
-            return glideraService.buyPrices(1.0).then(function(result) {
-                $timeout(function() {
-                    $scope.priceBTC = result.total;
+            if(fetchBrokerService() == null) {
+                $scope.brokerNotExistent = true;
+                $scope.initializing = false;
+                $scope.fetchingMainPrice = false;
+                return null;
+            }
 
-                    $scope.fetchingMainPrice = false;
-                });
+            return fetchBrokerService().buyPrices(1, null).then(function (result) {
+                $scope.priceBTC = result.total;
+                $scope.fetchingMainPrice = false;
             });
+        };
+
+        $scope.triggerUpdate = function() {
+            clearTimeout (typingTimer);
+            typingTimer = setTimeout(function () {
+                $scope.updateInputPrice().catch(function () {
+                    $scope.fetchingInputPrice = false;
+                });
+            }, doneTypingInterval);
         };
 
         $scope.updateInputPrice = function() {
@@ -202,6 +290,7 @@ angular.module('blocktrail.wallet')
                 $scope.fetchingInputPrice = true;
 
                 if ($scope.buyInput.currencyType === 'BTC') {
+                    $scope.fiatFirst = false;
                     $scope.buyInput.btcValue = parseFloat($scope.buyInput.amount || 0) || 0;
                     $scope.buyInput.fiatValue = null;
                     $scope.buyInput.feeValue = null;
@@ -211,11 +300,16 @@ angular.module('blocktrail.wallet')
                         return;
                     }
 
-                    return glideraService.buyPrices($scope.buyInput.btcValue, null).then(function(result) {
+                    return fetchBrokerService().buyPrices($scope.buyInput.btcValue, null).then(function(result) {
                         $timeout(function() {
+                            lastPriceResponse = result;
+
                             $scope.buyInput.fiatValue = parseFloat(result.total);
-                            $scope.buyInput.feeValue = parseFloat(result.fees);
-                            $scope.buyInput.feePercentage = ($scope.buyInput.feeValue / $scope.buyInput.fiatValue) * 100;
+                            if (isNaN($scope.buyInput.fiatValue)) {
+                                $scope.buyInput.fiatValue = null;
+                            }
+                            if (result.fees) $scope.buyInput.feeValue = parseFloat(result.fees);
+                            if (result.fees) $scope.buyInput.feePercentage = ($scope.buyInput.feeValue / $scope.buyInput.fiatValue) * 100;
 
                             $scope.altCurrency = {
                                 code: $scope.buyInput.fiatCurrency,
@@ -226,6 +320,7 @@ angular.module('blocktrail.wallet')
                         });
                     });
                 } else {
+                    $scope.fiatFirst = true;
                     $scope.buyInput.fiatValue = parseFloat($scope.buyInput.amount || 0) || 0;
                     $scope.buyInput.btcValue = null;
                     $scope.buyInput.feeValue = null;
@@ -235,11 +330,16 @@ angular.module('blocktrail.wallet')
                         return;
                     }
 
-                    return glideraService.buyPrices(null, $scope.buyInput.fiatValue).then(function(result) {
+                    return fetchBrokerService().buyPrices(null, $scope.buyInput.fiatValue).then(function(result) {
                         $timeout(function() {
+                            lastPriceResponse = result;
+
                             $scope.buyInput.btcValue = parseFloat(result.qty);
-                            $scope.buyInput.feeValue = parseFloat(result.fees);
-                            $scope.buyInput.feePercentage = ($scope.buyInput.feeValue / $scope.buyInput.fiatValue) * 100;
+                            if (isNaN($scope.buyInput.btcValue)) {
+                                $scope.buyInput.btcValue = null;
+                            }
+                            if (result.fees) $scope.buyInput.feeValue = parseFloat(result.fees);
+                            if (result.fees) $scope.buyInput.feePercentage = ($scope.buyInput.feeValue / $scope.buyInput.fiatValue) * 100;
 
                             $scope.altCurrency = {
                                 code: 'BTC',
@@ -249,14 +349,15 @@ angular.module('blocktrail.wallet')
                             $scope.fetchingInputPrice = false;
                         });
                     });
-                }
+                }// else
             });
         };
+
         $scope.updateCurrentType = function(currencyType) {
-            $scope.currencies = [{code: 'USD', symbol: 'USD'}];
+            updateBrokerCurrencies();
             $scope.currencies.unshift({code: 'BTC', 'symbol': 'BTC'});
             $scope.currencies = $scope.currencies.filter(function(currency) {
-                return currency.code != currencyType;
+                return currency.code !== currencyType;
             });
 
             if (currencyType === 'BTC') {
@@ -316,73 +417,107 @@ angular.module('blocktrail.wallet')
         $scope.buyBTC = function() {
             var spinner;
 
-            if ($scope.broker == 'glidera') {
-                var btcValue = null, fiatValue = null;
-                if ($scope.fiatFirst) {
-                    fiatValue = $scope.buyInput.fiatValue;
-                } else {
-                    btcValue = $scope.buyInput.btcValue;
-                }
+            var btcValue = $scope.buyInput.btcValue;
+            var fiatValue = $scope.buyInput.fiatValue;
 
-                return glideraService.buyPricesUuid(btcValue, fiatValue)
-                    .then(function(result) {
-                        trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_BUY_CONFIRM);
+            if (lastPriceResponse.error) {
+                return evaluateResponseErrors(lastPriceResponse);
+            }
+
+            if(fiatValue + btcValue <= 0) {
+                return dialogService.prompt({
+                    body: $translate.instant('MSG_BUYBTC_ZERO_AMOUNT'),
+                    title: $translate.instant('MSG_BUYBTC_CONFIRM_TITLE'),
+                    prompt: false
+                }).result;
+            }
+
+            switch ($scope.broker) {
+                case 'glidera':
+
+                    return glideraService.buyPricesUuid(btcValue, fiatValue)
+                        .then(function(result) {
+                            trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_BUY_CONFIRM);
+                            return dialogService.prompt({
+                                body: $translate.instant('MSG_BUYBTC_CONFIRM_BODY', {
+                                    qty: $filter('number')(result.qty, 6),
+                                    price: $filter('number')(result.total, 2),
+                                    fee: $filter('number')(result.fees, 2),
+                                    currencySymbol: $filter('toCurrencySymbol')($scope.buyInput.fiatCurrency)
+                                }),
+                                title: $translate.instant('MSG_BUYBTC_CONFIRM_TITLE'),
+                                prompt: false
+                            })
+                                .result
+                                .then(function() {
+                                    spinner = dialogService.spinner({title: 'BUYBTC_BUYING'});
+
+                                    return glideraService.buy(result.qty, result.priceUuid)
+                                        .then(function() {
+                                            spinner.close();
+
+                                            trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_BUY_DONE);
+
+                                            dialogService.alert({
+                                                body: $translate.instant('MSG_BUYBTC_BOUGHT_BODY', {
+                                                    qty: $filter('number')(result.qty, 6),
+                                                    price: $filter('number')(result.total, 2),
+                                                    fee: $filter('number')(result.fees, 2),
+                                                    currencySymbol: $filter('toCurrencySymbol')('USD')
+                                                }),
+                                                title: $translate.instant('MSG_BUYBTC_BOUGHT_TITLE')
+                                            });
+
+                                            $state.go('app.wallet.summary');
+                                        }, function(e) {
+                                            trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_BUY_ERR);
+                                            throw e;
+                                        })
+                                        ;
+                                });
+                        })
+                        .then(function() {
+                            // -
+                        }, function(err) {
+                            if (spinner) {
+                                spinner.close();
+                            }
+
+                            if (err != "CANCELLED" && err != "dismiss") {
+                                dialogService.alert({
+                                    title: 'ERROR_TITLE_1',
+                                    body: "" + err
+                                });
+                            }
+                        });
+                    break;
+                case 'bitonic':
+                    return bitonicService.buyPrices(btcValue, fiatValue).then(function (result) {
                         return dialogService.prompt({
                             body: $translate.instant('MSG_BUYBTC_CONFIRM_BODY', {
                                 qty: $filter('number')(result.qty, 6),
                                 price: $filter('number')(result.total, 2),
                                 fee: $filter('number')(result.fees, 2),
-                                currencySymbol: $filter('toCurrencySymbol')('USD')
+                                currencySymbol: $filter('toCurrencySymbol')($scope.buyInput.fiatCurrency)
                             }),
                             title: $translate.instant('MSG_BUYBTC_CONFIRM_TITLE'),
                             prompt: false
-                        })
-                            .result
-                            .then(function() {
-                                spinner = dialogService.spinner({title: 'BUYBTC_BUYING'});
-
-                                return glideraService.buy(result.qty, result.priceUuid)
-                                    .then(function() {
-                                        spinner.close();
-
-                                        trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_BUY_DONE);
-
-                                        dialogService.alert({
-                                            body: $translate.instant('MSG_BUYBTC_BOUGHT_BODY', {
-                                                qty: $filter('number')(result.qty, 6),
-                                                price: $filter('number')(result.total, 2),
-                                                fee: $filter('number')(result.fees, 2),
-                                                currencySymbol: $filter('toCurrencySymbol')('USD')
-                                            }),
-                                            title: $translate.instant('MSG_BUYBTC_BOUGHT_TITLE')
-                                        });
-
-                                        $state.go('app.wallet.summary');
-                                    }, function(e) {
-                                        trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_BUY_ERR);
-                                        throw e;
-                                    })
-                                    ;
-                            });
-                    })
-                    .then(function() {
-                        // -
-                    }, function(err) {
-                        if (spinner) {
-                            spinner.close();
-                        }
-
-                        if (err != "CANCELLED" && err != "dismiss") {
-                            dialogService.alert({
-                                title: 'ERROR_TITLE_1',
-                                body: "" + err
-                            });
-                        }
-                    })
-                ;
-            } else {
-                alert("Unknown broker");
-            }
+                        }).result.then(function() {
+                            if($scope.fiatFirst) {
+                                console.log('fiat first');
+                                bitonicService.buy(null, result.total);
+                            } else {
+                                bitonicService.buy(result.qty, null);
+                            }
+                            trackingService.trackEvent(trackingService.EVENTS.BUYBTC.BITONIC_BUY_CONFIRM);
+                        });
+                    });
+                    break;
+            }// switch
         };
+
+        $scope.$watch('broker', function () {
+            fetchBrokerService();
+        })
     })
 ;
