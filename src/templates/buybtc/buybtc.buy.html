@@ -73,7 +73,10 @@
                 <div class="col-xs-12">
                     <button class="btn btn-lg btn-default btn-primary" ng-click="buyBTC()">{{ 'BUYBTC_BUY' | translate }}</button>
                     <p class="buybtc-via">
-                        {{ 'BUYBTC_VIA' | translate }} <span class="sentence-case">{{ broker }}</span>
+                        <span class="sentence-case"
+                              translate="BUYBTC_VIA"
+                              translate-value-broker="{{ broker }}">
+                        </span>
                         <a class="btn btn-sm btn-default" href="#" ng-click="$state.go('app.wallet.buybtc.choose')">{{ 'CHANGE' | translate }}</a>
                     </p>
                 </div>
