@@ -4,13 +4,19 @@
 
 <div class="row">
     <div class="col-xs-10 col-xs-offset-1 text-center">
-        <h3 style="margin-top: 40px;">{{'SETUP_DOWNLOAD_MOBILE_TITLE' | translate }}
-            <span ng-if="mobileOs == 'both'">{{'ANDROID' | translate }} / {{'IOS' | translate }}</span>
-            <span ng-if="mobileOs == 'android'">{{'ANDROID' | translate }}</span>
-            <span ng-if="mobileOs == 'ios'">{{'IOS' | translate }}</span>
+        <h3 ng-if="mobileOS !== 'both'"
+            style="margin-top:40px;"
+            translate="SETUP_DOWNLOAD_MOBILE_TITLE"
+            translate-value-platform="{{ ( mobileOs == 'android' ? 'ANDROID' : 'IOS' ) | translate }}"
+        ></h3>
+
+        <h3 ng-if="mobileOS == 'both'"
+            style="margin-top:40px;"
+            translate="SETUP_DOWNLOAD_MOBILE_TITLE"
+            translate-value-platform="{{ 'ANDROID' | translate }} / {{ 'IOS' | translate }}">
         </h3>
 
-        <h4 style="margin-top: 20px;">
+        <h4 style="margin-top:20px;">
             {{'SETUP_DOWNLOAD_MOBILE_TEXT' | translate }}
         </h4>
 

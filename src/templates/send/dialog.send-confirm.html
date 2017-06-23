@@ -6,7 +6,10 @@
     <div class="modal-body">
         <div class="alert alert-default">
             <div class="sentence-case">
-                {{ 'SENDING_CONFIRM_MSG' | translate }} <b>{{ sendData.amount }} BTC</b> {{ 'TO' | translate }} <b>{{ sendData.recipientAddress }}</b>
+                <span translate="SENDING_CONFIRM_MSG"
+                      translate-value-amount="{{ sendData.amount }}"
+                      translate-value-recipient-address="{{ sendData.recipientAddress }}">
+                </span>
             </div>
         </div>
         <div class="alert alert-warning" ng-if="sendData.feeChoice == 'low_priority'">
