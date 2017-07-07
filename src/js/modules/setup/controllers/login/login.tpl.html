@@ -19,7 +19,7 @@
                                    ng-model="form.username"
                                    required="true"
                                    required
-                                />
+                            />
 
                             <div class="help-block" ng-if="loginForm.username.$dirty && loginForm.username.$invalid">
                                 <div ng-if="loginForm.username.$error.required">{{ 'MSG_MISSING_LOGIN' | translate }}</div>
@@ -35,7 +35,7 @@
                                    ng-model="form.password"
                                    required="true"
                                    required
-                                />
+                            />
                             <div class="help-block"
                                  ng-if="loginForm.password.$dirty && loginForm.password.$invalid">
                                 <div ng-if="loginForm.password.$error.required">{{ 'MSG_MISSING_PASSWORD' | translate }}</div>

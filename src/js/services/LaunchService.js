@@ -73,8 +73,8 @@ angular.module('blocktrail.wallet').factory(
                                 function(backupInfo) {
                                     // backupInfo found, means it still needs to be saved (because after that it's unset)
                                     return {
-                                        allowed: ['app.setup.backup'],
-                                        _default: 'app.setup.backup'
+                                        allowed: ['app.setup.walletBackup'],
+                                        _default: 'app.setup.walletBackup'
                                     };
                                 },
                                 function() {
