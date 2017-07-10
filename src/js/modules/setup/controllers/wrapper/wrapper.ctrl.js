@@ -4,12 +4,11 @@
     angular.module("blocktrail.setup")
         .controller("SetupWrapperCtrl", SetupWrapperCtrl);
 
-    function SetupWrapperCtrl($scope, $modal, CONFIG) {
-        // TODO bowser inject as a service
-        $scope.showMobileDialog = bowser.mobile;
+    function SetupWrapperCtrl($scope, $modal, CONFIG, Bowser) {
+        var showMobileDialog = !!Bowser.mobile;
 
         $scope.showMobileDialogOnce = function() {
-            if ($scope.showMobileDialog) {
+            if (showMobileDialog) {
                 $scope.showMobileDialog =  false;
                 $modal.open({
                     controller: "SetupDownloadMobileModalController",

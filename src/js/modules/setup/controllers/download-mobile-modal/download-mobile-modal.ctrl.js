@@ -4,8 +4,8 @@
     angular.module("blocktrail.setup")
         .controller("SetupDownloadMobileModalController", SetupDownloadMobileModalController);
 
-    function SetupDownloadMobileModalController($scope, $modalInstance) {
-        $scope.mobileOs = bowser.android ? "android" : bowser.ios ? "ios" : "both";
+    function SetupDownloadMobileModalController($scope, $modalInstance, Bowser) {
+        $scope.mobileOs = Bowser.android ? "android" : Bowser.ios ? "ios" : "both";
 
         $scope.dismiss = function() {
             $modalInstance.close();

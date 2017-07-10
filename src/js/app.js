@@ -26,6 +26,7 @@ var blocktrail = angular.module('blocktrail.wallet', [
     'angulartics',
     'angulartics.google.analytics',
 
+    'blocktrail.core',
     'blocktrail.setup',
 
     'blocktrail.config',
