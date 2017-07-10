@@ -4,7 +4,7 @@
     angular.module("blocktrail.setup")
         .controller("SetupWalletBackupCtrl", SetupWalletBackupCtrl);
 
-    function SetupWalletBackupCtrl(backupInfo, $scope, $state, $translate, $log,
+    function SetupWalletBackupCtrl(backupInfo, $scope, $state, $translate, $log, bitcoinJS,
              settingsService, sdkService, dialogService, launchService, $injector) {
 
         $scope.displayTextBackup = true;
@@ -32,7 +32,7 @@
             sdkService.sdk().then(function(sdk) {
                 $scope.setupInfo.backupInfo.blocktrailPublicKeys = {};
                 angular.forEach(backupInfo.blocktrailPublicKeys, function(pubkey, key) {
-                    $scope.setupInfo.backupInfo.blocktrailPublicKeys[pubkey.keyIndex] = bitcoinjs.HDNode.fromBase58(pubkey.pubKey, sdk.network);
+                    $scope.setupInfo.backupInfo.blocktrailPublicKeys[pubkey.keyIndex] = bitcoinJS.HDNode.fromBase58(pubkey.pubKey, sdk.network);
                 });
             });
         }

@@ -1,6 +1,6 @@
 angular.module('blocktrail.wallet').factory(
     'Contacts',
-    function($log, $rootScope, settingsService, launchService, sdkService, storageService, $q) {
+    function($log, $rootScope, cryptoJS, settingsService, launchService, sdkService, storageService, $q) {
         var Contacts = function() {
             var self = this;
 
@@ -57,7 +57,7 @@ angular.module('blocktrail.wallet').factory(
 
                                     if (contactData.encrypted_display_name && accountInfo.secret) {
                                         try {
-                                            displayName = CryptoJS.AES.decrypt(contactData.encrypted_display_name, accountInfo.secret).toString(CryptoJS.enc.Utf8);
+                                            displayName = cryptoJS.AES.decrypt(contactData.encrypted_display_name, accountInfo.secret).toString(cryptoJS.enc.Utf8);
                                             if (!displayName) {
                                                 throw new Error("Failed to decrypt encrypted_display_name");
                                             }
