@@ -106,7 +106,7 @@
                         return wallet;
                     }
                 }, function(error) {
-                    if (error.message.match(/not found/) || error.message.match(/couldn"t be found/)) {
+                    if (error.message.match(/not found/) || error.message.match(/couldn't be found/)) {
                         //no existing wallet - create one
                         $log.debug("creating new wallet");
                         $scope.updateProgress({title: "CREATING_WALLET", body: "PLEASE_WAIT"});
