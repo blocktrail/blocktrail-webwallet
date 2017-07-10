@@ -1,6 +1,6 @@
 angular.module('blocktrail.wallet').factory(
     'storageService',
-    function(CONFIG, $log) {
+    function(CONFIG, $log, PouchDB) {
         var dbs = {};
         var adapter = CONFIG.POUCHDB_DRIVER;
 

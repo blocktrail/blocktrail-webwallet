@@ -1,5 +1,5 @@
 angular.module('blocktrail.wallet')
-    .controller('SettingsCtrl', function($scope, $http, $rootScope, $q, sdkService, launchService, settingsService, Wallet,
+    .controller('SettingsCtrl', function($scope, $http, $rootScope, $q, cryptoJS, sdkService, launchService, settingsService, Wallet,
                                          Contacts, storageService, $translate, $timeout, $state, $log, $sce, dialogService,
                                          CONFIG, Currencies, $modal, blocktrailLocalisation) {
         $rootScope.pageTitle = 'SETTINGS';
@@ -180,7 +180,7 @@ angular.module('blocktrail.wallet')
 
                             return $http.post(CONFIG.API_URL + "/v1/BTC/mywallet/check", {
                                 login: accountInfo.email || accountInfo.username,
-                                password: CryptoJS.SHA512(currentPassword).toString()
+                                password: cryptoJS.SHA512(currentPassword).toString()
                             })
                                 .then(
                                     function(result) {
@@ -261,12 +261,12 @@ angular.module('blocktrail.wallet')
                                                     return sdkService.sdk().then(function(sdk) {
 
                                                         // don't submit new encrypted secret if we don't have a secret
-                                                        var encryptedSecret = accountInfo.secret ? CryptoJS.AES.encrypt(accountInfo.secret, newPassword).toString() : null;
+                                                        var encryptedSecret = accountInfo.secret ? cryptoJS.AES.encrypt(accountInfo.secret, newPassword).toString() : null;
 
                                                         var passwordChange = function() {
                                                             return sdk.passwordChange(
-                                                                CryptoJS.SHA512(currentPassword).toString(),
-                                                                CryptoJS.SHA512(newPassword).toString(),
+                                                                cryptoJS.SHA512(currentPassword).toString(),
+                                                                cryptoJS.SHA512(newPassword).toString(),
                                                                 encryptedSecret,
                                                                 twoFactorToken,
                                                                 [{
@@ -426,7 +426,7 @@ angular.module('blocktrail.wallet')
                             });
 
                             return sdkService.sdk().then(function(sdk) {
-                                return sdk.setup2FA(CryptoJS.SHA512(password).toString()).then(function(result) {
+                                return sdk.setup2FA(cryptoJS.SHA512(password).toString()).then(function(result) {
 
                                     pleaseWaitDialog.dismiss();
                                     return dialogService.alert({

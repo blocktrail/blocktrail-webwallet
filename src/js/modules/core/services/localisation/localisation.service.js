@@ -1,9 +1,10 @@
-angular.module('blocktrail.localisation', [
-    'pascalprecht.translate',
-    'blocktrail.translations',
-    'blocktrail.config'
-])
-    .provider('blocktrailLocalisation', function(_, pascalprechtTranslateOverrider, $windowProvider, $translateProvider) {
+/*(function () {
+    "use strict";
+
+    angular.module('blocktrail.core')
+        .provider('blocktrailLocalisation', blocktrailLocalisation);
+    
+    function blocktrailLocalisation(pascalprechtTranslateOverrider, $windowProvider, $translateProvider, _) {
         var indexOf = function(array, searchElement) {
             for (var i = 0, len = array.length; i < len; i++) {
                 if (array[i] === searchElement) {
@@ -14,7 +15,7 @@ angular.module('blocktrail.localisation', [
         };
 
         // tries to determine the browsers language
-        //  from angular-translate, but it wasn't being exposed so we copied it
+        // from angular-translate, but it wasn't being exposed so we copied it
         var getFirstBrowserLanguage = function() {
             // internal purpose only
             if (angular.isFunction(pascalprechtTranslateOverrider.getLocale)) {
@@ -47,7 +48,7 @@ angular.module('blocktrail.localisation', [
             return null;
         };
         // determines if preferred language can be matched to an available language
-        //  from angular-translate, but it wasn't being exposed so we copied it
+        // from angular-translate, but it wasn't being exposed so we copied it
         var negotiateLocale = function (preferred) {
             // from outer scope
             var $availableLanguageKeys = languages, $languageKeyAliases = aliases;
@@ -98,14 +99,14 @@ angular.module('blocktrail.localisation', [
         };
 
         // enabled languages
-        //  languages should be added to CONFIG.LANGUAGES, not here
-        //  because when added here it won't result in a popup asking the user to switch to them
+        // languages should be added to CONFIG.LANGUAGES, not here
+        // because when added here it won't result in a popup asking the user to switch to them
         var languages = [
             'en-US',
             'en'
         ];
         // language aliases used to map system language to a language key
-        //  mapping won't work without these so without a working alias languages will never be enabled
+        // mapping won't work without these so without a working alias languages will never be enabled
         var aliases = {
             'en-US': 'en-US',
             'en-*': 'en',
@@ -225,53 +226,5 @@ angular.module('blocktrail.localisation', [
                 parseExtraLanguages: parseExtraLanguages
             };
         };
-    })
-
-    .filter('languageName', function(blocktrailLocalisation) {
-        return function(input) {
-            return blocktrailLocalisation.languageName(input);
-        };
-    })
-
-    .config(function($translateProvider, TRANSLATIONS, CONFIG, blocktrailLocalisationProvider) {
-        var processTranslations = function(translations) {
-            _.forEach(translations, function(v, k) {
-                // merged arrays with newlines
-                if (_.isArray(v)) {
-                    translations[k] = v.join("\n");
-                }
-            });
-
-            return translations;
-        };
-
-        var english = angular.extend({}, TRANSLATIONS.english);
-        var americanEnglish = angular.extend({}, english, TRANSLATIONS.americanEnglish);
-        var french = angular.extend({}, TRANSLATIONS.french);
-        var dutch = angular.extend({}, TRANSLATIONS.dutch);
-        var spanish = angular.extend({}, TRANSLATIONS.spanish);
-        var russian = angular.extend({}, TRANSLATIONS.russian);
-        var chinese = angular.extend({}, TRANSLATIONS.chinese);
-        var swahili = angular.extend({}, TRANSLATIONS.swahili);
-        var arabic = angular.extend({}, TRANSLATIONS.arabic);
-        var hindi = angular.extend({}, TRANSLATIONS.hindi);
-
-        $translateProvider.translations('en-US', processTranslations(americanEnglish));
-        $translateProvider.translations('en', processTranslations(english));
-        $translateProvider.translations('fr', processTranslations(french));
-        $translateProvider.translations('nl', processTranslations(dutch));
-        $translateProvider.translations('ru', processTranslations(russian));
-        $translateProvider.translations('cn', processTranslations(chinese));
-        $translateProvider.translations('es', processTranslations(spanish));
-        $translateProvider.translations('sw', processTranslations(swahili));
-        $translateProvider.translations('ar', processTranslations(arabic));
-        $translateProvider.translations('hi', processTranslations(hindi));
-
-        if (CONFIG.FALLBACK_LANGUAGE) {
-            $translateProvider.fallbackLanguage(CONFIG.FALLBACK_LANGUAGE);
-        }
-
-        $translateProvider.useSanitizeValueStrategy(['escapeParameters']);
-        blocktrailLocalisationProvider.registerLanguages();
-        blocktrailLocalisationProvider.setupPreferredLanguage();
-    });
+    }
+})();*/

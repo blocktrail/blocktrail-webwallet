@@ -1,6 +1,6 @@
 angular.module('blocktrail.wallet')
-    .controller('SendCtrl', function($scope, $log, $modal, CurrencyConverter, Currencies, Contacts, Wallet, $timeout, dialogService,
-                                     QR, $q, $state, $rootScope, $translate, launchService, CONFIG) {
+    .controller('SendCtrl', function($scope, $log, $modal, bitcoinJS, CurrencyConverter, Currencies, Contacts, Wallet, $timeout, dialogService,
+                                     QR, $q, $state, $rootScope, $translate, launchService) {
         //$scope.fiatFirst = false;
         $scope.OPTIMAL_FEE = 'optimal';
         $scope.LOW_PRIORITY_FEE = 'low_priority';
@@ -143,8 +143,8 @@ angular.module('blocktrail.wallet')
                 if ($scope.sendInput.recipientAddress) {
                     localPay[$scope.sendInput.recipientAddress] = amount;
                 } else {
-                    var fakeP2SHScript = bitcoinjs.scripts.scriptHashOutput(new blocktrailSDK.Buffer("0000000000000000000000000000000000000000", 'hex'));
-                    var fakeAddress = bitcoinjs.Address.fromOutputScript(fakeP2SHScript, sdk.network);
+                    var fakeP2SHScript = bitcoinJS.scripts.scriptHashOutput(new blocktrailSDK.Buffer("0000000000000000000000000000000000000000", 'hex'));
+                    var fakeAddress = bitcoinJS.Address.fromOutputScript(fakeP2SHScript, sdk.network);
                     localPay[fakeAddress.toString()] = amount;
                 }
 

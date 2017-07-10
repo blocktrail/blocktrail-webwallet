@@ -5,7 +5,7 @@
         .controller("SetupLoginCtrl", SetupLoginCtrl);
 
     // TODO Review this part, decrease dependencies, create login service and move $http request to service
-    function SetupLoginCtrl($rootScope, $scope, $state, $sce, $translate, $log, $q, $http, CONFIG,
+    function SetupLoginCtrl($rootScope, $scope, $state, $sce, $translate, $log, $q, $http, _, cryptoJS, CONFIG,
                             launchService, settingsService, dialogService, FormHelper) {
         // display mobile app download popup
         $scope.showMobileDialogOnce();
@@ -55,7 +55,7 @@
 
             $http.post(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "t" : "") + "BTC/mywallet/enable", {
                 login: $scope.form.username,
-                password: CryptoJS.SHA512($scope.form.password).toString(),
+                password: cryptoJS.SHA512($scope.form.password).toString(),
                 platform: "Web",
                 version: $rootScope.appVersion,
                 two_factor_token: twoFactorToken,
@@ -69,7 +69,7 @@
                             } else {
                                 var secret;
                                 try {
-                                    secret = CryptoJS.AES.decrypt(encryptedSecret, $scope.form.password).toString(CryptoJS.enc.Utf8);
+                                    secret = cryptoJS.AES.decrypt(encryptedSecret, $scope.form.password).toString(cryptoJS.enc.Utf8);
                                 } catch (e) {
                                     $log.error(e);
                                     secret = null;

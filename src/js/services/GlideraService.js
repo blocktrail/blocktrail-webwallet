@@ -1,6 +1,6 @@
 angular.module('blocktrail.wallet').factory(
     'glideraService',
-    function(CONFIG, $log, $q, Wallet, dialogService, $state, $rootScope, $translate, $http,
+    function(CONFIG, $log, $q, Wallet, dialogService, $state, $rootScope, $translate, $http, _,
              $timeout, $interval, settingsService, launchService, sdkService, trackingService, CurrencyConverter) {
         var clientId;
         var returnuri = CONFIG.WALLET_URL + "/#/wallet/buy/glidera/oaoth2/callback";

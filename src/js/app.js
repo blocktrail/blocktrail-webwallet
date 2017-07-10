@@ -1,8 +1,8 @@
 /* globals blocktrailSDK, window */
 // bind a few things from the browserified blocktrailSDK to the window
-window.CryptoJS = blocktrailSDK.CryptoJS;
-window.bitcoinjs = blocktrailSDK.bitcoin;
-window.randomBytes = blocktrailSDK.randomBytes;
+// window.cryptoJS = blocktrailSDK.CryptoJS;
+// window.bitcoinjs = blocktrailSDK.bitcoin;
+// window.randomBytesJS = blocktrailSDK.randomBytes;
 window._ = blocktrailSDK.lodash;
 
 // gotta fake some ionic stuff
@@ -21,12 +21,13 @@ var blocktrail = angular.module('blocktrail.wallet', [
     'angularMoment',
     'ja.qr',
     'ngImgCrop',
-    'blocktrail.localisation',
+
 
     'angulartics',
     'angulartics.google.analytics',
 
     'blocktrail.core',
+    'blocktrail.localisation',
     'blocktrail.setup',
 
     'blocktrail.config',

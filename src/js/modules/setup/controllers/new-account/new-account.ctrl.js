@@ -4,7 +4,7 @@
     angular.module("blocktrail.setup")
         .controller("SetupNewAccountCtrl", SetupNewAccountCtrl);
 
-    function SetupNewAccountCtrl($scope, $rootScope, $state, $q, $http, $timeout, launchService, CONFIG,
+    function SetupNewAccountCtrl($scope, $rootScope, $state, $q, $http, $timeout, cryptoJS, launchService, CONFIG,
              settingsService, dialogService, $translate, $log, PasswordStrength, $filter) {
         // display mobile app download popup
         $scope.showMobileDialogOnce();
@@ -120,7 +120,7 @@
             var postData = {
                 username: $scope.form.username,
                 email: $scope.form.email,
-                password: CryptoJS.SHA512($scope.form.password).toString(),
+                password: cryptoJS.SHA512($scope.form.password).toString(),
                 password_score: $scope.form.passwordCheck && $scope.form.passwordCheck.score || 0,
                 platform: "Web",
                 version: $rootScope.appVersion,
