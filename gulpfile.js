@@ -134,11 +134,11 @@ gulp.task('templates:index', ['appconfig', 'js', 'sass'], function() {
 });
 
 gulp.task('templates:rest', ['appconfig'], function() {
-
     return appConfig.then(function(APPCONFIG) {
-        return streamAsPromise(gulp.src("./src/templates/**/*")
-        //    .pipe(gulp.dest("./www/" + APPCONFIG.STATICSDIR + "/templates"))
-
+        return streamAsPromise(gulp.src([
+                "./src/js/modules/**/*.html",
+                "./src/templates/**/*.html"
+            ])
             .pipe(html2js('templates.js', {
                 adapter: 'angular',
                 base: './src/',

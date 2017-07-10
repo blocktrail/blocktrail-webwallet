@@ -9,12 +9,6 @@ angular.module('blocktrail.wallet')
     });
 
 angular.module('blocktrail.wallet')
-    .controller('RebrandCtrl', function($scope, $stateParams) {
-        $scope.goto = $stateParams.goto;
-    });
-
-
-angular.module('blocktrail.wallet')
     .controller('LogoutCtrl', function($state, storageService) {
         storageService.resetAll().then(
             function() {
@@ -25,3 +19,8 @@ angular.module('blocktrail.wallet')
             }
         );
     });
+
+angular.module('blocktrail.wallet').controller('BannedIpCtrl', function($scope, CONFIG, $stateParams) {
+    $scope.CONFIG = CONFIG;
+    $scope.bannedIp = $stateParams.bannedIp;
+});
