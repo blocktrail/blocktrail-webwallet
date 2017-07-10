@@ -94,7 +94,11 @@ gulp.task('templates:index', ['appconfig', 'js', 'sass'], function() {
             './src/translations/translations/russian.json',
             './src/translations/translations/swahili.json',
             './src/translations/translations/arabic.json',
-            './src/translations/translations/hindi.json'
+            './src/translations/translations/hindi.json',
+            './src/translations/translations/korean.json',
+            './src/translations/translations/german.json',
+            './src/translations/translations/japanese.json',
+            './src/translations/translations/portuguese.json'
         ], function(filename) {
             var language = path.basename(filename, '.json');
             var isMobile = filename.indexOf('mobile/') !== -1;

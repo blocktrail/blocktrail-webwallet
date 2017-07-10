@@ -24,7 +24,11 @@
             'zh-cn': 'cn',
             'sw-*': 'sw',
             'ar-*': 'ar',
-            'hi-*': 'hi'
+            'hi-*': 'hi',
+            'ko-*': 'ko',
+            'de-*': 'de',
+            'jp-*': 'jp',
+            'pt-*': 'pt'
         };
 
         // names used for translation keys
@@ -38,7 +42,11 @@
             ru: 'RUSSIAN',
             sw: 'SWAHILI',
             ar: 'ARABIC',
-            hi: 'HINDI'
+            hi: 'HINDI',
+            ko: 'KOREAN',
+            de: 'GERMAN',
+            jp: 'JAPANESE',
+            pt: 'PORTUGUESE'
         };
 
         function indexOf(array, searchElement) {

@@ -15,6 +15,10 @@
         $translateProvider.translations("sw", processTranslations(TRANSLATIONS.swahili));
         $translateProvider.translations("ar", processTranslations(TRANSLATIONS.arabic));
         $translateProvider.translations("hi", processTranslations(TRANSLATIONS.hindi));
+        $translateProvider.translations('ko', processTranslations(TRANSLATIONS.korean));
+        $translateProvider.translations('de', processTranslations(TRANSLATIONS.german));
+        $translateProvider.translations('jp', processTranslations(TRANSLATIONS.japanese));
+        $translateProvider.translations('pt', processTranslations(TRANSLATIONS.portuguese));
 
         if (CONFIG.FALLBACK_LANGUAGE) {
             $translateProvider.fallbackLanguage(CONFIG.FALLBACK_LANGUAGE);

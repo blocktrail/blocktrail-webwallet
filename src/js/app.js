@@ -147,7 +147,9 @@ angular.module('blocktrail.wallet')
         var DMMMMYYYYLocales = {
             'ru': 'russian',
             'fr': 'french',
-            'nl': 'dutch'
+            'nl': 'dutch',
+            'de': 'german',
+            'pt': 'portuguese'
         };
         Object.keys(DMMMMYYYYLocales).forEach(function(locale) {
             var translationsKey = DMMMMYYYYLocales[locale];
@@ -168,7 +170,9 @@ angular.module('blocktrail.wallet')
             'zh-cn': 'chinese',
             'sw': 'swahili',
             'ar': 'arabic',
-            'hi': 'hindi'
+            'hi': 'hindi',
+            'ko': 'korean',
+            'jp' : 'japanese'
         };
         Object.keys(yyyymmddLocales).forEach(function(locale) {
             var translationsKey = yyyymmddLocales[locale];
