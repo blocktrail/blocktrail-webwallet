@@ -12,10 +12,10 @@ var blocktrail = angular.module('blocktrail.wallet', [
     'angulartics',
     'angulartics.google.analytics',
 
+    'blocktrail.config',
     'blocktrail.core',
     'blocktrail.setup',
 
-    'blocktrail.config',
     'blocktrail.templates'
 ]);
 

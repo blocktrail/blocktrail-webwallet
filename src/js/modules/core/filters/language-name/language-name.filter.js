@@ -1,8 +1,8 @@
 (function () {
     "use strict";
 
-    angular.module('blocktrail.core')
-        .filter('languageName', languageName);
+    angular.module("blocktrail.core")
+        .filter("languageName", languageName);
 
     function languageName(blocktrailLocalisation) {
         return function(input) {
