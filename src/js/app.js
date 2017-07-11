@@ -1,16 +1,3 @@
-/* globals blocktrailSDK, window */
-// bind a few things from the browserified blocktrailSDK to the window
-// window.cryptoJS = blocktrailSDK.CryptoJS;
-// window.bitcoinjs = blocktrailSDK.bitcoin;
-// window.randomBytesJS = blocktrailSDK.randomBytes;
-window._ = blocktrailSDK.lodash;
-
-// gotta fake some ionic stuff
-var ionic = window.ionic = {};
-ionic.Platform = ionic.Platform || {};
-ionic.Platform.device = function() { return {}; };
-ionic.Platform.isWebView = function() { return true; };
-
 var blocktrail = angular.module('blocktrail.wallet', [
     'ui.router',
     'ui.bootstrap',
@@ -22,12 +9,10 @@ var blocktrail = angular.module('blocktrail.wallet', [
     'ja.qr',
     'ngImgCrop',
 
-
     'angulartics',
     'angulartics.google.analytics',
 
     'blocktrail.core',
-    'blocktrail.localisation',
     'blocktrail.setup',
 
     'blocktrail.config',
