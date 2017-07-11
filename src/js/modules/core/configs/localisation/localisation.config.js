@@ -27,15 +27,13 @@
         function processTranslations(translations) {
             var result = {};
 
-            for(var prop in translations) {
-                if (translations.hasOwnProperty(prop)) {
-                    if (Array.isArray(translations[prop])) {
-                        result[prop] = translations[prop].join("\n");
-                    } else {
-                        result[prop] = translations[prop];
-                    }
+            angular.forEach(translations, function(value, key) {
+                if (Array.isArray(value)) {
+                    result[key] = value.join("\n");
+                } else {
+                    result[key] = value;
                 }
-            }
+            });
 
             return result;
         }
