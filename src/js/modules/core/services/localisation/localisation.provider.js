@@ -151,9 +151,9 @@
             if (languages.indexOf(language) === -1) {
                 languages.push(language);
 
-                for(var prop in _aliases) {
-                    aliases[prop] = _aliases[prop];
-                }
+                angular.forEach(_aliases, function(value, key) {
+                    aliases[key] = value;
+                });
 
                 registerLanguages();
             }
@@ -164,12 +164,12 @@
         }
 
         function determinePreferredLanguage() {
-            return negotiateLocale(getFirstBrowserLanguage());;
+            return negotiateLocale(getFirstBrowserLanguage());
         }
 
         function preferredAvailableLanguage() {
             var preferredLanguage = determinePreferredLanguage();
-            return isAvailableLanguage(preferredLanguage) ? preferredLanguage : null;;
+            return isAvailableLanguage(preferredLanguage) ? preferredLanguage : null;
         }
 
         function setupPreferredLanguage() {
@@ -191,9 +191,9 @@
             }
 
             // enable extra languages
-            for(var prop in newLanguages) {
-                enableLanguage(newLanguages[prop], {});
-            }
+            angular.forEach(newLanguages, function(newLanguage) {
+                enableLanguage(newLanguage, {});
+            });
 
             // determine (new) preferred language
             return [newLanguages, setupPreferredLanguage()];
