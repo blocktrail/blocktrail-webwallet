@@ -1,22 +1,58 @@
-/*(function () {
+(function () {
     "use strict";
 
     angular.module('blocktrail.core')
         .provider('blocktrailLocalisation', blocktrailLocalisation);
     
-    function blocktrailLocalisation(pascalprechtTranslateOverrider, $windowProvider, $translateProvider, _) {
-        var indexOf = function(array, searchElement) {
+    function blocktrailLocalisation(pascalprechtTranslateOverrider, $windowProvider, $translateProvider) {
+        // enabled languages
+        //  languages should be added to CONFIG.LANGUAGES, not here
+        //  because when added here it won't result in a popup asking the user to switch to them
+        var languages = [
+            'en-US',
+            'en'
+        ];
+        // language aliases used to map system language to a language key
+        //  mapping won't work without these so without a working alias languages will never be enabled
+        var aliases = {
+            'en-US': 'en-US',
+            'en-*': 'en',
+            'fr-*': 'fr',
+            'nl-*': 'nl',
+            'es-*': 'es',
+            'ru-*': 'ru',
+            'zh-cn': 'cn',
+            'sw-*': 'sw',
+            'ar-*': 'ar',
+            'hi-*': 'hi'
+        };
+
+        // names used for translation keys
+        var names = {
+            nl: 'DUTCH',
+            en: 'ENGLISH',
+            'en-US': 'ENGLISH_US',
+            fr: 'FRENCH',
+            es: 'SPANISH',
+            cn: 'CHINESE',
+            ru: 'RUSSIAN',
+            sw: 'SWAHILI',
+            ar: 'ARABIC',
+            hi: 'HINDI'
+        };
+
+        function indexOf(array, searchElement) {
             for (var i = 0, len = array.length; i < len; i++) {
                 if (array[i] === searchElement) {
                     return i;
                 }
             }
             return -1;
-        };
+        }
 
         // tries to determine the browsers language
         // from angular-translate, but it wasn't being exposed so we copied it
-        var getFirstBrowserLanguage = function() {
+        function getFirstBrowserLanguage() {
             // internal purpose only
             if (angular.isFunction(pascalprechtTranslateOverrider.getLocale)) {
                 return pascalprechtTranslateOverrider.getLocale();
@@ -46,10 +82,11 @@
             }
 
             return null;
-        };
+        }
+
         // determines if preferred language can be matched to an available language
         // from angular-translate, but it wasn't being exposed so we copied it
-        var negotiateLocale = function (preferred) {
+        function negotiateLocale(preferred) {
             // from outer scope
             var $availableLanguageKeys = languages, $languageKeyAliases = aliases;
 
@@ -98,88 +135,51 @@
             return preferred;
         };
 
-        // enabled languages
-        // languages should be added to CONFIG.LANGUAGES, not here
-        // because when added here it won't result in a popup asking the user to switch to them
-        var languages = [
-            'en-US',
-            'en'
-        ];
-        // language aliases used to map system language to a language key
-        // mapping won't work without these so without a working alias languages will never be enabled
-        var aliases = {
-            'en-US': 'en-US',
-            'en-*': 'en',
-            'fr-*': 'fr',
-            'nl-*': 'nl',
-            'es-*': 'es',
-            'ru-*': 'ru',
-            'zh-cn': 'cn',
-            'sw-*': 'sw',
-            'ar-*': 'ar',
-            'hi-*': 'hi'
-        };
-
-        // names used for translation keys
-        var names = {
-            nl: 'DUTCH',
-            en: 'ENGLISH',
-            'en-US': 'ENGLISH_US',
-            fr: 'FRENCH',
-            es: 'SPANISH',
-            cn: 'CHINESE',
-            ru: 'RUSSIAN',
-            sw: 'SWAHILI',
-            ar: 'ARABIC',
-            hi: 'HINDI'
-        };
-
-        var languageName = function(langKey) {
+        function languageName(langKey) {
             return names[langKey.replace("_", "-")];
-        };
+        }
 
-        var registerLanguages = function() {
+        function registerLanguages() {
             $translateProvider.registerAvailableLanguageKeys(languages, aliases);
-        };
+        }
 
-        var getLanguages = function() {
+        function getLanguages() {
             return languages;
-        };
+        }
 
-        var enableLanguage = function(language, _aliases) {
+        function enableLanguage(language, _aliases) {
             if (languages.indexOf(language) === -1) {
                 languages.push(language);
-                _.each(_aliases, function(v, k) {
-                    aliases[k] = v;
-                });
+
+                for(var prop in _aliases) {
+                    aliases[prop] = _aliases[prop];
+                }
 
                 registerLanguages();
             }
-        };
+        }
 
-        var isAvailableLanguage = function(language) {
+        function isAvailableLanguage(language) {
             return languages.indexOf(language) !== -1;
-        };
+        }
 
-        var determinePreferredLanguage = function() {
-            var r = negotiateLocale(getFirstBrowserLanguage());
-            return r;
-        };
+        function determinePreferredLanguage() {
+            return negotiateLocale(getFirstBrowserLanguage());;
+        }
 
-        var preferredAvailableLanguage = function() {
+        function preferredAvailableLanguage() {
             var preferredLanguage = determinePreferredLanguage();
-            var r = isAvailableLanguage(preferredLanguage) ? preferredLanguage : null;
-            return r;
-        };
+            return isAvailableLanguage(preferredLanguage) ? preferredLanguage : null;;
+        }
 
-        var setupPreferredLanguage = function() {
+        function setupPreferredLanguage() {
             var language = preferredAvailableLanguage() || 'en';
             $translateProvider.preferredLanguage(language);
 
             return language;
-        };
+        }
 
-        var parseExtraLanguages = function(extraLanguages) {
+        function parseExtraLanguages(extraLanguages) {
             // filter out languages we already know
             var knownLanguages = getLanguages();
             var newLanguages = extraLanguages.filter(function(language) {
@@ -191,13 +191,13 @@
             }
 
             // enable extra languages
-            _.each(newLanguages, function(newLanguage) {
-                enableLanguage(newLanguage, {});
-            });
+            for(var prop in newLanguages) {
+                enableLanguage(newLanguages[prop], {});
+            }
 
             // determine (new) preferred language
             return [newLanguages, setupPreferredLanguage()];
-        };
+        }
 
         // expose as provider
         this.isAvailableLanguage = isAvailableLanguage;
@@ -227,4 +227,5 @@
             };
         };
     }
-})();*/
+
+})();

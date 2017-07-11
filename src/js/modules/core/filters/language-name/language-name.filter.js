@@ -1,4 +1,4 @@
-/*(function () {
+(function () {
     "use strict";
 
     angular.module('blocktrail.core')
@@ -9,4 +9,5 @@
             return blocktrailLocalisation.languageName(input);
         };
     }
-})();*/
+
+})();
