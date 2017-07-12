@@ -6,6 +6,16 @@
 
     function setupStateConfig($stateProvider) {
         $stateProvider
+            .state('app.logout', {
+                url: "/logout",
+                controller: "LogoutCtrl"
+            })
+            .state('app.bannedip', {
+                url: "/bannedip?bannedIp",
+                cache: false,
+                controller: "BannedIpCtrl",
+                templateUrl: "js/modules/setup/controllers/banned-ip/banned-ip.tpl.html"
+            })
             .state("app.setup", {
                 url: "/setup",
                 abstract: true,

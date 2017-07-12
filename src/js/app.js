@@ -211,22 +211,6 @@ angular.module('blocktrail.wallet').config(
                 templateUrl: "templates/common/base.html"
             })
 
-            /*---Launch---*/
-            .state('app.reset', {
-                url: "/reset",
-                controller: "ResetCtrl"
-            })
-            .state('app.logout', {
-                url: "/logout",
-                controller: "LogoutCtrl"
-            })
-            .state('app.bannedip', {
-                url: "/bannedip?bannedIp",
-                cache: false,
-                controller: "BannedIpCtrl",
-                templateUrl: "templates/app/bannedip.html"
-            })
-
             /*---Wallet Home---*/
             .state('app.wallet', {
                 abstract: true,
