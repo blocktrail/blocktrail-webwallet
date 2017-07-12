@@ -26,7 +26,6 @@ var buildSRIMap = require('./gulp/sri');
 
 var isWatch = false;
 var isLiveReload = process.argv.indexOf('--live-reload') !== -1 || process.argv.indexOf('--livereload') !== -1;
-var noFontello = process.argv.indexOf('--no-fontello') !== -1 || process.argv.indexOf('--nofontello') !== -1;
 
 // determine SRI strategy
 var noSRI = false;
@@ -256,9 +255,7 @@ var sassTask = function() {
     });
 };
 
-// create a sass with and without dependancy on fontello
-gulp.task('sass', ['appconfig', 'fontello', 'css-rename'], sassTask);
-gulp.task('sassnofontello', ['appconfig', 'css-rename'], sassTask);
+gulp.task('sass', ['appconfig', 'css-rename'], sassTask);
 
 /**
  * css-rename to change .css to .sass extensions because we want the css imported :/
@@ -277,9 +274,6 @@ gulp.task('css-rename', function() {
 });
 
 gulp.task('fontello-dl', function() {
-    if (noFontello) {
-        return;
-    }
 
     return streamAsPromise(gulp.src('./fontello.json')
         .pipe(fontello())
@@ -350,7 +344,6 @@ gulp.task('watch', function() {
         livereload.listen();
     }
 
-    gulp.watch(['./fontello.json'], ['fontello:livereload']);
     gulp.watch(['./src/sass/**/*.scss'], ['sass:livereload']);
     gulp.watch(['./src/img/**/*', './src/font/**/*'], ['copystatics:livereload']);
     gulp.watch(['./src/js/**/*.js'], ['js:app:livereload']);
@@ -359,11 +352,7 @@ gulp.task('watch', function() {
     gulp.watch(['./appconfig.json', './appconfig.default.json'], ['default:livereload']);
 });
 
-gulp.task('fontello:livereload', _.merge(['fontello'], doSRI ? ['templates:index'] : []), function() {
-    livereload.reload();
-});
-
-gulp.task('sass:livereload', _.merge(['sassnofontello'], doSRI ? ['templates:index'] : []), function() {
+gulp.task('sass:livereload', _.merge(['sass'], doSRI ? ['templates:index'] : []), function() {
     livereload.reload();
 });
 
