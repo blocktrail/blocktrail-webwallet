@@ -46,6 +46,12 @@ Keep this in mind when adding / updating translations, don't forget to commit th
 
 It's okay to do PRs without bumping the translations submodule, we'll handle that before doing releases!
 
+## Fontello
+We use fontello for icons, if you want to add new icons you can run the `gulp fontello` task 
+and copy the fontello URL that is printed as part of the output, then visit that URL and add any new icons.  
+Afterwards download the config.json from the site and overwrite the `src/fontello/config.json`, 
+then run `gulp fontello` again and it will update the contents of `src/fontello`.
+
 ## Statics & CDN
 Statics are compiled with `gulp` and with default config into `www/dev`, 
 if `STATICSDIR` in `appconfig.json` is set to `NULL` however it will use `www/${branch}-${commit}` to keep statics versioned.
