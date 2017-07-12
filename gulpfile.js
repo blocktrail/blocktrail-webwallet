@@ -275,24 +275,25 @@ gulp.task('css-rename', function() {
 
 gulp.task('fontello-dl', function() {
 
-    return streamAsPromise(gulp.src('./fontello.json')
+    return streamAsPromise(gulp.src('./src/fontello/config.json')
         .pipe(fontello())
-        .pipe(gulp.dest('./www/fontello/'))
+        .pipe(gulp.dest('./src/fontello/'))
     );
 });
 
 gulp.task('fontello-rename', ['fontello-dl'], function() {
 
-    return streamAsPromise(gulp.src(['./www/fontello/css/fontello.css'])
+    // rename fontello.css to _fontello.scss so we can include it
+    return streamAsPromise(gulp.src(['./src/fontello/css/fontello.css'])
         .pipe(rename('_fontello.scss'))
-        .pipe(gulp.dest('./www/fontello/css'))
+        .pipe(gulp.dest('./src/fontello/css'))
     );
 });
 
 gulp.task('fontello-clean', ['fontello-rename'], function() {
 
     return del([
-        './www/fontello/css/*.css'
+        './src/fontello/css/*.css'
     ]);
 });
 
