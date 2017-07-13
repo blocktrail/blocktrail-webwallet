@@ -1,0 +1,218 @@
+<div
+        class="appPage page-blur"
+        ng-class="{'page-blur-active': isLoading}"
+>
+    <form class="form form-settings">
+        <div ng-if="error" class="alert" ng-class="{'alert-success': error.type=='success', 'alert-danger' : error.type=='danger'}">
+            {{ errMsg }}
+        </div>
+
+        <h3 class="section-title">Profile</h3>
+
+        <!-- Profile -->
+        <div class="border-bottom">
+            <div class="row">
+                <!-- User name -->
+                <div class="col-xs-12 col-md-6">
+                    <div
+                            class="form-group form-group-lg"
+                            ng-class="{'has-error': errors.name }"
+                    >
+                        <label for="name" class="control-label">{{ 'SETTING_USERNAME' | translate }}</label>
+                        <input
+                                ng-model="formSettings.username"
+                                ng-focus="onResetError('name')"
+                                placeholder="Enter username"
+                                type="text"
+                                class="form-control"
+                                id="name"
+                        >
+                    </div>
+                </div>
+
+                <!-- User email -->
+                <div class="col-xs-12 col-md-6">
+                    <div
+                            class="form-group form-group-lg"
+                            ng-class="{'has-error': errors.email }"
+                    >
+                        <label for="email" class="control-label">{{ 'SETTING_EMAIL' | translate }}</label>
+                        <input
+                                ng-model="formSettings.email"
+                                ng-focus="onResetError('email')"
+                                placeholder="Enter email"
+                                type="text"
+                                class="form-control"
+                                id="email"
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Icon -->
+                <div class="col-xs-12 col-md-6">
+                    <div class="form-group form-group-lg">
+                        <label class="control-label dsb">
+                            {{ 'SETTINGS_PROFILE_PICTURE' | translate }}
+                        </label>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="display-token contact-token pull-left">
+                                <span
+                                        class="avatar"
+                                        style="background-image: url('{{ formSettings.profilePic }}');"
+                                ></span>
+                                </div>
+
+                                <div class="btn-file-data-holder iit-10">
+                                    <btn-file-data
+                                            btn-file-data-name="'profileIcon'"
+                                            btn-file-data-update="onFileDataUpdate(name, data)"
+                                    >
+                                        {{ 'SETTINGS_CHOOSE_PHOTO' | translate }}
+                                    </btn-file-data>
+
+                                    <div class="small help-block">
+                                        <b class="sentence-case">{{ 'SETTINGS_CROP_ALLOWED_FILE_TYPES' | translate }}:</b> pdf, jpg, jpeg, bmp, gif, tif, tiff, png.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Currency -->
+                <div class="col-xs-6 col-md-3">
+                    <div class="form-group form-group-lg">
+                        <label class="control-label dsb">{{ 'SETTINGS_CURRENCY' | translate }}</label>
+                        <div
+                                class="iit-10"
+                                uib-dropdown
+                        >
+                            <button
+                                    type="button"
+                                    class="btn btn-block"
+                                    uib-dropdown-toggle
+                            >
+                                {{ formSettings.localCurrency }} ({{ formSettings.localCurrency | currencySymbol }}) <span class="caret"></span>
+                            </button>
+                            <ul
+                                    role="menu"
+                                    class="dropdown-menu no-padding"
+                                    uib-dropdown-menu
+                            >
+                                <li
+                                        role="menuitem"
+                                        ng-repeat="currency in currencies"
+                                        ng-class="{ active: currency.code == formSettings.localCurrency }"
+
+                                >
+                                    <a
+                                            href="#"
+                                            ng-click="onChangeCurrency($event, currency.code)"
+                                    >{{ currency.code }} ({{ currency.symbol }})</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Language -->
+                <div class="col-xs-6 col-md-3">
+                    <div class="form-group form-group-lg">
+                        <label class="control-label dsb">{{ 'SETTINGS_LANGUAGE' | translate }}</label>
+                        <div
+                                class="iit-10"
+                                uib-dropdown
+                        >
+                            <button
+                                    type="button"
+                                    class="btn btn-block"
+                                    uib-dropdown-toggle
+                            >
+                                {{ formSettings.language | languageName | translate }} <span class="caret"></span>
+                            </button>
+                            <ul
+                                    role="menu"
+                                    class="dropdown-menu no-padding"
+                                    uib-dropdown-menu
+                            >
+                                <li
+                                        role="menuitem"
+                                        ng-repeat="language in languages"
+                                        ng-class="{ active: language.code == formSettings.language }"
+                                >
+                                    <a
+                                            href="#"
+                                            ng-click="onChangeLanguage($event, language.code)"
+                                    >{{ language.name | translate }}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row iib-15">
+                <div class="col-md-12">
+                    <toggle-switch
+                            class="switch-success pull-left"
+                            ng-model="formSettings.receiveNewsletter"
+                    >
+                    </toggle-switch>
+
+                    <div class="iil-15 iit-5 oh">
+                        <span>{{ 'SETTINGS_NEWSLETTER' | translate }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row iit-15 iib-15">
+            <div class="col-md-4 col-md-offset-8">
+                <button
+                        class="btn btn-lg btn-primary btn-block"
+                        ng-click="onSubmitFormSettings()"
+                        ng-disabled="isSubmitFormSettingsBtnDisabled"
+                >
+                    {{ 'SETTINGS_SAVE' | translate }}
+                </button>
+            </div>
+        </div>
+
+        <h3 class="section-title">Security</h3>
+
+        <!-- Security -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <button class="btn btn-lg btn-primary btn-block" ng-click="onChangePassword()">
+                        {{ 'SETTINGS_CHANGE_PASSWORD' | translate }}
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-8 iit-7">
+                <div class="form-group">
+                    <toggle-switch
+                            ng-model="isEnabled2faToggle"
+                            class="switch-success pull-left"
+                    ></toggle-switch>
+
+                    <div class="iil-15 iit-5 oh">
+                        <span>{{ 'SETTINGS_2FA_HELP' | translate }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div
+            class="page-loader"
+            ng-class="{'active': isLoading}"
+    >
+        <loading-spinner></loading-spinner>
+    </div>
+</div>

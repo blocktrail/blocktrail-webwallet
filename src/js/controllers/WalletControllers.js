@@ -6,18 +6,24 @@ angular.module('blocktrail.wallet')
         $timeout(function() {
             $rootScope.hideLoadingScreen = true;
         }, 200);
-        if (!$rootScope.settings.enablePolling) {
+
+        $scope.settings = settingsService.getReadOnlySettings();
+
+        // TODO remove from root scope
+        if ($scope.settings.enablePolling) {
             Wallet.disablePolling();
         }
         // add info from setup process to the settings
         setupService.getUserInfo().then(function(userInfo) {
             if (userInfo.username || userInfo.displayName || userInfo.email) {
-                settingsService.username = userInfo.username || settingsService.username;
-                settingsService.displayName = userInfo.displayName || settingsService.displayName;
-                settingsService.email = userInfo.email || settingsService.email;
+                var updateSettings = {
+                    username: userInfo.username || $scope.settings.username,
+                    displayName: userInfo.displayName || $scope.settings.displayName,
+                    email: userInfo.email || $scope.settings.email
+                };
 
                 setupService.clearUserInfo();
-                settingsService.$syncSettingsUp();
+                settingsService.updateSettingsUp(updateSettings);
             }
         }, function(e) {
             console.error('getUserInfo', e);
@@ -34,8 +40,9 @@ angular.module('blocktrail.wallet')
 
         /*
          * check for extra languages to enable
-         *  if one is preferred, prompt user to switch
+         * if one is preferred, prompt user to switch
          */
+        // TODO move the logic to service
         $rootScope.fetchExtraLanguages = launchService.getWalletConfig()
             .then(function(result) {
                 if (result.api_key && (result.api_key !== 'ok')) {
@@ -54,17 +61,18 @@ angular.module('blocktrail.wallet')
                     return;
                 }
 
-                settingsService.$isLoaded().then(function() {
+                settingsService.getSettings().then(function(settings) {
                     // check if we need to display any update notices
-                    AppVersionService.checkVersion(settingsService.latestVersionWeb, result.versionInfo.web, AppVersionService.CHECKS.LOGGEDIN);
+                    AppVersionService.checkVersion(settings.latestVersionWeb, result.versionInfo.web, AppVersionService.CHECKS.LOGGEDIN);
 
                     // store the latest version we've used
-                    if (!settingsService.latestVersionWeb || semver.gt(CONFIG.VERSION, settingsService.latestVersionWeb)) {
+                    if (!settings.latestVersionWeb || semver.gt(CONFIG.VERSION, settings.latestVersionWeb)) {
                         $timeout(function() {
-                            settingsService.latestVersionWeb = CONFIG.VERSION;
-                            settingsService.$store().then(function() {
-                                settingsService.$syncSettingsUp();
-                            });
+                            var updateSettings = {
+                                latestVersionWeb: CONFIG.VERSION
+                            };
+
+                            settingsService.updateSettingsUp(updateSettings);
                         }, 500);
                     }
                 });
@@ -78,8 +86,8 @@ angular.module('blocktrail.wallet')
                 return result.extraLanguages.concat(CONFIG.EXTRA_LANGUAGES).unique();
             })
             .then(function(extraLanguages) {
-                return settingsService.$isLoaded().then(function() {
-                    (settingsService.extraLanguages || []).forEach(function(language) {
+                return settingsService.getSettings().then(function(settings) {
+                    (settings.extraLanguages || []).forEach(function(language) {
                         blocktrailLocalisation.enableLanguage(language);
                     });
 
@@ -91,15 +99,18 @@ angular.module('blocktrail.wallet')
                         var preferredLanguage = r[1];
 
                         // store extra languages
-                        settingsService.extraLanguages = settingsService.extraLanguages.concat(newLanguages).unique();
-                        return settingsService.$store()
-                            .then(function() {
+                        var updateSettings = {
+                            extraLanguages: settings.extraLanguages.concat(newLanguages).unique()
+                        };
+
+                        return settingsService.updateSettingsUp(updateSettings)
+                            .then(function(settings) {
                                 // check if we have a new preferred language
-                                if (preferredLanguage != settingsService.language && extraLanguages.indexOf(preferredLanguage) !== -1) {
+                                if (preferredLanguage != settings.language && extraLanguages.indexOf(preferredLanguage) !== -1) {
                                     // prompt to enable
                                     return dialogService.prompt({
                                         body: $translate.instant('MSG_BETTER_LANGUAGE', {
-                                            oldLanguage: $translate.instant(blocktrailLocalisation.languageName(settingsService.language)),
+                                            oldLanguage: $translate.instant(blocktrailLocalisation.languageName(settings.language)),
                                             newLanguage: $translate.instant(blocktrailLocalisation.languageName(preferredLanguage))
                                         }),
                                         title: $translate.instant('MSG_BETTER_LANGUAGE_TITLE'),
@@ -108,20 +119,24 @@ angular.module('blocktrail.wallet')
                                         .result
                                         .then(function() {
                                             // enable new language
-                                            settingsService.language = preferredLanguage;
+                                            var updateSettings = {
+                                                extraLanguages: preferredLanguage
+                                            };
+                                            // TODO root scope language should have a subscription on property language from settings service
                                             $rootScope.changeLanguage(preferredLanguage);
-
-                                            return settingsService.$store();
+                                            return settingsService.updateSettingsUp(updateSettings);
                                         });
                                 }
                             });
                     }
                 });
             })
-            .then(function() {
-            }, function(e) {
-                console.error('extraLanguages', e && (e.msg || e.message || "" + e));
-            });
+            .then(
+                function() {},
+                function(e) {
+                    console.error('extraLanguages', e && (e.msg || e.message || "" + e));
+                }
+            );
 
 
         $rootScope.getPrice = function() {
@@ -187,7 +202,7 @@ angular.module('blocktrail.wallet')
         }, 300500); // 5 min + slight offset not to collide
 
         var settingsSyncPolling = $interval(function() {
-            settingsService.$syncSettingsDown();
+            settingsService.syncSettingsDown();
         }, 302000); // 5 min + slight offset not to collide
     }
 );
@@ -209,23 +224,28 @@ angular.module('blocktrail.wallet')
         };
         $scope.lastDateHeader = 0;      //used to keep track of the last date header added
 
+        $scope.settings = settingsService.getReadOnlySettings();
+
         // display 2FA warning once every day when it's not enabled
         $scope.twoFactorWarning = false;
         launchService.getAccountInfo().then(function(accountInfo) {
             var SECONDS_AGO = 86400;
 
             if (!accountInfo.requires2FA) {
-                return settingsService.$isLoaded().then(function() {
-                    var last = settingsService.twoFactorWarningLastDisplayed;
-                    if (!last || last < (new Date()).getTime() - SECONDS_AGO * 1000) {
-                        settingsService.twoFactorWarningLastDisplayed = (new Date()).getTime();
-                        settingsService.$store().then(function() {
-                            settingsService.$syncSettingsUp();
-                        });
+                return settingsService.getSettings()
+                    .then(function(settings) {
+                        var last = settings.twoFactorWarningLastDisplayed;
 
-                        $scope.twoFactorWarning = true;
-                    }
-                });
+                        if (!last || last < (new Date()).getTime() - SECONDS_AGO * 1000) {
+                            var updateSettings = {
+                                twoFactorWarningLastDisplayed: (new Date()).getTime()
+                            };
+
+                            settingsService.updateSettingsUp(updateSettings);
+
+                            $scope.twoFactorWarning = true;
+                        }
+                    });
             }
         });
 
@@ -264,12 +284,6 @@ angular.module('blocktrail.wallet')
                     $scope.transactionsDisplayList = [];
                 }
 
-                if (CONFIG.TX_FILTER_MIN_BLOCK_HEIGHT) {
-                    result = result.filter(function(tx) {
-                        return tx.block_height === null || tx.block_height >= CONFIG.TX_FILTER_MIN_BLOCK_HEIGHT;
-                    });
-                }
-
                 $scope.transactionsList = $scope.transactionsList.concat(result);
 
                 $scope.transactionsDisplayList = $scope.groupTransactions($scope.transactionsList);
@@ -279,10 +293,10 @@ angular.module('blocktrail.wallet')
                 $log.debug("transactionsDisplayList", $scope.transactionsDisplayList, $scope.transactionsDisplayList.length);
             })
                 .then(function() {
-                    return settingsService.$isLoaded().then(function() {
+                    return settingsService.getSettings().then(function(settings) {
                         $scope.buybtcPendingOrders = [];
 
-                        settingsService.glideraTransactions.forEach(function(glideraTxInfo) {
+                        settings.glideraTransactions.forEach(function(glideraTxInfo) {
                             if (glideraTxInfo.transactionHash || glideraTxInfo.status === "COMPLETE") {
                                 return;
                             }
@@ -371,15 +385,15 @@ angular.module('blocktrail.wallet')
                         // received from anonymous
                         // disabled displaying recieved from
                         // transaction.otherAddresses = transaction.txin_other_addresses.join(", ");
-                        transaction.altDisplay = $translate.instant('TX_INFO_RECEIVED', {network: CONFIG.NETWORK_LONG});
+                        transaction.altDisplay = $translate.instant('TX_INFO_RECEIVED');
                     } else if (transaction.is_internal) {
                         //sent to self
                         transaction.otherAddresses = null;
-                        transaction.altDisplay = $translate.instant('INTERNAL_TRANSACTION_TITLE', {network: CONFIG.NETWORK_LONG});
+                        transaction.altDisplay = $translate.instant('INTERNAL_TRANSACTION_TITLE');
                     } else {
                         //sent to anonymous
                         transaction.otherAddresses = transaction.txout_other_addresses.join(", ");
-                        transaction.altDisplay = $translate.instant('TX_INFO_SENT', {network: CONFIG.NETWORK_LONG});
+                        transaction.altDisplay = $translate.instant('TX_INFO_SENT');
                     }
 
                     groupedList.push(transaction);
@@ -395,7 +409,10 @@ angular.module('blocktrail.wallet')
                 templateUrl: 'templates/wallet/wallet.tx-info.modal.html',
                 resolve: {
                     data: function() {
-                        return transaction
+                        return {
+                            transaction: transaction,
+                            localCurrency: $scope.settings.localCurrency
+                        }
                     }
                 }
             })
@@ -458,7 +475,8 @@ angular.module('blocktrail.wallet')
 
 angular.module('blocktrail.wallet')
     .controller('WalletTxInfoCtrl', function($scope, $modalInstance, data) {
-        $scope.data = data;
+        $scope.data = data.transaction;
+        $scope.localCurrency = data.localCurrency;
 
         $scope.dismiss = function() {
             $modalInstance.dismiss();

@@ -96,9 +96,9 @@
 
                                 // save the default settings
                                 setupService.setUserInfo({
-                                    username: $scope.form.username || result.data.username,
-                                    displayName: $scope.form.username || result.data.username,
-                                    email: $scope.form.email || result.data.email
+                                    username: result.data.username,
+                                    displayName: result.data.username,
+                                    email: result.data.email
                                 });
 
                                 $state.go('app.setup.wallet');

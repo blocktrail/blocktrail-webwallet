@@ -208,6 +208,9 @@
                     return launchService.storeWalletInfo($scope.setupInfo.identifier, null);
                 })
                 .then(function() {
+                    // clear sensitive data
+                    $scope.setupInfo.password = null;
+
                     if ($scope.setupInfo.backupInfo) {
                         //store the backup info temporarily
                         $log.debug("saving backup info");

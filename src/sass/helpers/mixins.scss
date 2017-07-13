@@ -1,3 +1,5 @@
+@import "variables";
+
 @mixin networkPrimaryBG($property) {
     .network-btc & {
         #{$property}: $networkBTCBtnPrimaryBG;
@@ -65,9 +67,6 @@
     -webkit-transform: $transforms;
     transform: $transforms;
 }
-
-
-
 
 // Flexbox Mixins
 // --------------------------------------------------
@@ -206,4 +205,34 @@
     -ms-flex-order: $n;
     order: $n;
     -webkit-box-ordinal-group: $n;
+}
+
+// Indents
+@mixin make-inner-indents() {
+    @for $i from 1 through $indent-amount-of-steps {
+        @include inner-indent($i);
+    }
+}
+
+@mixin inner-indent($i) {
+    @include inner-indent-top($i, $indent-step);
+    @include inner-indent-right($i, $indent-step);
+    @include inner-indent-bottom($i, $indent-step);
+    @include inner-indent-left($i, $indent-step);
+}
+
+@mixin inner-indent-top($i, $indent) {
+    .iit-#{$i * $indent} { padding-top: $i * $indent * 1px; }
+}
+
+@mixin inner-indent-right($i, $indent) {
+    .iir-#{$i * $indent} { padding-right: $i * $indent * 1px; }
+}
+
+@mixin inner-indent-bottom($i, $indent) {
+    .iib-#{$i * $indent} { padding-bottom: $i * $indent * 1px; }
+}
+
+@mixin inner-indent-left($i, $indent) {
+    .iil-#{$i * $indent} { padding-left: $i * $indent * 1px; }
 }

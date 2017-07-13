@@ -25,12 +25,12 @@
         <div class="amount" ng-class="{received: data.wallet_value_change > 0, sent: data.wallet_value_change <= 0}">
             <div class="fiat text-ellipsis" ng-if="data.price">
                 <span class="label">{{ 'TX_INFO_TIME_SUBTITLE' | translate }}</span>
-                <span class="value">{{ data.wallet_value_change | mathAbs | satoshiToCurrency: $root.settings.localCurrency :  data.price }}</span>
+                <span class="value">{{ data.wallet_value_change | mathAbs | satoshiToCurrency : localCurrency : data.price }}</span>
 
             </div>
             <div class="fiat text-ellipsis" ng-if="data.price">
                 <span class="label">{{ 'TX_INFO_TIME_SUBTITLE_2' | translate }}</span>
-                <span class="value">{{ data.wallet_value_change | mathAbs | satoshiToCurrency: $root.settings.localCurrency :  bitcoinPrices }}</span>
+                <span class="value">{{ data.wallet_value_change | mathAbs | satoshiToCurrency : localCurrency : bitcoinPrices }}</span>
             </div>
         </div>
 

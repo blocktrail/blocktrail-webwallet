@@ -1,6 +1,6 @@
 angular.module('blocktrail.wallet').factory(
     'AppVersionService',
-    function(AppVersionBaseService, $translate, $timeout, $rootScope, $state, settingsService, CONFIG, dialogService, $sce, $filter) {
+    function(AppVersionBaseService, $q, $translate, $timeout, $rootScope, $state, settingsService, CONFIG, dialogService, $sce, $filter) {
         var _CHECKS = AppVersionBaseService.CHECKS;
         var isCheck = AppVersionBaseService.isCheck;
 
@@ -17,23 +17,29 @@ angular.module('blocktrail.wallet').factory(
         var checkGlideraActivated = function() {
             // only do the check if buybtc is activated and we're in loggedin state
             if (CONFIG.BUYBTC && $state.includes('app.wallet')) {
-                return settingsService.$isLoaded().then(function () {
-                    var p;
+                return settingsService.getSettings()
+                    .then(function (settings) {
+                        var promise;
 
-                    if (settingsService.glideraActivationNoticePending) {
-                        settingsService.glideraActivationNoticePending = false;
-                        p = settingsService.$store().then(function () {
-                            return settingsService.$syncSettingsUp();
-                        });
+                        if (settings.glideraActivationNoticePending) {
+                            var updateSettings = {
+                                glideraActivationNoticePending: false
+                            };
 
-                        dialogService.alert({
-                            body: $translate.instant('GLIDERA_UPDATE'),
-                            title: $translate.instant('UPDATED_NOTICE')
-                        });
-                    }
+                            promise = settingsService.updateSettingsUp(updateSettings);
 
-                    return p;
-                });
+                            dialogService.alert({
+                                body: $translate.instant('GLIDERA_UPDATE'),
+                                title: $translate.instant('UPDATED_NOTICE')
+                            });
+                        } else {
+                            $q.when(true).then(function () {
+                               return settings;
+                            });
+                        }
+
+                        return promise;
+                    });
             }
         };
 
@@ -48,18 +54,14 @@ angular.module('blocktrail.wallet').factory(
             // if this version of the app supports glidera and it's new we glideraActivationNoticePending=true so that when glidera is activated we can display update notice
             //  this is a special case because glidera is pending server activation
             if ((latestVersion && isCheck(checks, _CHECKS.UPDATED) && $state.includes('app.wallet') && semver.lt(latestVersion, GLIDERA_VERSION))) {
-                settingsService.$isLoaded().then(function() {
-                    // settingsService.glideraActivationNoticePending = null;
+                settingsService.getSettings().then(function(settings) {
+                    if (settings.glideraActivationNoticePending === null) {
+                        var updateSettings = {
+                            glideraActivationNoticePending: true
+                        };
 
-                    if (settingsService.glideraActivationNoticePending === null) {
-                        settingsService.glideraActivationNoticePending = true;
-                        settingsService.$store()
-                            .then(function() {
-                                return settingsService.$syncSettingsUp();
-                            })
-                            .then(function() {
-                                return checkGlideraActivated();
-                            });
+                        settingsService.updateSettingsUp(updateSettings)
+                            .then(checkGlideraActivated);
                     }
                 });
             }

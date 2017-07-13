@@ -51,16 +51,18 @@ angular.module('blocktrail.wallet').run(
             language = language || blocktrailLocalisation.preferredAvailableLanguage() || CONFIG.FALLBACK_LANGUAGE || 'en';
 
             var momentLocale = language;
+
             if (momentLocale == 'cn') {
                 momentLocale = 'zh-cn';
             }
 
             amMoment.changeLocale(momentLocale);
+
             $translate.use(language);
         };
 
         $rootScope.$on("$stateChangeError", function(event, toState, toParams, fromState, fromParams, error) {
-            $log.error('Error transitioning to '+toState.name + ' from  '+fromState.name, toState, fromState, error);
+            $log.error("Error transitioning to " + toState.name + " from  " + fromState.name, toState, fromState, error);
             $state.go('app.error');
             event.preventDefault();
         });
@@ -230,21 +232,18 @@ angular.module('blocktrail.wallet').config(
                      * @param Currencies
                      */
                     loadingData: function(handleSetupState, Wallet, settingsService, $q, $rootScope, $log, Currencies) {
-                        //do an initial load of cached user data
+                        // Do an initial load of cached user data
                         return $q.all([
                             Wallet.balance(true),
                             Currencies.updatePrices(true),
-                            settingsService.$load()
+                            settingsService.getSettings()
                         ]).then(function(results) {
-                            $log.debug('initial load complete');
+                            $log.debug("Initial load complete");
+
                             $rootScope.balance = results[0].balance;
                             $rootScope.uncBalance = results[0].uncBalance;
-
                             $rootScope.bitcoinPrices = results[1];
-
-                            $rootScope.settings = settingsService;
-                            $rootScope.changeLanguage(settingsService.language);
-
+                            $rootScope.changeLanguage(results[2].language);
                             return true;
                         });
                     }
@@ -302,8 +301,8 @@ angular.module('blocktrail.wallet').config(
                 cache: true,
                 views: {
                     "mainView@app.wallet": {
-                        templateUrl: "templates/settings/settings.html",
-                        controller: 'SettingsCtrl'
+                        templateUrl: "js/modules/wallet/controllers/settings/settings.tpl.html",
+                        controller: "SettingsCtrl"
                     }
                 }
             })

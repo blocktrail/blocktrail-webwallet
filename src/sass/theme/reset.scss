@@ -1,3 +1,6 @@
+@import "../helpers/variables";
+@import "../helpers/mixins";
+
 $big-footer-height: 250px;
 $small-footer-height: 50px;
 
@@ -7,13 +10,8 @@ html {
     height: 100%;
 }
 
-.pointer {
-    cursor: pointer;
-}
-
 body {
     position: relative;
-    //background-color: $pageBG;
     $background-color: $body-bg;
     padding-bottom: $big-footer-height;
 
@@ -26,6 +24,27 @@ body {
     &.state-app_setup {
         @extend .fill-height-or-more;
     }
+}
+
+.dsb {
+    display: block;
+}
+
+.dsib {
+    display: inline-block;
+}
+
+.oh {
+    overflow: hidden;
+}
+
+
+a:focus {
+    outline: none !important;
+}
+
+.pointer {
+    cursor: pointer;
 }
 
 .bodyViewContainer {
@@ -269,6 +288,7 @@ body {
 }
 
 $appHeaderHeight: 80px;
+
 .appWrapper {
     min-height: 400px;
 
@@ -307,6 +327,7 @@ $appHeaderHeight: 80px;
 
                 .appPage {
                     padding: 10px 40px 20px 40px;
+
                 }
             }
         }
@@ -689,6 +710,7 @@ input[type=number] {
 }
 
 $display-token-size: 50px;
+
 .display-token {
     position: relative;
     display: inline-block;
@@ -749,9 +771,6 @@ $display-token-size: 50px;
 
 .form {
     .form-group {
-        margin-top: 15px;
-        margin-bottom: 10px;
-
         .control-label {
             &::first-letter {
                 text-transform: uppercase;

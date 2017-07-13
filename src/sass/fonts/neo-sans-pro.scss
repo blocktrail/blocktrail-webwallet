@@ -1,0 +1,29 @@
+@import "../helpers/variables";
+
+// TODO: woff
+@font-face {
+    // we don't have the Light version, should buy it if we want it!
+    //  using Open Sans as fallback for now, for light you barely notice
+    font-family: 'Neo Sans Pro';
+    font-style: normal;
+    font-weight: $light;
+    src: url(../font/Open-Sans-300.woff) format('woff');
+}
+@font-face {
+    font-family: 'Neo Sans Pro';
+    font-style: normal;
+    font-weight: $normal;
+    src: local('Neo Sans Pro'), local('Neo Sans Pro Regular'), local('Neo-Sans-Pro-Regular'), local('NeoSansPro'), url(../font/Neo-Sans-Pro.ttf) format('truetype');
+}
+@font-face {
+    font-family: 'Neo Sans Pro';
+    font-style: normal;
+    font-weight: $semi-bold;
+    src: local('Neo Sans Pro Medium'), local('Neo-Sans-Pro-Medium'), local('NeoSansProMedium'), url(../font/Neo-Sans-Pro-Medium.ttf) format('truetype');
+}
+@font-face {
+    font-family: 'Neo Sans Pro';
+    font-style: normal;
+    font-weight: $bold;
+    src: local('Neo Sans Pro Bold'), local('Neo-Sans-Pro-Bold'), local('NeoSansProBold'), url(../font/Neo-Sans-Pro-Bold.ttf) format('truetype');
+}

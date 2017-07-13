@@ -1,0 +1,26 @@
+@import "../helpers/variables";
+
+@font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: $light;
+    src: url(../font/Open-Sans-300.woff) format('woff');
+}
+@font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: $normal;
+    src: local('Open Sans'), local('OpenSans'), url(../font/Open-Sans-400.woff) format('woff');
+}
+@font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: $semi-bold;
+    src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(../font/Open-Sans-600.woff) format('woff');
+}
+@font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: $bold;
+    src: local('Open Sans'), local('OpenSans'), url(../font/Open-Sans-700.woff) format('woff');
+}

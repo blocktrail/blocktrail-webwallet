@@ -5,7 +5,7 @@ angular.module('blocktrail.wallet')
 
         // load chooseRegion from settingsService
         $scope.chooseRegion = null;
-        settingsService.$isLoaded().then(function() {
+        settingsService.getSettings().then(function(settings) {
             $q.all([,
                 buyBTCService.regions().then(function(regions) {
                     $scope.regions = regions;
@@ -14,7 +14,7 @@ angular.module('blocktrail.wallet')
                     $scope.usStates = usStates;
                 })
             ]).then(function() {
-                $scope.chooseRegion = _.defaults({}, settingsService.buyBTCRegion, {
+                $scope.chooseRegion = _.defaults({}, settings.buyBTCRegion, {
                     code: null,
                     name: null
                 });
@@ -41,11 +41,12 @@ angular.module('blocktrail.wallet')
                     trackingService.trackEvent(trackingService.EVENTS.BUYBTC.REGION_NOTOK);
                 }
 
-                settingsService.$isLoaded().then(function() {
-                    settingsService.buyBTCRegion = _.defaults({}, $scope.chooseRegion);
-                    return settingsService.$store().then(function() {
-                        return settingsService.$syncSettingsUp();
-                    });
+                settingsService.getSettings().then(function() {
+                    var updateSettings = {
+                        buyBTCRegion: _.defaults({}, $scope.chooseRegion)
+                    };
+
+                    return settingsService.updateSettingsUp(updateSettings);
                 })
             });
         };
@@ -59,13 +60,13 @@ angular.module('blocktrail.wallet')
                 if (!userCanTransact) {
                     return glideraService.accessToken().then(function(accessToken) {
                         if (accessToken) {
-                            return settingsService.$isLoaded().then(function() {
+                            return settingsService.getSettings().then(function(settings) {
                                 // 2: Additional user verification information is required
-                                if (settingsService.glideraAccessToken.userCanTransactInfo.code == 2) {
+                                if (settings.glideraAccessToken.userCanTransactInfo.code == 2) {
                                     trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_SETUP_UPDATE);
                                     return dialogService.prompt({
                                         body: $translate.instant('MSG_BUYBTC_SETUP_MORE_GLIDERA_BODY', {
-                                            message: settingsService.glideraAccessToken.userCanTransactInfo.message
+                                            message: settings.glideraAccessToken.userCanTransactInfo.message
                                         }),
                                         title: $translate.instant('MSG_BUYBTC_SETUP_MORE_GLIDERA_TITLE'),
                                         prompt: false
@@ -77,8 +78,8 @@ angular.module('blocktrail.wallet')
                                             // -
                                         });
 
-                                } else if (settingsService.glideraAccessToken.userCanTransactInfo) {
-                                    throw new Error("User can't transact because: " + settingsService.glideraAccessToken.userCanTransactInfo.message);
+                                } else if (settings.glideraAccessToken.userCanTransactInfo) {
+                                    throw new Error("User can't transact because: " + settings.glideraAccessToken.userCanTransactInfo.message);
                                 } else {
                                     throw new Error("User can't transact for unknown reason!");
                                 }
@@ -118,13 +119,14 @@ angular.module('blocktrail.wallet')
          * reset buy BTC state for debugging purposes
          */
         $scope.resetBuyBTC = function() {
-            return settingsService.$isLoaded().then(function() {
-                settingsService.glideraAccessToken = null;
-                settingsService.buyBTCRegion = null;
+            return settingsService.getSettings().then(function() {
+                var updateSettings = {
+                    glideraAccessToken: null,
+                    buyBTCRegion: null,
+                    glideraTransactions: []
+                };
 
-                return settingsService.$store().then(function() {
-                    return settingsService.$syncSettingsUp();
-                })
+                return settingsService.updateSettingsUp(updateSettings);
             })
                 .then(function() {
                     $state.go('app.wallet.summary');
@@ -168,7 +170,7 @@ angular.module('blocktrail.wallet')
 
 angular.module('blocktrail.wallet')
     .controller('BuyBTCBrokerCtrl', function($scope, $state, $rootScope, dialogService, glideraService, bitonicService, buyBTCService,
-                                          $stateParams, $log, $timeout, $interval, $translate, $filter, trackingService) {
+                                          $stateParams, $q, $log, $timeout, $interval, $translate, $filter, trackingService) {
 
         $scope.broker = $stateParams.broker;
         $scope.brokerNotExistent = false;
@@ -286,7 +288,7 @@ angular.module('blocktrail.wallet')
         };
 
         $scope.updateInputPrice = function() {
-            $timeout(function() {
+            return $q.when(true).then(function() {
                 $scope.fetchingInputPrice = true;
 
                 if ($scope.buyInput.currencyType === 'BTC') {

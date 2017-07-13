@@ -422,6 +422,9 @@ angular.module('blocktrail.wallet')
                 .then(function(txHash) {
                     $analytics.eventTrack('pay', {category: 'Events'});
 
+                    // clear sensitive data
+                    $scope.form.password = null;
+
                     $log.info("wallet: paid", txHash);
                     $scope.error = null;
                     $scope.detailedError = null;

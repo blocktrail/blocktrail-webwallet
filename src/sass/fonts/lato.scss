@@ -1,0 +1,21 @@
+@import "../helpers/variables";
+
+@font-face {
+    font-family: 'Lato';
+    font-style: normal;
+    font-weight: $light;
+    src: local('Lato Light'), local('Lato-Light'), local('LatoLight'), url(../font/Lato-Light.woff2) format('woff2'), url(../font/Lato-Light.woff) format('woff');
+}
+@font-face {
+    font-family: 'Lato';
+    font-style: normal;
+    font-weight: $normal;
+    src: local('Lato'), local('Lato Regular'), local('Lato-Regular'), local('LatoRegular'), url(../font/Lato-Regular.woff2) format('woff2'), url(../font/Lato-Regular.woff) format('woff');
+}
+// NO SEMI BOLD
+@font-face {
+    font-family: 'Lato';
+    font-style: normal;
+    font-weight: $bold;
+    src: local('Lato'), local('Lato Bold'), local('Lato-Bold'), local('LatoBold'), url(../font/Lato-Bold.woff2) format('woff2'), url(../font/Lato-Bold.woff) format('woff');
+}
