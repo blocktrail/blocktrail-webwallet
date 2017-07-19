@@ -87,11 +87,11 @@
             $scope.form.walletVersion = version;
         };
 
-        function generateBackupPDF (identifier, newEncryptedWalletSecretMnemonic) {
+        function generateBackupPageTwo (identifier, newEncryptedWalletSecretMnemonic) {
             return dialogService.alert({
                 title: $translate.instant('CHANGE_PASSWORD'),
                 bodyHtml: $sce.trustAsHtml($translate.instant('CHANGE_PASSWORD_BACKUP')),
-                ok: $translate.instant('BACKUP_CREATE_PDF')
+                ok: $translate.instant('BACKUP_DOWNLOAD_ADDITIONAL_PAGE_PDF')
             }).result.then(function () {
                 var backup = new sdkService.BackupGenerator(
                     identifier,
@@ -186,20 +186,26 @@
 
                 // Post it
                 $http.post(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/recovery/change-password", response).then(function (res) {
-                        // Generate backup PDF and password hash
-                        generateBackupPDF("", newEncryptedWalletSecretMnemonic);
+                        // Generate backup PDF
+                        generateBackupPageTwo("", newEncryptedWalletSecretMnemonic);
                         $scope.stepCount = 2;
                 }, function (err) {
                     twoFactorToken = null; // Clear the used 2FA token
                     if (err.data && err.data.msg && err.data.msg === "invalid recovery token") {
                         return dialogService.alert(
-                            "Invalid Recovery Token",//$translate.instant("SETUP_LOGIN"),
-                            "Your recovery session is not valid anymore, please request a new password reset e-mail"
+                            $translate.instant("INVALID_RECOVERY_TOKEN"),
+                            $translate.instant("MSG_INVALID_RECOVER_TOKEN")
                         ).result;
                     } else if (err.data && err.data.msg && err.data.msg === "invalid 2FA token") {
+                        twoFactorToken = null;
                         return dialogService.alert(
-                            "Invalid 2FA",//$translate.instant("SETUP_LOGIN"),
-                            "Your 2FA token is not correct"
+                            $translate.instant("BAD_TOKEN"),
+                            $translate.instant("MSG_BAD_TOKEN")
+                        ).result;
+                    } else {
+                        return dialogService.alert(
+                            $translate.instant("RECOVERY_ERROR"),
+                            $translate.instant("MSG_PASSWORD_NOT_CHANGED")
                         ).result;
                     }
                 });
@@ -229,24 +235,24 @@
                     if ($scope.walletVersions.indexOf(walletVersion) < 0) {
                         $scope.working = false;
                         return dialogService.alert(
-                            "Invalid wallet version",//$translate.instant("SETUP_LOGIN"),
-                            "Your wallet version is malformed, please contact support@btc.com"
+                            $translate.instant("INVALID_WALLET_VERSION"),
+                            $translate.instant("MSG_INVALID_WALLET_VERSION")
                         ).result;
                     }
 
                     if (recoverySecret.length != 64) {
                         $scope.working = false;
                         return dialogService.alert(
-                            "Recovery error",
-                            "Your recovery secret appears to be corrupted, please contact support@btc.com"
+                            $translate.instant("RECOVERY_ERROR"),
+                            $translate.instant("MSG_CORRUPTED_SECRET")
                         ).result;
                     }
 
                     if ($scope.form.ERS.split(' ').length != 60) {
                         $scope.working = false;
                         return dialogService.alert(
-                            "Recovery error",
-                            "Please recheck the Encrypted Recovery Secret you've entered, it has the wrong amount of words."
+                            $translate.instant("RECOVERY_ERROR"),
+                            $translate.instant("MSG_WRONG_ERS_WORD_LENGTH")
                         ).result;
                     }
 
@@ -265,8 +271,8 @@
                         $log.error(e, e.message);
                         $scope.working = false;
                         return dialogService.alert(
-                            "Recovery error",
-                            "Password change failed, wrong data provided"
+                            $translate.instant("RECOVERY_ERROR"),
+                            $translate.instant("MSG_PASSWORD_NOT_CHANGED")
                         ).result;
                     }
 
