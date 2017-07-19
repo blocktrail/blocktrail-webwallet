@@ -55,8 +55,17 @@
             .state("app.setup.forgotPassword", {
                 url: "/forgot-password",
                 cache: false,
-                controller: "SetupForgotPassCtrl",
+                controller: "SetupForgotPasswordCtrl",
                 templateUrl: "js/modules/setup/controllers/forgot-password/forgot-password.tpl.html",
+                resolve: {
+                    handleSetupState: handleSetupState
+                }
+            })
+            .state("app.setup.changePassword", {
+                url: "/change-password?token&recovery&version&requires_2fa",
+                cache: false,
+                controller: "SetupChangePasswordCtrl",
+                templateUrl: "js/modules/setup/controllers/change-password/change-password.tpl.html",
                 resolve: {
                     handleSetupState: handleSetupState
                 }
