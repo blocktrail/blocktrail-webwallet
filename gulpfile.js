@@ -297,19 +297,16 @@ gulp.task('fontello-clean', ['fontello-rename'], function() {
     ]);
 });
 
-gulp.task('fontello', ['fontello-dl', 'fontello-rename', 'fontello-clean'], function() {
-
-    return appConfig.then(function(APPCONFIG) {
-        return streamAsPromise(gulp.src('./www/fontello/font/*')
-            .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/font'))
-        );
-    });
-});
+gulp.task('fontello', ['fontello-dl', 'fontello-rename', 'fontello-clean']);
 
 gulp.task('copyfonts', ['appconfig'], function() {
 
     return appConfig.then(function(APPCONFIG) {
-        return streamAsPromise(gulp.src(['./src/font/*', './src/font/**/*'])
+        return streamAsPromise(gulp.src([
+            './src/font/*',
+            './src/fontello/font/*',
+            './src/font/**/*'
+            ])
             .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/font'))
         );
     });
