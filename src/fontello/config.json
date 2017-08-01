@@ -245,6 +245,12 @@
       "css": "down-open",
       "code": 59430,
       "src": "fontawesome"
+    },
+    {
+      "uid": "895405dfac8a3b7b2f23b183c6608ee6",
+      "css": "export",
+      "code": 59431,
+      "src": "fontawesome"
     }
   ]
 }
