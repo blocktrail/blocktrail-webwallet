@@ -8,6 +8,7 @@ angular.module('blocktrail.wallet').factory(
 
         // priority order, first one met is used (allows older version update messages to be prioritized when a user jumps multiple versions)
         var UPDATE_MESSAGES = [
+            ["3.4.7", "UPDATE_NOTICE_030407"],
             ["3.3.4", "UPDATE_NOTICE_030304"]
         ];
 
