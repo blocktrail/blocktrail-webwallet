@@ -1,8 +1,8 @@
 <div class="tx-info">
     <div class="modal-header">
         <h3 class="modal-title" ng-class="{received: data.wallet_value_change > 0, sent: data.wallet_value_change <= 0}">
-            <span ng-if="data.wallet_value_change <= 0">{{ 'TX_INFO_SENT' | translate }}</span>
-            <span ng-if="data.wallet_value_change > 0">{{ 'TX_INFO_RECEIVED' | translate }}</span>
+            <span ng-if="data.wallet_value_change <= 0">{{ 'TX_INFO_SENT' | translate : {network: CONFIG.NETWORK_LONG} }}</span>
+            <span ng-if="data.wallet_value_change > 0">{{ 'TX_INFO_RECEIVED' | translate : {network: CONFIG.NETWORK_LONG} }}</span>
         </h3>
     </div>
 
@@ -65,7 +65,7 @@
                 {{ 'TX_INFO_MORE_TITLE' | translate }} <i class="ion-android-open"></i>
             </div>
             <div class="value">
-                <a href="https://www.btc.com/{{ data.hash }}" target="_blank">{{ 'TX_INFO_MORE_LINK' | translate }}</a>
+                <a href="{{ explorerTxURL }}/{{ data.hash }}" target="_blank">{{ 'TX_INFO_MORE_LINK' | translate }}</a>
             </div>
         </div>
 

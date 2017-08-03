@@ -2,17 +2,17 @@
     "use strict";
 
     angular.module("blocktrail.core")
-        .filter("toCurrencySymbol", toCurrencySymbol);
+        .filter("toCurrencyTicker", toCurrencySymbol);
 
     function toCurrencySymbol(Currencies, CONFIG) {
         return function(input) {
             if (typeof Currencies.currencies[input] === "undefined") {
                 if (input === 'BTC') {
-                    return '฿';
+                    return CONFIG.TICKER;
                 }
                 return input;
             } else {
-                return Currencies.currencies[input].symbol || input;
+                return Currencies.currencies[input].ticker || Currencies.currencies[input].code || input;
             }
         };
     }

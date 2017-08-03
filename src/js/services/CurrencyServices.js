@@ -8,7 +8,7 @@ angular.module('blocktrail.wallet')
         // currencies that the app supports and their symbols
         //  this list shouldn't be used directly `self.currencies` contains the enabled currencies
         var _currencies = {
-            BTC: {code: "BTC", symbol: "฿"},
+            BTC: {code: 'BTC', ticker: CONFIG.TICKER, symbol: "฿"},
             GBP: {code: "GBP", symbol: "£"},
             EUR: {code: "EUR", symbol: "€"},
             USD: {code: "USD", symbol: "$"},
@@ -135,7 +135,7 @@ angular.module('blocktrail.wallet')
             var isNew = typeof self.currencies[code] === "undefined";
 
             self.currencies[code] = _currencies[code];
-            self.currencies[code].isFiat = self.currencies[code].code !== "BTC";
+            self.currencies[code].isFiat = self.currencies[code].code !== 'BTC';
             self.currencies[code].btcRate = 0;
 
             if (isNew) {
@@ -150,7 +150,7 @@ angular.module('blocktrail.wallet')
             self.enableCurrency(code);
         });
     })
-    .service('CurrencyConverter', function($rootScope, Currencies) {
+    .service('CurrencyConverter', function($rootScope, Currencies, CONFIG) {
         var self = this;
         var coin = 100000000;
         var precision = 8;
@@ -205,7 +205,7 @@ angular.module('blocktrail.wallet')
          */
         self.toSatoshi = function(value, currency) {
             var btcValue;
-            if (currency == "BTC") {
+            if (currency == 'BTC') {
                 btcValue = parseFloat(value);
             } else {
                 btcValue = self.toBTC(value, currency, precision);

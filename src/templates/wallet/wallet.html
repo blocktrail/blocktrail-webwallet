@@ -39,9 +39,9 @@
                 </ul>
 
                 <div class="appStoreButtons">
-                    <a target="_blank" href="https://bcc-recovery.btc.com" class="btn-appstore">
+                    <a target="_blank" href="{{ CONFIG.MIRROR_WALLET_URL }}" class="btn-appstore">
                         <i class="bticon bticon-export"></i>
-                        <span class="sentence-case">Bitcoin Cash Recovery Tool</span>
+                        <span class="sentence-case">{{ CONFIG.MIRROR_NETWORK_LONG }} Wallet</span>
                     </a>
                     <hr style="margin-right: 25px; margin-top: 10px; margin-bottom: 10px; border-top: 1px solid #999;" />
                     <a href="https://btc.com/wallet/download" class="btn-appstore"
@@ -71,8 +71,8 @@
                         <div class="col-xs-8">
                             <div class="text-right">
                                 <h1>
-                                    {{ (balance + uncBalance) | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}
-                                    <small>≃ {{ (balance + uncBalance) | satoshiToCurrency:settings.localCurrency : bitcoinPrices }}</small>
+                                    {{ (balance + uncBalance) | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 : false : 'long' }}
+                                    <small>≃ {{ (balance + uncBalance) | satoshiToCurrency: settings.localCurrency : bitcoinPrices }}</small>
                                 </h1>
                             </div>
                         </div>

@@ -1,6 +1,6 @@
 angular.module('blocktrail.wallet')
     .controller('SendCtrl', function($scope, $log, $modal, bitcoinJS, CurrencyConverter, Currencies, Contacts, Wallet, $timeout, dialogService,
-                                     QR, $q, $state, $rootScope, $translate, launchService) {
+                                     QR, $q, $state, $rootScope, $translate, launchService, CONFIG) {
         //$scope.fiatFirst = false;
         $scope.OPTIMAL_FEE = 'optimal';
         $scope.LOW_PRIORITY_FEE = 'low_priority';
@@ -51,7 +51,7 @@ angular.module('blocktrail.wallet')
         $scope.altCurrency  = {};
         $scope.updateCurrentType = function(currencyType) {
             $scope.currencies = Currencies.getFiatCurrencies();
-            $scope.currencies.unshift({code: 'BTC', 'symbol': 'BTC'});
+            $scope.currencies.unshift({code: 'BTC', 'symbol': CONFIG.TICKER});
             $scope.currencies = $scope.currencies.filter(function(currency) {
                 return currency.code !== currencyType;
             });

@@ -6,6 +6,14 @@
     "API_HOST": "api.blocktrail.com",
     "API_HTTPS": true,
     "BUYBTC": false,
+    "PRIOBOOST": true,
+
+    "TICKER": "BTC",
+    "TICKER_LONG": "Bitcoin",
+    "NETWORK": "BTC",
+    "NETWORK_LONG": "Bitcoin",
+    "MIRROR_NETWORK": "BCC",
+    "MIRROR_NETWORK_LONG": "BitcoinCash",
 
     "EXTRA_LANGUAGES": ["es", "nl", "ru", "fr", "hi", "sw", "cn"],
     "CURRENCIES": ["USD", "EUR", "GBP", "CNY"],
@@ -19,8 +27,10 @@
     "REQUIRED_PASSWORD_STRENGTH": 2,
 
     "HOMEPAGE_URL": "https://btc.com",
-    "EXPLORER_URL": "https://btc.com",
+    "EXPLORER_ADDRESS_URL": "https://btc.com",
+    "EXPLORER_TX_URL": "https://btc.com",
     "WALLET_URL": "https://wallet.btc.com",
+    "MIRROR_WALLET_URL": "https://bcc-wallet.btc.com",
     "DEVELOPERS_URL": "https://www.blocktrail.com/api",
 
     "GLIDERA_URL": "https://www.glidera.io",

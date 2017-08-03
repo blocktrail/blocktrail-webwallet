@@ -185,6 +185,7 @@ angular.module('blocktrail.wallet').factory(
                             apiSecret: accountInfo.api_secret,
                             testnet: CONFIG.TESTNET || accountInfo.testnet,
                             host: CONFIG.API_HOST || null,
+                            network: CONFIG.NETWORK || "BTC",
                             https: typeof CONFIG.API_HTTPS !== "undefined" ? CONFIG.API_HTTPS : true
                         });
                     }, function(e) {

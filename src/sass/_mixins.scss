@@ -1,3 +1,33 @@
+@mixin networkPrimaryBG($property) {
+    .network-btc & {
+        #{$property}: $networkBTCBtnPrimaryBG;
+    }
+
+    .network-bcc & {
+        #{$property}: $networkBCCBtnPrimaryBG;
+    }
+}
+
+@mixin networkPrimaryBGActive($property) {
+    .network-btc & {
+        #{$property}: $networkBTCBtnPrimaryBGActive;
+    }
+
+    .network-bcc & {
+        #{$property}: $networkBCCBtnPrimaryBGActive;
+    }
+}
+
+@mixin networkPrimaryDark($property) {
+    .network-btc & {
+        #{$property}: $networkBTCPrimaryDark;
+    }
+
+    .network-bcc & {
+        #{$property}: $networkBCCPrimaryDark;
+    }
+}
+
 @mixin circleButton($size: 100%, $color: #ccc, $bg: #fff, $borderStyle: 2px solid $color, $shadow: 0 3px 5px rgba(0, 0, 0, 0.15)) {
     width: $size;
     height: $size;

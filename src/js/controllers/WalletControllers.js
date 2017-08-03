@@ -365,15 +365,15 @@ angular.module('blocktrail.wallet')
                         // received from anonymous
                         // disabled displaying recieved from
                         // transaction.otherAddresses = transaction.txin_other_addresses.join(", ");
-                        transaction.altDisplay = $translate.instant('TX_INFO_RECEIVED');
+                        transaction.altDisplay = $translate.instant('TX_INFO_RECEIVED', {network: CONFIG.NETWORK_LONG});
                     } else if (transaction.is_internal) {
                         //sent to self
                         transaction.otherAddresses = null;
-                        transaction.altDisplay = $translate.instant('INTERNAL_TRANSACTION_TITLE');
+                        transaction.altDisplay = $translate.instant('INTERNAL_TRANSACTION_TITLE', {network: CONFIG.NETWORK_LONG});
                     } else {
                         //sent to anonymous
                         transaction.otherAddresses = transaction.txout_other_addresses.join(", ");
-                        transaction.altDisplay = $translate.instant('TX_INFO_SENT');
+                        transaction.altDisplay = $translate.instant('TX_INFO_SENT', {network: CONFIG.NETWORK_LONG});
                     }
 
                     groupedList.push(transaction);

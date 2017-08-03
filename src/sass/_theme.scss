@@ -91,9 +91,10 @@ body {
 .footer {
     -webkit-font-smoothing: antialiased;
     width: 100%;
-    background: #052748;
     padding-top: 28px;
     padding-bottom: 28px;
+
+    @include networkPrimaryDark('background-color');
 
     height: 250px;
     clear: both;
@@ -237,10 +238,9 @@ body {
 
             }
             &.active {
-
                 a {
-                    background-color: $blue;
                     font-weight: $bold;
+                    @include networkPrimaryBG('background-color');
                 }
             }
         }
@@ -335,7 +335,7 @@ $appHeaderHeight: 80px;
                 }
 
                 &.pageTitle {
-                    color: $blue;
+                    @include networkPrimaryBG('color');
                 }
             }
 
@@ -353,7 +353,7 @@ $appHeaderHeight: 80px;
 .navbar {
     margin: 0px;
     border-radius: 0px;
-    background-color: $btccom;
+    @include networkPrimaryBG('background-color');
     border: 0px;
     position: relative;
     z-index: 10;
@@ -403,9 +403,10 @@ $appHeaderHeight: 80px;
 
             &.active {
                 a {
-                    background-color: $btccom-active;
+                    @include networkPrimaryBGActive('background-color');
+
                     &:active, &:focus, &:hover {
-                        background-color: $btccom-active;
+                        @include networkPrimaryBGActive('background-color');
                     }
                 }
             }
@@ -792,8 +793,9 @@ $display-token-size: 50px;
                     font-weight: $normal;
                     font-size: 14px;
                     padding-right: 20px;
-                    color: $btccom;
                     text-align: right;
+
+                    @include networkPrimaryBG('color');
                 }
             }
             .dropdown {
@@ -889,6 +891,82 @@ $display-token-size: 50px;
         }
         .progress {
             margin-top: 0px;
+        }
+    }
+
+    .custom-select {
+        position: relative;
+        border: 1px solid $border-color;
+
+        .custom-select-choice {
+            .custom-select-arrow {
+                position: absolute;
+                top: 50%;
+                margin-top: -10px;
+                right: 10px;
+            }
+
+            .custom-option {
+                background: $lightgray-light;
+                cursor: pointer;
+                padding-right: 50px;
+            }
+        }
+
+        .custom-option {
+            padding: 10px;
+            display: block;
+
+            .custom-option-title {
+                font-weight: 400;
+                display: inline-block;
+            }
+
+            .custom-option-subtitle {
+                margin: 0px;
+                font-size: 0.9em;
+            }
+
+            .custom-option-fee {
+                float: right;
+                line-height: 36px;
+
+                &.extra-top {
+                    padding-top: 12px;
+                }
+            }
+
+            .error {
+                color: $alert-danger-text;
+                padding: 4px;
+                font-size: $font-size-small;
+                border-radius: 4px;
+                text-align: center;
+                line-height: 1.1em;
+
+                &.extra-top {
+                    padding-top: 12px;
+                }
+            }
+
+            &:hover, &:active, &:focus, &.active {
+                background: $lightgray-light;
+                cursor: pointer;
+            }
+
+        }
+
+        .custom-select-menu {
+            display: block;
+            margin: 0px;
+            padding: 0px;
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            background-color: white;
+            z-index: 1;
+            border: 1px solid $border-color;
         }
     }
 
@@ -1822,7 +1900,8 @@ $display-token-size: 50px;
             border-radius:10px;
         }
         .modal-header {
-            background-color: $blue;
+            @include networkPrimaryBG('background-color');
+
             padding: 15px 20px;
             -webkit-border-top-left-radius: 6px;
             -webkit-border-top-right-radius: 6px;
@@ -1954,6 +2033,16 @@ $display-token-size: 50px;
 
 .btn-block {
     display: block;
+}
+
+.btn-primary {
+    .network-btc & {
+        @include button-variant($networkBTCBtnPrimaryColor, $networkBTCBtnPrimaryBG, $networkBTCBtnPrimaryBorder);
+    }
+
+    .network-bcc & {
+        @include button-variant($networkBCCBtnPrimaryColor, $networkBCCBtnPrimaryBG, $networkBCCBtnPrimaryBorder);
+    }
 }
 
 .input-group {

@@ -67,8 +67,8 @@ $red-blocktrail-brand: #D23027;
 $border-color:#ccc;
 
 /* btccom */
-$btccom:#3c78c2;
-$btccom-active:#508AD3;
+$btccom: #3c78c2;
+$btccom-active: #508AD3;
 $pagebg: #E6E9EE;
 
 /*--- blocktrail ---*/
@@ -80,8 +80,23 @@ $green: #5CC099;
 $mint: #91CC8E;
 $lemon: #E7E27D;
 $neon: #ebe70d;
-$pageBG:#B8DEC5;
-$blue:$btccom;
+$pageBG: #B8DEC5;
+$blue: $btccom;
+
+/*--- networks ---*/
+$networkBTCPrimary: $btccom;
+$networkBTCPrimaryDark: #052748;
+$networkBTCBtnPrimaryBG: darken($networkBTCPrimary, 5%);
+$networkBTCBtnPrimaryBGActive: $btccom-active;
+$networkBTCBtnPrimaryColor: #fff !default;
+$networkBTCBtnPrimaryBorder: darken($networkBTCBtnPrimaryBG, 5%) !default;
+
+$networkBCCPrimary: #3dbc97;
+$networkBCCPrimaryDark: darken($networkBCCPrimary, 20%);
+$networkBCCBtnPrimaryBG: darken($networkBCCPrimary, 5%);
+$networkBCCBtnPrimaryBGActive: lighten($networkBCCPrimary, 10%);
+$networkBCCBtnPrimaryColor: #fff !default;
+$networkBCCBtnPrimaryBorder: darken($networkBCCBtnPrimaryBG, 5%) !default;
 
 
 
@@ -89,8 +104,8 @@ $blue:$btccom;
 //$balanced: $mediumgray-dark;
 
 $text-muted: #999999;
-$muted:#CCCCCC;
-$white:#FFFFFF;
+$muted: #CCCCCC;
+$white: #FFFFFF;
 $black-light: #333333;
 
 $light: 300;
@@ -98,7 +113,7 @@ $normal: 400;
 $semi-bold: 600;
 $bold: 700;
 
-$body-bg:$pagebg;
+$body-bg: $pagebg;
 
 // Base
 // -------------------------------
