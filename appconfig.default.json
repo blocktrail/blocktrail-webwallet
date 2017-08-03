@@ -6,6 +6,8 @@
     "API_HOST": "api.blocktrail.com",
     "API_HTTPS": true,
     "BUYBTC": false,
+    "PRIOBOOST": true,
+    "NETWORK": "BTC",
 
     "EXTRA_LANGUAGES": ["es", "nl", "ru", "fr", "hi", "sw", "cn"],
     "CURRENCIES": ["USD", "EUR", "GBP", "CNY"],

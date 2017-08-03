@@ -41,7 +41,7 @@ angular.module('blocktrail.wallet').run(
         $rootScope.$state       = $state;
         $rootScope.appVersion   = CONFIG.VERSION || CONFIG.VERSION_REV;
 
-        $rootScope.bodyClass = [];
+        $rootScope.bodyClass = [("network-" + CONFIG.NETWORK).toLowerCase()];
         $rootScope.bodyClassStr = "";
 
         $rootScope.changeLanguage = function(language) {

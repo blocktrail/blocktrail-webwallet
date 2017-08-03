@@ -53,7 +53,7 @@
             var twoFactorToken = $scope.twoFactorToken;
             $scope.twoFactorToken = null; // consumed
 
-            $http.post(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "t" : "") + "BTC/mywallet/enable", {
+            $http.post(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "t" : "") + CONFIG.NETWORK + "/mywallet/enable", {
                 login: $scope.form.username,
                 password: cryptoJS.SHA512($scope.form.password).toString(),
                 platform: "Web",

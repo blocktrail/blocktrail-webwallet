@@ -91,9 +91,10 @@ body {
 .footer {
     -webkit-font-smoothing: antialiased;
     width: 100%;
-    background: #052748;
     padding-top: 28px;
     padding-bottom: 28px;
+
+    @include networkPrimaryDark('background-color');
 
     height: 250px;
     clear: both;
@@ -237,10 +238,9 @@ body {
 
             }
             &.active {
-
                 a {
-                    background-color: $blue;
                     font-weight: $bold;
+                    @include networkPrimaryBG('background-color');
                 }
             }
         }
@@ -335,7 +335,7 @@ $appHeaderHeight: 80px;
                 }
 
                 &.pageTitle {
-                    color: $blue;
+                    @include networkPrimaryBG('color');
                 }
             }
 
@@ -353,7 +353,7 @@ $appHeaderHeight: 80px;
 .navbar {
     margin: 0px;
     border-radius: 0px;
-    background-color: $btccom;
+    @include networkPrimaryBG('background-color');
     border: 0px;
     position: relative;
     z-index: 10;
@@ -403,9 +403,10 @@ $appHeaderHeight: 80px;
 
             &.active {
                 a {
-                    background-color: $btccom-active;
+                    @include networkPrimaryBGActive('background-color');
+
                     &:active, &:focus, &:hover {
-                        background-color: $btccom-active;
+                        @include networkPrimaryBGActive('background-color');
                     }
                 }
             }
@@ -792,8 +793,9 @@ $display-token-size: 50px;
                     font-weight: $normal;
                     font-size: 14px;
                     padding-right: 20px;
-                    color: $btccom;
                     text-align: right;
+
+                    @include networkPrimaryBG('color');
                 }
             }
             .dropdown {
@@ -1822,7 +1824,8 @@ $display-token-size: 50px;
             border-radius:10px;
         }
         .modal-header {
-            background-color: $blue;
+            @include networkPrimaryBG('background-color');
+
             padding: 15px 20px;
             -webkit-border-top-left-radius: 6px;
             -webkit-border-top-right-radius: 6px;
@@ -1954,6 +1957,16 @@ $display-token-size: 50px;
 
 .btn-block {
     display: block;
+}
+
+.btn-primary {
+    .network-btc & {
+        @include button-variant($networkBTCBtnPrimaryColor, $networkBTCBtnPrimaryBG, $networkBTCBtnPrimaryBorder);
+    }
+
+    .network-bcc & {
+        @include button-variant($networkBCCBtnPrimaryColor, $networkBCCBtnPrimaryBG, $networkBCCBtnPrimaryBorder);
+    }
 }
 
 .input-group {
