@@ -555,44 +555,49 @@ angular.module('blocktrail.wallet').factory(
             ;
         };
 
-        var firstUpdate = $q.when(launchService.getWalletSecret())
-            .then(function(walletSecret) {
-                if (!walletSecret) {
-                    return;
-                }
-                var walletSecretBuf = new blocktrailSDK.Buffer(walletSecret, 'hex');
-
-                return decryptAccessToken(walletSecretBuf);
-            })
-            .then(function() {
-                // return updateAllTransactions(); // @TODO: DEBUG
-                return updatePendingTransactions();
-            }, function(e) { $log.debug('initDecryptAccessToken2 ERR ' + e); });
-
-        Wallet.addTransactionMetaResolver(function(transaction) {
-            return firstUpdate.then(function() {
-                settingsService.glideraTransactions.forEach(function(glideraTxInfo) {
-                    var isTxhash = false && glideraTxInfo.transactionHash === transaction.hash;
-                    var isAddr = glideraTxInfo.address && transaction.self_addresses.indexOf(glideraTxInfo.address) !== -1;
-
-                    if (!isTxhash && isAddr) {
-                        glideraTxInfo.transactionHash = transaction.hash;
-                        isTxhash = true;
+        // don't really init the service unless BUYBTC is enabled
+        if (CONFIG.BUYBTC) {
+            var firstUpdate = $q.when(launchService.getWalletSecret())
+                .then(function(walletSecret) {
+                    if (!walletSecret) {
+                        return;
                     }
+                    var walletSecretBuf = new blocktrailSDK.Buffer(walletSecret, 'hex');
 
-                    if (isTxhash || isAddr) {
-                        transaction.buybtc = {
-                            broker: 'glidera',
-                            qty: glideraTxInfo.qty,
-                            currency: glideraTxInfo.currency,
-                            price: glideraTxInfo.price
-                        };
-                    }
+                    return decryptAccessToken(walletSecretBuf);
+                })
+                .then(function() {
+                    // return updateAllTransactions(); // @TODO: DEBUG
+                    return updatePendingTransactions();
+                }, function(e) {
+                    $log.debug('initDecryptAccessToken2 ERR ' + e);
                 });
 
-                return transaction;
+            Wallet.addTransactionMetaResolver(function(transaction) {
+                return firstUpdate.then(function() {
+                    settingsService.glideraTransactions.forEach(function(glideraTxInfo) {
+                        var isTxhash = false && glideraTxInfo.transactionHash === transaction.hash;
+                        var isAddr = glideraTxInfo.address && transaction.self_addresses.indexOf(glideraTxInfo.address) !== -1;
+
+                        if (!isTxhash && isAddr) {
+                            glideraTxInfo.transactionHash = transaction.hash;
+                            isTxhash = true;
+                        }
+
+                        if (isTxhash || isAddr) {
+                            transaction.buybtc = {
+                                broker: 'glidera',
+                                qty: glideraTxInfo.qty,
+                                currency: glideraTxInfo.currency,
+                                price: glideraTxInfo.price
+                            };
+                        }
+                    });
+
+                    return transaction;
+                });
             });
-        });
+        }
 
         return {
             setClientId: setClientId,
