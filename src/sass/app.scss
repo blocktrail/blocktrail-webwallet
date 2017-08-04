@@ -91,8 +91,8 @@ $networkBTCBtnPrimaryBGActive: $btccom-active;
 $networkBTCBtnPrimaryColor: #fff !default;
 $networkBTCBtnPrimaryBorder: darken($networkBTCBtnPrimaryBG, 5%) !default;
 
-$networkBCCPrimary: red;
-$networkBCCPrimaryDark: darken(red, 30%);
+$networkBCCPrimary: #3dbc97;
+$networkBCCPrimaryDark: darken($networkBCCPrimary, 20%);
 $networkBCCBtnPrimaryBG: darken($networkBCCPrimary, 5%);
 $networkBCCBtnPrimaryBGActive: lighten($networkBCCPrimary, 10%);
 $networkBCCBtnPrimaryColor: #fff !default;
