@@ -27,19 +27,13 @@
         var secret = null;
         var twoFactorToken = null;
 
-        var token = null;
-        var recoverySecret = null;
-        var walletVersion = null;
-        var requires2FA = null;
-
         // Get state parameters
-        token = $stateParams.token;
-        recoverySecret = $stateParams.recovery;
-        walletVersion = $stateParams.version;
-        requires2FA = $stateParams.requires_2fa;
-        // ----
+        var token = $stateParams.token;
+        var recoverySecret = $stateParams.recovery;
+        var walletVersion = $stateParams.version;
+        var requires2FA = $stateParams.requires_2fa;
 
-        var watchListener = $scope.$watch('form.ERS', function (newVal, oldVal) {
+        var watchListenerERS = $scope.$watch('form.ERS', function (newVal, oldVal) {
             function strcmp (a, b) {
                 return (a < b ? -1 : ( a > b ? 1 : 0 ));
             }
@@ -65,7 +59,6 @@
         });
 
         $scope.checkPassword = function () {
-
             if($scope.form.newPassword !== $scope.form.newPasswordRepeat) {
                 $scope.form.passwordCheck = {score: -1};
                 return $q.when(false);
@@ -117,8 +110,6 @@
                             });
                         } else {
                             pdf.save("BlockTrail Additional Recovery Data Sheet - " + identifier + ".pdf");
-
-                            // delete all temp backup info
                         }
                     });
                 } catch (error) {
@@ -137,11 +128,6 @@
         }
 
         $scope.encryptNewERS = function() {
-
-            var convert = function(s, from, to) {
-                return (new Buffer(s, from)).toString(to);
-            };
-
             // If 2FA is required, ask for and and then continue
             if (requires2FA == true && twoFactorToken == null) {
                 return askFor2FA().then(function () {
@@ -155,7 +141,7 @@
 
                 if (walletVersion === blocktrailSDK.Wallet.WALLET_VERSION_V2) {
                     newEncryptedSecret = blocktrailSDK.CryptoJS.AES.encrypt(secret, $scope.form.newPassword).toString(blocktrailSDK.CryptoJS.format.OpenSSL);
-                    newEncryptedWalletSecretMnemonic = blocktrailSDK.bip39.entropyToMnemonic(convert(newEncryptedSecret, 'base64', 'hex'));
+                    newEncryptedWalletSecretMnemonic = blocktrailSDK.bip39.entropyToMnemonic(blocktrailSDK.convert(newEncryptedSecret, 'base64', 'hex'));
 
                 } else {
                     if (typeof $scope.form.newPassword === "string") {
@@ -277,8 +263,7 @@
                         ).result;
                     }
 
-                    watchListener();
-                    console.log(secret);
+                    watchListenerERS();
                     $scope.stepCount = 1;
                     $scope.working = false;
                 } catch (e) {
@@ -290,9 +275,7 @@
     }
 
     angular.module("blocktrail.setup").filter('filterERS', function () {
-
         function handler(bip39EN, input) {
-
             var words = input.split(' ');
             input = words[words.length - 1];
 

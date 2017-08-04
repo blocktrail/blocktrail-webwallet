@@ -121,7 +121,7 @@
                             identifier: $scope.setupInfo.identifier,
                             password: $scope.setupInfo.password,
                             support_secret: supportSecret,
-                            keyIndex: CONFIG.DEVKEYINDEX ? CONFIG.DEVKEYINDEX : 0
+                            keyIndex: CONFIG.DEVKEYINDEX || 0
                         })
                             .progress(function(progress) {
                                 /*
