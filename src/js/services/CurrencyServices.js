@@ -150,7 +150,7 @@ angular.module('blocktrail.wallet')
             self.enableCurrency(code);
         });
     })
-    .service('CurrencyConverter', function($rootScope, Currencies) {
+    .service('CurrencyConverter', function($rootScope, Currencies, CONFIG) {
         var self = this;
         var coin = 100000000;
         var precision = 8;
