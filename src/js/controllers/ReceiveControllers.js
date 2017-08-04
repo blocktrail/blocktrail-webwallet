@@ -132,7 +132,6 @@ angular.module('blocktrail.wallet')
         $scope.searchSortOrder = 'asc';
 
         $scope.alert = dialogService.alertSingleton();
-        $scope.explorerURL = CONFIG.EXPLORER_URL;
 
         $scope.$on("$destroy", function(){
             $log.log("Address cache cleared on leaving lookup state");
