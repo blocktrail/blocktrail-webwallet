@@ -41,7 +41,7 @@
                         <span class="input-group-btn">
                             <div class="btn-group" dropdown>
                                 <button type="button" class="btn btn-alt btn-default btn-lg" dropdown-toggle>
-                                    {{ currencyType }} <span class="caret"></span>
+                                    {{ currencyType | toCurrencyTicker }} <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu">
                                     <li ng-repeat="currency in currencies"><a ng-click="updateCurrentType(currency.code)">{{ currency.code }} ({{ currency.symbol }})</a></li>

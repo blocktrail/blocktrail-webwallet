@@ -1,5 +1,5 @@
 angular.module('blocktrail.wallet')
-    .controller('ReceiveCtrl', function($scope, $rootScope, Wallet, CurrencyConverter, Currencies, $q, $timeout, $translate, trackingService) {
+    .controller('ReceiveCtrl', function($scope, $rootScope, CONFIG, Wallet, CurrencyConverter, Currencies, $q, $timeout, $translate, trackingService) {
         $rootScope.pageTitle = 'RECEIVE';
 
         $scope.paymentReceived = false;
@@ -38,7 +38,7 @@ angular.module('blocktrail.wallet')
 
         $scope.updateCurrentType = function(currencyType) {
             $scope.currencies = Currencies.getFiatCurrencies();
-            $scope.currencies.unshift({code: 'BTC', 'symbol': 'BTC'});
+            $scope.currencies.unshift({code: 'BTC', 'symbol': CONFIG.TICKER});
             $scope.currencies = $scope.currencies.filter(function(currency) {
                 return currency.code !== currencyType;
             });

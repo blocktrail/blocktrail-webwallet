@@ -4,7 +4,7 @@
     angular.module("blocktrail.core")
         .filter("satoshiToCurrency", satoshiToCurrency);
 
-    function satoshiToCurrency($rootScope, Currencies) {
+    function satoshiToCurrency($rootScope, Currencies, CONFIG) {
         var coin = 100000000;
         var precision = 8;
 
@@ -41,7 +41,7 @@
             }
 
             if (currency === "BTC") {
-                currencyDisplay = useMarkup ? ('<span class="disp">BTC</span>') : " BTC";
+                currencyDisplay = useMarkup ? ('<span class="disp">' + CONFIG.TICKER + '</span>') : (" " + CONFIG.TICKER);
                 return hideCurrencyDisplay ? btc.toFixed(fractionSize) : btc.toFixed(fractionSize) + currencyDisplay;
             } else {
                 currencyDisplay = useMarkup ? ('<span class="disp">' + symbol + '</span>') : symbol;
