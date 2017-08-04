@@ -222,7 +222,7 @@ gulp.task('js:sdk', ['appconfig'], function() {
             .pipe(concat('sdk.js'))
             .pipe(gulpif(APPCONFIG.MINIFY, uglify({
                 mangle: {
-                    except: ['Buffer', 'BigInteger', 'Point', 'Script', 'ECPubKey', 'ECKey', 'sha512_asm', 'asm']
+                    except: ['Buffer', 'BigInteger', 'Point', 'Script', 'ECPubKey', 'ECKey', 'sha512_asm', 'asm', 'ECPair', 'HDNode']
                 }
             })))
             .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
