@@ -39,6 +39,51 @@
                         </div>
 
                         <div class="form-group form-group-lg">
+                            <label class="control-label">{{ 'SETUP_NETWORK_CHOICE' | translate }}</label>
+                            <div class="custom-select" ng-init="showselect=false">
+                                <div class="custom-select-choice" ng-click="showselect=true">
+                                    <span class="custom-select-arrow">
+                                        <i class="bticon bticon-down-open" ng-click=""></i>
+                                    </span>
+                                    <div class="custom-option">
+                                        <div class="row">
+                                            <div class="col-xs-9">
+                                                <span class="custom-option-title">
+                                                    {{ CONFIG.NETWORK_LONG }} ({{ CONFIG.NETWORK }})
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="custom-select-menu"
+                                     ng-show="showselect"
+                                     click-anywhere-but-here="showselect = false"
+                                     is-active="showselect == true"
+                                >
+                                    <a class="custom-option" href>
+                                        <div class="row">
+                                            <div class="col-xs-9">
+                                                <span class="custom-option-title sentence-case">
+                                                    {{ CONFIG.NETWORK_LONG }} ({{ CONFIG.NETWORK }})
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <hr style="margin: 0px;" />
+                                    <a class="custom-option" href="{{ CONFIG.MIRROR_WALLET_URL }}">
+                                        <div class="row">
+                                            <div class="col-xs-9">
+                                                <span class="custom-option-title sentence-case">
+                                                    {{ CONFIG.MIRROR_NETWORK_LONG }} ({{ CONFIG.MIRROR_NETWORK }})
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-group-lg">
                             <div class="checkbox">
                                 <label>
                                     <input type="checkbox" ng-model="termsofservice">
