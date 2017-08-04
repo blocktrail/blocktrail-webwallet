@@ -12,7 +12,7 @@
     "TICKER_LONG": "Bitcoin",
     "NETWORK": "BTC",
     "NETWORK_LONG": "Bitcoin",
-    "MIRROR_LONG": "BCC",
+    "MIRROR_NETWORK": "BCC",
     "MIRROR_NETWORK_LONG": "BitcoinCash",
 
     "EXTRA_LANGUAGES": ["es", "nl", "ru", "fr", "hi", "sw", "cn"],
