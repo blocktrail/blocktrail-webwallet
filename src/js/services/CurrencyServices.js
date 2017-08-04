@@ -205,7 +205,7 @@ angular.module('blocktrail.wallet')
          */
         self.toSatoshi = function(value, currency) {
             var btcValue;
-            if (currency == CONFIG.TICKER) {
+            if (currency == 'BTC') {
                 btcValue = parseFloat(value);
             } else {
                 btcValue = self.toBTC(value, currency, precision);
