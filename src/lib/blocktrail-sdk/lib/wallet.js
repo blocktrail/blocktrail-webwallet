@@ -3,11 +3,17 @@ var assert = require('assert');
 var q = require('q');
 var async = require('async');
 var bitcoin = require('bitcoinjs-lib');
+var bitcoinMessage = require('bitcoinjs-message');
 var blocktrail = require('./blocktrail');
 var CryptoJS = require('crypto-js');
 var Encryption = require('./encryption');
 var EncryptionMnemonic = require('./encryption_mnemonic');
 var bip39 = require('bip39');
+
+var SignMode = {
+    SIGN: "sign",
+    DONT_SIGN: "dont_sign"
+};
 
 /**
  *
@@ -21,6 +27,7 @@ var bip39 = require('bip39');
  * @param backupPublicKey       string          BIP32 master pubKey M/
  * @param blocktrailPublicKeys  array           list of blocktrail pubKeys indexed by keyIndex
  * @param keyIndex              int             key index to use
+ * @param chain                 int             chain to use
  * @param testnet               bool            testnet
  * @param checksum              string
  * @param upgradeToKeyIndex     int
@@ -39,6 +46,7 @@ var Wallet = function(
     backupPublicKey,
     blocktrailPublicKeys,
     keyIndex,
+    chain,
     testnet,
     checksum,
     upgradeToKeyIndex,
@@ -52,6 +60,7 @@ var Wallet = function(
     self.walletVersion = walletVersion;
     self.locked = true;
     self.bypassNewAddressCheck = !!bypassNewAddressCheck;
+    self.bitcoinCash = self.sdk.bitcoinCash;
 
     self.testnet = testnet;
     if (self.testnet) {
@@ -78,6 +87,7 @@ var Wallet = function(
     self.blocktrailPublicKeys = blocktrailPublicKeys;
     self.primaryPublicKeys = primaryPublicKeys;
     self.keyIndex = keyIndex;
+    self.chain = chain;
     self.checksum = checksum;
     self.upgradeToKeyIndex = upgradeToKeyIndex;
 
@@ -135,7 +145,7 @@ Wallet.prototype.unlock = function(options, cb) {
             self.primaryPrivateKey = primaryPrivateKey;
 
             // create a checksum of our private key which we'll later use to verify we used the right password
-            var checksum = self.primaryPrivateKey.getAddress().toBase58Check();
+            var checksum = self.primaryPrivateKey.getAddress();
 
             // check if we've used the right passphrase
             if (checksum !== self.checksum) {
@@ -396,6 +406,7 @@ Wallet.prototype._upgradeV1ToV3 = function(passphrase, notify) {
                     self.recoveryEncryptedSecret = options.recoveryEncryptedSecret;
 
                     return self.sdk.updateWallet(self.identifier, {
+                        primary_mnemonic: '',
                         encrypted_primary_seed: options.encryptedPrimarySeed.toString('base64'),
                         encrypted_secret: options.encryptedSecret.toString('base64'),
                         recovery_secret: options.recoverySecret.toString('hex'),
@@ -500,9 +511,9 @@ Wallet.prototype.getAddressByPath = function(path) {
     var self = this;
 
     var redeemScript = self.getRedeemScriptByPath(path);
-
-    var scriptPubKey = bitcoin.scripts.scriptHashOutput(redeemScript.getHash());
-    var address = bitcoin.Address.fromOutputScript(scriptPubKey, self.network);
+    var scriptHash = bitcoin.crypto.hash160(redeemScript);
+    var scriptPubKey = bitcoin.script.scriptHash.output.encode(scriptHash);
+    var address = bitcoin.address.fromOutputScript(scriptPubKey, self.network);
 
     return address.toString();
 };
@@ -525,13 +536,13 @@ Wallet.prototype.getRedeemScriptByPath = function(path) {
 
     // sort the pubkeys
     var pubKeys = Wallet.sortMultiSigKeys([
-        derivedPrimaryPublicKey.pubKey,
-        derivedBackupPublicKey.pubKey,
-        derivedBlocktrailPublicKey.pubKey
+        derivedPrimaryPublicKey.keyPair.getPublicKeyBuffer(),
+        derivedBackupPublicKey.keyPair.getPublicKeyBuffer(),
+        derivedBlocktrailPublicKey.keyPair.getPublicKeyBuffer()
     ]);
 
     // create multisig
-    return bitcoin.scripts.multisigOutput(2, pubKeys);
+    return bitcoin.script.multisig.output.encode(2, pubKeys);
 };
 
 /**
@@ -557,7 +568,6 @@ Wallet.prototype.getPrimaryPublicKey = function(path) {
     }
 
     var primaryPublicKey = self.primaryPublicKeys[keyIndex];
-
     return Wallet.deriveByPath(primaryPublicKey, path, "M/" + keyIndex + "'");
 };
 
@@ -633,7 +643,7 @@ Wallet.prototype.getNewAddress = function(cb) {
     deferred.promise.spreadNodeify(cb);
 
     deferred.resolve(
-        self.sdk.getNewDerivation(self.identifier, "M/" + self.keyIndex + "'/0")
+        self.sdk.getNewDerivation(self.identifier, "M/" + self.keyIndex + "'/" + self.chain)
             .then(function(newDerivation) {
                 var path = newDerivation.path;
                 var address = newDerivation.address;
@@ -744,8 +754,9 @@ Wallet.prototype.deleteWallet = function(force, cb) {
         return deferred.promise;
     }
 
-    var checksum = self.primaryPrivateKey.getAddress().toBase58Check();
-    var signature = bitcoin.Message.sign(self.primaryPrivateKey.privKey, checksum, self.network).toString('base64');
+    var checksum = self.primaryPrivateKey.getAddress();
+    var privBuf = self.primaryPrivateKey.keyPair.d.toBuffer(32);
+    var signature = bitcoinMessage.sign(checksum, self.network.messagePrefix, privBuf, true).toString('base64');
 
     deferred.resolve(
         self.sdk.deleteWallet(self.identifier, checksum, signature, force)
@@ -771,6 +782,7 @@ Wallet.prototype.deleteWallet = function(force, cb) {
  * @returns {q.Promise}
  */
 Wallet.prototype.pay = function(pay, changeAddress, allowZeroConf, randomizeChangeIdx, feeStrategy, twoFactorToken, options, cb) {
+
     /* jshint -W071 */
     var self = this;
 
@@ -820,6 +832,7 @@ Wallet.prototype.pay = function(pay, changeAddress, allowZeroConf, randomizeChan
         )
             .spread(
             function(tx, utxos) {
+
                 deferred.notify(Wallet.PAY_PROGRESS_SEND);
 
                 return self.sendTransaction(tx.toHex(), utxos.map(function(utxo) { return utxo['path']; }), checkFee, twoFactorToken, options.prioboost)
@@ -886,13 +899,13 @@ Wallet.prototype.buildTransaction = function(pay, changeAddress, allowZeroConf, 
 
             if (address === Wallet.OP_RETURN) {
                 var datachunk = Buffer.isBuffer(value) ? value : new Buffer(value, 'utf-8');
-                send.push({scriptPubKey: bitcoin.scripts.nullDataOutput(datachunk).toBuffer().toString('hex'), value: 0});
+                send.push({scriptPubKey: bitcoin.script.nullData.output.encode(datachunk).toString('hex'), value: 0});
                 return;
             }
 
             var addr;
             try {
-                addr = bitcoin.Address.fromBase58Check(address);
+                addr = bitcoin.address.fromBase58Check(address, self.network);
             } catch (_err) {
                 err = _err;
             }
@@ -969,7 +982,10 @@ Wallet.prototype.buildTransaction = function(pay, changeAddress, allowZeroConf, 
                          * @param cb
                          */
                         function(cb) {
-                            txb = new bitcoin.TransactionBuilder();
+                            txb = new bitcoin.TransactionBuilder(self.network);
+                            if (self.bitcoinCash) {
+                                txb.enableBitcoinCash();
+                            }
 
                             cb();
                         },
@@ -997,12 +1013,11 @@ Wallet.prototype.buildTransaction = function(pay, changeAddress, allowZeroConf, 
                                 if (_send.address) {
                                     outputs.push({address: _send.address, value: _send.value});
                                 } else if (_send.scriptPubKey) {
-                                    outputs.push({scriptPubKey: bitcoin.Script.fromBuffer(new Buffer(_send.scriptPubKey, 'hex')), value: _send.value});
+                                    outputs.push({scriptPubKey: new Buffer(_send.scriptPubKey, 'hex'), value: _send.value});
                                 } else {
                                     throw new Error("Invalid send");
                                 }
                             });
-
                             cb();
                         },
                         /**
@@ -1023,7 +1038,6 @@ Wallet.prototype.buildTransaction = function(pay, changeAddress, allowZeroConf, 
                                             if (err) {
                                                 return cb(err);
                                             }
-
                                             changeAddress = address;
                                             cb();
                                         });
@@ -1075,19 +1089,31 @@ Wallet.prototype.buildTransaction = function(pay, changeAddress, allowZeroConf, 
                             deferred.notify(Wallet.PAY_PROGRESS_SIGN);
 
                             for (i = 0; i < utxos.length; i++) {
-                                path = utxos[i]['path'].replace("M", "m");
-
-                                if (self.primaryPrivateKey) {
-                                    privKey = Wallet.deriveByPath(self.primaryPrivateKey, path, "m").privKey;
-                                } else if (self.backupPrivateKey) {
-                                    privKey = Wallet.deriveByPath(self.backupPrivateKey, path.replace(/^m\/(\d+)\'/, 'm/$1'), "m").privKey;
-                                } else {
-                                    throw new Error("No master privateKey present");
+                                var mode = SignMode.SIGN;
+                                if (utxos[i].sign_mode) {
+                                    mode = utxos[i].sign_mode;
                                 }
 
-                                var redeemScript = bitcoin.Script.fromHex(utxos[i]['redeem_script']);
+                                if (mode === SignMode.SIGN) {
+                                    path = utxos[i]['path'].replace("M", "m");
 
-                                txb.sign(i, privKey, redeemScript);
+                                    if (self.primaryPrivateKey) {
+                                        privKey = Wallet.deriveByPath(self.primaryPrivateKey, path, "m").keyPair;
+                                    } else if (self.backupPrivateKey) {
+                                        privKey = Wallet.deriveByPath(self.backupPrivateKey, path.replace(/^m\/(\d+)\'/, 'm/$1'), "m").keyPair;
+                                    } else {
+                                        throw new Error("No master privateKey present");
+                                    }
+
+                                    var redeemScript = new Buffer(utxos[i]['redeem_script'], 'hex');
+
+                                    var sigHash = bitcoin.Transaction.SIGHASH_ALL;
+                                    if (self.bitcoinCash) {
+                                        sigHash |= bitcoin.Transaction.SIGHASH_BITCOINCASHBIP143;
+                                    }
+
+                                    txb.sign(i, privKey, redeemScript, sigHash, utxos[i].value);
+                                }
                             }
 
                             tx = txb.buildIncomplete();
@@ -1100,6 +1126,7 @@ Wallet.prototype.buildTransaction = function(pay, changeAddress, allowZeroConf, 
                          * @param cb
                          */
                         function(cb) {
+
                             var estimatedFee = Wallet.estimateIncompleteTxFee(tx);
 
                             switch (feeStrategy) {
@@ -1145,7 +1172,7 @@ Wallet.prototype.buildTransaction = function(pay, changeAddress, allowZeroConf, 
  * @param [lockUTXO]        bool        lock UTXOs for a few seconds to allow for transaction to be created
  * @param [allowZeroConf]   bool        allow zero confirmation unspent outputs to be used in coin selection
  * @param [feeStrategy]     string      defaults to FEE_STRATEGY_OPTIMAL
- * @param [options]         array
+ * @param [options]         object
  * @param [cb]              function    callback(err, utxos, fee, change)
  * @returns {q.Promise}
  */
@@ -1263,7 +1290,7 @@ Wallet.prototype.deleteWebhook = function(identifier, cb) {
 /**
  * get all transactions for the wallet (paginated)
  *
- * @param [params]  array       pagination: {page: 1, limit: 20, sort_dir: 'asc'}
+ * @param [params]  object      pagination: {page: 1, limit: 20, sort_dir: 'asc'}
  * @param [cb]      function    callback(err, transactions)
  * @returns {q.Promise}
  */
@@ -1312,7 +1339,7 @@ Wallet.prototype.maxSpendable = function(allowZeroConf, feeStrategy, options, cb
 /**
  * get all addresses for the wallet (paginated)
  *
- * @param [params]  array       pagination: {page: 1, limit: 20, sort_dir: 'asc'}
+ * @param [params]  object      pagination: {page: 1, limit: 20, sort_dir: 'asc'}
  * @param [cb]      function    callback(err, addresses)
  * @returns {q.Promise}
  */
@@ -1337,7 +1364,7 @@ Wallet.prototype.labelAddress = function(address, label, cb) {
 /**
  * get all UTXOs for the wallet (paginated)
  *
- * @param [params]  array       pagination: {page: 1, limit: 20, sort_dir: 'asc'}
+ * @param [params]  object      pagination: {page: 1, limit: 20, sort_dir: 'asc'}
  * @param [cb]      function    callback(err, addresses)
  * @returns {q.Promise}
  */
@@ -1358,7 +1385,7 @@ Wallet.prototype.unspentOutputs = Wallet.prototype.utxos;
  */
 Wallet.sortMultiSigKeys = function(pubKeys) {
     pubKeys.sort(function(key1, key2) {
-        return key1.toHex().localeCompare(key2.toHex());
+        return key1.toString('hex').localeCompare(key2.toString('hex'));
     });
 
     return pubKeys;
@@ -1397,29 +1424,31 @@ Wallet.estimateIncompleteTxSize = function(tx) {
     size += tx.outs.length * 34;
 
     tx.ins.forEach(function(txin) {
-        var scriptSig = bitcoin.Script.fromBuffer(txin.script.buffer),
-            scriptType = bitcoin.scripts.classifyInput(scriptSig);
+        var scriptSig = txin.script,
+            scriptType = bitcoin.script.classifyInput(scriptSig);
 
         var multiSig = [2, 3]; // tmp hardcoded
 
         // Re-classify if P2SH
         if (!multiSig && scriptType === 'scripthash') {
-            var redeemScript = bitcoin.Script.fromBuffer(scriptSig.chunks.slice(-1)[0]);
-            scriptSig = bitcoin.Script.fromChunks(scriptSig.chunks.slice(0, -1));
-            scriptType = bitcoin.scripts.classifyInput(scriptSig);
+            var sigChunks = bitcoin.script.decompile(scriptSig);
+            var redeemScript = sigChunks.slice(-1)[0];
+            scriptSig = bitcoin.script.compile(sigChunks.slice(0, -1));
+            scriptType = bitcoin.script.classifyInput(scriptSig);
 
-            if (bitcoin.scripts.classifyOutput(redeemScript) !== scriptType) {
+            if (bitcoin.script.classifyOutput(redeemScript) !== scriptType) {
                 throw new blocktrail.TransactionInputError('Non-matching scriptSig and scriptPubKey in input');
             }
 
             // figure out M of N for multisig (code from internal usage of bitcoinjs)
             if (scriptType === 'multisig') {
-                var mOp = redeemScript.chunks[0];
+                var rsChunks = bitcoin.script.decompile(redeemScript);
+                var mOp = rsChunks[0];
                 if (mOp === bitcoin.opcodes.OP_0 || mOp < bitcoin.opcodes.OP_1 || mOp > bitcoin.opcodes.OP_16) {
                     throw new blocktrail.TransactionInputError("Invalid multisig redeemScript");
                 }
 
-                var nOp = redeemScript.chunks[redeemScript.chunks.length - 2];
+                var nOp = rsChunks[redeemScript.chunks.length - 2];
                 if (mOp === bitcoin.opcodes.OP_0 || mOp < bitcoin.opcodes.OP_1 || mOp > bitcoin.opcodes.OP_16) {
                     throw new blocktrail.TransactionInputError("Invalid multisig redeemScript");
                 }
@@ -1495,7 +1524,7 @@ Wallet.estimateFee = function(txinCnt, txoutCnt) {
  * @returns {bitcoin.HDNode}
  */
 Wallet.deriveByPath = function(hdKey, path, keyPath) {
-    keyPath = keyPath || (!!hdKey.privKey ? "m" : "M");
+    keyPath = keyPath || (!!hdKey.keyPair.d ? "m" : "M");
 
     if (path[0].toLowerCase() !== "m" || keyPath[0].toLowerCase() !== "m") {
         throw new blocktrail.KeyPathError("Wallet.deriveByPath only works with absolute paths. (" + path + ", " + keyPath + ")");
@@ -1531,7 +1560,7 @@ Wallet.deriveByPath = function(hdKey, path, keyPath) {
             chunk = parseInt(chunk.replace("'", ""), 10) + bitcoin.HDNode.HIGHEST_BIT;
         }
 
-        newKey = newKey.derive(chunk);
+        newKey = newKey.derive(parseInt(chunk, 10));
     });
 
     if (toPublic) {
