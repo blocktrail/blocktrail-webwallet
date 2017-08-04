@@ -8,13 +8,26 @@
         var coin = 100000000;
         var precision = 8;
 
-        return function(input, currency, currencyRates, fractionSize, useMarkup, hideCurrencyDisplay) {
+        var CURRENCY_DISPLAY_MODE = {
+            SHORT: 'short',
+            HIDE: 'hide',
+            LONG: 'long'
+        };
+
+        return function(input, currency, currencyRates, fractionSize, useMarkup, currencyDisplayMode) {
             // normalize
+
+            if (typeof currencyDisplayMode === "undefined" || currencyDisplayMode === false) {
+                currencyDisplayMode = CURRENCY_DISPLAY_MODE.SHORT;
+            } else if (currencyDisplayMode === true) {
+                currencyDisplayMode = CURRENCY_DISPLAY_MODE.HIDE;
+            }
+
             currency = currency.toUpperCase();
 
             var btc = parseFloat((input/ coin).toFixed(precision));
             var localValue;
-            var symbol;
+            var symbol, long;
             var currencyDisplay;
 
             if (typeof fractionSize === "undefined") {
@@ -34,18 +47,24 @@
                 localValue = (0).toFixed(fractionSize);
             }
 
-            if (typeof Currencies.currencies[currency] === "undefined") {
+            if (currency === 'BTC') {
+                symbol = CONFIG.TICKER;
+                long = CONFIG.TICKER_LONG;
+            } else if (typeof Currencies.currencies[currency] === "undefined") {
                 symbol = input;
+                long = input;
             } else {
                 symbol = Currencies.currencies[currency].symbol || currency;
+                long = Currencies.currencies[currency].code || currency;
             }
 
+            currencyDisplay = currencyDisplayMode === CURRENCY_DISPLAY_MODE.LONG ? long : symbol;
+            currencyDisplay = useMarkup ? ('<span class="disp">' + (currencyDisplay) + '</span>') : (" " + currencyDisplay);
+
             if (currency === "BTC") {
-                currencyDisplay = useMarkup ? ('<span class="disp">' + CONFIG.TICKER + '</span>') : (" " + CONFIG.TICKER);
-                return hideCurrencyDisplay ? btc.toFixed(fractionSize) : btc.toFixed(fractionSize) + currencyDisplay;
+                return currencyDisplayMode === CURRENCY_DISPLAY_MODE.HIDE ? btc.toFixed(fractionSize) : btc.toFixed(fractionSize) + currencyDisplay;
             } else {
-                currencyDisplay = useMarkup ? ('<span class="disp">' + symbol + '</span>') : symbol;
-                return hideCurrencyDisplay ? localValue : currencyDisplay + localValue;
+                return currencyDisplayMode === CURRENCY_DISPLAY_MODE.HIDE ? localValue : currencyDisplay + localValue;
             }
         };
     }

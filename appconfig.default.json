@@ -9,6 +9,7 @@
     "PRIOBOOST": true,
 
     "TICKER": "BTC",
+    "TICKER_LONG": "Bitcoin",
     "NETWORK": "BTC",
     "NETWORK_LONG": "Bitcoin",
     "MIRROR_LONG": "BCC",
