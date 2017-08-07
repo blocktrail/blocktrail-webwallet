@@ -5,7 +5,7 @@
         .controller("SetupWrapperCtrl", SetupWrapperCtrl);
 
     function SetupWrapperCtrl($scope, $modal, CONFIG, bowserJS, randomBytesJS) {
-        var showMobileDialog = !!bowserJS.mobile;
+        var showMobileDialog = !!bowserJS.mobile && CONFIG.PROMOTE_MOBILE;
 
         $scope.showMobileDialogOnce = function() {
             if (showMobileDialog) {

@@ -5,11 +5,16 @@
         .controller("LogoutCtrl", LogoutCtrl);
 
 
-    function LogoutCtrl($window, storageService) {
+    function LogoutCtrl($window, storageService, CONFIG) {
         storageService
             .resetAll()
             .then(function() {
-                $window.location.replace("/#/setup/loggedout");
+                if (CONFIG.PROMOTE_MOBILE) {
+                    $window.location.replace("/#/setup/loggedout");
+                } else {
+                    $window.location.replace("/#/setup/login");
+                }
+
                 $window.location.reload();
             }
         );

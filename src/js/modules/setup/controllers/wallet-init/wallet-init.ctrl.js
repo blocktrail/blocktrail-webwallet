@@ -120,7 +120,8 @@
                             walletVersion: CONFIG.DEFAULT_WALLET_VERSION,
                             identifier: $scope.setupInfo.identifier,
                             password: $scope.setupInfo.password,
-                            support_secret: supportSecret
+                            support_secret: supportSecret,
+                            keyIndex: CONFIG.DEVKEYINDEX || 0
                         })
                             .progress(function(progress) {
                                 /*

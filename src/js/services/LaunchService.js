@@ -90,7 +90,14 @@ angular.module('blocktrail.wallet').factory(
                             // no walletInfo found, means wallet needs to be created
                             //  however unless specifically navigated to app.setup.wallet we just go back to the login
                             return {
-                                allowed: ['app.setup.wallet', 'app.setup.login', 'app.setup.register', 'app.setup.loggedout'],
+                                allowed: [
+                                    'app.setup.wallet',
+                                    'app.setup.login',
+                                    'app.setup.register',
+                                    'app.setup.loggedout',
+                                    'app.setup.forgotPassword',
+                                    'app.setup.changePassword'
+                                ],
                                 _default: 'app.setup.login'
                             };
                         }
