@@ -4,7 +4,7 @@
     angular.module("blocktrail.setup")
         .controller("SetupForgotPasswordCtrl", SetupForgotPasswordCtrl);
 
-    function SetupForgotPasswordCtrl($scope, $http, CONFIG) {
+    function SetupForgotPasswordCtrl($scope, passwordRecoveryService) {
         $scope.working  = false;
         $scope.error    = null;
         $scope.form     = {
@@ -23,17 +23,12 @@
                 return false;
             }
             $scope.working = true;
-            requestRecovery($scope.form.email).then(
+            passwordRecoveryService.requestRecoveryMail($scope.form.email).then(
                 function () {
                     $scope.stepCount = 1;
                     $scope.working = false;
                 }
             );
         };
-
-        function requestRecovery(email) {
-            // request recovery secret from backend
-            return $http.post(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/recovery/request-link", { email: email } );
-        }
     }
 })();

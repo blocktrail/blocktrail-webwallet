@@ -5,6 +5,11 @@
         .factory('passwordRecoveryService', PasswordRecoveryService);
     
     function PasswordRecoveryService($http, CONFIG, dialogService) {
+
+        function requestRecoveryMail(email) {
+            return $http.post(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/recovery/request-link", { email: email } );
+        }
+
         function requestRecoverySecret(token) {
             return $http.post(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/recovery/request-recovery-secret", { token: token }).then(function (res) {
                 if (res.data && res.data.recovery_secret) {
@@ -66,6 +71,7 @@
         }
 
         return {
+            requestRecoveryMail: requestRecoveryMail,
             requestRecoverySecret: requestRecoverySecret,
             encryptSecretWithPassword: encryptSecretWithPassword,
             decryptSecretMnemonicWithPassword: decryptSecretMnemonicWithPassword

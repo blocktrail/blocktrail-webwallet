@@ -6,6 +6,7 @@
 
     function SetupChangePasswordCtrl($scope, $stateParams, $http, $q, $sce, PasswordStrength, dialogService, $log, $filter,
                                      sdkService, $translate, CONFIG, passwordRecoveryService) {
+
         $scope.bip39EN = blocktrailSDK.bip39wordlist;
         $scope.stepCount = 0;
         $scope.working = false;
@@ -235,17 +236,4 @@
             }
         };
     }
-
-    angular.module("blocktrail.setup").filter('filterERS', function () {
-        function handler(bip39EN, input) {
-            var words = input.split(' ');
-            input = words[words.length - 1];
-
-            return bip39EN.filter(function (currElement) {
-                return currElement.indexOf(input) == 0;
-            });
-        }
-
-        return handler;
-    });
 })();
