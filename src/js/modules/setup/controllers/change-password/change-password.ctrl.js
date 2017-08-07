@@ -7,7 +7,9 @@
     function SetupChangePasswordCtrl($scope, $stateParams, $http, $q, $sce, PasswordStrength, dialogService, $log, $filter, sdkService, $translate, CONFIG) {
 
         var bip39EN = blocktrailSDK.bip39wordlist;
+        $scope.bip39EN = bip39EN;
 
+        $scope.stepCount = 0;
         $scope.working  = false;
         $scope.error    = null;
         $scope.form     = {
@@ -20,24 +22,21 @@
 
         $scope.walletVersions = ["v1", "v2", "v3"];
 
-        $scope.bip39EN = bip39EN;
-        $scope.stepCount = 0;
-
-        /* Password reset data */
+        // Password reset data
         var secret = null;
         var twoFactorToken = null;
 
         // Get state parameters
         var token = $stateParams.token;
-        var recoverySecret = $stateParams.recovery;
         var walletVersion = $stateParams.version;
         var requires2FA = $stateParams.requires_2fa;
+
+        var recoverySecret = requestRecoverySecret(token);
 
         var watchListenerERS = $scope.$watch('form.ERS', function (newVal, oldVal) {
             function strcmp (a, b) {
                 return (a < b ? -1 : ( a > b ? 1 : 0 ));
             }
-
             // Remove line breaks
             if ($scope.form.ERS && $scope.form.ERS.length > 0) {
                 $scope.form.ERS = $scope.form.ERS.replace(/[\r\n]+/g, " "); // https://stackoverflow.com/a/34936253
@@ -118,6 +117,22 @@
             });
         }
 
+        function requestRecoverySecret(token) {
+            return $http.post(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/recovery/request-recovery-secret", { token: token }).then(function (res) {
+                console.log(res.data);
+                if (res.data && res.data.recovery_secret) {
+                    return res.data.recovery_secret;
+                }
+            }, function (err) {
+                dialogService.alert(
+                    $translate.instant("RECOVERY_ERROR"),
+                    $translate.instant("MSG_PASSWORD_NOT_CHANGED")
+                );
+
+                throw err;
+            });
+        }
+
         function askFor2FA () {
             return dialogService.prompt(
                 $translate.instant("SETUP_LOGIN"),
@@ -159,19 +174,19 @@
 
                 newPasswordHash = blocktrailSDK.CryptoJS.SHA512($scope.form.newPassword).toString();
 
-                // Create response data object
-                var response = {
+                // Create data object
+                var data = {
                     token: token,
                     new_password_hash: newPasswordHash,
                     new_encrypted_secret: newEncryptedSecret
                 };
 
                 if(requires2FA && twoFactorToken) {
-                    response['two_factor_token'] = twoFactorToken;
+                    data['two_factor_token'] = twoFactorToken;
                 }
 
                 // Post it
-                $http.post(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/recovery/change-password", response).then(function (res) {
+                $http.post(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/recovery/change-password", data).then(function (res) {
                     // Generate backup PDF
                     generateBackupPageTwo("", newEncryptedWalletSecretMnemonic);
                     $scope.stepCount = 2;
@@ -200,76 +215,77 @@
         };
 
         $scope.decryptERS = function() {
-
             if ($scope.working) {
                 return false;
             }
             $scope.error = null;
-
             $scope.working = true;
 
             if ($scope.form.ERS.length > 0) {
-                try {
-                    recoverySecret = recoverySecret.trim();
-                    var encryptedRecoverySecretMnemonic = $scope.form.ERS
-                        .trim()
-                        .replace(new RegExp("\r\n", 'g'), " ")
-                        .replace(new RegExp("\n", 'g'), " ")
-                        .replace(/\s\s+/g, " ")
-                        .replace("[ \t]+$", "");
-                    var encryptedRecoverySecret = null;
-
-                    if ($scope.walletVersions.indexOf(walletVersion) < 0) {
-                        $scope.working = false;
-                        return dialogService.alert(
-                            $translate.instant("INVALID_WALLET_VERSION"),
-                            $translate.instant("MSG_INVALID_WALLET_VERSION")
-                        ).result;
-                    }
-
-                    if (recoverySecret.length != 64) {
-                        $scope.working = false;
-                        return dialogService.alert(
-                            $translate.instant("RECOVERY_ERROR"),
-                            $translate.instant("MSG_CORRUPTED_SECRET")
-                        ).result;
-                    }
-
-                    if ($scope.form.ERS.split(' ').length != 60) {
-                        $scope.working = false;
-                        return dialogService.alert(
-                            $translate.instant("RECOVERY_ERROR"),
-                            $translate.instant("MSG_WRONG_ERS_WORD_LENGTH")
-                        ).result;
-                    }
-
-                    // Try decrypting
+                recoverySecret.then(function(recoverySecret) {
+                    console.log(recoverySecret);
                     try {
-                        if (walletVersion === 'v3') {
-                            encryptedRecoverySecret = blocktrailSDK.EncryptionMnemonic.decode(encryptedRecoverySecretMnemonic);
-                            secret = blocktrailSDK.Encryption.decrypt(encryptedRecoverySecret, new blocktrailSDK.Buffer(recoverySecret, 'hex'));
+                        recoverySecret = recoverySecret.trim();
+                        var encryptedRecoverySecretMnemonic = $scope.form.ERS
+                            .trim()
+                            .replace(new RegExp("\r\n", 'g'), " ")
+                            .replace(new RegExp("\n", 'g'), " ")
+                            .replace(/\s\s+/g, " ")
+                            .replace("[ \t]+$", "");
+                        var encryptedRecoverySecret = null;
 
-                        } else {
-                            // TODO: test with v2
-                            encryptedRecoverySecret = blocktrailSDK.convert(blocktrailSDK.bip39.mnemonicToEntropy(encryptedRecoverySecretMnemonic), 'hex', 'base64');
-                            secret = CryptoJS.AES.decrypt(encryptedRecoverySecret, recoverySecret).toString(CryptoJS.enc.Utf8);
+                        if ($scope.walletVersions.indexOf(walletVersion) < 0) {
+                            $scope.working = false;
+                            return dialogService.alert(
+                                $translate.instant("INVALID_WALLET_VERSION"),
+                                $translate.instant("MSG_INVALID_WALLET_VERSION")
+                            ).result;
                         }
-                    } catch (e) {
-                        $log.error(e, e.message);
-                        $scope.working = false;
-                        return dialogService.alert(
-                            $translate.instant("RECOVERY_ERROR"),
-                            $translate.instant("MSG_PASSWORD_NOT_CHANGED")
-                        ).result;
-                    }
 
-                    watchListenerERS();
-                    $scope.stepCount = 1;
-                    $scope.working = false;
-                } catch (e) {
-                    $scope.working = false;
-                    $log.error(e, e.message);
-                }
+                        if (recoverySecret.length != 64) {
+                            $scope.working = false;
+                            return dialogService.alert(
+                                $translate.instant("RECOVERY_ERROR"),
+                                $translate.instant("MSG_CORRUPTED_SECRET")
+                            ).result;
+                        }
+
+                        if ($scope.form.ERS.split(' ').length != 60) {
+                            $scope.working = false;
+                            return dialogService.alert(
+                                $translate.instant("RECOVERY_ERROR"),
+                                $translate.instant("MSG_WRONG_ERS_WORD_LENGTH")
+                            ).result;
+                        }
+
+                        // Try decrypting
+                        try {
+                            if (walletVersion === 'v3') {
+                                encryptedRecoverySecret = blocktrailSDK.EncryptionMnemonic.decode(encryptedRecoverySecretMnemonic);
+                                secret = blocktrailSDK.Encryption.decrypt(encryptedRecoverySecret, new blocktrailSDK.Buffer(recoverySecret, 'hex'));
+
+                            } else {
+                                // TODO: test with v2
+                                encryptedRecoverySecret = blocktrailSDK.convert(blocktrailSDK.bip39.mnemonicToEntropy(encryptedRecoverySecretMnemonic), 'hex', 'base64');
+                                secret = CryptoJS.AES.decrypt(encryptedRecoverySecret, recoverySecret).toString(CryptoJS.enc.Utf8);
+                            }
+                        } catch (e) {
+                            $log.error(e, e.message);
+                            $scope.working = false;
+                            return dialogService.alert(
+                                $translate.instant("RECOVERY_ERROR"),
+                                $translate.instant("MSG_PASSWORD_NOT_CHANGED")
+                            ).result;
+                        }
+
+                        watchListenerERS();
+                        $scope.stepCount = 1;
+                        $scope.working = false;
+                    } catch (e) {
+                        $scope.working = false;
+                        $log.error(e, e.message);
+                    }
+                });
             }
         };
     }
