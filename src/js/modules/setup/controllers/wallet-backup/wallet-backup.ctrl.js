@@ -5,7 +5,7 @@
         .controller("SetupWalletBackupCtrl", SetupWalletBackupCtrl);
 
     function SetupWalletBackupCtrl(backupInfo, $scope, $state, $translate, $log, bitcoinJS,
-                                   setupService, sdkService, dialogService, launchService, $injector) {
+                                   setupService, sdkService, dialogService, launchService, $injector, CONFIG) {
 
         $scope.displayTextBackup = true;
         $scope.backupSaved = false;
@@ -60,7 +60,8 @@
                 var backup = new sdkService.BackupGenerator(
                     $scope.setupInfo.identifier,
                     $scope.setupInfo.backupInfo,
-                    extraInfo
+                    extraInfo,
+                    {network: CONFIG.NETWORK_LONG}
                 );
 
                 try {
@@ -71,7 +72,7 @@
                         } else {
                             $scope.backupSaved = true;
                             $scope.backupPDF = pdf;
-                            $scope.backupPDF.save("BTC.com Wallet Recovery Backup Sheet - " + $scope.setupInfo.identifier + ".pdf");
+                            $scope.backupPDF.save("BTC.com " + CONFIG.NETWORK_LONG + " Wallet Recovery Backup Sheet - " + $scope.setupInfo.identifier + ".pdf");
                         }
                     });
                 } catch (error) {
