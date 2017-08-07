@@ -4,15 +4,13 @@
     angular.module("blocktrail.setup")
         .controller("SetupChangePasswordCtrl", SetupChangePasswordCtrl);
 
-    function SetupChangePasswordCtrl($scope, $stateParams, $http, $q, $sce, PasswordStrength, dialogService, $log, $filter, sdkService, $translate, CONFIG) {
-
-        var bip39EN = blocktrailSDK.bip39wordlist;
-        $scope.bip39EN = bip39EN;
-
+    function SetupChangePasswordCtrl($scope, $stateParams, $http, $q, $sce, PasswordStrength, dialogService, $log, $filter,
+                                     sdkService, $translate, CONFIG, passwordRecoveryService) {
+        $scope.bip39EN = blocktrailSDK.bip39wordlist;
         $scope.stepCount = 0;
-        $scope.working  = false;
-        $scope.error    = null;
-        $scope.form     = {
+        $scope.working = false;
+        $scope.error = null;
+        $scope.form = {
             email : null,
             ERS: null,
             newPassword: null,
@@ -31,7 +29,7 @@
         var walletVersion = $stateParams.version;
         var requires2FA = $stateParams.requires_2fa;
 
-        var recoverySecret = requestRecoverySecret(token);
+        var recoverySecret = passwordRecoveryService.requestRecoverySecret(token);
 
         var watchListenerERS = $scope.$watch('form.ERS', function (newVal, oldVal) {
             function strcmp (a, b) {
@@ -76,10 +74,6 @@
                 });
         };
 
-        $scope.changeWalletVersion = function (version) {
-            $scope.form.walletVersion = version;
-        };
-
         function generateBackupPageTwo (identifier, newEncryptedWalletSecretMnemonic) {
             return dialogService.alert({
                 title: $translate.instant('CHANGE_PASSWORD'),
@@ -117,22 +111,6 @@
             });
         }
 
-        function requestRecoverySecret(token) {
-            return $http.post(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/recovery/request-recovery-secret", { token: token }).then(function (res) {
-                console.log(res.data);
-                if (res.data && res.data.recovery_secret) {
-                    return res.data.recovery_secret;
-                }
-            }, function (err) {
-                dialogService.alert(
-                    $translate.instant("RECOVERY_ERROR"),
-                    $translate.instant("MSG_PASSWORD_NOT_CHANGED")
-                );
-
-                throw err;
-            });
-        }
-
         function askFor2FA () {
             return dialogService.prompt(
                 $translate.instant("SETUP_LOGIN"),
@@ -149,46 +127,23 @@
                     $scope.encryptNewERS();
                 });
             } else {
-                var newEncryptedSecret;
-                var newEncryptedWalletSecretMnemonic;
-                var newPasswordHash;
-                var newPasswordBuffer = null;
-
-                if (walletVersion === blocktrailSDK.Wallet.WALLET_VERSION_V2) {
-                    newEncryptedSecret = blocktrailSDK.CryptoJS.AES.encrypt(secret, $scope.form.newPassword).toString(blocktrailSDK.CryptoJS.format.OpenSSL);
-                    newEncryptedWalletSecretMnemonic = blocktrailSDK.bip39.entropyToMnemonic(blocktrailSDK.convert(newEncryptedSecret, 'base64', 'hex'));
-
-                } else {
-                    if (typeof $scope.form.newPassword === "string") {
-                        newPasswordBuffer = new blocktrailSDK.Buffer($scope.form.newPassword);
-                    } else {
-                        if (!(newPasswordBuffer instanceof blocktrailSDK.Buffer)) {
-                            throw new Error('New password must be provided as a string or a Buffer');
-                        }
-                    }
-                    newEncryptedSecret = blocktrailSDK.Encryption.encrypt(secret, newPasswordBuffer);
-                    newEncryptedWalletSecretMnemonic = blocktrailSDK.EncryptionMnemonic.encode(newEncryptedSecret);
-                    // It's a buffer, so convert it back to base64
-                    newEncryptedSecret = newEncryptedSecret.toString('base64');
-                }//else
-
-                newPasswordHash = blocktrailSDK.CryptoJS.SHA512($scope.form.newPassword).toString();
+                // Encrypt secret with new Password, generate mnemonic and password hash
+                var encryptedData = passwordRecoveryService.encryptSecretWithPassword(secret, $scope.form.newPassword, walletVersion);
 
                 // Create data object
                 var data = {
                     token: token,
-                    new_password_hash: newPasswordHash,
-                    new_encrypted_secret: newEncryptedSecret
+                    new_password_hash: encryptedData.password_hash,
+                    new_encrypted_secret: encryptedData.encrypted_secret
                 };
 
                 if(requires2FA && twoFactorToken) {
                     data['two_factor_token'] = twoFactorToken;
                 }
 
-                // Post it
                 $http.post(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/recovery/change-password", data).then(function (res) {
                     // Generate backup PDF
-                    generateBackupPageTwo("", newEncryptedWalletSecretMnemonic);
+                    generateBackupPageTwo("", encryptedData.secret_mnemonic);
                     $scope.stepCount = 2;
                 }, function (err) {
                     // Error handling
@@ -232,7 +187,6 @@
                             .replace(new RegExp("\n", 'g'), " ")
                             .replace(/\s\s+/g, " ")
                             .replace("[ \t]+$", "");
-                        var encryptedRecoverySecret = null;
 
                         if ($scope.walletVersions.indexOf(walletVersion) < 0) {
                             $scope.working = false;
@@ -260,15 +214,7 @@
 
                         // Try decrypting
                         try {
-                            if (walletVersion === 'v3') {
-                                encryptedRecoverySecret = blocktrailSDK.EncryptionMnemonic.decode(encryptedRecoverySecretMnemonic);
-                                secret = blocktrailSDK.Encryption.decrypt(encryptedRecoverySecret, new blocktrailSDK.Buffer(recoverySecret, 'hex'));
-
-                            } else {
-                                // TODO: test with v2
-                                encryptedRecoverySecret = blocktrailSDK.convert(blocktrailSDK.bip39.mnemonicToEntropy(encryptedRecoverySecretMnemonic), 'hex', 'base64');
-                                secret = CryptoJS.AES.decrypt(encryptedRecoverySecret, recoverySecret).toString(CryptoJS.enc.Utf8);
-                            }
+                            secret = passwordRecoveryService.decryptSecretMnemonicWithPassword(encryptedRecoverySecretMnemonic, recoverySecret, walletVersion);
                         } catch (e) {
                             $log.error(e, e.message);
                             $scope.working = false;
