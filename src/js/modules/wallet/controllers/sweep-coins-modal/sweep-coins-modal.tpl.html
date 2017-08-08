@@ -1,0 +1,67 @@
+<button type="button" class="close" ng-click="dismiss();" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+</button>
+
+<div class="row">
+    <div class="col-xs-10 col-xs-offset-1 text-center">
+        <div style="margin-top: 25px; margin-bottom: 25px;">
+            <h2>{{ 'SWEEP_TITLE' | translate }}</h2>
+            <div ng-if="stepCount == 0">
+                <p>
+                    {{ 'SWEEP_INFO' | translate : { network: CONFIG.NETWORK } }}
+                </p>
+                <p class="help-block">
+                    {{ 'SWEEP_SUPPORTED' | translate }}: Blockchain.info, Mycelium
+                </p>
+                <form class="form">
+                    <div class="row">
+                        <div class="form-group form-group-lg">
+                            <label class="control-label">
+                                {{ 'BACKUP_MNEMONIC' | translate }}
+                            </label>
+                            <textarea class="form-control"
+                                      style="resize: vertical; margin-bottom: 5px;"
+                                      placeholder="fetch cash winner system welcome ..."
+                                      rows="2"
+                                      cols="50"
+                                      name="inputMnemonic"
+                                      ng-model="form.mnemonic"
+                                      typeahead="word for word in bip39EN | filterERS : $viewValue | limitTo:4">
+                            </textarea>
+                        </div>
+
+                        <div class="form-group form-group-lg form-group-buttons">
+                            <button class="form-control btn btn-alt btn-primary" ng-disabled="working" ng-click="startSweeping()">{{ 'NEXT' | translate }}</button>
+                            <div ng-if="working && !discovering">
+                                <loading-spinner></loading-spinner>
+                                {{ 'PLEASE_WAIT' | translate }}
+                            </div>
+                            <div ng-if="working && discovering">
+                                <loading-spinner></loading-spinner>
+                                {{ 'DISCOVERING_COINS' | translate }}
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div ng-if="stepCount == 1">
+                <span translate="SWEEPING_CONFIRM_MSG"
+                      translate-value-amount="{{ sweepData.totalValue | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 : false : 'hide' }}"
+                      translate-value-fee="{{ sweepData.feePaid | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 : false : 'hide' }}"
+                      translate-value-network="{{ CONFIG.NETWORK }}">
+                </span>
+
+                <form class="form">
+                    <div class="form-group form-group-lg form-group-buttons">
+                        <button class="form-control btn btn-alt btn-primary" ng-disabled="working" ng-click="publishRawTransaction()">{{ 'SEND' | translate }}</button>
+                        <div ng-if="working">
+                            <loading-spinner></loading-spinner>
+                            {{ 'PLEASE_WAIT' | translate }}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

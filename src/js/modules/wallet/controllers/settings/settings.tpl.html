@@ -182,7 +182,7 @@
             </div>
         </div>
 
-        <h3 class="section-title">Security</h3>
+        <h3 class="section-title">{{ 'SETTINGS_SECURITY' | translate }}</h3>
 
         <!-- Security -->
         <div class="row">
@@ -204,6 +204,20 @@
                     <div class="iil-15 iit-5 oh">
                         <span>{{ 'SETTINGS_2FA_HELP' | translate }}</span>
                     </div>
+                </div>
+            </div>
+        </div>
+
+
+        <h3 class="section-title">{{ 'SETTINGS_TOOLS' | translate }}</h3>
+
+        <!-- Tools -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <button class="btn btn-lg btn-primary btn-block" ng-click="sweepCoins()">
+                        {{ 'SWEEP_TITLE' | translate }}
+                    </button>
                 </div>
             </div>
         </div>

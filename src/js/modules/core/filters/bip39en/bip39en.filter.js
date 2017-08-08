@@ -1,7 +1,7 @@
 (function () {
     "use strict";
 
-    angular.module("blocktrail.setup")
+    angular.module("blocktrail.core")
         .filter('filterERS', filterERS);
 
     function filterERS() {

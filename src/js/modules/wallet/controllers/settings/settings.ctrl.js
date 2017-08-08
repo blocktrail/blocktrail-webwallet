@@ -642,6 +642,13 @@
                 })
         }
 
+        $scope.sweepCoins = function () {
+            $modal.open({
+                controller: "SweepCoinsModalController",
+                templateUrl: "js/modules/wallet/controllers/sweep-coins-modal/sweep-coins-modal.tpl.html"
+            });
+        };
+
         $scope.$on('$destroy', function() {
             // Remove existing listeners
             if(listenerFormSettings) {

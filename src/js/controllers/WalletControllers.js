@@ -1,5 +1,5 @@
 angular.module('blocktrail.wallet')
-    .controller('WalletCtrl', function($q, $log, $scope, $state, $rootScope, $interval, storageService, sdkService, Wallet,
+    .controller('WalletCtrl', function($q, $log, $scope, $state, $rootScope, $interval, storageService, sdkService, Wallet, $modal,
                                        Contacts, CONFIG, settingsService, setupService, $timeout, launchService, blocktrailLocalisation,
                                        dialogService, $http, $translate, buyBTCService, Currencies, AppVersionService, $filter) {
 
