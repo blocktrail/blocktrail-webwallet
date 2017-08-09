@@ -14,6 +14,7 @@
     "NETWORK_LONG": "Bitcoin",
     "MIRROR_NETWORK": "BCC",
     "MIRROR_NETWORK_LONG": "BitcoinCash",
+    "TX_FILTER_MIN_BLOCK_HEIGHT": null,
 
     "PROMOTE_MOBILE": true,
 

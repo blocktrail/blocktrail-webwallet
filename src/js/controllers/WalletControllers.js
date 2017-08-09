@@ -264,6 +264,12 @@ angular.module('blocktrail.wallet')
                     $scope.transactionsDisplayList = [];
                 }
 
+                if (CONFIG.TX_FILTER_MIN_BLOCK_HEIGHT) {
+                    result = result.filter(function(tx) {
+                        return tx.block_height === null || tx.block_height >= CONFIG.TX_FILTER_MIN_BLOCK_HEIGHT;
+                    });
+                }
+
                 $scope.transactionsList = $scope.transactionsList.concat(result);
 
                 $scope.transactionsDisplayList = $scope.groupTransactions($scope.transactionsList);
