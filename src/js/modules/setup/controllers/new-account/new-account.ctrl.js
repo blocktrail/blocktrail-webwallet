@@ -124,7 +124,8 @@
                 password_score: $scope.form.passwordCheck && $scope.form.passwordCheck.score || 0,
                 platform: "Web",
                 version: $rootScope.appVersion,
-                device_name: navigator.userAgent || "Unknown Browser"
+                device_name: navigator.userAgent || "Unknown Browser",
+                super_secret: CONFIG.SUPER_SECRET || null
             };
 
             $http.post(CONFIG.API_URL + "/v1/BTC/mywallet/register", postData)
