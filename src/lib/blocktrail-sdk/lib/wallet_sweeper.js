@@ -563,7 +563,7 @@ WalletSweeper.prototype.createTransaction = function(destinationAddress, fee, fe
 
     // create raw transaction
     var rawTransaction = new bitcoin.TransactionBuilder(this.network);
-    if (this.setttings.bitcoinCash) {
+    if (this.settings.bitcoinCash) {
         rawTransaction.enableBitcoinCash();
     }
     var inputs = [];
@@ -615,7 +615,7 @@ WalletSweeper.prototype.signTransaction = function(rawTransaction, inputs) {
     }
 
     var sigHash = bitcoin.Transaction.SIGHASH_ALL;
-    if (this.setttings.bitcoinCash) {
+    if (this.settings.bitcoinCash) {
         sigHash |= bitcoin.Transaction.SIGHASH_BITCOINCASHBIP143;
     }
 

@@ -6521,6 +6521,7 @@ var BackupGenerator = function(identifier, backupInfo, extraInfo, options) {
 
     backupInfo = backupInfo || {};
     extraInfo = extraInfo || {};
+    options = options || {};
 
     self.identifier = identifier;
     self.backupInfo = backupInfo;
@@ -6659,7 +6660,7 @@ BackupGenerator.prototype.generatePDF = function(callback) {
             function(callback) {
                 if (self.options.page1) {
                     pdf.FONT_SIZE_HEADER(function() {
-                        pdf.TEXT(self.network + "Wallet Recovery Data Sheet");
+                        pdf.TEXT(self.network + " Wallet Recovery Data Sheet");
                     });
 
                     pdf.TEXT(
@@ -7943,6 +7944,15 @@ BlocktrailBitcoinService.prototype.normaliseNetwork =  function(network, testnet
         case 'tbtc':
         case 'bitcoin-testnet':
             return {network: "BTC", testnet: true};
+        case 'bcc':
+            if (testnet) {
+                return {network: "BCC", testnet: true};
+            } else {
+                return {network: "BCC", testnet: false};
+            }
+        break;
+        case 'tbcc':
+            return {network: "BCC", testnet: true};
         default:
             throw new Error("Unknown network " + network);
     }
@@ -7956,7 +7966,7 @@ BlocktrailBitcoinService.prototype.estimateFee = function() {
     var self = this;
 
     return self.client.feePerKB().then(function(r) {
-        return r['optimal'];
+        return Math.max(r['optimal'], r['min_relay_fee']);
     });
 };
 
@@ -10484,7 +10494,7 @@ WalletSweeper.prototype.createTransaction = function(destinationAddress, fee, fe
 
     // create raw transaction
     var rawTransaction = new bitcoin.TransactionBuilder(this.network);
-    if (this.setttings.bitcoinCash) {
+    if (this.settings.bitcoinCash) {
         rawTransaction.enableBitcoinCash();
     }
     var inputs = [];
@@ -10536,7 +10546,7 @@ WalletSweeper.prototype.signTransaction = function(rawTransaction, inputs) {
     }
 
     var sigHash = bitcoin.Transaction.SIGHASH_ALL;
-    if (this.setttings.bitcoinCash) {
+    if (this.settings.bitcoinCash) {
         sigHash |= bitcoin.Transaction.SIGHASH_BITCOINCASHBIP143;
     }
 

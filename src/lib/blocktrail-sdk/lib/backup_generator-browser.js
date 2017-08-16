@@ -17,6 +17,7 @@ var BackupGenerator = function(identifier, backupInfo, extraInfo, options) {
 
     backupInfo = backupInfo || {};
     extraInfo = extraInfo || {};
+    options = options || {};
 
     self.identifier = identifier;
     self.backupInfo = backupInfo;
@@ -155,7 +156,7 @@ BackupGenerator.prototype.generatePDF = function(callback) {
             function(callback) {
                 if (self.options.page1) {
                     pdf.FONT_SIZE_HEADER(function() {
-                        pdf.TEXT(self.network + "Wallet Recovery Data Sheet");
+                        pdf.TEXT(self.network + " Wallet Recovery Data Sheet");
                     });
 
                     pdf.TEXT(
