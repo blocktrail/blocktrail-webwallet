@@ -4,8 +4,10 @@
     angular.module("blocktrail.wallet")
         .controller("SweepCoinsModalController", SweepCoinsModalController);
 
-    function SweepCoinsModalController($scope, $state, $modalInstance, sweeperService, sdkService, Wallet, CONFIG, dialogService,
-                                        $translate, $log, $timeout) {
+    function SweepCoinsModalController($scope, $modalInstance, sweeperService, sdkService, Wallet, CONFIG, dialogService,
+                                        $translate, $log, trackingService) {
+        trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_START);
+
         $scope.bip39EN = blocktrailSDK.bip39wordlist;
 
         $scope.working = true;
@@ -68,9 +70,11 @@
                 $scope.discovering = false;
 
                 if (result) {
+                    trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_BALANCE);
                     $scope.sweepData = result;
                     $scope.stepCount += 1;
                 } else {
+                    trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_NO_BALANCE);
                     return dialogService.alert(
                         $translate.instant("IMPORT_ERROR"),
                         $translate.instant("NO_BALANCES_FOUND")
@@ -97,7 +101,9 @@
                             $scope.sweepData.txId = result.hash;
                             $scope.stepCount++;
                         });
+                        trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_SUCCESS);
                     } else {
+                        trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_FAIL);
                         return dialogService.alert(
                             $translate.instant("IMPORT_ERROR"),
                             $translate.instant("TX_CANT_BE_PUSHED")

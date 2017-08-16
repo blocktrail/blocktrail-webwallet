@@ -20,6 +20,13 @@ angular.module('blocktrail.wallet')
                 BITONIC_BUY_CONFIRM: "bitonic_buy_confirm",
                 BITONIC_OPEN: "bitonic_open",
                 BITONIC_GOTO_BITONIC: "bitonic_goto_bitonic"
+            },
+            SWEEP: {
+                SWEEP_START: "sweep_start",
+                SWEEP_NO_BALANCE: "sweep_no_balance",
+                SWEEP_BALANCE: "sweep_balance",
+                SWEEP_SUCCESS: "sweep_success",
+                SWEEP_FAIL: "sweep_fail"
             }
         };
 
