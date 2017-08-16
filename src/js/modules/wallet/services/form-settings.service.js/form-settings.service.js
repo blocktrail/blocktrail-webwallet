@@ -163,6 +163,8 @@
      * @private
      */
     FormSettingsService.prototype._getSdk = function () {
+        var self = this;
+
         return self._sdk.sdk();
     };
 
@@ -173,6 +175,8 @@
      * @private
      */
     FormSettingsService.prototype._getAccountInfo = function () {
+        var self = this;
+
         return self._launchService.getAccountInfo();
     };
 
