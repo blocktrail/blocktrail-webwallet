@@ -4,8 +4,8 @@
     angular.module("blocktrail.wallet")
         .controller("SweepCoinsModalController", SweepCoinsModalController);
 
-    function SweepCoinsModalController($scope, $modalInstance, sweeperService, sdkService, Wallet, CONFIG, dialogService,
-                                        $translate, $log) {
+    function SweepCoinsModalController($scope, $state, $modalInstance, sweeperService, sdkService, Wallet, CONFIG, dialogService,
+                                        $translate, $log, $timeout) {
         $scope.bip39EN = blocktrailSDK.bip39wordlist;
 
         $scope.working = true;
@@ -18,6 +18,7 @@
 
         $scope.sweepData = {
             rawTx: null,
+            txId: null,
             feePaid: null,
             inputCount: null,
             totalValue: null
@@ -92,7 +93,10 @@
                     $scope.working = false;
 
                     if(result.hash) {
-                        $scope.dismiss();
+                        $timeout(function() {
+                            $scope.sweepData.txId = result.hash;
+                            $scope.stepCount++;
+                        });
                     } else {
                         return dialogService.alert(
                             $translate.instant("IMPORT_ERROR"),
@@ -101,6 +105,13 @@
                     }
                 });
             });
+        };
+
+        $scope.done = function() {
+            $timeout(function() {
+                $state.go('app.wallet.summary');
+            });
+            $modalInstance.close();
         };
 
         $scope.dismiss = function() {
