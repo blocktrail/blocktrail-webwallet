@@ -5,7 +5,7 @@
         .controller("SweepCoinsModalController", SweepCoinsModalController);
 
     function SweepCoinsModalController($scope, $modalInstance, sweeperService, sdkService, Wallet, CONFIG, dialogService,
-                                        $translate, $log, trackingService) {
+                                        $translate, $timeout, $log, trackingService) {
         trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_START);
 
         $scope.bip39EN = blocktrailSDK.bip39wordlist;
