@@ -22,6 +22,7 @@
     "CURRENCIES": ["USD", "EUR", "GBP", "CNY"],
 
     "STATICSDIR": "dev",
+    "STATICSDIR_PREFIX": null,
 
     "FALLBACK_LANGUAGE": false,
 

@@ -50,7 +50,11 @@ var buildAppConfig = function() {
                     config.API_URL = "https://" + config.API_HOST;
                 }
 
-                config.STATICSDIR = config.STATICSDIR || (config.VERSION || config.VERSION_REV).replace(":", "-").replace(".", "-");
+                if (!config.STATICSDIR) {
+                    config.STATICSDIR = config.STATICSDIR_PREFIX + "-" +
+                        (config.VERSION || config.VERSION_REV).replace(":", "-").replace(".", "-").replace(".", "-");
+                }
+
                 if (config.CDN) {
                     if (config.CDN.substr(-1) != "/") throw new Error("CDN should have trailing /");
                     config.STATICSURL = config.CDN + config.STATICSDIR;
