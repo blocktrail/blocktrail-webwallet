@@ -15,6 +15,7 @@
 
         var settings = settingsService.getReadOnlySettings();
 
+        $scope.settings = settings;
         $scope.sideNavList = [
             {
                 stateHref: $state.href("app.wallet.summary"),
@@ -52,7 +53,6 @@
                 isHidden: false
             }
         ];
-
         $scope.appStoreButtonsData = {
             config: CONFIG,
             settings: settings

@@ -1,0 +1,20 @@
+.w-no-more-transactions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  padding: 40px 0 20px;
+  color: $darkgray-light;
+  pointer-events: none;
+  opacity: 0;
+
+  background: -webkit-linear-gradient(top, rgba(255,255,255,0), rgba(240,240,240, .2), rgba(240,240,240, .4)); /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(bottom, rgba(255,255,255,0), rgba(240,240,240, .2), rgba(240,240,240, .4)); /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(bottom, rgba(255,255,255,0), rgba(240,240,240, .2), rgba(240,240,240, .4)); /* For Firefox 3.6 to 15 */
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(240,240,240, .2), rgba(240,240,240, .4));
+
+  &.active {
+    opacity: 1;
+  }
+}

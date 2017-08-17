@@ -2,7 +2,8 @@
 
 <div class="appWrapper">
     <div class="appContainer container">
-        <div class="appLeftCol" style="padding-right: 0px;">
+        <!-- Left column -->
+        <div class="app-left-col">
             <div class="mainMenu">
 
 
@@ -31,32 +32,25 @@
                 </div>-->
                 <!-- TODO END -->
 
+                <!-- Side Nav -->
                 <w-side-nav list="sideNavList"></w-side-nav>
-
+                <!-- App store buttons -->
                 <w-app-store-buttons data="appStoreButtonsData"></w-app-store-buttons>
             </div>
         </div>
-
-        <div class="appRightCol" style="padding-left:0px;">
-            <div class="appHeader">
-                <div class="appHeaderContent">
-                    <div class="row">
-                        <div class="col-xs-4">
-                            <h1 class="pageTitle">{{ pageTitle | translate }}</h1>
-                        </div>
-                        <!--<div class="col-xs-8">
-                            <div class="text-right">
-                                <h1>
-                                    {{ (balance + uncBalance) | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 : false : 'long' }}
-                                    <small>≃ {{ (balance + uncBalance) | satoshiToCurrency: settings.localCurrency : bitcoinPrices }}</small>
-                                </h1>
-                            </div>
-                        </div>-->
-                    </div>
-                </div>
-            </div>
-            <div class="appBody" id="appBody">
-                <div class="appBodyContainer" ui-view="mainView"></div>
+        <!-- Right column -->
+        <div class="app-right-col">
+            <!-- App header -->
+            <app-header
+                    page-title="pageTitle"
+                    balance="balance"
+                    unc-balance="uncBalance"
+                    bitcoin-prices="bitcoinPrices"
+                    settings="settings"
+            ></app-header>
+            <!-- App body -->
+            <div class="app-body" id="app-body">
+                <div class="app-body-container" ui-view="mainView"></div>
             </div>
         </div>
     </div>

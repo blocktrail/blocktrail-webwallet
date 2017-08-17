@@ -1,0 +1,25 @@
+.w-no-transactions {
+  padding: 90px 0;
+  color: $darkgray-light;
+  text-align: center;
+  width: 100%;
+
+  i {
+    font-size: 35px;
+  }
+
+  h1 {
+    font-size: 28px;
+    line-height: 32px;
+  }
+
+  h2 {
+    margin-top: 20px;
+    font-size: 22px;
+    line-height: 26px;
+
+    a {
+      font-weight: $semi-bold;
+    }
+  }
+}

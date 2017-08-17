@@ -1,0 +1,16 @@
+<div class="app-header">
+    <div class="row">
+        <div class="col-xs-4">
+            <h1 class="pageTitle">{{ pageTitle | translate }}</h1>
+        </div>
+
+        <div class="col-xs-8">
+            <div class="text-right">
+                <h1>
+                    {{ (balance + uncBalance) | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 : false : 'long' }}
+                    <small>≃ {{ (balance + uncBalance) | satoshiToCurrency : settings.localCurrency : bitcoinPrices }}</small>
+                </h1>
+            </div>
+        </div>
+    </div>
+</div>
