@@ -58,11 +58,11 @@
                         </label>
                         <div class="row">
                             <div class="col-xs-12">
-                                <div class="display-token contact-token pull-left">
-                                <span
-                                        class="avatar"
-                                        style="background-image: url('{{ formSettings.profilePic }}');"
-                                ></span>
+                                <div class="display-token pull-left">
+                                    <span
+                                            class="avatar"
+                                            style="background-image: url('{{ formSettings.profilePic }}');"
+                                    ></span>
                                 </div>
 
                                 <div class="btn-file-data-holder iit-10">
@@ -223,6 +223,7 @@
         </div>
     </form>
 
+    <!-- Loader overlay -->
     <div
             class="page-loader"
             ng-class="{'active': isLoading}"

@@ -1,0 +1,12 @@
+<ul class="sidebar-nav">
+    <li
+            ng-repeat="item in list"
+            ng-class="{ 'active': $state.includes(item.stateName) }"
+            ng-hide="item.isHidden"
+    >
+        <a ng-href="{{ item.stateHref }}">
+            <i class="bticon" ng-class="item.linkIcon"></i>
+            <span>{{ item.linkText | translate }}</span>
+        </a>
+    </li>
+</ul>

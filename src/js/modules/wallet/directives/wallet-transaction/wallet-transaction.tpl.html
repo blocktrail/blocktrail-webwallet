@@ -1,0 +1,36 @@
+<div ng-click="onShowTransaction(transaction)" class="item-transaction">
+    <div class="row">
+        <div class="col-xs-6">
+            <div class="transaction-info">
+                <div class="media">
+                    <div class="media-left media-media">
+                        <!-- Transaction avatar -->
+                        <wallet-transaction-avatar
+                            transaction="transaction"
+                        ></wallet-transaction-avatar>
+                    </div>
+                    <div class="media-body media-top">
+                        <!-- Transaction description -->
+                        <wallet-transaction-description
+                                transaction="transaction"
+                        ></wallet-transaction-description>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-2 text-center">
+            <!-- Is pending transaction -->
+            <div class="pending" ng-if="!transaction.block_height">
+                <i class="bticon bticon-clock"></i><br/><em>{{ 'TX_INFO_PENDING' | translate }}</em>
+            </div>
+        </div>
+        <div class="col-xs-4 text-right">
+            <div
+                    class="value"
+                    ng-class="isReceived ? 'received' : 'sent'"
+            >
+                {{ transaction['wallet_value_change'] | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}
+            </div>
+        </div>
+    </div>
+</div>

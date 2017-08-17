@@ -4,8 +4,11 @@
     angular.module("blocktrail.wallet")
         .controller("SweepCoinsModalController", SweepCoinsModalController);
 
-    function SweepCoinsModalController($scope, $modalInstance, sweeperService, sdkService, Wallet, CONFIG, dialogService,
-                                        $translate, $timeout, $log, trackingService) {
+    function SweepCoinsModalController($scope, $modalInstance, sweeperService, sdkService, walletsManagerService, CONFIG, dialogService,
+                                        $translate, $log, trackingService) {
+
+        var activeWallet = walletsManagerService.getActiveWallet();
+
         trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_START);
 
         $scope.bip39EN = blocktrailSDK.bip39wordlist;
@@ -42,7 +45,7 @@
             testnet: CONFIG.TESTNET
         };
 
-        Wallet.getNewAddress().then(function (address) {
+        activeWallet.getNewAddress().then(function (address) {
             options.recipient = address;
             $scope.working = false;
         });
