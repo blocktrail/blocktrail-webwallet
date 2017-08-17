@@ -34,9 +34,9 @@ angular.module('blocktrail.wallet').factory(
                 .then(function(wallet) { $log.debug('initWallet'); return wallet; }, function(e) { $log.debug('initWallet.ERR'); throw e; });
 
             // attempt a small refill every 3 minutes
-            $interval(function() {
+            /*$interval(function() {
                 self.refillOfflineAddresses(1);
-            }, 3 * 60 * 1000);
+            }, 3 * 60 * 1000);*/
         };
 
         Wallet.prototype.addTransactionMetaResolver = function(resolver) {
@@ -563,7 +563,7 @@ angular.module('blocktrail.wallet').factory(
 
         var wallet = new Wallet();
 
-        wallet.setupInterval(8000);
+        // wallet.setupInterval(8000);
 
         return wallet;
     }

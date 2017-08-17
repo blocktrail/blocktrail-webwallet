@@ -1,0 +1,63 @@
+<div ng-include="'templates/common/navbar.html'"></div>
+
+<div class="appWrapper">
+    <div class="appContainer container">
+        <div class="appLeftCol" style="padding-right: 0px;">
+            <div class="mainMenu">
+
+
+                <!-- TODO REMOVE -->
+                <!--<p style="color: #fff;">Active wallet:</p>
+
+                <p style="color: #fff;">
+                    {{ activeWallet._sdkWallet.identifier }}
+                </p>
+
+                <p style="color: #fff;">
+                    Active wallet:
+                </p>
+                <p style="color: #fff;">
+                    {{ activeWalletFromManager._sdkWallet.identifier }}
+                </p>
+
+                <p style="color: #fff">
+                    Is init wallet: {{ isInitWallet }}
+                </p>
+
+                <div>
+                    <button class="btn" ng-click="onChangeActiveWallet('mywallet-a2bc673da1248d64')">a2bc673da1248d64</button>
+                    <button class="btn" ng-click="onChangeActiveWallet('mywallet-0e03ee792ad51a77')">0e03ee792ad51a77</button>
+                    <button class="btn" ng-click="onChangeActiveWallet('blocktrail-wallet-10f60f52950101f1')">blocktrail-wallet-10f60f52950101f1</button>
+                </div>-->
+                <!-- TODO END -->
+
+                <w-side-nav list="sideNavList"></w-side-nav>
+
+                <w-app-store-buttons data="appStoreButtonsData"></w-app-store-buttons>
+            </div>
+        </div>
+
+        <div class="appRightCol" style="padding-left:0px;">
+            <div class="appHeader">
+                <div class="appHeaderContent">
+                    <div class="row">
+                        <div class="col-xs-4">
+                            <h1 class="pageTitle">{{ pageTitle | translate }}</h1>
+                        </div>
+                        <!--<div class="col-xs-8">
+                            <div class="text-right">
+                                <h1>
+                                    {{ (balance + uncBalance) | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 : false : 'long' }}
+                                    <small>≃ {{ (balance + uncBalance) | satoshiToCurrency: settings.localCurrency : bitcoinPrices }}</small>
+                                </h1>
+                            </div>
+                        </div>-->
+                    </div>
+                </div>
+            </div>
+            <div class="appBody" id="appBody">
+                <div class="appBodyContainer" ui-view="mainView"></div>
+            </div>
+        </div>
+    </div>
+</div>

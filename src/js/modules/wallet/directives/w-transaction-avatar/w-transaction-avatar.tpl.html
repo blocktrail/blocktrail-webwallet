@@ -1,0 +1,24 @@
+<div
+        class="display-token"
+        ng-class="transaction.contact ? 'contact-token' : 'anon-token'"
+>
+    <!-- Display contact initials, default is empty string  -->
+    {{ transaction.contactInitials }}
+
+    <!-- Display avatar -->
+    <span
+            ng-if="transaction.contact"
+            class="avatar"
+            style="background-image: url('data:image/jpeg;base64, {{ avatarUrl }}');"
+            ng-class="isReceived ? 'received' : 'sent'"
+    >
+    </span>
+
+    <!-- Display default avatar -->
+    <img
+            ng-if="!transaction.contact"
+            class="avatar img-circle"
+            ng-src="{{defaultAvatarUrl}}"
+            ng-class="isReceived ? 'received' : 'sent'"
+    />
+</div>

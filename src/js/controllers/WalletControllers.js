@@ -1,5 +1,5 @@
 angular.module('blocktrail.wallet')
-    .controller('WalletCtrl', function($q, $log, $scope, $state, $rootScope, $interval, storageService, sdkService, Wallet, $modal,
+    .controller('OLD_WalletCtrl', function($q, $log, $scope, $state, $rootScope, $interval, storageService, sdkService, Wallet, $modal,
                                        Contacts, CONFIG, settingsService, setupService, $timeout, launchService, blocktrailLocalisation,
                                        dialogService, $http, $translate, buyBTCService, Currencies, AppVersionService, $filter) {
 
@@ -208,7 +208,7 @@ angular.module('blocktrail.wallet')
 );
 
 angular.module('blocktrail.wallet')
-    .controller('WalletSummaryCtrl', function($scope, $rootScope, $state, $log, $filter, $http, $q, $timeout, Wallet,
+    .controller('OLD_WalletSummaryCtrl', function($scope, $rootScope, $state, $log, $filter, $http, $q, $timeout, Wallet,
                                               launchService, settingsService, buyBTCService, $translate, $modal, CONFIG, CurrencyConverter) {
         $rootScope.pageTitle = 'TRANSACTIONS';
         // update balance from cache
@@ -480,12 +480,11 @@ angular.module('blocktrail.wallet')
 ;
 
 angular.module('blocktrail.wallet')
-    .controller('WalletTxInfoCtrl', function($scope, $modalInstance, data) {
+    .controller('OLD_WalletTxInfoCtrl', function($scope, $modalInstance, data) {
         $scope.data = data.transaction;
         $scope.localCurrency = data.localCurrency;
 
         $scope.dismiss = function() {
             $modalInstance.dismiss();
         }
-    })
-;
+    });

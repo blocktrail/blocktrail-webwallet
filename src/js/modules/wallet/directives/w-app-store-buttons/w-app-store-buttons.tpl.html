@@ -1,0 +1,24 @@
+<div class="appStoreButtons">
+    <a target="_blank" href="{{ data.config['MIRROR_WALLET_URL'] }}" class="btn-appstore">
+        <i class="bticon bticon-export"></i>
+        <span class="sentence-case">{{ data.config['MIRROR_NETWORK_LONG'] }} Wallet</span>
+    </a>
+    <div ng-if="data.config['PROMOTE_MOBILE']">
+        <!-- TODO Remove hr add separator calss -->
+        <hr style="margin-right: 25px; margin-top: 10px; margin-bottom: 10px; border-top: 1px solid #999;" />
+        <a href="https://btc.com/wallet/download" class="btn-appstore"
+           ng-if="data.settings.language === 'cn'">
+            <i class="bticon bticon-android"></i>
+            <span class="sentence-case">{{ 'APP_DOWNLOAD_ON' | translate }} <b>Android</b></span>
+        </a>
+        <a href="https://play.google.com/store/apps/details?id=com.blocktrail.mywallet" class="btn-appstore"
+           ng-if="data.settings.language !== 'cn'">
+            <i class="bticon bticon-android"></i>
+            <span class="sentence-case">{{ 'APP_DOWNLOAD_ON' | translate }} <b>Android</b></span>
+        </a>
+        <a href="https://itunes.apple.com/us/app/blocktrail-bitcoin-wallet/id1019614423" class="btn-appstore">
+            <i class="bticon bticon-apple"></i>
+            <span class="sentence-case">{{ 'APP_DOWNLOAD_ON' | translate }} <b>iOS</b></span>
+        </a>
+    </div>
+</div>

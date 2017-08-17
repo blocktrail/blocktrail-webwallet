@@ -49,6 +49,9 @@ angular.module('blocktrail.wallet').factory(
         db('wallet_info');
         db('settings');
 
+        // TODO Delete wallet-cache history
+        db('wallet');
+
         return {
             db: db,
             destroy: destroy,

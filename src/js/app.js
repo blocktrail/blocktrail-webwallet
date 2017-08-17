@@ -217,10 +217,16 @@ angular.module('blocktrail.wallet').config(
                 abstract: true,
                 url: "/wallet",
                 controller: "WalletCtrl",
-                templateUrl: "templates/wallet/wallet.html",
+                templateUrl: "js/modules/wallet/controllers/wallet/wallet.tpl.html",
                 resolve: {
                     handleSetupState: function($state, launchService) {
                         return launchService.handleSetupState('app.wallet', $state);
+                    },
+                    activeWallet: function($state, walletsManagerService) {
+                        return walletsManagerService.fetchWallets()
+                            .then(function() {
+                                return walletsManagerService.setActiveWalletById(null);
+                            });
                     },
                     /**
                      * @param handleSetupState      require handleSetupState to make sure we don't load anything before we're sure we're allowed too
@@ -231,15 +237,14 @@ angular.module('blocktrail.wallet').config(
                      * @param $log
                      * @param Currencies
                      */
-                    loadingData: function(handleSetupState, Wallet, settingsService, $q, $rootScope, $log, Currencies) {
+                    loadingData: function(handleSetupState, activeWallet, settingsService, $q, $rootScope, $log, Currencies) {
                         // Do an initial load of cached user data
                         return $q.all([
-                            Wallet.balance(true),
+                            activeWallet.getBalance(true),
                             Currencies.updatePrices(true),
                             settingsService.getSettings()
                         ]).then(function(results) {
                             $log.debug("Initial load complete");
-
                             $rootScope.balance = results[0].balance;
                             $rootScope.uncBalance = results[0].uncBalance;
                             $rootScope.bitcoinPrices = results[1];
@@ -254,7 +259,7 @@ angular.module('blocktrail.wallet').config(
                 url: "",
                 views: {
                     "mainView@app.wallet": {
-                        templateUrl: "templates/wallet/wallet.summary.html",
+                        templateUrl: "js/modules/wallet/controllers/wallet-summary/wallet-summary.tpl.html",
                         controller: 'WalletSummaryCtrl'
                     }
                 }

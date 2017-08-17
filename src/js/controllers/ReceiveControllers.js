@@ -1,5 +1,8 @@
 angular.module('blocktrail.wallet')
-    .controller('ReceiveCtrl', function($scope, $rootScope, CONFIG, Wallet, CurrencyConverter, Currencies, $q, $timeout, $translate, trackingService) {
+    .controller('ReceiveCtrl', function($scope, $rootScope, CONFIG, Wallet, settingsService, CurrencyConverter, Currencies, $q, $timeout, $translate, trackingService) {
+        // TODO Review
+        $scope.settings = settingsService.getReadOnlySettings();
+
         $rootScope.pageTitle = 'RECEIVE';
 
         $scope.paymentReceived = false;
@@ -103,6 +106,7 @@ angular.module('blocktrail.wallet')
         //generate the first address
         $scope.newAddress();
 
+        // TODO Create a subscription on change transaction list
         $scope.$on('new_transactions', function(event, transactions) {
             //show popup (and maybe vibrate?) on new tx
             $scope.paymentReceived = true;
