@@ -1,0 +1,45 @@
+<div ng-include="'templates/common/navbar.html'"></div>
+
+<div class="appWrapper">
+    <div class="appContainer container">
+        <!-- Left column -->
+        <div class="app-left-col">
+            <div class="mainMenu">
+                <div ng-if="debugMode" style="border: 1px dashed #fff;" class="iit-10 iil-15 iir-15 iib-10">
+                    <p style="color: #fff;">Debug mode only</p>
+                    <p style="color: #fff;">{{ walletData.identifier }}</p>
+                    <p style="color: #fff;">{{ activeWalletIdentifier }}</p>
+
+                    <select ng-model="activeWalletIdentifier"
+                            ng-change="onChangeActiveWallet(activeWalletIdentifier)">
+                        <option ng-repeat="option in walletsList"
+                                ng-if="option.network === CONFIG.NETWORK"
+                                value="{{ option.identifier }}">
+                            [{{ option.network }}] {{ option.identifier }} ({{ option.balance | satoshiToCurrency : 'BTC' : bitcoinPrices : 5 }})
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Side Nav -->
+                <wallet-side-nav list="sideNavList"></wallet-side-nav>
+                <!-- App store buttons -->
+                <wallet-app-store-buttons data="appStoreButtonsData"></wallet-app-store-buttons>
+            </div>
+        </div>
+        <!-- Right column -->
+        <div class="app-right-col">
+            <!-- App header -->
+            <app-header
+                    page-title="pageTitle"
+                    balance="walletData.balance"
+                    unc-balance="walletData.uncBalance"
+                    bitcoin-prices="bitcoinPrices"
+                    settings="settings"
+            ></app-header>
+            <!-- App body -->
+            <div class="app-body" id="app-body">
+                <div class="app-body-container" ui-view="mainView"></div>
+            </div>
+        </div>
+    </div>
+</div>

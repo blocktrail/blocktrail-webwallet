@@ -43,9 +43,7 @@ angular.module('blocktrail.wallet').factory(
         // init defaults
         db('launch');
         db('contacts');
-        db('tx-cache');
-        db('wallet-cache');
-        db('history');
+        db('wallet');
         db('wallet_info');
         db('settings');
 

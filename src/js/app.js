@@ -217,10 +217,25 @@ angular.module('blocktrail.wallet').config(
                 abstract: true,
                 url: "/wallet",
                 controller: "WalletCtrl",
-                templateUrl: "templates/wallet/wallet.html",
+                templateUrl: "js/modules/wallet/controllers/wallet/wallet.tpl.html",
                 resolve: {
                     handleSetupState: function($state, launchService) {
                         return launchService.handleSetupState('app.wallet', $state);
+                    },
+                    activeWallet: function($state, launchService, walletsManagerService) {
+                        return walletsManagerService.fetchWalletsList()
+                            .then(function() {
+                                return launchService.getWalletInfo().then(function(walletInfo) {
+                                    var activeWallet = walletsManagerService.getActiveWallet();
+
+                                    // active wallet is null when we load first time
+                                    if(!activeWallet) {
+                                        activeWallet = walletsManagerService.setActiveWalletById(walletInfo.identifier);
+                                    }
+
+                                    return activeWallet;
+                                });
+                            });
                     },
                     /**
                      * @param handleSetupState      require handleSetupState to make sure we don't load anything before we're sure we're allowed too
@@ -231,19 +246,15 @@ angular.module('blocktrail.wallet').config(
                      * @param $log
                      * @param Currencies
                      */
-                    loadingData: function(handleSetupState, Wallet, settingsService, $q, $rootScope, $log, Currencies) {
+                    loadingData: function(handleSetupState, settingsService, $q, $rootScope, $log, Currencies) {
                         // Do an initial load of cached user data
                         return $q.all([
-                            Wallet.balance(true),
                             Currencies.updatePrices(true),
                             settingsService.getSettings()
                         ]).then(function(results) {
                             $log.debug("Initial load complete");
-
-                            $rootScope.balance = results[0].balance;
-                            $rootScope.uncBalance = results[0].uncBalance;
-                            $rootScope.bitcoinPrices = results[1];
-                            $rootScope.changeLanguage(results[2].language);
+                            $rootScope.bitcoinPrices = results[0];
+                            $rootScope.changeLanguage(results[1].language);
                             return true;
                         });
                     }
@@ -254,7 +265,7 @@ angular.module('blocktrail.wallet').config(
                 url: "",
                 views: {
                     "mainView@app.wallet": {
-                        templateUrl: "templates/wallet/wallet.summary.html",
+                        templateUrl: "js/modules/wallet/controllers/wallet-summary/wallet-summary.tpl.html",
                         controller: 'WalletSummaryCtrl'
                     }
                 }
@@ -477,77 +488,6 @@ function parseQuery(url) {
     }
     return query;
 }
-
-/**
- * use promises to loop over a `list` of items and execute `fn`
- * with a trailing window of `n` items to avoid blocking
- *
- * @param list
- * @param n
- * @param fn
- */
-window.QforEachLimit = function(list, n, fn) {
-    // copy list (we'll by popping and we don't want to modify the list)
-    var queue = list.slice();
-    var results = [];
-
-    if (typeof n === "function") {
-        fn = n;
-        n = null;
-    }
-
-    // exec batch() which is recursive
-    return (function batch() {
-        var b = [], v;
-
-        if (n === null) {
-            b = queue;
-        } else {
-            // pop until you drop
-            for (var i = 0; i < n; i++) {
-                v = queue.shift();
-                if (v) {
-                    b.push(v);
-                }
-            }
-        }
-
-        // when there's nothing left pop'd we'll return the final results
-        if (!b.length) {
-            return Q.when(results);
-        }
-
-        // create a .all promise for this batch
-        return Q.all(
-            b.map(function(i) {
-                return Q.when(i).then(fn);
-            })
-        )
-        // when the batch is done we concat the results and continue
-            .then(function(_results) {
-                if (n === null) {
-                    return _results;
-                } else {
-                    results = results.concat(_results);
-
-                    return batch();
-                }
-            })
-            ;
-    })();
-};
-
-window.Qwaterfall = function(fns, arg) {
-    var p = Q.when(arg);
-
-    fns.slice().forEach(function(fn) {
-        p = p.then(function(arg) {
-            return fn(arg);
-        });
-    });
-
-    return p;
-};
 
 function randNumber() {
     do {

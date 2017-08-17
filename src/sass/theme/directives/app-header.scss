@@ -1,0 +1,21 @@
+.app-header {
+  padding: 20px 40px;
+  border-bottom: 1px solid $muted;
+  height: $appHeaderHeight;
+
+  h1 {
+    margin: 0;
+    font-size: 24px;
+    line-height: 40px;
+    font-weight: $bold;
+
+    small {
+      color: $text-muted;
+      font-size: 20px;
+    }
+
+    &.pageTitle {
+      @include networkPrimaryBG('color');
+    }
+  }
+}
