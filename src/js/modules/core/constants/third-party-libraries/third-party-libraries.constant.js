@@ -10,5 +10,6 @@
         .constant("bip39", window.blocktrailSDK.bip39)
         .constant("randomBytesJS", window.blocktrailSDK.randomBytes)
         .constant("bowserJS", window.bowser)
-        .constant("PouchDB", window.PouchDB);
+        .constant("PouchDB", window.PouchDB)
+        .constant("powtcha", window.powtcha);
 })();

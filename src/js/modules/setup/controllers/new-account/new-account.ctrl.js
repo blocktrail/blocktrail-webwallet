@@ -5,9 +5,18 @@
         .controller("SetupNewAccountCtrl", SetupNewAccountCtrl);
 
     function SetupNewAccountCtrl($scope, $rootScope, $state, $q, $http, $timeout, cryptoJS, launchService, CONFIG,
-             setupService, dialogService, $translate, $log, PasswordStrength, $filter) {
+             setupService, dialogService, $translate, $log, PasswordStrength, $filter, powtchaService) {
         // display mobile app download popup
         $scope.showMobileDialogOnce();
+
+        var powtchaPromise;
+        var refreshPowtchaPromise = function() {
+            powtchaPromise = powtchaService.newPoWtcha();
+            powtchaPromise.then(function(powtcha) {
+                powtcha.startingWorkingBG();
+            });
+        };
+        refreshPowtchaPromise();
 
         $scope.usernameTaken = null;
         $scope.termsofservice = false;
@@ -117,6 +126,14 @@
         };
 
         $scope.register = function() {
+            powtchaPromise.then(function(powtcha) {
+                return powtcha.findNonce().then(function(res) {
+                    return $scope._register(res);
+                });
+            });
+        };
+
+        $scope._register = function(powtchaResult) {
             var postData = {
                 username: $scope.form.username,
                 email: $scope.form.email,
@@ -125,7 +142,8 @@
                 platform: "Web",
                 version: $rootScope.appVersion,
                 device_name: navigator.userAgent || "Unknown Browser",
-                super_secret: CONFIG.SUPER_SECRET || null
+                super_secret: CONFIG.SUPER_SECRET || null,
+                powtcha: powtchaResult
             };
 
             $http.post(CONFIG.API_URL + "/v1/BTC/mywallet/register", postData)
@@ -148,6 +166,7 @@
                         });
                     },
                     function(error) {
+                        refreshPowtchaPromise();
                         $log.error(error);
                         $scope.working = false;
 

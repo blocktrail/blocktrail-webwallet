@@ -173,6 +173,7 @@ gulp.task('js:libs', ['appconfig'], function() {
 
             "./src/lib/bowser/src/bowser.js",
             "./src/lib/semver/semver.browser.js",
+            "./src/lib/powtcha/build/powtcha.js",
 
             "./src/lib/angular-translate/angular-translate.js",
             "./src/lib/libphonenumber/dist/libphonenumber.js",
