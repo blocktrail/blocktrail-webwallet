@@ -1,0 +1,40 @@
+@import "../../src/sass/app.scss";
+
+.btn-round {
+    border-radius: 4px !important;
+}
+
+.col-sm-12 {
+    padding-top: 10px;
+}
+
+.form-control {
+    background-color: rgb(255, 255, 255);
+    border-image-outset: 0 0 0 0;
+    border-image-repeat: stretch stretch;
+    border-image-slice: 100% 100% 100% 100%;
+    border-image-source: none;
+    border-image-width: 1 1 1 1;
+    border-radius: 1px;
+    border: 1px solid rgb(204, 204, 204);
+    box-shadow: none;
+    box-sizing: border-box;
+    color: rgb(85, 85, 85);
+    cursor: text;
+    display: block;
+    font-weight: 400;
+    height: 46px;
+    line-height: 23.9333px;
+    padding: 10px 16px;
+}
+
+.formContainer {
+    background-color: $white;
+    padding: 20px 20px 20px 20px;
+    margin: 75px 0px;
+    border: 1px solid $muted;
+    font-size:16px;
+    height: 100%;
+    width: 50%;
+    text-align: center;
+}

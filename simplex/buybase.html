@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-    <title>Partner Template</title>
+    <title>BTC Wallet - putting you in control of your Bitcoin</title>
 
-    <!-- template design - can be removed -->
+    <!-- template design -->
     <link rel="stylesheet" href="./css/app.css" type="text/css" media="all">
-    <!-- template design - can be removed  - end -->
+    <!-- template design -->
 
     <!--[if lt IE 9]>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.0.5/es5-shim.min.js"></script>
@@ -17,73 +17,147 @@
     <![endif]-->
 
 </head>
-<body>
+<body class="network-btc" style="height: 100%;">
     <!-- Add you website content here -->
 
-    <!-- the control -->
-    <div id="app" class="container">
-        <form @submit="sendPaymentRequest" method="POST" class="container">
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="https://wallet.btc.com" target="_self"><img src="/img/logo-btc-reverse.png"/></a>
+            </div>
+        </div>
+    </nav>
 
-            <div class="row">
-                <div class="col-sm-6">
-                    <div class="md-form input-group">
-                        <input type="number" class="form-control" step="0.00000001" v-model.number="btc_amount" @input="onBTCAmountChange" required>
-                        <span class="input-group-btn">
-                            <button class="btn btn-primary btn-lg" type="button">BTC</button>
-                        </span>
-                    </div>
-                </div>
-                <div class="col-sm-6">
-                    <div class="md-form input-group">
-                        <input type="number" class="form-control" step="0.01"min="50" max="50000" v-model.number="fiat_amount" @input="onAmountChange" required>
-                        <span class="input-group-btn">
-                            <div class="btn-group">
-                                <button class="group-dropdown-fix btn btn-primary btn-lg" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ selectedFiatCurrency }}</button>
+    <div >
+        <div class="row">
+            <div class="col-md-8 col-md-offset-4 col-sm-12 col-xs-12">
+                <div class="appWrapper">
+                    <div class="formContainer">
 
-                                <div class="dropdown-menu">
-                                    <div v-for="currency in supported_currency" :class="selectedFiatCurrency == currency.name? 'dropdown-item disabled' : 'dropdown-item'"  @click="changeFiat(currency.name,currency.ratio )">{{ currency.name }}</div>
+                        <!-- the control -->
+                        <div id="app">
+                            <form @submit="sendPaymentRequest" method="POST" >
+
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <label class="control-label">Bitcoin Amount</label>
+                                        <div class="md-form input-group">
+                                            <input type="number" class="form-control" step="0.00000001" v-model.number="btc_amount" @input="onBTCAmountChange" required>
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-primary btn-round form-control" type="button">BTC</button>
+                                                </span>
+                                           </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </span>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <label class="control-label">Fiat Amount</label>
+                                        <div class="md-form input-group">
+                                            <input type="number" class="form-control" step="0.01"min="50" max="50000" v-model.number="fiat_amount" @input="onAmountChange" required>
+                                            <span class="input-group-btn">
+                                                <div class="btn-group">
+                                                    <button class="btn btn-primary btn-round form-control group-dropdown-fix" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ selectedFiatCurrency }}</button>
+
+                                                    <div class="dropdown-menu">
+                                                        <div v-for="currency in supported_currency" :class="selectedFiatCurrency == currency.name? 'dropdown-item disabled' : 'dropdown-item'"  @click="changeFiat(currency.name,currency.ratio )">{{ currency.name }}</div>
+                                                    </div>
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <input class="form-control" type="text" v-model="btcaddress" placeholder="Bitcoin address" required/>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <span v-show="showAddressError" class="red-text">{{ getAddressError }}</span>
+                                    </div>
+                                    <div class="col-xs-6">
+                                    <div class="text-right">
+                                    <a target="_blank" :href="config.walleturl">don't have one?</a>
+                                    </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-6 text-right">
+                                        <div ref="rehead" :class="showRecaptchaError? 'recaptcha_box_error' : ''">
+                                            <div :class="config.recaptcha_site_key? 'g-recaptcha' : ''" :data-sitekey="config.recaptcha_site_key" ></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-12 text-sm-center text-center">
+                                        <button type="submit" class="btn btn-primary btn-lg">Buy</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <div ref="formplaceholder"></div>
+                        </div>
+                        <!-- the control end -->
                     </div>
                 </div>
             </div>
-
-            <div class="row">
-                <div class="col-xs-12">
-                    <input type="text" v-model="btcaddress" placeholder="Bitcoin address" required/>
-                </div>
-                <div class="col-xs-6">
-                    <span v-show="showAddressError" class="red-text">{{ getAddressError }}</span>
-                </div>
-                <div class="col-xs-6">
-                    <div class="text-xs-right">
-                    <a target="_blank" :href="config.walleturl">don't have one?</a>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="row">
-                <div class="col-xs-12">
-                    <div ref="rehead" :class="showRecaptchaError? 'recaptcha_box_error' : ''">
-                        <div :class="config.recaptcha_site_key? 'g-recaptcha' : ''" :data-sitekey="config.recaptcha_site_key" ></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-xs-12 text-xs-center">
-                    <button type="submit" class="btn btn-primary btn-lg">CLICK TO CONTINUE</button>
-                </div>
-            </div>
-
-        </form>
-        <div ref="formplaceholder"></div>
+        </div>
     </div>
-    <!-- the control end -->
 
-    <!-- Add you website content here -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-3" style="padding-left: 0;">
+                    <div class="copyright">
+                        <div class="copyright-logo"></div>
+                        <div class="copyright-text">&copy; Copyright BTC.COM 2017. All Rights Reserved.</div>
+                    </div>
+                </div>
+                <div class="col-xs-9 links" style="padding-right: 0;">
+                    <div class="links-column">
+                        <div class="links-category">Products</div>
+                        <ul class="links-list">
+                            <li class="links-list-item"><a target="_blank" href="https://www.bitmain.com">Antminer</a></li>
+                            <li class="links-list-item"><a target="_blank" href="https://www.pool.btc.com">BTC.com Pool</a></li>
+                            <li class="links-list-item"><a target="_blank" href="https://www.btc.com">BTC.com Explorer</a></li>
+                            <li class="links-list-item"><a target="_blank" href="https://www.hashnest.com">Hashnest
+                    </div>
+                    <div class="links-column">
+                        <div class="links-category">Company</div>
+                        <ul class="links-list">
+                            <li class="links-list-item"><a target="_blank" href="https://www.bitmain.com/about">About us</a></li>
+                            <li class="links-list-item"><a target="_blank" href="https://www.bitmain.com/join_us">Join us</a></li>
+                            <li class="links-list-item"><a target="_blank" href="http://support.bitmain.com/hc/en-us/requests/new">Contact us</a></li>
+                            <li class="links-list-item"><a target="_blank" href="https://blog.btc.com/">Blog</a></li>
+                        </ul>
+                    </div>
+                    <div class="links-column">
+                        <div class="links-category">Media</div>
+                        <ul class="links-list">
+                            <li class="links-list-item"><a target="_blank" href="http://weibo.com/bitmain">Official Weibo</a></li>
+                            <li class="links-list-item"><a target="_blank" href="http://forum.bitmain.com/">Community</a></li>
+                            <li class="links-list-item"><a target="_blank" href="https://twitter.com/btccom_official">Twitter</a></li>
+                            <li class="links-list-item"><a target="_blank" href="https://www.facebook.com/btccom">Facebook</a></li>
+                        </ul>
+                    </div>
+                    <div class="links-column">
+                        <div class="links-category">Developers</div>
+                        <ul class="links-list">
+                            <li class="links-list-item"><a href="{{ route('api') }}">API</a></li>
+                        </ul>
+                        <ul class="links-list">
+                            <li class="links-list-item">
+                                <a target="_blank" href="https://bmfeedback.bitmain.com/feedback/app_feedback/?app=BTC.COM&imei=1236456456">
+                                    Feedback</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <!-- control JS -->
     <script src='https://www.google.com/recaptcha/api.js'></script>
