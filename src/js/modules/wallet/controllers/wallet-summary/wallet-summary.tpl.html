@@ -2,16 +2,10 @@
         class="tx-list page-blur"
         ng-class="{'page-blur-active': isLoading}"
 >
-    <div ng-if="twoFactorWarning">
-        <div class="alert alert-warning" style="border-radius:0px;border-top:0px;">
-            <button class="btn btn-warning pull-right" ui-sref="app.wallet.settings"><i class="bticon bticon-cog"></i> {{ 'SETTINGS' | translate }}</button>
-            <b><i class="bticon bticon-warning-empty"></i> {{ 'SECURITY_REMINDER' | translate }}</b>
-            <p>{{ 'SECURITY_REMINDER_2FA' | translate }}</p>
-        </div>
-    </div>
-
+    <!-- Two factor warning -->
+    <app-two-factor-warning ng-show="isTwoFactorWarning"></app-two-factor-warning>
     <!-- Transactions with an infinite scroll -->
-    <div infinite-scroll="onShowMoreTransactions()" infinite-scroll-container="'#app-body'" infinite-scroll-distance="0.2">
+    <div infinite-scroll="onShowMoreTransactions()" infinite-scroll-container="'#app-body'" infinite-scroll-distance="0.15">
         <div ng-if="buybtcPendingOrders.length > 0">
             <div class="row">
                 <div class="col-xs-12">
@@ -85,7 +79,7 @@
         <!-- Wallet no transactions message -->
         <w-no-transactions ng-show="!isLoading && !transactions.length"></w-no-transactions>
         <!-- Wallet no more transaction message -->
-        <w-no-more-transactions></w-no-more-transactions>
+        <w-no-more-transactions ng-class="{ active: isShowNoMoreTransactions }"></w-no-more-transactions>
     </div>
     <!-- Loader overlay -->
     <div

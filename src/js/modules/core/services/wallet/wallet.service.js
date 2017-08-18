@@ -40,7 +40,7 @@
     WalletService.prototype._initWallet = function(walletId, sdkWallet) {
         var self = this;
 
-        return new Wallet(sdkWallet, self._$q, self._$timeout, self._storageService);
+        return new Wallet(sdkWallet, self._$q, self._$timeout, self._storageService, self._bitcoinJS);
     };
 
 
@@ -57,17 +57,18 @@
      * @constructor
      */
 
-    function Wallet(sdkWallet, $q, $timeout, storageService) {
+    function Wallet(sdkWallet, $q, $timeout, storageService, bitcoinJS) {
         var self = this;
 
         self._$q = $q;
         self._$timeout = $timeout;
+        self._bitcoinJS = bitcoinJS;
 
         // Flags with promises
         self._pollPromise = null;
         self._pollTimeout = null;
 
-        self._pollingInterval = 10000;
+        self._pollingInterval = 1000;
         self._noPolling = false;
 
 
@@ -185,15 +186,12 @@
 
 
 
+
     Wallet.prototype.addTransactionMetaResolver = function(resolver) {
         var self = this;
 
         self.transsactionMetaResolvers.push(resolver);
     };
-
-
-
-
 
     Wallet.prototype.disablePolling = function() {
         var self = this;
@@ -227,17 +225,6 @@
 
         return true;
     };
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -980,37 +967,32 @@
     Wallet.prototype.validateAddress = function(address) {
         var self = this;
 
-        /* @TODO: use this once added to the SDK
-         return self.sdk.then(function(sdk) {
-         return sdk.validateAddress(address);
-         });
-         */
+        return self._$q.when(address)
+            .then(function(address) {
+                var addr, err;
 
-        return self.sdk.then(function(sdk) {
-            var addr, err;
-
-            try {
-                addr = bitcoinJS.Address.fromBase58Check(address);
-                if (addr.version !== sdk.network.pubKeyHash && addr.version !== sdk.network.scriptHash) {
-                    err = new blocktrail.InvalidAddressError("Invalid network");
+                try {
+                    addr = self._bitcoinJS.address.fromBase58Check(address);
+                    if (addr.version !== self._sdkWallet.sdk.network.pubKeyHash && addr.version !== self._sdkWallet.sdk.network.scriptHash) {
+                        err = new blocktrail.InvalidAddressError("Invalid network");
+                    }
+                } catch (_err) {
+                    err = _err;
                 }
-            } catch (_err) {
-                err = _err;
-            }
 
-            if (!addr || err) {
-                throw new blocktrail.InvalidAddressError("Invalid address [" + address + "]" + (err ? " (" + err.message + ")" : ""));
-            }
+                if (!addr || err) {
+                    throw new blocktrail.InvalidAddressError("Invalid address [" + address + "]" + (err ? " (" + err.message + ")" : ""));
+                }
 
-            return address;
-        });
+                return address;
+            });
     };
 
     //
     Wallet.prototype.unlockWithPassword = function(password) {
         var self = this;
 
-        return self.wallet
+        return self._$q.when(self._sdkWallet)
             .then(function(wallet) {
                 return wallet.unlock({
                     password: password
@@ -1047,7 +1029,7 @@
 
         self.isRefilling = true;
 
-        return self.addressRefillPromise = self.walletCache.get('addresses')
+        return self.addressRefillPromise = self.walWletCache.get('addresses')
             .then(function(addressesDoc) {
                 return addressesDoc;
             }, function(e) {
@@ -1059,24 +1041,22 @@
 
                 // $log.debug('refill address by ' + cappedRefill);
                 if (cappedRefill > 0) {
-                    return self.wallet.then(function(wallet) {
-                        return Q.all(repeat(cappedRefill, function(i) {
-                            return wallet.getNewAddress().then(function(result) {
-                                addressesDoc.available.push(result[0]);
+                    return Q.all(repeat(cappedRefill, function(i) {
+                        return self._sdkWallet.getNewAddress().then(function(result) {
+                            addressesDoc.available.push(result[0]);
+                        });
+                    })).then(function() {
+                        // fetch doc again, might have been modified!
+                        self.walletCache.get('addresses')
+                            .then(function(r) { return r; }, function(e) { return {_id: "addresses", available: []} })
+                            .then(function(_addressesDoc) {
+                                _addressesDoc.available = _addressesDoc.available.concat(addressesDoc.available).unique();
+                                return self.walletCache.put(_addressesDoc);
+                            })
+                            .then(function() {
+                                self.isRefilling = false;
+                                return true;
                             });
-                        })).then(function() {
-                            // fetch doc again, might have been modified!
-                            self.walletCache.get('addresses')
-                                .then(function(r) { return r; }, function(e) { return {_id: "addresses", available: []} })
-                                .then(function(_addressesDoc) {
-                                    _addressesDoc.available = _addressesDoc.available.concat(addressesDoc.available).unique();
-                                    return self.walletCache.put(_addressesDoc);
-                                })
-                                .then(function() {
-                                    self.isRefilling = false;
-                                    return true;
-                                });
-                        })
                     });
                 } else {
                     self.isRefilling = false;
@@ -1098,12 +1078,8 @@
                 return address;
             },
             function(e) {
-                return self.wallet.then(function(wallet) {
-                    return wallet.getNewAddress().then(
-                        function(result) {
-                            return result[0];
-                        }
-                    )
+                return self._sdkWallet.getNewAddress().then(function(result) {
+                    return result[0];
                 });
             }
         );
