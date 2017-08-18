@@ -1,0 +1,57 @@
+{
+  "name": "powtcha",
+  "version": "0.1.2",
+  "license": "MIT",
+  "author": {
+    "name": "Ruben de Vries <ruben@rubensayshi.com>"
+  },
+  "contributors": [
+    {
+      "name": "Ruben de Vries",
+      "email": "ruben@rubensayshi.com"
+    },
+    {
+      "name": "Thomas Kerin"
+    }
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">= 4.0"
+  },
+  "files": [
+    "package.json",
+    "README.md",
+    "index.js",
+    "lib/",
+    "build/powtcha.js",
+    "build/powtcha.min.js"
+  ],
+  "dependencies": {
+    "es6-promise": "^4.0.5",
+    "webworkify": "^1.4.0"
+  },
+  "devDependencies": {
+    "randombytes": "^2.0.3",
+    "assert": "^1.4.1",
+    "brfs": "*",
+    "grunt": "~0.4.2",
+    "grunt-browserify": "~5.0.0",
+    "grunt-contrib-concat": "~0.5.1",
+    "grunt-contrib-connect": "^1.0.2",
+    "grunt-contrib-uglify": "~2.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-exec": "^1.0.1",
+    "grunt-saucelabs": "git://github.com/blocktrail/grunt-saucelabs.git#cd6d405f3cfd089e7af85434be79a14e2b38fdec",
+    "jscs": "~3.0.7",
+    "jshint": "~2.9.1",
+    "lodash": "^4.17.4",
+    "mocha": "^3.2.0",
+    "querystring": "^0.2.0"
+  },
+  "scripts": {
+    "test": "mocha",
+    "browserify": "grunt build",
+    "lint": "./node_modules/jscs/bin/jscs index.js lib/ test/ && ./node_modules/jshint/bin/jshint index.js lib/ test/",
+    "coverage": "istanbul cover _mocha test/**/*.js"
+  }
+}

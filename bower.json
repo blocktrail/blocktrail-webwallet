@@ -3,6 +3,7 @@
   "private": "true",
   "dependencies": {
     "blocktrail-sdk": "3.3.5",
+    "powtcha": "0.1.2",
     "pouchdb": "git@github.com:blocktrail/pouchdb.git#blocktrail",
     "q": "1.2.0",
     "angular-moment": "~0.10.0",

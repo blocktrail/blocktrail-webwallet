@@ -1,0 +1,17 @@
+{
+  "name": "powtcha",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "Ruben de Vries <ruben@rubensayshi.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/btccom/powtcha-js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

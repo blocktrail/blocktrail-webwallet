@@ -1,0 +1,27 @@
+{
+  "name": "powtcha",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "Ruben de Vries <ruben@rubensayshi.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/btccom/powtcha-js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "version": "0.1.2",
+  "_release": "0.1.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.1.2",
+    "commit": "fc85b513147f80f5a7674a2ad62124c0af6001a2"
+  },
+  "_source": "https://github.com/btccom/powtcha-js.git",
+  "_target": "0.1.2",
+  "_originalSource": "powtcha"
+}
