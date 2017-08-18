@@ -829,8 +829,12 @@ $display-token-size: 50px;
                     background-color: transparent;
                     color: $darkgray-dark;
                 }
-
             }
+        }
+
+        .dropdown-scrollable {
+            max-height:350px;
+            overflow:auto;
         }
 
         p {

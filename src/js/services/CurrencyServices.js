@@ -24,7 +24,17 @@ angular.module('blocktrail.wallet')
             CRC: {code: "CRC", symbol: "₡"},
             MXN: {code: "MXN", symbol: "$"},
             NGN: {code: "NGN", symbol: "₦"},
-            INR: {code: "INR", symbol: "₹"}
+            INR: {code: "INR", symbol: "₹"},
+            RUB: {code: "RUB", symbol: "₽"},
+            AUD: {code: "AUD", symbol: "$"},
+            BRL: {code: "BRL", symbol: "R$"},
+            ZAR: {code: "ZAR", symbol: "R"},
+            ILS: {code: "ILS", symbol: "₪"},
+            SAR: {code: "SAR", symbol: "﷼"},
+            JPY: {code: "JPY", symbol: "¥"},
+            KRW: {code: "KRW", symbol: "₩"},
+            COP: {code: "COP", symbol: "$"},
+            GHS: {code: "GHS", symbol: "GH¢"}
         };
 
         self.currencies = {};
