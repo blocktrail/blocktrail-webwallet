@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <title>Partner Template</title>
+
+    <!-- template design - can be removed -->
+    <link rel="stylesheet" href="./css/app.css" type="text/css" media="all">
+    <!-- template design - can be removed  - end -->
+
+    <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.0.5/es5-shim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <![endif]-->
+
+</head>
+<body>
+    <!-- Add you website content here -->
+
+    <!-- the control -->
+    <div id="app" class="container">
+        <form @submit="sendPaymentRequest" method="POST" class="container">
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="md-form input-group">
+                        <input type="number" class="form-control" step="0.00000001" v-model.number="btc_amount" @input="onBTCAmountChange" required>
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary btn-lg" type="button">BTC</button>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="md-form input-group">
+                        <input type="number" class="form-control" step="0.01"min="50" max="50000" v-model.number="fiat_amount" @input="onAmountChange" required>
+                        <span class="input-group-btn">
+                            <div class="btn-group">
+                                <button class="group-dropdown-fix btn btn-primary btn-lg" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ selectedFiatCurrency }}</button>
+
+                                <div class="dropdown-menu">
+                                    <div v-for="currency in supported_currency" :class="selectedFiatCurrency == currency.name? 'dropdown-item disabled' : 'dropdown-item'"  @click="changeFiat(currency.name,currency.ratio )">{{ currency.name }}</div>
+                                </div>
+                            </div>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <input type="text" v-model="btcaddress" placeholder="Bitcoin address" required/>
+                </div>
+                <div class="col-xs-6">
+                    <span v-show="showAddressError" class="red-text">{{ getAddressError }}</span>
+                </div>
+                <div class="col-xs-6">
+                    <div class="text-xs-right">
+                    <a target="_blank" :href="config.walleturl">don't have one?</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div ref="rehead" :class="showRecaptchaError? 'recaptcha_box_error' : ''">
+                        <div :class="config.recaptcha_site_key? 'g-recaptcha' : ''" :data-sitekey="config.recaptcha_site_key" ></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 text-xs-center">
+                    <button type="submit" class="btn btn-primary btn-lg">CLICK TO CONTINUE</button>
+                </div>
+            </div>
+
+        </form>
+        <div ref="formplaceholder"></div>
+    </div>
+    <!-- the control end -->
+
+    <!-- Add you website content here -->
+
+    <!-- control JS -->
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="./javascripts/sha256.js" ></script>
+    <script src="./javascripts/bigint.js" ></script>
+    <script src="./javascripts/btc_address_validator.js" ></script>
+    <!-- control JS end -->
+    
+
+    <!-- template js - can be removed -->
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="./javascripts/mdb.min.js"></script>
+    <!-- template js - can be removed End-->
+
+    <script>
+    var i_lastQuote = {};
+    i_lastQuote.user_id = 'quote.user_id ';
+    i_lastQuote.quote_id = 'quote.quote_id';
+    i_lastQuote.fiat_money = {};
+    i_lastQuote.fiat_money.currency = 'USD';
+    i_lastQuote.fiat_money.amount = 120;
+    i_lastQuote.digital_money = {};
+    i_lastQuote.digital_money.currency = 'BTC';
+    i_lastQuote.digital_money.amount = 0.16911889;
+    i_lastQuote.base_rate = 700;
+
+    var config = {};
+    config.lastQuote = i_lastQuote;
+    config.csrfToken = 'csrfTokenKey';
+    config.recaptcha_site_key= '6LdCLyITAAAAAO7JocwJAmhDYRpKpQHyJqnnMsnT';
+    config.walleturl= 'https://www.simplex.com';
+    </script>
+    <script type="text/javascript" src="./javascripts/currencyconvertor.js"></script>
+    <!-- control JS end -->
+
+</body>
+</html>

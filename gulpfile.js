@@ -262,6 +262,19 @@ var sassTask = function() {
 
 gulp.task('sass', ['appconfig', 'css-rename'], sassTask);
 
+gulp.task('simplex-sass', ['appconfig', 'sass'], function() {
+
+    return appConfig.then(function(APPCONFIG) {
+        return streamAsPromise(gulp.src('./simplex/sass/app.scss')
+            .pipe(sass({errLogToConsole: true}))
+            .pipe(gulp.dest('./simplex/css/'))
+            .pipe(gulpif(APPCONFIG.MINIFY, minifyCss({keepSpecialComments: 0})))
+            .pipe(gulp.dest('./simplex/css/'))
+        );
+    });
+});
+
+
 /**
  * css-rename to change .css to .sass extensions because we want the css imported :/
  */
@@ -348,6 +361,7 @@ gulp.task('watch', function() {
     }
 
     gulp.watch(['./src/sass/**/*.scss'], ['sass:livereload']);
+    gulp.watch(['./simplex/sass/*.scss'], ['simplex-sass:livereload']);
     gulp.watch(['./src/img/**/*', './src/font/**/*'], ['copystatics:livereload']);
     gulp.watch(['./src/js/**/*.js'], ['js:app:livereload']);
     gulp.watch(['./src/lib/**/*.js'], ['js:libs:livereload', 'js:sdk:livereload']);
@@ -356,6 +370,10 @@ gulp.task('watch', function() {
 });
 
 gulp.task('sass:livereload', _.merge(['sass'], doSRI ? ['templates:index'] : []), function() {
+    livereload.reload();
+});
+
+gulp.task('simplex-sass:livereload', ['simplex-sass'], function() {
     livereload.reload();
 });
 
