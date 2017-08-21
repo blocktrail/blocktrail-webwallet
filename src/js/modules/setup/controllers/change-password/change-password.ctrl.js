@@ -122,52 +122,66 @@
         }
 
         $scope.encryptNewERS = function() {
-            // If 2FA is required, ask for and and then continue
-            if (requires2FA == true && twoFactorToken == null) {
-                return askFor2FA().then(function () {
-                    $scope.encryptNewERS();
-                });
-            } else {
-                // Encrypt secret with new Password, generate mnemonic and password hash
-                var encryptedData = passwordRecoveryService.encryptSecretWithPassword(secret, $scope.form.newPassword, walletVersion);
-
-                // Create data object
-                var data = {
-                    token: token,
-                    new_password_hash: encryptedData.password_hash,
-                    new_encrypted_secret: encryptedData.encrypted_secret
-                };
-
-                if(requires2FA && twoFactorToken) {
-                    data['two_factor_token'] = twoFactorToken;
+            $scope.checkPassword().then(function (result) {
+                if (result === false) {
+                    return dialogService.alert(
+                        $translate.instant("RECOVERY_ERROR"),
+                        $translate.instant("MSG_BAD_PASSWORD_REPEAT")
+                    ).result;
+                } else if (result.score < CONFIG.REQUIRED_PASSWORD_STRENGTH) {
+                    return dialogService.alert(
+                        $translate.instant("RECOVERY_ERROR"),
+                        $translate.instant("MSG_WEAK_PASSWORD")
+                    ).result;
                 }
+                // If 2FA is required, ask for and and then continue
+                else if (requires2FA == true && twoFactorToken == null) {
+                    return askFor2FA().then(function () {
+                        $scope.encryptNewERS();
+                    });
+                } else {
+                    // Encrypt secret with new Password, generate mnemonic and password hash
+                    var encryptedData = passwordRecoveryService.encryptSecretWithPassword(secret, $scope.form.newPassword, walletVersion);
 
-                $http.post(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "t" : "") + CONFIG.NETWORK + "/recovery/change-password", data).then(function (res) {
-                    // Generate backup PDF
-                    generateBackupPageTwo("", encryptedData.secret_mnemonic);
-                    $scope.stepCount = 2;
-                }, function (err) {
-                    // Error handling
-                    twoFactorToken = null; // Clear the used 2FA token
-                    if (err.data && err.data.msg && err.data.msg === "invalid recovery token") {
-                        return dialogService.alert(
-                            $translate.instant("INVALID_RECOVERY_TOKEN"),
-                            $translate.instant("MSG_INVALID_RECOVER_TOKEN")
-                        ).result;
-                    } else if (err.data && err.data.msg && err.data.msg === "invalid 2FA token") {
-                        twoFactorToken = null;
-                        return dialogService.alert(
-                            $translate.instant("BAD_TOKEN"),
-                            $translate.instant("MSG_BAD_TOKEN")
-                        ).result;
-                    } else {
-                        return dialogService.alert(
-                            $translate.instant("RECOVERY_ERROR"),
-                            $translate.instant("MSG_PASSWORD_NOT_CHANGED")
-                        ).result;
+                    // Create data object
+                    var data = {
+                        token: token,
+                        new_password_hash: encryptedData.password_hash,
+                        new_encrypted_secret: encryptedData.encrypted_secret,
+                        password_score: result.score
+                    };
+
+                    if(requires2FA && twoFactorToken) {
+                        data['two_factor_token'] = twoFactorToken;
                     }
-                });
-            }
+
+                    $http.post(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "t" : "") + CONFIG.NETWORK + "/recovery/change-password", data).then(function (res) {
+                        // Generate backup PDF
+                        generateBackupPageTwo("", encryptedData.secret_mnemonic);
+                        $scope.stepCount = 2;
+                    }, function (err) {
+                        // Error handling
+                        twoFactorToken = null; // Clear the used 2FA token
+                        if (err.data && err.data.msg && err.data.msg === "invalid recovery token") {
+                            return dialogService.alert(
+                                $translate.instant("INVALID_RECOVERY_TOKEN"),
+                                $translate.instant("MSG_INVALID_RECOVER_TOKEN")
+                            ).result;
+                        } else if (err.data && err.data.msg && err.data.msg === "invalid 2FA token") {
+                            twoFactorToken = null;
+                            return dialogService.alert(
+                                $translate.instant("BAD_TOKEN"),
+                                $translate.instant("MSG_BAD_TOKEN")
+                            ).result;
+                        } else {
+                            return dialogService.alert(
+                                $translate.instant("RECOVERY_ERROR"),
+                                $translate.instant("MSG_PASSWORD_NOT_CHANGED")
+                            ).result;
+                        }
+                    });
+                }
+            });
         };
 
         $scope.decryptERS = function() {
