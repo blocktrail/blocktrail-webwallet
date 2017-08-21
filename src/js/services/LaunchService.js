@@ -20,7 +20,7 @@ angular.module('blocktrail.wallet').factory(
                         return {};
                     })
                     .then(function(accountInfo) {
-                        var url = CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "tBTC" : "BTC") + "/mywallet/config?";
+                        var url = CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "t" : "") + CONFIG.NETWORK + "/mywallet/config?";
                         var params = [
                             "v=" + (CONFIG.VERSION || ""),
                             "platform=web"
