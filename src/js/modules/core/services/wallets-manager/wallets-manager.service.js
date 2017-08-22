@@ -22,7 +22,6 @@
 
     }
 
-
     WalletsManagerService.prototype.fetchWallets = function() {
         var self = this;
         // TODO sync

@@ -22,7 +22,6 @@
     WalletService.prototype.initWallet = function(walletId) {
         var self = this;
 
-        // TODO move to a manager
         return self._$q.when(self._sdk.sdk())
             .then(self._sdkInitWallet.bind(self, walletId), self._errorHandler.bind(self))
             .then(self._initWallet.bind(self, walletId));
@@ -39,8 +38,9 @@
 
     WalletService.prototype._initWallet = function(walletId, sdkWallet) {
         var self = this;
+        var wallet =  new Wallet(sdkWallet, self._$q, self._$timeout, self._storageService, self._bitcoinJS);
 
-        return new Wallet(sdkWallet, self._$q, self._$timeout, self._storageService, self._bitcoinJS);
+        return wallet.isReady;
     };
 
 
@@ -64,11 +64,13 @@
         self._$timeout = $timeout;
         self._bitcoinJS = bitcoinJS;
 
+        self._isInitData = false;
+
         // Flags with promises
         self._pollPromise = null;
         self._pollTimeout = null;
 
-        self._pollingInterval = 1000;
+        self._pollingInterval = 5000000000;
         self._noPolling = false;
 
 
@@ -76,8 +78,33 @@
         self._sdkWallet = sdkWallet;
         self._walletStore = storageService.db('wallet');
 
-        // Transactions
-        self._transactionsList = [];
+        // Wallet data
+        self._walletData = {
+            transactions: [],
+            balance: 0,
+            uncBalance: 0,
+            blockHeight: 0
+        };
+
+        self.isReady = self._initData();
+
+
+        // Read only wallet data object
+        // the object would be shared
+        self._readonlyDoc = {
+            readonly: true
+        };
+
+        angular.forEach(self._walletData, function(value, key) {
+            Object.defineProperty(self._readonlyDoc, key, {
+                set: function() {
+                    throw new Error("Read only object. Blocktrail core module, wallet service.");
+                },
+                get: function() {
+                    return self._walletData[key];
+                }
+            });
+        });
 
 
         // TODO Check it
@@ -91,8 +118,7 @@
 
 
         // Used for the wallet balance
-        // TODO remove it, use _walletStore
-        self.walletCache = storageService.db('wallet-cache');
+
     }
 
     // TODO discuss
@@ -101,87 +127,32 @@
 
 
 
-    /**
-     * Get the wallet balance (defaults to live, can force getting a cached version)
-     * @param isCached { boolean }
-     * @returns balanceDoc { promise } {{ _id: string, balance: number, uncBalance: number }}
-     */
-    Wallet.prototype.getBalance = function(isCached) {
+
+    Wallet.prototype._initData = function() {
         var self = this;
 
-        var isForceFetch = !isCached;
+        if (self._isInitData) {
+            return self._$q.when(self);
+        } else {
+            return self._$q.all([self._getBalance(), self._getBlockHeight(), self._getTransactions()])
+                .then(function() {
+                    self._isInitData = true;
 
-        return self._getBalanceFromStorage()
-            .then(self._getBalanceWithForceFetchFlag.bind(self, isForceFetch))
-            // use a .then because a .done would break the promise chains that rely on self.wallet
-            // TODO discuss with Ruben error handlers
-            .then(function(balanceDoc) { return balanceDoc; }, self._errorHandler);
-    };
+                    if (!self._noPolling) {
+                        // TODO continue here add pooling
+                        self._pollTransactionsAndGetBlockHeight();
+                    }
 
-    /**
-     * Get the wallet balance (defaults to live, can force getting a cached version)
-     * @param isCached { boolean }
-     * @returns balanceDoc { promise } {{ _id: string, balance: number, uncBalance: number }}
-     */
-    Wallet.prototype.getBlockHeight = function(isCached) {
-        var self = this;
-
-        var isForceFetch = !isCached;
-
-        return self._getBlockHeightFromStorage()
-            .then(self._getBlockHeightWithForceFetchFlag.bind(self, isForceFetch))
-            // use a .then because a .done would break the promise chains that rely on self.wallet
-            // TODO discuss with Ruben error handlers
-            .then(function(blockHeightDoc) { return blockHeightDoc; }, self._errorHandler);
-    };
-
-    /**
-     * Poll transactions
-     * @return { promise }
-     */
-    Wallet.prototype.pollTransactions = function() {
-        var self = this;
-
-        if (self._pollPromise) {
-            return self._pollPromise;
+                    return self._$q.when(self);
+                });
         }
-
-        return self._pollPromise = self._$q.when(self._getLastBlockHashFromStorage())
-            .then(self._getTransactionsHistoryFromStorageAndTransactionsFromSdk.bind(self))
-            .then(self._processTransactions.bind(self))
-            .then(self._setLastBlockHashToStorageAndTransactionHistoryToStorage.bind(self))
-            .then(self._addNewTransactionsToList.bind(self))
-            .then(self._resetPollPromise.bind(self))
-            .then(self._setupTimeout.bind(self))
-            .catch(self._pollTransactionsCatchHandler.bind(self));
     };
 
-    /**
-     * Get transactions
-     * @returns { promise }
-     */
-    Wallet.prototype.getTransactions = function() {
+    Wallet.prototype.getReadOnlyWalletData = function() {
         var self = this;
 
-        return self._$q.when(self._getTransactionsHistoryFromStorage())
-            .then(self._prepareTransactionsList.bind(self))
-            .then(self._processTransactionDocs.bind(self), self._errorHandler)
-            .then(self._updateTransactionsList.bind(self));
+        return self._readonlyDoc;
     };
-
-    /**
-     * Get transactions list
-     * @return {Array}
-     */
-    Wallet.prototype.getTransactionsList = function() {
-        var self = this;
-
-        return self._transactionsList;
-    };
-
-
-
-
 
 
 
@@ -193,13 +164,15 @@
         self.transsactionMetaResolvers.push(resolver);
     };
 
+
+
+
+    /**
+     * START polling
+     */
+
     Wallet.prototype.disablePolling = function() {
         var self = this;
-
-        if(self._pollPromise) {
-            self._pollPromise.reject();
-            self._pollPromise = null;
-        }
 
         if(self._pollTimeout) {
             $timeout.cancel(self._pollTimeout);
@@ -211,92 +184,105 @@
     Wallet.prototype.enablePolling = function() {
         var self = this;
 
-        self._noPolling = true;
+        self._noPolling = false;
 
-        self.pollTransactions();
+        self._pollTransactionsAndGetBlockHeight();
     };
 
     Wallet.prototype._setupTimeout = function() {
         var self = this;
 
         if(!self._noPolling) {
-            self._pollTimeout = self._$timeout(self.pollTransactions.bind(self), self._pollingInterval);
+            self._pollTimeout = self._$timeout(self._pollTransactionsAndGetBlockHeight.bind(self), self._pollingInterval);
         }
 
         return true;
     };
 
-
-
-
-
-
-
-    // TODO move to the wallet manager;
-    // reset transaction history, transactions
-    // Discuss with Ruben, what we should remove?
-    Wallet.prototype.resetHistory = function() {
+    Wallet.prototype._pollTransactionsAndGetBlockHeight = function() {
         var self = this;
 
-        // debugger;
+        if (self._pollPromise) {
+            return self._pollPromise;
+        }
 
-        self._walletStore.allDocs({
+        // TODO Add 'self.refillOfflineAddresses(1);' to polling
+        return self._pollPromise = self._$q.all([self._pollTransactions(), self._getBlockHeight()])
+            .then(self._resetPollPromise.bind(self))
+            .then(self._setupTimeout.bind(self));
+    };
+
+    /**
+     * END polling
+     */
+
+    /**
+     * START Reset wallet data
+     */
+
+    Wallet.prototype._resetWalletData = function() {
+        var self = this;
+
+        return self._walletStore.allDocs({
                 include_docs: true,
                 attachments: true,
-                startkey: "tx:" + self._sdkWallet.identifier
+                startkey: self._sdkWallet.identifier,
+                endkey: self._sdkWallet.identifier + "\ufff0"
             })
-            .then(function(result) {
-                // debugger;
-
-
-                // TODO CONTINUE HERE
-            });
-
-
-        /*return self._walletStore.destroy()
-            .then(function() {
-                self.historyCache = null;
-            })
-            .then(function() {
-                self.initDB();
-            })
-            .then(function() {
-                return self.pollTransactions();
-            });*/
+            .then(self.walletAllDocsHandler.bind(self));
     };
 
-    Wallet.prototype._deleteBalanceFromStorage = function() {
+    Wallet.prototype.walletAllDocsHandler = function(result) {
+        var self = this;
+        var promises = [];
 
+        result.rows.forEach(function(row) {
+            promises.push(self._deleteDocumentFromStorage(row.doc));
+        });
+
+        return self._$q.all(promises);
     };
 
-    Wallet.prototype._deleteLastBlockHashFromStorage = function() {
+    Wallet.prototype._deleteDocumentFromStorage = function(doc) {
+        var self = this;
 
+        return self._walletStore.remove(doc);
     };
 
-    Wallet.prototype._deleteTransactionHistoryFromStorage = function() {
+    /**
+     * END Reset wallet data
+     */
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * START Wallet balance
+     */
+
+    /**
+     * Get the wallet balance
+     * @returns _walletData { object }
+     * @private
+     */
+    Wallet.prototype._getBalance = function() {
+        var self = this;
+
+        return self._getBalanceFromStorage()
+            .then(self._getBalanceFromSdk.bind(self))
+            .then(self._setBalanceToStorage.bind(self))
+            .then(self._updateBalanceInWalletDataObject.bind(self), self._errorHandler);
     };
-
-    Wallet.prototype._deleteTransactionsFromStorage = function() {
-
-    };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     /**
      * Get the balance document from the storage
@@ -336,35 +322,16 @@
     };
 
     /**
-     * Set the balance document to the storage
-     * @param balanceDoc { object }
-     * @returns balanceDoc { promise } {{ _id: string, balance: number, uncBalance: number }}
-     * @private
-     */
-    Wallet.prototype._setBalanceToStorage = function(balanceDoc) {
-        var self = this;
-
-        return self._$q.when(self._walletStore.put(balanceDoc))
-            .then(function() { return balanceDoc; });
-    };
-
-    /**
-     * Get the balance document with a force fetch flag
-     * @param isForceFetch { boolean }
+     * Get the balance from SDK
      * @param balanceDoc {{ _id: string, balance: number, uncBalance: number }}
      * @returns balanceDoc { promise } {{ _id: string, balance: number, uncBalance: number }}
      * @private
      */
-    Wallet.prototype._getBalanceWithForceFetchFlag = function(isForceFetch, balanceDoc) {
+    Wallet.prototype._getBalanceFromSdk = function(balanceDoc) {
         var self = this;
 
-        if (isForceFetch) {
-            return self._$q.when(self._sdkWallet.getBalance())
-                .then(self._getBalanceFromSdkSuccessHandler.bind(self, balanceDoc))
-                .then(self._setBalanceToStorage.bind(self));
-        } else {
-            return self._$q.when(balanceDoc);
-        }
+        return self._$q.when(self._sdkWallet.getBalance())
+            .then(self._getBalanceFromSdkSuccessHandler.bind(self, balanceDoc), self._getBalanceFromSdkErrorHandler.bind(self, balanceDoc))
     };
 
     /**
@@ -379,6 +346,66 @@
         balanceDoc.uncBalance = result[1];
 
         return balanceDoc;
+    };
+
+    /**
+     * Get the balance from the sdk, the error handler
+     * @param balanceDoc
+     * @return balanceDoc {{ _id: string, balance: number, uncBalance: number }}
+     * @private
+     */
+    Wallet.prototype._getBalanceFromSdkErrorHandler = function(balanceDoc) {
+        return balanceDoc;
+    };
+
+    /**
+     * Set the balance document to the storage
+     * @param balanceDoc {{ _id: string, balance: number, uncBalance: number }}
+     * @returns balanceDoc { promise } {{ _id: string, balance: number, uncBalance: number }}
+     * @private
+     */
+    Wallet.prototype._setBalanceToStorage = function(balanceDoc) {
+        var self = this;
+
+        return self._$q.when(self._walletStore.put(balanceDoc))
+            .then(function() { return balanceDoc; });
+    };
+
+    /**
+     * Update balance in the wallet data object
+     * @param balanceDoc {{ _id: string, balance: number, uncBalance: number }}
+     * @returns _walletData { object }
+     * @private
+     */
+    Wallet.prototype._updateBalanceInWalletDataObject = function(balanceDoc) {
+        var self = this;
+
+        self._walletData.balance = balanceDoc.balance;
+        self._walletData.uncBalance = balanceDoc.uncBalance;
+
+        return self._walletData;
+    };
+
+    /**
+     * END Wallet balance
+     */
+
+    /**
+     * START Block height
+     */
+
+    /**
+     * Get the block height
+     * @returns _walletData { object }
+     * @private
+     */
+    Wallet.prototype._getBlockHeight = function() {
+        var self = this;
+
+        return self._getBlockHeightFromStorage()
+            .then(self._getBlockHeightFromSdk.bind(self))
+            .then(self._setBlockHeightToStorage.bind(self))
+            .then(self._updateBlockHeightInWalletDataObject.bind(self), self._errorHandler);
     };
 
     /**
@@ -418,35 +445,16 @@
     };
 
     /**
-     * Set the block height document to the storage
-     * @param blockHeightDoc { object }
-     * @returns blockHeightDoc { promise } {{ _id: string, height: string }}
-     * @private
-     */
-    Wallet.prototype._setBlockHeightToStorage = function(blockHeightDoc) {
-        var self = this;
-
-        return self._$q.when(self._walletStore.put(blockHeightDoc))
-            .then(function() { return blockHeightDoc; });
-    };
-
-    /**
-     * Get the block height document with a force fetch flag
-     * @param isForceFetch { boolean }
+     * Get the block height from SDK
      * @param blockHeightDoc {{ _id: string, height: string }}
      * @returns blockHeightDoc { promise } {{ _id: string, height: string }}
      * @private
      */
-    Wallet.prototype._getBlockHeightWithForceFetchFlag = function(isForceFetch, blockHeightDoc) {
+    Wallet.prototype._getBlockHeightFromSdk = function(blockHeightDoc) {
         var self = this;
 
-        if (isForceFetch) {
-            return self._$q.when(self._sdkWallet.sdk.blockLatest())
-                .then(self._getBlockHeightFromSdkSuccessHandler.bind(self, blockHeightDoc))
-                .then(self._setBlockHeightToStorage.bind(self));
-        } else {
-            return self._$q.when(blockHeightDoc);
-        }
+        return self._$q.when(self._sdkWallet.sdk.blockLatest())
+            .then(self._getBlockHeightFromSdkSuccessHandler.bind(self, blockHeightDoc), self._getBlockHeightFromSdkErrorHandler.bind(self, blockHeightDoc));
     };
 
     /**
@@ -461,6 +469,51 @@
 
         return blockHeightDoc;
     };
+
+    /**
+     * Get the block height from the sdk, the error handler
+     * @param blockHeightDoc
+     * @return blockHeightDoc {{ _id: string, height: string }}
+     * @private
+     */
+    Wallet.prototype._getBlockHeightFromSdkErrorHandler = function(blockHeightDoc) {
+        return blockHeightDoc;
+    };
+
+    /**
+     * Set the block height document to the storage
+     * @param blockHeightDoc { object }
+     * @returns blockHeightDoc { promise } {{ _id: string, height: string }}
+     * @private
+     */
+    Wallet.prototype._setBlockHeightToStorage = function(blockHeightDoc) {
+        var self = this;
+
+        return self._$q.when(self._walletStore.put(blockHeightDoc))
+            .then(function() { return blockHeightDoc; });
+    };
+
+    /**
+     * Update block height in the wallet data object
+     * @param blockHeightDoc {{ _id: string, height: string }}
+     * @returns _walletData { object }
+     * @private
+     */
+    Wallet.prototype._updateBlockHeightInWalletDataObject = function(blockHeightDoc) {
+        var self = this;
+
+        self._walletData.blockHeight = blockHeightDoc.height;
+
+        return self._walletData;
+    };
+
+    /**
+     * END Block height
+     */
+
+    /**
+     * START Last block hash
+     */
 
     /**
      * Get the last block hash document from the storage
@@ -509,6 +562,44 @@
 
         return self._walletStore.put(lastBlockHashDoc)
             .then(function() { return lastBlockHashDoc; });
+    };
+
+    /**
+     * END Last block hash
+     */
+
+    /**
+     * START Transactions
+     */
+
+    /**
+     * Get transactions
+     * @returns { promise }
+     */
+    Wallet.prototype._getTransactions = function() {
+        var self = this;
+
+        return self._$q.when(self._getTransactionsHistoryFromStorage())
+            .then(self._prepareTransactionsList.bind(self))
+            .then(self._processTransactionDocs.bind(self), self._errorHandler)
+            .then(self._updateTransactionsList.bind(self));
+    };
+
+    /**
+     * Poll transactions
+     * @return { promise }
+     */
+    Wallet.prototype._pollTransactions = function() {
+        var self = this;
+
+        return self._$q.when(self._getLastBlockHashFromStorage())
+        // We reject the promise if we do not have new transactions and handle it in '_pollTransactionsCatchHandler'
+        // TODO review logic with reject, replace it with done
+            .then(self._getTransactionsHistoryFromStorageAndTransactionsFromSdk.bind(self))
+            .then(self._processTransactionsAndGetBalance.bind(self))
+            .then(self._setLastBlockHashToStorageAndTransactionHistoryToStorage.bind(self))
+            .then(self._addNewTransactionsToList.bind(self))
+            .catch(self._pollTransactionsCatchHandler.bind(self));
     };
 
     /**
@@ -634,9 +725,9 @@
     Wallet.prototype._getTransactionsFromSdkSuccessHandler = function(results) {
         var self = this;
 
+        // TODO review remove "reject"
         if (!results.data.length) {
             // no new transactions...break out
-            // TODO blocktrail inject as a service
             return self._$q.reject(new blocktrail.WalletPollError('NO_TX'));
         }
 
@@ -657,6 +748,20 @@
             self._getTransactionsHistoryFromStorage(),
             self._getTransactionsFromSdk(lastBlockHashDoc.hash)
         ]);
+    };
+
+    /**
+     * Process transactions and get balance
+     * @return { promise } {{ newTransactions: array, confirmedTransactions: array, lastBlockHashDoc: object, transactionHistoryDoc: object }}
+     * @private
+     */
+    Wallet.prototype._processTransactionsAndGetBalance = function(data) {
+        var self = this;
+
+        return self._$q.all([self._processTransactions(data), self._getBalance()])
+            .then(function(results) {
+                return results[0];
+            });
     };
 
     /**
@@ -779,8 +884,6 @@
             });
     };
 
-
-
     /**
      * Poll transactions catch handler
      * @param e
@@ -789,23 +892,20 @@
     Wallet.prototype._pollTransactionsCatchHandler = function(e) {
         var self = this;
 
-        self._resetPollPromise();
-        self._setupTimeout();
-
         if (e.message === 'NO_TX') {
             return self._$q.when(true);
         } else if (e.message === 'ORPHAN') {
             // ORPHAN means we need to resync (completely)
-            self._$rootScope.$broadcast('ORPHAN');
-            return self.resetHistory();
+            return self._resetWalletData()
+                .then(function () {
+                    var self = this;
+
+                    return self._$q.all([self._getBalance(), self._getBlockHeight(), self._pollTransactions()]);
+                });
         } else {
             self._errorHandler(e);
         }
     };
-
-
-
-
 
     /**
      * Broadcast new and confirmed transactions
@@ -820,7 +920,6 @@
             .then(self._processTransactionDocs.bind(self), self._errorHandler)
             .then(self._updateTransactionsList.bind(self));
     };
-
 
     /**
      * Prepare transactions list
@@ -857,14 +956,43 @@
     Wallet.prototype._updateTransactionsList = function(transactions) {
         var self = this;
 
-        self._transactionsList
+        self._walletData.transactions
             .splice
-            .apply(self._transactionsList, [0, self._transactionsList.length]
+            .apply(self._walletData.transactions, [0, self._walletData.transactions.length]
                 .concat(transactions)
             );
 
-        return self._transactionsList;
+        return self._walletData;
     };
+
+    // TODO do not implement this logic now
+    /*Wallet.prototype.mergeContact = function(transaction) {
+     var self = this;
+
+     transaction.contact = null;
+     return Q.when(transaction);
+
+     if (transaction.contacts) {
+     return Q.any(transaction.contacts.map(function(hash) {
+     return Contacts.findByHash(hash);
+     })).then(
+     function(contact) {
+     transaction.contact = contact;
+     return transaction;
+     },
+     function() {
+     return transaction;
+     }
+     );
+     } else {
+     return Q.when(transaction);
+     }
+     };*/
+
+    /**
+     * END Transactions
+     */
+
 
     /**
      * Get a unique id
@@ -880,14 +1008,14 @@
         switch (type) {
             // +++
             case "balance":
-                idWithPrefix = "bc:" + self._sdkWallet.identifier;
+                idWithPrefix = self._sdkWallet.identifier + ":bc";
                 break;
             // +++
             case "block-height":
-                idWithPrefix = "bh:" + self._sdkWallet.identifier;
+                idWithPrefix = self._sdkWallet.identifier + ":bh";
                 break;
-            case "address":
-                idWithPrefix = "ad:" + self._sdkWallet.identifier;
+            case "addresses":
+                idWithPrefix = self._sdkWallet.identifier + ":ad";
                 break;
             // +++
             case "transaction":
@@ -896,18 +1024,15 @@
                         message: "method _addIdPrefix, id for transaction should be defined"
                     });
                 }
-                idWithPrefix = "tx:" + self._sdkWallet.identifier + ":" + id;
-                break;
-            case "transaction-prefix":
-                idWithPrefix = "tx:" + self._sdkWallet.identifier;
+                idWithPrefix = self._sdkWallet.identifier + ":tx:" + id;
                 break;
             // +++
             case "transactions-history":
-                idWithPrefix = "th:" + self._sdkWallet.identifier;
+                idWithPrefix = self._sdkWallet.identifier + ":th";
                 break;
             // +++
             case "last-block-hash":
-                idWithPrefix = "lh:" + self._sdkWallet.identifier;
+                idWithPrefix = self._sdkWallet.identifier + ":lh";
                 break;
             default:
                 self._errorHandler({
@@ -927,43 +1052,16 @@
         throw new Error("Class Wallet : " + e.message ? e.message : "");
     };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      *
+     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     * @@@@     @@@@@@@@@@@@@@@@@@@@@@@     @@@@
+     * @@@@@@@@@@@@@@  @@@@  @@@  @@@@@@@@@@@@@@
+     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
      *
-     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-     * @@@@@     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@     @@@@
-     * @@@@@@@@@@@@@@@@@@@@@@@@@@@  @@@@  @@@  @@@@@@@@@@@@@@@@@@@@@@@@@@@
-     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-     *
+     * TODO Review later
      *
      */
-
-
-
     Wallet.prototype.validateAddress = function(address) {
         var self = this;
 
@@ -988,7 +1086,6 @@
             });
     };
 
-    //
     Wallet.prototype.unlockWithPassword = function(password) {
         var self = this;
 
@@ -1003,24 +1100,8 @@
             });
     };
 
-
-
-    Wallet.prototype.setupInterval = function() {
-        /*var self = this;
-
-         if(self.noPolling) {
-         return false;
-         }
-
-         self.interval = $interval(function() {
-         self.pollTransactions();
-         }, 10000);*/
-    };
-
     Wallet.prototype.refillOfflineAddresses = function(max) {
         var self = this;
-
-        // $log.debug('refill offline addresses');
 
         if (self.isRefilling) {
             // $log.debug('refill in progress');
@@ -1029,11 +1110,14 @@
 
         self.isRefilling = true;
 
-        return self.addressRefillPromise = self.walWletCache.get('addresses')
+        return self.addressRefillPromise = self._walletStore.get(self._getUniqueId("addresses"))
             .then(function(addressesDoc) {
                 return addressesDoc;
             }, function(e) {
-                return {_id: "addresses", available: []}
+                return {
+                    _id: self._getUniqueId("addresses"),
+                    available: []
+                }
             })
             .then(function(addressesDoc) {
                 var refill = self._amountOfOfflineAddresses - addressesDoc.available.length;
@@ -1047,11 +1131,16 @@
                         });
                     })).then(function() {
                         // fetch doc again, might have been modified!
-                        self.walletCache.get('addresses')
-                            .then(function(r) { return r; }, function(e) { return {_id: "addresses", available: []} })
+                        self._walletStore.get(self._getUniqueId("addresses"))
+                            .then(function(r) {
+                                return r;
+                            }, function(e) { return {
+                                _id: self._getUniqueId("addresses"),
+                                available: []}
+                            })
                             .then(function(_addressesDoc) {
                                 _addressesDoc.available = _addressesDoc.available.concat(addressesDoc.available).unique();
-                                return self.walletCache.put(_addressesDoc);
+                                return self._walletStore.put(_addressesDoc);
                             })
                             .then(function() {
                                 self.isRefilling = false;
@@ -1069,7 +1158,6 @@
             });
     };
 
-    // TODO Discuss with Ruben
     Wallet.prototype.getNewAddress = function() {
         var self = this;
 
@@ -1088,7 +1176,7 @@
     Wallet.prototype.getNewOfflineAddress = function() {
         var self = this;
 
-        return self.walletCache.get('addresses')
+        return self._walletStore.get(self._getUniqueId("addresses"))
             .then(function(addressesDoc) {
                     var address = addressesDoc.available.shift();
                     if (!address) {
@@ -1096,7 +1184,7 @@
                         return self._$q.reject('no more offline addresses');
                     } else {
                         // $log.debug('offline address', address);
-                        return self.walletCache.put(addressesDoc)
+                        return self._walletStore.put(addressesDoc)
                             .then(function() {
                                 return address;
                             });
@@ -1108,38 +1196,5 @@
                 }
             );
     };
-
-
-
-
-
-
-
-
-    // TODO do not implement this logic now
-    /*Wallet.prototype.mergeContact = function(transaction) {
-        var self = this;
-
-        transaction.contact = null;
-        return Q.when(transaction);
-
-        if (transaction.contacts) {
-            return Q.any(transaction.contacts.map(function(hash) {
-                return Contacts.findByHash(hash);
-            })).then(
-                function(contact) {
-                    transaction.contact = contact;
-                    return transaction;
-                },
-                function() {
-                    return transaction;
-                }
-            );
-        } else {
-            return Q.when(transaction);
-        }
-    };*/
-
-
 
 })();

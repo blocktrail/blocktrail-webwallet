@@ -14,13 +14,11 @@
         var timeoutDelay = 2000;
 
         $rootScope.pageTitle = 'TRANSACTIONS';
-
+        $scope.walletData = activeWallet.getReadOnlyWalletData();
         $scope.isLoading = true;
         $scope.isShowNoMoreTransactions = false;
-        // display 2FA warning once every day when it's not enabled
-        $scope.isTwoFactorWarning = false;
+        $scope.isTwoFactorWarning = false; // display 2FA warning once every day when it's not enabled
         $scope.lastDateHeader = lastDateHeader;
-        $scope.transactions = activeWallet.getTransactionsList();
         $scope.buybtcPendingOrders = []; // Glidera transactions
         $scope.transactionsListLimit = transactionsListLimitStep;
 
@@ -35,13 +33,8 @@
         initData();
 
         function initData() {
-            //refresh transactions, block height and wallet balance
             $q.all([
                 $q.when($rootScope.getPrice()),
-                $q.when($rootScope.getBalance()),
-                $q.when($rootScope.getBlockHeight()),
-                $q.when(activeWallet.pollTransactions()),
-                $q.when(activeWallet.getTransactions()),
                 $q.when(twoFactorWarning()),
                 $q.when(getGlideraTransactions())
             ]).then(function() {
@@ -104,13 +97,10 @@
             });
         }
 
-        function onShowMoreTransactions(a, s, d) {
-
-            debugger;
-
-            if($scope.transactionsListLimit < $scope.transactions.length) {
+        function onShowMoreTransactions() {
+            if($scope.transactionsListLimit < $scope.walletData.transactions.length) {
                 $scope.transactionsListLimit = $scope.transactionsListLimit + transactionsListLimitStep;
-            } else if (!$scope.isLoading && $scope.transactionsListLimit >= $scope.transactions.length) {
+            } else if (!$scope.isLoading && $scope.walletData.transactions.length && $scope.transactionsListLimit >= $scope.walletData.transactions.length) {
                 $scope.isShowNoMoreTransactions = true;
 
                 if(timeoutPromise) {
@@ -152,7 +142,7 @@
                 resolve: {
                     data: function() {
                         return {
-                            transaction: transaction,
+                            transaction: angular.copy(transaction),
                             localCurrency: settings.localCurrency
                         }
                     }

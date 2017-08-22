@@ -8,14 +8,9 @@
                                        activeWallet,
                                        CONFIG, settingsService, setupService, $timeout, launchService, blocktrailLocalisation,
                                        dialogService, $translate, Currencies, AppVersionService, $filter) {
-        // TODO Do we need this
-        /*$timeout(function() {
-            $rootScope.hideLoadingScreen = true;
-        }, 200);*/
 
-        var settings = settingsService.getReadOnlySettings();
-
-        $scope.settings = settings;
+        $scope.settings = settingsService.getReadOnlySettings();
+        $scope.walletData = activeWallet.getReadOnlyWalletData();
         $scope.sideNavList = [
             {
                 stateHref: $state.href("app.wallet.summary"),
@@ -55,7 +50,7 @@
         ];
         $scope.appStoreButtonsData = {
             config: CONFIG,
-            settings: settings
+            settings: $scope.settings
         };
 
 
@@ -214,27 +209,6 @@
                 });
         };
 
-        $rootScope.getBlockHeight = function() {
-            //get a live block height update (used to calculate confirmations)
-            return $q.when(activeWallet.getBlockHeight(false)
-                .then(function(data) {
-                    return $rootScope.blockHeight = data.height;
-                }));
-        };
-
-        $rootScope.getBalance = function() {
-            //get a live balance update
-            return $q.when(activeWallet.getBalance(false)
-                .then(function(balanceData) {
-                    $rootScope.balance = balanceData.balance;
-                    $rootScope.uncBalance = balanceData.uncBalance;
-
-                    return {
-                        balance: balanceData.balance,
-                        uncBalance: balanceData.uncBalance
-                    };
-                }));
-        };
 
         // TODO Uncomment
         /*$rootScope.syncContacts = function() {
@@ -258,14 +232,6 @@
          var pricePolling = $interval(function() {
          $rootScope.getPrice();
          }, 20000);
-
-         var balancePolling = $interval(function() {
-         $rootScope.getBalance();
-         }, 15000);
-
-         var blockheightPolling = $interval(function() {
-         $rootScope.getBlockHeight();
-         }, 15500); // slight offset not to collide
 
          var contactSyncPolling = $interval(function() {
          $rootScope.syncContacts();

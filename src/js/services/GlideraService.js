@@ -1,7 +1,10 @@
 angular.module('blocktrail.wallet').factory(
     'glideraService',
-    function(CONFIG, $log, $q, Wallet, dialogService, $state, $rootScope, $translate, $http, _,
-             $timeout, $interval, settingsService, launchService, sdkService, trackingService, CurrencyConverter) {
+    function(CONFIG, $log, $q, walletsManagerService, dialogService, $state, $rootScope, $translate, $http, _,
+             $timeout, $interval, settingsService, launchService, sdkService, trackingService) {
+
+        // TODO Review !
+        var activeWallet = walletsManagerService.getActiveWallet();
         var clientId;
         var returnuri = CONFIG.WALLET_URL + "/#/wallet/buy/glidera/oaoth2/callback";
         var decryptedAccessToken = null;
@@ -125,7 +128,7 @@ angular.module('blocktrail.wallet').factory(
                                     })
                                         .result
                                         .then(function(password) {
-                                            return Wallet.unlockWithPassword(password)
+                                            return activeWallet.unlockWithPassword(password)
                                         })
                                         .then(function(wallet) {
                                             var secretBuf = wallet.secret;
@@ -315,7 +318,7 @@ angular.module('blocktrail.wallet').factory(
                         })
                             .result
                             .then(function(password) {
-                                return Wallet.unlockWithPassword(password)
+                                return activeWallet.unlockWithPassword(password)
                                     .catch(function(e) {
                                         return unlockWallet();
                                     })
@@ -386,7 +389,7 @@ angular.module('blocktrail.wallet').factory(
 
                 return accessToken().then(function(accessToken) {
 
-                    return Wallet.getNewAddress().then(function(address) {
+                    return activeWallet.getNewAddress().then(function(address) {
 
                         return twoFactor().then(function(twoFactor) {
                             var r = createRequest(null, accessToken, twoFactor);
@@ -581,7 +584,7 @@ angular.module('blocktrail.wallet').factory(
                     $log.debug('initDecryptAccessToken2 ERR ' + e);
                 });
 
-            Wallet.addTransactionMetaResolver(function(transaction) {
+            activeWallet.addTransactionMetaResolver(function(transaction) {
                 return firstUpdate
                     .then(function () {
                         return settingsService.getSettings();

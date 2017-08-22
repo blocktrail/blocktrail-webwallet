@@ -57,7 +57,7 @@
             </div>
         </div>
         <!-- Transactions -->
-        <div ng-repeat="transaction in transactions | limitTo : transactionsListLimit : 0">
+        <div ng-repeat="transaction in walletData.transactions | limitTo : transactionsListLimit : 0">
             <!-- Show date header -->
             <div
                     ng-if="isHeader(transaction)"
@@ -77,7 +77,7 @@
             ></w-transaction>
         </div>
         <!-- Wallet no transactions message -->
-        <w-no-transactions ng-show="!isLoading && !transactions.length"></w-no-transactions>
+        <w-no-transactions ng-show="!isLoading && !walletData.transactions.length"></w-no-transactions>
         <!-- Wallet no more transaction message -->
         <w-no-more-transactions ng-class="{ active: isShowNoMoreTransactions }"></w-no-more-transactions>
     </div>

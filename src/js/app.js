@@ -237,18 +237,15 @@ angular.module('blocktrail.wallet').config(
                      * @param $log
                      * @param Currencies
                      */
-                    loadingData: function(handleSetupState, activeWallet, settingsService, $q, $rootScope, $log, Currencies) {
+                    loadingData: function(handleSetupState, settingsService, $q, $rootScope, $log, Currencies) {
                         // Do an initial load of cached user data
                         return $q.all([
-                            activeWallet.getBalance(true),
                             Currencies.updatePrices(true),
                             settingsService.getSettings()
                         ]).then(function(results) {
                             $log.debug("Initial load complete");
-                            $rootScope.balance = results[0].balance;
-                            $rootScope.uncBalance = results[0].uncBalance;
-                            $rootScope.bitcoinPrices = results[1];
-                            $rootScope.changeLanguage(results[2].language);
+                            $rootScope.bitcoinPrices = results[0];
+                            $rootScope.changeLanguage(results[1].language);
                             return true;
                         });
                     }
