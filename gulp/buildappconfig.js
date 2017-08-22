@@ -51,7 +51,7 @@ var buildAppConfig = function() {
                 }
 
                 if (!config.STATICSDIR) {
-                    config.STATICSDIR = config.STATICSDIR_PREFIX + "-" +
+                    config.STATICSDIR = (config.STATICSDIR_PREFIX ? (config.STATICSDIR_PREFIX + "-") : "") +
                         (config.VERSION || config.VERSION_REV).replace(":", "-").replace(".", "-").replace(".", "-");
                 }
 
