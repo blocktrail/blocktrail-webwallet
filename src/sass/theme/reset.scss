@@ -1,6 +1,9 @@
 @import "../helpers/variables";
 @import "../helpers/mixins";
 
+$big-footer-height: 250px;
+$small-footer-height: 50px;
+
 $appBorderRadius: 8px;
 
 html {
@@ -18,6 +21,11 @@ body {
 
     &.state-app_setup {
         @extend .fill-height-or-more;
+
+        padding-bottom: $big-footer-height * 2;
+        @media (min-width: $screen-md-min) {
+            padding-bottom: $big-footer-height;
+        }
     }
 }
 
@@ -111,7 +119,17 @@ a:focus {
     @include networkPrimaryDark('background-color');
 
     clear: both;
+    position: absolute;
+    bottom: 0;
+    left: 0;
     z-index: 2;
+    overflow: hidden;
+
+
+    height: $big-footer-height * 2;
+    @media (min-width: $screen-md-min) {
+        height: $big-footer-height;
+    }
 
     .copyright {
         .copyright-logo {
@@ -171,14 +189,30 @@ a:focus {
     }
 }
 
+.state-app_wallet {
+    .footer {
+        height: $small-footer-height;
+        overflow: hidden;
+
+        -webkit-transition: height 0.5s ease;
+        -moz-transition: height 0.5s ease;
+        -o-transition: height 0.5s ease;
+        transition: height 0.5s ease;
+
+        &:hover {
+            height: $big-footer-height;
+        }
+    }
+}
+
 .mainMenu {
     position: relative;
     background-color: $black-light;
     height: 100%;
 
-    // offset for navbar because we pos:abs stuff inside this
-    margin-top: -60px;
+    // fix navbar offset
     padding-top: 60px;
+    margin-top: -60px;
 
     .sidebar-nav {
         padding-top: 80px;
@@ -298,7 +332,6 @@ $appHeaderHeight: 80px;
         }
 
         .appBody {
-            width: 100%;
             height: 100%;
             overflow-y: auto;
             overflow-x: hidden;
@@ -319,7 +352,6 @@ $appHeaderHeight: 80px;
         .appHeader {
             border-bottom: 1px solid $muted;
             padding: 0px;
-            overflow-y: hidden;
 
             height: $appHeaderHeight;
             border-right: 1px solid $muted;
