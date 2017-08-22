@@ -291,6 +291,7 @@ $appHeaderHeight: 80px;
 
 .appWrapper {
     min-height: 400px;
+    clear: both;
 
     @extend .height-100;
 
@@ -381,8 +382,6 @@ $appHeaderHeight: 80px;
     height: 60px;
 
     .navbar-header {
-        width: 159px;
-        height: auto;
         padding: 16px 0px 0px 0px;
 
         .navbar-brand {
