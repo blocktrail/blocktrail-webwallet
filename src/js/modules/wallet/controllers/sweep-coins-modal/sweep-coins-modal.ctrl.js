@@ -28,7 +28,7 @@
 
         var options = {
             batchSize: 50,
-            accountBatchSize: 1,
+            accountBatchSize: 5,
             network: CONFIG.NETWORK,
             testnet: CONFIG.TESTNET
         };
