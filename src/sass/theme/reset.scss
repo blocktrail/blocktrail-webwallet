@@ -206,16 +206,11 @@ a:focus {
 }
 
 .mainMenu {
-    position: relative;
     background-color: $black-light;
     height: 100%;
 
-    // fix navbar offset
-    padding-top: 60px;
-    margin-top: -60px;
-
     .sidebar-nav {
-        padding-top: 80px;
+        padding-top: 70px;
     }
 
     ul {
@@ -306,9 +301,9 @@ a:focus {
 $appHeaderHeight: 80px;
 
 .appWrapper {
+    position: relative;
+    height: calc(100% - 60px);
     min-height: 400px;
-
-    @extend .height-100;
 
     .appContainer {
         height: 100%;
@@ -330,7 +325,6 @@ $appHeaderHeight: 80px;
             width: 75%;
             border-right: 1px solid $muted;
             margin: 0 0 0 -1px;
-            // padding-bottom: $appHeaderHeight;
         }
 
         .app-body {
