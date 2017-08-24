@@ -32,6 +32,9 @@
 
         initData();
 
+        /**
+         * Init data
+         */
         function initData() {
             $q.all([
                 $q.when($rootScope.getPrice()),
@@ -44,6 +47,11 @@
             });
         }
 
+        /**
+         * Two factor warning
+         *
+         * if 2FA is turn off we display a message
+         */
         function twoFactorWarning() {
             return $q.when(launchService.getAccountInfo())
                 .then(function(accountInfo) {
@@ -69,27 +77,39 @@
                 });
         }
 
+        /**
+         * Get glidera transactions
+         *
+         * TODO move this logic to Wallet class
+         */
         function getGlideraTransactions() {
-            return settingsService.getSettings().then(function(settings) {
-                $scope.buybtcPendingOrders = [];
+            return settingsService.getSettings()
+                .then(function(settings) {
+                    $scope.buybtcPendingOrders = [];
 
-                settings.glideraTransactions.forEach(function(glideraTxInfo) {
-                    if (glideraTxInfo.transactionHash || glideraTxInfo.status === "COMPLETE") {
-                        return;
-                    }
+                    settings.glideraTransactions.forEach(function(glideraTxInfo) {
+                        // don't display completed TXs, they will be part of our normal transaction history
+                        if (glideraTxInfo.transactionHash || glideraTxInfo.status === "COMPLETE") {
+                            return;
+                        }
 
-                    var order = {
-                        qty: CurrencyConverter.toSatoshi(glideraTxInfo.qty, 'BTC'),
-                        qtyBTC: glideraTxInfo.qty,
-                        currency: glideraTxInfo.currency,
-                        price: glideraTxInfo.price,
-                        total: (glideraTxInfo.price * glideraTxInfo.qty).toFixed(2),
-                        time: glideraTxInfo.time,
-                        avatarUrl: buyBTCService.BROKERS.glidera.avatarUrl,
-                        displayName: buyBTCService.BROKERS.glidera.displayName
-                    };
+                        // only display TXs that are related to this wallet
+                        if (glideraTxInfo.walletIdentifier !== $scope.walletData.identifier) {
+                            return;
+                        }
 
-                    $scope.buybtcPendingOrders.push(order);
+                        var order = {
+                            qty: CurrencyConverter.toSatoshi(glideraTxInfo.qty, 'BTC'),
+                            qtyBTC: glideraTxInfo.qty,
+                            currency: glideraTxInfo.currency,
+                            price: glideraTxInfo.price,
+                            total: (glideraTxInfo.price * glideraTxInfo.qty).toFixed(2),
+                            time: glideraTxInfo.time,
+                            avatarUrl: buyBTCService.BROKERS.glidera.avatarUrl,
+                            displayName: buyBTCService.BROKERS.glidera.displayName
+                        };
+
+                        $scope.buybtcPendingOrders.push(order);
                 });
 
                 // latest first
@@ -97,6 +117,11 @@
             });
         }
 
+        /**
+         * On show more transactions
+         *
+         * Handler for "infinite-scroll" directive
+         */
         function onShowMoreTransactions() {
             if($scope.transactionsListLimit < $scope.walletData.transactions.length) {
                 $scope.transactionsListLimit = $scope.transactionsListLimit + transactionsListLimitStep;
@@ -114,6 +139,12 @@
             }
         }
 
+        /**
+         * Is header
+         *
+         * @param transaction
+         * @return {boolean}
+         */
         function isHeader(transaction) {
             var isHeader = false;
             var date = new Date(transaction.time * 1000);
@@ -131,10 +162,20 @@
             return isHeader;
         }
 
+        /**
+         * Get transaction header
+         *
+         * @return {number}
+         */
         function getTransactionHeader() {
             return lastDateHeader;
         }
 
+        /**
+         * On show transaction
+         *
+         * @param transaction
+         */
         function onShowTransaction(transaction) {
             $modal.open({
                 controller: "WalletTransactionInfoModalCtrl",
@@ -150,6 +191,9 @@
             });
         }
 
+        /**
+         * On destroy
+         */
         function onDestroy() {
             if(timeoutPromise) {
                 $timeout.cancel(timeoutPromise);

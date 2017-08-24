@@ -4,10 +4,10 @@
     angular.module("blocktrail.wallet")
         .controller("WalletCtrl", WalletCtrl);
 
-    function WalletCtrl($q, $scope, $state, $rootScope, storageService, walletsManagerService,
+    function WalletCtrl($scope, $state, $rootScope, storageService, walletsManagerService,
                                        activeWallet,
                                        CONFIG, settingsService, setupService, $timeout, launchService, blocktrailLocalisation,
-                                       dialogService, $translate, Currencies, AppVersionService, $filter) {
+                                       dialogService, $translate, Currencies, AppVersionService, $filter, Contacts) {
 
         $scope.settings = settingsService.getReadOnlySettings();
         $scope.walletData = activeWallet.getReadOnlyWalletData();
@@ -48,6 +48,7 @@
                 isHidden: false
             }
         ];
+
         $scope.appStoreButtonsData = {
             config: CONFIG,
             settings: $scope.settings
@@ -55,8 +56,10 @@
 
 
         /**
-         * TODO REMOVE IT
+         * Start temporal impleamentation for mu
+         * TODO Add select to template
          */
+        $scope.debugMode = CONFIG.DEBUG;
 
         $scope.activeWallet = activeWallet;
         $scope.activeWalletFromManager = walletsManagerService.getActiveWallet();
@@ -71,10 +74,6 @@
                     $state.reload();
                 });
         };
-
-        /**
-         * ****
-         */
 
         // add info from setup process to the settings
         setupService.getUserInfo().then(function(userInfo) {
@@ -101,11 +100,13 @@
             })
         });
 
-        /*
-         * check for extra languages to enable
-         * if one is preferred, prompt user to switch
+        /**
+         * Fetch extra languages
+         *
+         * Check for extra languages to enable, if one is preferred, prompt user to switch
+         *
+         * TODO move the logic to service
          */
-        // TODO move the logic to service
         $rootScope.fetchExtraLanguages = launchService.getWalletConfig()
             .then(function(result) {
                 if (result.api_key && (result.api_key !== 'ok')) {
@@ -209,37 +210,26 @@
                 });
         };
 
-
-        // TODO Uncomment
-        /*$rootScope.syncContacts = function() {
-         //sync any changes to contacts
-         Contacts.list()
-         .catch(function(err) {
-         $log.error(err);
-         })
-         ;
-         };*/
+        $rootScope.syncContacts = function() {
+            //sync any changes to contacts
+            Contacts.list()
+                .catch(function(err) {
+                    $log.error(err);
+                });
+         };
 
         // do initial updates then poll for changes, all with small offsets to reducing blocking / slowing down of rendering
-        // TODO Uncomment
-        /*$timeout(function() {
-         $rootScope.syncContacts();
-         }, 500);
-         $timeout(function() {
-         $rootScope.getPrice();
-         }, 1000);
+        $timeout(function() {
+            $rootScope.syncContacts();
+        }, 500);
 
-         var pricePolling = $interval(function() {
-         $rootScope.getPrice();
-         }, 20000);
+        $timeout(function() {
+            $rootScope.getPrice();
+        }, 1000);
 
-         var contactSyncPolling = $interval(function() {
-         $rootScope.syncContacts();
-         }, 300500); // 5 min + slight offset not to collide
-
-         var settingsSyncPolling = $interval(function() {
-         settingsService.syncSettingsDown();
-         }, 302000); // 5 min + slight offset not to collide*/
+        // TODO settings polling move to a settingsService
+        $timeout(function() {
+            settingsService.syncSettingsDown();
+        }, 302000); // 5 min + slight offset not to collide
     }
-
 })();

@@ -430,8 +430,7 @@ angular.module('blocktrail.wallet')
                     $scope.complete = true;
                     $scope.working = false;
                     $scope.txHash = txHash;
-
-                    activeWallet.pollTransactions();
+                    activeWallet.forcePolling();
                 })
                 .catch(function(err) {
                     $scope.error = null;

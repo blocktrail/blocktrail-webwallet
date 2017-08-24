@@ -38,7 +38,7 @@
             localCurrency: "USD",
             language: "en",
             receiveNewsletter: false,
-            profilePic: null
+            profilePic: "/" + CONFIG.STATICSURL + "/img/blank_profile.png"
         };
         $scope.errors = {
             email: false,

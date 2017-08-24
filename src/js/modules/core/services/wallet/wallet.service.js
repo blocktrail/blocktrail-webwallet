@@ -2,21 +2,20 @@
     "use strict";
 
     angular.module('blocktrail.core')
-        .factory('walletService', function($q, $timeout, $rootScope, bitcoinJS, sdkService, launchService, storageService, Contacts) {
-            return new WalletService($q, $timeout, $rootScope, bitcoinJS, sdkService, launchService, storageService, Contacts)
+        .factory('walletService', function($q, $timeout, bitcoinJS, sdkService, storageService, settingsService, Contacts) {
+            return new WalletService($q, $timeout, bitcoinJS, sdkService, storageService, settingsService, Contacts)
         });
     
-    function WalletService($q, $timeout, $rootScope, bitcoinJS, sdkService, launchService, storageService, Contacts) {
+    function WalletService($q, $timeout, bitcoinJS, sdkService, storageService, settingsService, Contacts) {
         var self = this;
 
         self._$q = $q;
         self._$timeout = $timeout;
-        self._$rootScope = $rootScope;
         self._bitcoinJS = bitcoinJS;
         self._sdk = sdkService;
-        self._launchService = launchService;
         self._storageService = storageService;
-        self._contacts = Contacts;
+        self._settingsService = settingsService;
+        self._contactsService = Contacts;
     }
 
     WalletService.prototype.initWallet = function(walletId) {
@@ -35,14 +34,12 @@
         });
     };
 
-
     WalletService.prototype._initWallet = function(walletId, sdkWallet) {
         var self = this;
-        var wallet =  new Wallet(sdkWallet, self._$q, self._$timeout, self._storageService, self._bitcoinJS);
+        var wallet =  new Wallet(sdkWallet, self._$q, self._$timeout,  self._bitcoinJS, self._storageService, self._settingsService, self._contactsService);
 
         return wallet.isReady;
     };
-
 
     WalletService.prototype._errorHandler = function(e) {
         throw new Error(e);
@@ -53,16 +50,24 @@
      * WALLET CLASS
      * @param sdkWallet
      * @param $q
+     * @param $timeout
+     * @param bitcoinJS
      * @param storageService
+     * @param settingsService
+     * @param contactsService
      * @constructor
      */
-
-    function Wallet(sdkWallet, $q, $timeout, storageService, bitcoinJS) {
+    // TODO Remove glidera transactions form the settings service and remove 'settingsService' from wallet
+    // TODO Create a method for updating contacts and and remove 'contactsService' from wallet
+    // TODO Or try to handle this in the avatar directive
+    function Wallet(sdkWallet, $q, $timeout, bitcoinJS, storageService, settingsService, contactsService) {
         var self = this;
 
         self._$q = $q;
         self._$timeout = $timeout;
         self._bitcoinJS = bitcoinJS;
+        self._contactsService = contactsService;
+        self._settingsService = settingsService;
 
         self._isInitData = false;
 
@@ -70,9 +75,8 @@
         self._pollPromise = null;
         self._pollTimeout = null;
 
-        self._pollingInterval = 5000000000;
+        self._pollingInterval = 10000;
         self._noPolling = false;
-
 
         // Access to SDK and Storage
         self._sdkWallet = sdkWallet;
@@ -83,11 +87,11 @@
             transactions: [],
             balance: 0,
             uncBalance: 0,
-            blockHeight: 0
+            blockHeight: 0,
+            identifier: self._sdkWallet.identifier
         };
 
         self.isReady = self._initData();
-
 
         // Read only wallet data object
         // the object would be shared
@@ -106,47 +110,11 @@
             });
         });
 
-
         // TODO Check it
         self._amountOfOfflineAddresses = 30;
         self.isRefilling = null;
         self.addressRefillPromise = null;
-        self.transsactionMetaResolvers = [];
-
-
-
-
-
-        // Used for the wallet balance
-
     }
-
-    // TODO discuss
-    // do we need this now - addTransactionMetaResolver : YES
-    // How should we reset the wallet, reset all data (in manager, or in for specific wallet)
-
-
-
-
-    Wallet.prototype._initData = function() {
-        var self = this;
-
-        if (self._isInitData) {
-            return self._$q.when(self);
-        } else {
-            return self._$q.all([self._getBalance(), self._getBlockHeight(), self._getTransactions()])
-                .then(function() {
-                    self._isInitData = true;
-
-                    if (!self._noPolling) {
-                        // TODO continue here add pooling
-                        self._pollTransactionsAndGetBlockHeight();
-                    }
-
-                    return self._$q.when(self);
-                });
-        }
-    };
 
     Wallet.prototype.getReadOnlyWalletData = function() {
         var self = this;
@@ -154,33 +122,41 @@
         return self._readonlyDoc;
     };
 
-
-
-
-
-    Wallet.prototype.addTransactionMetaResolver = function(resolver) {
+    Wallet.prototype._initData = function() {
         var self = this;
 
-        self.transsactionMetaResolvers.push(resolver);
+        if (self._isInitData) {
+            return self._$q.when(self);
+        } else {
+            return self._$q.all([self._getBalance(), self._pollTransactionsAndGetBlockHeight()])
+                .then(self._getTransactions.bind(self))
+                .then(function() {
+                    self._isInitData = true;
+                    return self._$q.when(self);
+                });
+        }
     };
-
-
-
 
     /**
      * START polling
      */
 
+    /**
+     * Disable polling
+     */
     Wallet.prototype.disablePolling = function() {
         var self = this;
 
         if(self._pollTimeout) {
-            $timeout.cancel(self._pollTimeout);
+            self._$timeout.cancel(self._pollTimeout);
         }
 
         self._noPolling = true;
     };
 
+    /**
+     * Enable polling
+     */
     Wallet.prototype.enablePolling = function() {
         var self = this;
 
@@ -189,6 +165,24 @@
         self._pollTransactionsAndGetBlockHeight();
     };
 
+    /**
+     * Force polling
+     */
+    Wallet.prototype.forcePolling = function() {
+        var self = this;
+
+        if(self._pollTimeout) {
+            self._$timeout.cancel(self._pollTimeout);
+        }
+
+        self._pollTransactionsAndGetBlockHeight();
+    };
+
+    /**
+     * Setup a timeout
+     * @return { boolean }
+     * @private
+     */
     Wallet.prototype._setupTimeout = function() {
         var self = this;
 
@@ -199,6 +193,11 @@
         return true;
     };
 
+    /**
+     * Poll transactions and get the block height
+     * @return { promise }
+     * @private
+     */
     Wallet.prototype._pollTransactionsAndGetBlockHeight = function() {
         var self = this;
 
@@ -220,6 +219,11 @@
      * START Reset wallet data
      */
 
+    /**
+     * Reset the wallet data
+     * @return { promise }
+     * @private
+     */
     Wallet.prototype._resetWalletData = function() {
         var self = this;
 
@@ -229,10 +233,15 @@
                 startkey: self._sdkWallet.identifier,
                 endkey: self._sdkWallet.identifier + "\ufff0"
             })
-            .then(self.walletAllDocsHandler.bind(self));
+            .then(self._getAllWalletDocumentsSuccessHandler.bind(self));
     };
 
-    Wallet.prototype.walletAllDocsHandler = function(result) {
+    /**
+     * Get all wallet documents, the success handler
+     * @return { promise }
+     * @private
+     */
+    Wallet.prototype._getAllWalletDocumentsSuccessHandler = function(result) {
         var self = this;
         var promises = [];
 
@@ -243,6 +252,11 @@
         return self._$q.all(promises);
     };
 
+    /**
+     * Delete a document from the storage
+     * @return { promise }
+     * @private
+     */
     Wallet.prototype._deleteDocumentFromStorage = function(doc) {
         var self = this;
 
@@ -253,26 +267,13 @@
      * END Reset wallet data
      */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * START Wallet balance
      */
 
     /**
      * Get the wallet balance
-     * @returns _walletData { object }
+     * @returns _walletData { promise }
      * @private
      */
     Wallet.prototype._getBalance = function() {
@@ -396,7 +397,7 @@
 
     /**
      * Get the block height
-     * @returns _walletData { object }
+     * @returns _walletData { promise }
      * @private
      */
     Wallet.prototype._getBlockHeight = function() {
@@ -593,8 +594,8 @@
         var self = this;
 
         return self._$q.when(self._getLastBlockHashFromStorage())
-        // We reject the promise if we do not have new transactions and handle it in '_pollTransactionsCatchHandler'
-        // TODO review logic with reject, replace it with done
+            // We reject the promise if we do not have new transactions and handle it in '_pollTransactionsCatchHandler'
+            // TODO review logic with reject, replace it with done
             .then(self._getTransactionsHistoryFromStorageAndTransactionsFromSdk.bind(self))
             .then(self._processTransactionsAndGetBalance.bind(self))
             .then(self._setLastBlockHashToStorageAndTransactionHistoryToStorage.bind(self))
@@ -653,42 +654,6 @@
     };
 
     /**
-     * Get the transaction document from the storage
-     * @return { promise } {{ _id: string, data: object }}
-     * @private
-     */
-    Wallet.prototype._getTransactionFromStorage = function(transactionHash) {
-        var self = this;
-
-        return self._$q.when(self._walletStore.get(self._getUniqueId("transaction", transactionHash)));
-    };
-
-    /**
-     * Get the transaction document from the storage, the success handler
-     * @param transactionDoc
-     * @return transactionDoc {{ _id: string, data: object }}
-     * @private
-     */
-    Wallet.prototype._getTransactionFromStorageSuccessHandler = function(transactionDoc) {
-        return transactionDoc;
-    };
-
-    /**
-     * Get the transaction document from the storage, the error handler
-     * @param transaction
-     * @return {{ _id: string, data: object }}
-     * @private
-     */
-    Wallet.prototype._getTransactionFromStorageErrorHandler = function(transaction) {
-        var self = this;
-
-        return {
-            _id: self._getUniqueId("transaction", transaction.hash),
-            data: transaction
-        }
-    };
-
-    /**
      * Set the transaction document to the storage
      * @param transactionDoc
      * @return transactionDoc { promise } {{ _id: string, data: object }}
@@ -708,13 +673,14 @@
      */
     Wallet.prototype._getTransactionsFromSdk = function(lastBlockHash) {
         var self = this;
+
         var params = {
             sort_dir: 'desc',
             lastBlockHash: lastBlockHash
         };
 
         return self._$q.when(self._sdkWallet.transactions(params))
-            .then(self._getTransactionsFromSdkSuccessHandler.bind(self));
+            .then(self._getTransactionsFromSdkSuccessHandler.bind(self, lastBlockHash));
     };
 
     /**
@@ -722,10 +688,10 @@
      * @return { promise } {{ lastBlockHash: string, data: Array }}
      * @private
      */
-    Wallet.prototype._getTransactionsFromSdkSuccessHandler = function(results) {
+    Wallet.prototype._getTransactionsFromSdkSuccessHandler = function(lastBlockHash, results) {
         var self = this;
 
-        // TODO review remove "reject"
+        // TODO review, remove "reject"
         if (!results.data.length) {
             // no new transactions...break out
             return self._$q.reject(new blocktrail.WalletPollError('NO_TX'));
@@ -793,6 +759,8 @@
             if (transaction.block_height) {
                 // Check if previously saved as unconfirmed and update is
                 if (oldUnconfirmed.indexOf(transaction.hash) !== -1) {
+                    debugger;
+
                     transactionHistoryDoc.confirmed.unshift(transaction.hash);
                     confirmedTransactions.push(transaction);
                     promises.push(self._updateTransaction(transaction));
@@ -828,6 +796,42 @@
     };
 
     /**
+     * Get the transaction document from the storage
+     * @return { promise } {{ _id: string, data: object }}
+     * @private
+     */
+    Wallet.prototype._getTransactionFromStorageByHash = function(transactionHash) {
+        var self = this;
+
+        return self._$q.when(self._walletStore.get(self._getUniqueId("transaction", transactionHash)));
+    };
+
+    /**
+     * Get the transaction document from the storage, the success handler
+     * @param transactionDoc
+     * @return transactionDoc {{ _id: string, data: object }}
+     * @private
+     */
+    Wallet.prototype._getTransactionFromStorageByHashSuccessHandler = function(transactionDoc) {
+        return transactionDoc;
+    };
+
+    /**
+     * Get the transaction document from the storage, the error handler
+     * @param transaction
+     * @return {{ _id: string, data: object }}
+     * @private
+     */
+    Wallet.prototype._getTransactionFromStorageByHashErrorHandler = function(transaction) {
+        var self = this;
+
+        return {
+            _id: self._getUniqueId("transaction", transaction.hash),
+            data: transaction
+        }
+    };
+
+    /**
      * Add the new transaction
      * @param transaction
      * @return transactionDoc { promise } {{ _id: string, data: object }}
@@ -851,9 +855,23 @@
     Wallet.prototype._updateTransaction = function(transaction) {
         var self = this;
 
-        return self._getTransactionFromStorage(transaction.hash)
-            .then(self._getTransactionFromStorageSuccessHandler.bind(self), self._getTransactionFromStorageErrorHandler.bind(transaction, self))
+        return self._getTransactionFromStorageByHash(transaction.hash)
+            .then(self._getTransactionFromStorageByHashSuccessHandler.bind(self), self._getTransactionFromStorageByHashErrorHandler.bind(transaction, self))
+            .then(self._updateTransactionDoc.bind(self, transaction))
             .then(self._setTransactionToStorage.bind(self));
+    };
+
+    /**
+     * Update the transaction document
+     * @param transactionData
+     * @param transactionDoc
+     * @return {*}
+     * @private
+     */
+    Wallet.prototype._updateTransactionDoc = function(transactionData, transactionDoc) {
+        transactionDoc.data = transactionData;
+
+        return  transactionDoc;
     };
 
     /**
@@ -933,7 +951,7 @@
         var promises = [];
 
         list.forEach(function(transactionHash) {
-            promises.push(self._getTransactionFromStorage(transactionHash));
+            promises.push(self._getTransactionFromStorageByHash(transactionHash));
         });
 
         return self._$q.all(promises);
@@ -946,53 +964,128 @@
      * @private
      */
     Wallet.prototype._processTransactionDocs = function(transactionDocs) {
-        // @TODO: rework contacts and enable again
-        // Qwaterfall(self.transsactionMetaResolvers.concat([self.mergeContact]), row.data);
         return transactionDocs.map(function(transactionDoc) {
             return transactionDoc.data;
         });
     };
 
+    /**
+     * Update the transaction list
+     * @param transactions
+     * @private
+     */
     Wallet.prototype._updateTransactionsList = function(transactions) {
         var self = this;
 
-        self._walletData.transactions
-            .splice
-            .apply(self._walletData.transactions, [0, self._walletData.transactions.length]
-                .concat(transactions)
-            );
+        // TODO Create a method and call it on new contacts
+        return self._extentTransactionsWithContactsAndGlideraData(transactions)
+            .then(function() {
+                self._walletData.transactions
+                    .splice
+                    .apply(self._walletData.transactions, [0, self._walletData.transactions.length]
+                        .concat(transactions)
+                    );
 
-        return self._walletData;
+                return self._walletData;
+            });
     };
 
-    // TODO do not implement this logic now
-    /*Wallet.prototype.mergeContact = function(transaction) {
-     var self = this;
+    /**
+     * Extent the transactions with contacts data and glidera data
+     * TODO Move glidera transactions to the wallet and review this piece of hell
+     * @param transactions
+     * @private
+     */
+    Wallet.prototype._extentTransactionsWithContactsAndGlideraData = function(transactions) {
+        var self = this;
 
-     transaction.contact = null;
-     return Q.when(transaction);
+        return self._settingsService.getSettings()
+            .then(function(settings) {
+                var promises = [];
+                var completeGlideraTransactions = settings.glideraTransactions.filter(function (item) {
+                    return !!item.transactionHash || item.status === "COMPLETE";
+                });
 
-     if (transaction.contacts) {
-     return Q.any(transaction.contacts.map(function(hash) {
-     return Contacts.findByHash(hash);
-     })).then(
-     function(contact) {
-     transaction.contact = contact;
-     return transaction;
-     },
-     function() {
-     return transaction;
-     }
-     );
-     } else {
-     return Q.when(transaction);
-     }
-     };*/
+                transactions.forEach(function(transaction) {
+                    // Add contact data
+                    if(transaction.contacts.length) {
+                        // Take the first contact from contacts list
+                        promises.push(self._addContactToTransaction(transaction, transaction.contacts[0]))
+                    } else {
+                        transaction.contact = null;
+                    }
+
+                    var updateGlideraTransactions = false;
+
+                    // Add Glidera data
+                    if (completeGlideraTransactions.length) {
+                        completeGlideraTransactions.forEach(function(glideraTxInfo) {
+                            // check if transaction hash matches
+                            var isTxhash = glideraTxInfo.transactionHash && glideraTxInfo.transactionHash === transaction.hash;
+                            // check if address matches
+                            var isAddr = glideraTxInfo.address && transaction.self_addresses.indexOf(glideraTxInfo.address) !== -1;
+
+                            // if address matches but there's no transactionHash then we 'fix' it
+                            //  sometimes this happens when the glidera API is slow to update
+                            if (!glideraTxInfo.transactionHash && isAddr) {
+                                glideraTxInfo.transactionHash = transaction.hash;
+                                isTxhash = true;
+                            }
+
+                            // add metadata if it's a match
+                            if (isTxhash) {
+                                transaction.buybtc = {
+                                    broker: 'glidera',
+                                    qty: glideraTxInfo.qty,
+                                    currency: glideraTxInfo.currency,
+                                    price: glideraTxInfo.price
+                                };
+
+                                // set the walletIdentifier to our wallet if it wasn't already set (old TXs)
+                                if (!glideraTxInfo.walletIdentifier) {
+                                    glideraTxInfo.walletIdentifier = self._sdkWallet.identifier;
+                                    updateGlideraTransactions = true;
+                                }
+                            }
+                        });
+                    }
+
+                    // trigger update if we modified data
+                    if (updateGlideraTransactions) {
+                        return self._settingsService.updateGlideraTransactions(settings.glideraTransactions);
+                    }
+                });
+
+                return self._$q.all(promises)
+                    .then(function () {
+                        return transactions;
+                    });
+
+            });
+    };
+
+    /**
+     * Add contact to transaction
+     * @param transaction
+     * @param contactHash
+     * @private
+     */
+    Wallet.prototype._addContactToTransaction = function(transaction, contactHash) {
+        var self = this;
+
+        return self._contactsService.findByHash(contactHash)
+            .then(function(contact) {
+                if(contact) {
+                    transaction.contact = contact;
+                } else {
+                    transaction.contact = null;
+                }
+            });
+    };
 
     /**
      * END Transactions
      */
-
 
     /**
      * Get a unique id

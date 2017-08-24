@@ -16,10 +16,7 @@
 
         self._walletsList = null;
         self._activeWallet = null;
-
-
         self._activeWalletId = null;
-
     }
 
     WalletsManagerService.prototype.fetchWallets = function() {
@@ -38,8 +35,6 @@
 
     WalletsManagerService.prototype.setActiveWalletById = function(id) {
         var self = this;
-
-        // TODO check on wallets;
 
         if(!id && self._activeWalletId) {
             id = self._activeWalletId;

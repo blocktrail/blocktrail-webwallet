@@ -18,9 +18,8 @@
 
     function wTransactionAvatarCtrl($scope, CONFIG, buyBTCService) {
         $scope.contactInitials = "";
-        $scope.defaultAvatarUrl = CONFIG.STATICSURL + "/img/blank_profile.png";
-        $scope.avatarUrl= "";
         $scope.isReceived = $scope.transaction["wallet_value_change"] > 0;
+        $scope.avatarUrl = "/" + CONFIG.STATICSURL + "/img/blank_profile.png";
 
         var brokerDisplayName = "";
 
@@ -43,7 +42,11 @@
                 $scope.contactInitials = firstName.substr(0, 1) + lastName.substr(0, 1);
             } else if (brokerDisplayName) {
                 $scope.contactInitials = brokerDisplayName.substr(0, 2);
+            } else if ($scope.transaction.contact.displayName) {
+                $scope.contactInitials = $scope.transaction.contact.displayName.substr(0, 1);
             }
+
+            $scope.avatarUrl = "data:image/jpeg;base64," + $scope.transaction.contact.avatarUrl;
         }
     }
 

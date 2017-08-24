@@ -222,10 +222,12 @@ angular.module('blocktrail.wallet').config(
                     handleSetupState: function($state, launchService) {
                         return launchService.handleSetupState('app.wallet', $state);
                     },
-                    activeWallet: function($state, walletsManagerService) {
+                    activeWallet: function($state, launchService, walletsManagerService) {
                         return walletsManagerService.fetchWallets()
                             .then(function() {
-                                return walletsManagerService.setActiveWalletById(null);
+                                return launchService.getWalletInfo().then(function(walletInfo) {
+                                    return walletsManagerService.setActiveWalletById(walletInfo.identifier);
+                                });
                             });
                     },
                     /**
@@ -479,77 +481,6 @@ function parseQuery(url) {
     }
     return query;
 }
-
-/**
- * use promises to loop over a `list` of items and execute `fn`
- * with a trailing window of `n` items to avoid blocking
- *
- * @param list
- * @param n
- * @param fn
- */
-window.QforEachLimit = function(list, n, fn) {
-    // copy list (we'll by popping and we don't want to modify the list)
-    var queue = list.slice();
-    var results = [];
-
-    if (typeof n === "function") {
-        fn = n;
-        n = null;
-    }
-
-    // exec batch() which is recursive
-    return (function batch() {
-        var b = [], v;
-
-        if (n === null) {
-            b = queue;
-        } else {
-            // pop until you drop
-            for (var i = 0; i < n; i++) {
-                v = queue.shift();
-                if (v) {
-                    b.push(v);
-                }
-            }
-        }
-
-        // when there's nothing left pop'd we'll return the final results
-        if (!b.length) {
-            return Q.when(results);
-        }
-
-        // create a .all promise for this batch
-        return Q.all(
-            b.map(function(i) {
-                return Q.when(i).then(fn);
-            })
-        )
-        // when the batch is done we concat the results and continue
-            .then(function(_results) {
-                if (n === null) {
-                    return _results;
-                } else {
-                    results = results.concat(_results);
-
-                    return batch();
-                }
-            })
-            ;
-    })();
-};
-
-window.Qwaterfall = function(fns, arg) {
-    var p = Q.when(arg);
-
-    fns.slice().forEach(function(fn) {
-        p = p.then(function(arg) {
-            return fn(arg);
-        });
-    });
-
-    return p;
-};
 
 function randNumber() {
     do {

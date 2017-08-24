@@ -24,8 +24,12 @@
                             <div class="transaction-info">
                                 <div class="media">
                                     <div class="media-left media-media">
-                                        <div class="display-token contact-token">
-                                            <span class="avatar received" style="background-image: url('data:image/jpeg;base64, {{ buybtcPendingOrder.avatarUrl }}');"></span>
+                                        <div class="display-token received">
+                                            <!-- Display avatar -->
+                                            <span
+                                                    class="avatar"
+                                                    ng-style="{'background-image':'url(data:image/jpeg;base64,{{ buybtcPendingOrder.avatarUrl }})'}"
+                                            ></span>
                                         </div>
                                     </div>
                                     <div class="media-body media-top">
@@ -57,7 +61,7 @@
             </div>
         </div>
         <!-- Transactions -->
-        <div ng-repeat="transaction in walletData.transactions | limitTo : transactionsListLimit : 0">
+        <div ng-repeat="transaction in walletData.transactions | limitTo : transactionsListLimit : 0 track by transaction.hash">
             <!-- Show date header -->
             <div
                     ng-if="isHeader(transaction)"

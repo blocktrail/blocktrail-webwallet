@@ -694,59 +694,43 @@ $display-token-size: 50px;
 
 .display-token {
     position: relative;
-    display: inline-block;
     width: $display-token-size;
     height: $display-token-size;
-    border-radius: 100%;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.13);
     text-decoration: none;
+    overflow: hidden;
+    border-radius: 50%;
 
-    &.contact-token {
-        background-color: #bcbcbc;
+    &.received {
+        border: 2px solid $blue;
+    }
+
+    &.sent {
+        border: 2px solid $red;
+    }
+
+    .token-text {
+        position: relative;
+        z-index: 100;
+        color: $white;
         text-align: center;
-        font-size: $display-token-size/2;
+        font-size: round($display-token-size/2.3);
         line-height: $display-token-size;
         text-transform: uppercase;
         font-weight: 200;
-        overflow: hidden;
-        color: transparent;
-        text-shadow: 0 0 0px $white, 0 -1px 1px rgba(0, 0, 0, 0.35);
-
-        .avatar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-position: 50% 50%;
-            background-size: cover;
-        }
+        text-shadow: 0 0 0 $white, 0 -1px 1px rgba(0, 0, 0, 0.35);
+        opacity: .5;
     }
 
-    &.anon-token {
-        color: $darkgray-light;
-        text-align: center;
-        font-size: $display-token-size/1.5;
-        line-height: $display-token-size;
-
-        img {
-            max-width: 50px;
-            vertical-align: top;
-
-        }
-    }
-
-    &.anon-token, &.contact-token {
-        img, span {
-            &.received {
-                border: 2px solid $blue;
-                border-radius: 50%;
-            }
-            &.sent {
-                border: 2px solid $red;
-                border-radius: 50%;
-            }
-        }
+    .avatar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-position: 50% 50%;
+        background-size: cover;
+        z-index: 1;
     }
 }
 

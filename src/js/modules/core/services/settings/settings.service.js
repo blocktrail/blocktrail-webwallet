@@ -27,7 +27,6 @@
             profilePosY:  50,
             twoFactorWarningLastDisplayed: null,
             contactsLastSync: null,
-            enablePolling: true,    // dev setting - disables auto polling for transactions
             useTestnet: false,      // dev setting - enables testnet for SDK
 
             glideraRequest: null,
@@ -158,7 +157,6 @@
         var self = this;
         var promise;
 
-        console.log("*** updateSettingsUp");
         // wait for syncing down to be done before syncing up
         if (self._syncingSettingsDown) {
             self._syncingSettingsDown.then(function() {
@@ -244,14 +242,14 @@
      * @param transactions
      * @returns { promise }
      */
-    Settings.prototype.updateGlideraTransaction = function(transactions) {
+    Settings.prototype.updateGlideraTransactions = function(transactions) {
         var self = this;
         var promise;
 
         // wait for syncing down to be done before syncing up
         if (self._syncingSettingsDown) {
             self._syncingSettingsDown.then(function() {
-                promise = self.updateGlideraTransaction(transactions);
+                promise = self.updateGlideraTransactions(transactions);
             })
         } else {
             self._doc.glideraTransactions = transactions;
@@ -452,7 +450,7 @@
 
         self._syncingProfileDown = null;
 
-        self._doc.profilePic = sdkProfile.profilePic && ("data:image/jpeg;base64, " + sdkProfile.profilePic) || null;
+        self._doc.profilePic = sdkProfile.profilePic && ("data:image/jpeg;base64," + sdkProfile.profilePic) || null;
 
         return self._doc
     };
