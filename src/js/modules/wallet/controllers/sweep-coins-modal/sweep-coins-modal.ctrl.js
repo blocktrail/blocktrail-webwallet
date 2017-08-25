@@ -44,7 +44,7 @@
             }
             // Remove line breaks
             if ($scope.form.mnemonic && $scope.form.mnemonic.length > 0) {
-                $scope.form.mnemonic = $scope.form.mnemonic.replace(/[\r\n]+/g, " "); // https://stackoverflow.com/a/34936253
+                $scope.form.mnemonic = $scope.form.mnemonic.replace(/[\r\n]+/g, " ").toLowerCase(); // https://stackoverflow.com/a/34936253
             }
 
             if (newVal && oldVal) {
