@@ -18,6 +18,7 @@ var livereload = require('gulp-livereload');
 var fontello = require('gulp-fontello');
 var del = require('del');
 var html2js = require('gulp-html2js');
+var karma = require('gulp-karma');
 
 var readAppConfig = require('./gulp/readappconfig');
 var buildAppConfig = require('./gulp/buildappconfig');
@@ -386,3 +387,16 @@ gulp.task('copystatics:livereload', ['copystatics'], function() {
 gulp.task('js', ['js:libs', 'js:app', 'js:sdk', 'js:zxcvbn']);
 gulp.task('templates', ['templates:index', 'templates:rest']);
 gulp.task('default', ['copystatics', 'sass', 'templates', 'js']);
+
+gulp.task('test', function() {
+    return gulp.src('./test/')
+        .pipe(karma({
+            configFile: 'karma.config.js',
+            action: 'run'
+        }))
+        .on('error', function(err) {
+            // Make sure failed tests cause gulp to exit non-zero
+            console.log(err);
+            this.emit('end'); //instead of erroring the stream, end it
+        });
+});
