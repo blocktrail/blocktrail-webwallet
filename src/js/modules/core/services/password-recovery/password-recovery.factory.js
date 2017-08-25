@@ -18,7 +18,7 @@
             }, function (err) {
                 dialogService.alert(
                     $translate.instant("RECOVERY_ERROR"),
-                    $translate.instant("MSG_PASSWORD_NOT_CHANGED"),
+                    $translate.instant("MSG_REQUEST_RECOVERY_SECRET_FAILED"),
                     false, false
                 );
 
