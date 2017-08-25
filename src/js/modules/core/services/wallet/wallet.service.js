@@ -75,7 +75,7 @@
         self._pollPromise = null;
         self._pollTimeout = null;
 
-        self._pollingInterval = 10000;
+        self._pollingInterval = 15000;
         self._noPolling = false;
 
         // Access to SDK and Storage

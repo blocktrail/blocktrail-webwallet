@@ -223,10 +223,17 @@ angular.module('blocktrail.wallet').config(
                         return launchService.handleSetupState('app.wallet', $state);
                     },
                     activeWallet: function($state, launchService, walletsManagerService) {
-                        return walletsManagerService.fetchWallets()
+                        return walletsManagerService.fetchWalletsList()
                             .then(function() {
                                 return launchService.getWalletInfo().then(function(walletInfo) {
-                                    return walletsManagerService.setActiveWalletById(walletInfo.identifier);
+                                    var activeWallet = walletsManagerService.getActiveWallet();
+
+                                    // active wallet is null when we load first time
+                                    if(!activeWallet) {
+                                        activeWallet = walletsManagerService.setActiveWalletById(walletInfo.identifier);
+                                    }
+
+                                    return activeWallet;
                                 });
                             });
                     },

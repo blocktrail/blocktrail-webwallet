@@ -4,10 +4,9 @@
     angular.module("blocktrail.wallet")
         .controller("WalletCtrl", WalletCtrl);
 
-    function WalletCtrl($scope, $state, $rootScope, storageService, walletsManagerService,
-                                       activeWallet,
-                                       CONFIG, settingsService, setupService, $timeout, launchService, blocktrailLocalisation,
-                                       dialogService, $translate, Currencies, AppVersionService, $filter, Contacts) {
+    function WalletCtrl($scope, $state, $rootScope, storageService, walletsManagerService, activeWallet,
+                        CONFIG, settingsService, setupService, $timeout, launchService, blocktrailLocalisation,
+                        dialogService, $translate, Currencies, AppVersionService, $filter, Contacts) {
 
         $scope.settings = settingsService.getReadOnlySettings();
         $scope.walletData = activeWallet.getReadOnlyWalletData();
@@ -48,26 +47,20 @@
                 isHidden: false
             }
         ];
-
         $scope.appStoreButtonsData = {
             config: CONFIG,
             settings: $scope.settings
         };
 
-
         /**
-         * Start temporal impleamentation for mu
+         * Start temporal implementation for multiple wallets
          * TODO Add select to template
          */
         $scope.debugMode = CONFIG.DEBUG;
-
-        $scope.activeWallet = activeWallet;
-        $scope.activeWalletFromManager = walletsManagerService.getActiveWallet();
-        $scope.isInitWallet = false;
+        $scope.activeWalletIdentifier = $scope.walletData.identifier;
+        $scope.walletsList = walletsManagerService.getWalletsList();
 
         $scope.onChangeActiveWallet = function(id) {
-            $scope.isInitWallet = true;
-
             walletsManagerService.setActiveWalletById(id)
                 .then(function() {
                     $scope.isInitWallet = false;

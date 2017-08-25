@@ -5,35 +5,16 @@
         <!-- Left column -->
         <div class="app-left-col">
             <div class="mainMenu">
-                <div ng-if="debugMode" style="color: #fff; border: 1px dashed #fff;" class="iit-10 iil-15 iir-15 iib-10">
-                    <p>Debug mode</p>
-                    <p>Add Select</p>
+                <div ng-if="debugMode" style="border: 1px dashed #fff;" class="iit-10 iil-15 iir-15 iib-10">
+                    <p style="color: #fff;">Debug mode only</p>
+                    <p style="color: #fff;">{{ walletData.identifier }}</p>
+                    <p style="color: #fff;">{{ activeWalletIdentifier }}</p>
+
+                    <select ng-model="activeWalletIdentifier"
+                            ng-options="option.identifier as option.identifier for option in walletsList"
+                            ng-change="onChangeActiveWallet(activeWalletIdentifier)">
+                    </select>
                 </div>
-
-                <!-- TODO REMOVE -->
-                <!--<p style="color: #fff;">Active wallet:</p>
-
-                <p style="color: #fff;">
-                    {{ activeWallet._sdkWallet.identifier }}
-                </p>
-
-                <p style="color: #fff;">
-                    Active wallet:
-                </p>
-                <p style="color: #fff;">
-                    {{ activeWalletFromManager._sdkWallet.identifier }}
-                </p>
-
-                <p style="color: #fff">
-                    Is init wallet: {{ isInitWallet }}
-                </p>
-
-                <div>
-                    <button class="btn" ng-click="onChangeActiveWallet('mywallet-a2bc673da1248d64')">a2bc673da1248d64</button>
-                    <button class="btn" ng-click="onChangeActiveWallet('mywallet-0e03ee792ad51a77')">0e03ee792ad51a77</button>
-                    <button class="btn" ng-click="onChangeActiveWallet('blocktrail-wallet-10f60f52950101f1')">blocktrail-wallet-10f60f52950101f1</button>
-                </div>-->
-                <!-- TODO END -->
 
                 <!-- Side Nav -->
                 <w-side-nav list="sideNavList"></w-side-nav>
