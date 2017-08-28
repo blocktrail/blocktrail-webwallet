@@ -4,8 +4,9 @@
     angular.module('blocktrail.wallet')
         .factory('sweeperService', SweeperService);
 
-    function SweeperService($q, bitcoinJS, bip39, BlocktrailBitcoinService, launchService) {
+    function SweeperService($q, bitcoinJS, bip39, BlocktrailBitcoinService, sdkService, launchService) {
         var bitcoinDataClient = null;
+        var debugInfo = [];
 
         function estimateApproximateFeeP2PKH(inputCount, outputCount) {
             // https://bitcoin.stackexchange.com/a/46379
@@ -34,12 +35,18 @@
             var batchDataObject = batchDeriveAddressesAndPrivKeys(parentNode, batchLoopCount * batchSize, batchSize);
             var addresses = Object.keys(batchDataObject);
 
+             var batchDebugInfo = [['batch', parentNode.neutered().toBase58(), batchLoopCount, batchSize]];
+
+            debugInfo.push(batchDebugInfo);
+
             return bitcoinDataClient.batchAddressHasTransactions(addresses).then(function (success) {
+                batchDebugInfo.push(['addresses', addresses, success]);
                 if (!success) {
                     return false;
                 }
                 return bitcoinDataClient.getBatchUnspentOutputs(addresses);
             }).then(function (result) {
+                batchDebugInfo.push(['utxos', result]);
                 var addresses = Object.keys(result);
                 // Add important data (privkey and derive index)
                 for (var i = 0; i < addresses.length; i++) {
@@ -135,7 +142,9 @@
 
             var searchPaths = [];
             for (var i = accountIdx ; i < accountIdx + accountBatchSize; i++) {
+                // main address chain
                 searchPaths.push(root.derivePath("m/44\'/" + testnet + "\'/" + i + "\'/0"));
+                // change address chain
                 searchPaths.push(root.derivePath("m/44\'/" + testnet + "\'/" + i + "\'/1"));
             }
 
@@ -168,6 +177,10 @@
                         network: options.network,
                         testnet: options.testnet
                     });
+
+                    // reset debugInfo
+                    debugInfo = [];
+
                     return hdDiscover(root, options.batchSize, options.accountBatchSize, options.testnet)
                 });
         }
@@ -189,8 +202,15 @@
                 })
         }
 
+        function submitDebugInfo() {
+            return sdkService.sdk().then(function(sdk) {
+                return sdk.client.post("/mywallet/sweeper/submit-debug-info", null, debugInfo);
+            });
+        }
+
         return {
-            genericSweep: genericSweep
+            genericSweep: genericSweep,
+            submitDebugInfo: submitDebugInfo
         };
     }
 
