@@ -726,6 +726,10 @@ $display-token-size: 50px;
         background-size: cover;
         z-index: 1;
     }
+
+    &.contact-token {
+        background-color: #bcbcbc;
+    }
 }
 
 .form {

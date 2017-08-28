@@ -25,6 +25,8 @@
             var broker = buyBTCService.BROKERS[$scope.transaction.buybtc.broker];
 
             $scope.displayName = broker.displayName;
+        } else if ($scope.transaction.contact) {
+            $scope.displayName = $scope.transaction.contact.displayName;
         }
 
         if ($scope.transaction["wallet_value_change"] > 0) {
