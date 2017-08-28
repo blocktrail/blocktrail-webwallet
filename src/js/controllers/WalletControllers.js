@@ -45,22 +45,6 @@ angular.module('blocktrail.wallet')
         // TODO move the logic to service
         $rootScope.fetchExtraLanguages = launchService.getWalletConfig()
             .then(function(result) {
-                if (result.api_key && (result.api_key !== 'ok')) {
-                    // alert user session is invalid
-                    dialogService.alert({
-                        title: $translate.instant('INVALID_SESSION'),
-                        bodyHtml: $filter('nl2br')($translate.instant('INVALID_SESSION_LOGOUT_NOW'))
-                    })
-                        .result
-                        .finally(function() {
-                            $state.go('app.logout');
-                        });
-
-                    // force flushing the storage already
-                    storageService.resetAll();
-                    return;
-                }
-
                 settingsService.getSettings().then(function(settings) {
                     // check if we need to display any update notices
                     AppVersionService.checkVersion(settings.latestVersionWeb, result.versionInfo.web, AppVersionService.CHECKS.LOGGEDIN);

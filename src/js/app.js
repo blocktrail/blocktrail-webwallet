@@ -222,6 +222,28 @@ angular.module('blocktrail.wallet').config(
                     handleSetupState: function($state, launchService) {
                         return launchService.handleSetupState('app.wallet', $state);
                     },
+                    checkApiKeyStatus: function(launchService, dialogService, $filter, $translate, $state, storageService) {
+                        return launchService.getWalletConfig()
+                            .then(function(result) {
+                                var bannedIp = result.is_banned_ip;
+                                if (bannedIp) {
+                                    $state.go("app.bannedip", { bannedIp: bannedIp });
+                                } else if (result.api_key && (result.api_key !== 'ok')) {
+                                    // alert user session is invalid
+                                    dialogService.alert({
+                                        title: $translate.instant('INVALID_SESSION'),
+                                        bodyHtml: $filter('nl2br')($translate.instant('INVALID_SESSION_LOGOUT_NOW'))
+                                    })
+                                        .result
+                                        .finally(function() {
+                                            $state.go('app.logout');
+                                        });
+
+                                    // force flushing the storage already
+                                    storageService.resetAll();
+                                }
+                            });
+                    },
                     /**
                      * @param handleSetupState      require handleSetupState to make sure we don't load anything before we're sure we're allowed too
                      * @param Wallet
