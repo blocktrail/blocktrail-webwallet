@@ -120,7 +120,7 @@ angular.module('blocktrail.wallet')
         });
     })
 
-    .controller('AddressLookupCtrl', function($scope, $rootScope, dialogService, $translate, Wallet, $q, CONFIG, $cacheFactory, $timeout, $log) {
+    .controller('AddressLookupCtrl', function($scope, $rootScope, dialogService, $translate, activeWallet, $q, CONFIG, $cacheFactory, $timeout, $log) {
         $rootScope.pageTitle = 'ADDRESS_LOOKUP';
 
         var $cache = $cacheFactory.get('address-lookup') || $cacheFactory('address-lookup', {capacity: 10});
@@ -158,11 +158,9 @@ angular.module('blocktrail.wallet')
                         ok: $translate.instant('OK')
                     });
                 } else {
-                    return activeWallet._sdkWallet.then(function (wallet) {
-                        return wallet.labelAddress($scope.items[addrNumber].address, data).then(function () {
-                            $scope.items[addrNumber].label = data;
-                            $cache.removeAll(); // flush cache
-                        });
+                    return activeWallet._sdkWallet.labelAddress($scope.items[addrNumber].address, data).then(function () {
+                        $scope.items[addrNumber].label = data;
+                        $cache.removeAll(); // flush cache
                     }).catch(function(err) {
                         $log.log("Labeling address failed", err);
                     });
@@ -177,11 +175,9 @@ angular.module('blocktrail.wallet')
                 ok: $translate.instant('OK'),
                 cancel: $translate.instant('CANCEL')
             }).result.then(function() {
-                return activeWallet._sdkWallet.then(function (wallet) {
-                    return wallet.labelAddress($scope.items[addrNumber].address, "").then(function (res) {
-                        $scope.items[addrNumber].label = "";
-                        $cache.removeAll(); // flush cache
-                    });
+                return activeWallet._sdkWallet.labelAddress($scope.items[addrNumber].address, "").then(function (res) {
+                    $scope.items[addrNumber].label = "";
+                    $cache.removeAll(); // flush cache
                 });
             });
         };
@@ -207,24 +203,22 @@ angular.module('blocktrail.wallet')
                     if (cached) {
                         return cached;
                     } else {
-                        return activeWallet._sdkWallet.then(function (wallet) {
-                            var options = {
-                                page: page,
-                                limit: limit,
-                                sort_dir: sort_dir,
-                                hide_unused: hideUnused,
-                                hide_unlabeled: hideUnlabeled
-                            };
+                        var options = {
+                            page: page,
+                            limit: limit,
+                            sort_dir: sort_dir,
+                            hide_unused: hideUnused,
+                            hide_unlabeled: hideUnlabeled
+                        };
 
-                            if (searchText.length > 0) {
-                                options.search = searchText;
-                                options.search_label = searchText;
-                            }
+                        if (searchText.length > 0) {
+                            options.search = searchText;
+                            options.search_label = searchText;
+                        }
 
-                            return wallet.addresses(options).then(function (addrs) {
-                                $cache.put(cacheKey, addrs);
-                                return addrs;
-                            });
+                        return activeWallet._sdkWallet.addresses(options).then(function (addrs) {
+                            $cache.put(cacheKey, addrs);
+                            return addrs;
                         });
                     }
                 }).finally(function() {
