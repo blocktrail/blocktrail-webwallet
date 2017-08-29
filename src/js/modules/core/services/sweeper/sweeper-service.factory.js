@@ -31,11 +31,13 @@
             return batchArray;
         }
 
-        function batchDiscoverUTXOs(parentNode, batchLoopCount, batchSize) {
+        function batchDiscoverUTXOs(parent, batchLoopCount, batchSize) {
+            var parentPath = parent[0];
+            var parentNode = parent[1];
             var batchDataObject = batchDeriveAddressesAndPrivKeys(parentNode, batchLoopCount * batchSize, batchSize);
             var addresses = Object.keys(batchDataObject);
 
-             var batchDebugInfo = [['batch', parentNode.neutered().toBase58(), batchLoopCount, batchSize]];
+             var batchDebugInfo = [['batch', parentPath, parentNode.neutered().toBase58(), batchLoopCount, batchSize]];
 
             debugInfo.push(batchDebugInfo);
 
@@ -142,10 +144,11 @@
 
             var searchPaths = [];
             for (var i = accountIdx ; i < accountIdx + accountBatchSize; i++) {
+                var path = "m/44\'/" + testnet + "\'/" + i + "\'";
                 // main address chain
-                searchPaths.push(root.derivePath("m/44\'/" + testnet + "\'/" + i + "\'/0"));
+                searchPaths.push([path + "/0", root.derivePath(path + "/0")]);
                 // change address chain
-                searchPaths.push(root.derivePath("m/44\'/" + testnet + "\'/" + i + "\'/1"));
+                searchPaths.push([path + "/1", root.derivePath(path + "/1")]);
             }
 
             return $q.all(searchPaths.map(function (node) {
