@@ -11,8 +11,11 @@
                     <p style="color: #fff;">{{ activeWalletIdentifier }}</p>
 
                     <select ng-model="activeWalletIdentifier"
-                            ng-options="option.identifier as option.identifier for option in walletsList"
                             ng-change="onChangeActiveWallet(activeWalletIdentifier)">
+                        <option ng-repeat="option in walletsList"
+                                value="{{ option.identifier }}">
+                            [{{ option.network }}] {{ option.identifier }} ({{ option.balance | satoshiToCurrency : 'BTC' : bitcoinPrices : 5 }})
+                        </option>
                     </select>
                 </div>
 

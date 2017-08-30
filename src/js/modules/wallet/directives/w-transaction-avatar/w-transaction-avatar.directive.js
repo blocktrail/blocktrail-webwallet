@@ -19,7 +19,8 @@
     function wTransactionAvatarCtrl($scope, CONFIG, buyBTCService) {
         $scope.contactInitials = "";
         $scope.isReceived = $scope.transaction["wallet_value_change"] > 0;
-        $scope.avatarUrl = "/" + CONFIG.STATICSURL + "/img/blank_profile.png";
+        $scope.avatarUrl = CONFIG.STATICSURL + "/img/blank_profile.png";
+        $scope.isAnonymous = true;
 
         var brokerDisplayName = "";
 
@@ -28,11 +29,12 @@
 
             brokerDisplayName = broker.displayName;
             $scope.avatarUrl = broker.avatarUrl;
+            $scope.isAnonymous = false;
         }
 
         if ($scope.transaction.contact) {
-            var firstName = $scope.transaction.contact["firstName"];
-            var lastName = $scope.transaction.contact["lastName"];
+            var firstName = $scope.transaction.contact.firstName;
+            var lastName = $scope.transaction.contact.lastName;
 
             if (!lastName && firstName) {
                 $scope.contactInitials = firstName.substr(0, 2);
@@ -47,6 +49,7 @@
             }
 
             $scope.avatarUrl = "data:image/jpeg;base64," + $scope.transaction.contact.avatarUrl;
+            $scope.isAnonymous = false;
         }
     }
 

@@ -1,6 +1,6 @@
 <div
         class="display-token"
-        ng-class="isReceived ? 'received' : 'sent'"
+        ng-class="{'received': isReceived, 'sent': !isReceived, 'contact-token': !isAnonymous, 'anon-token': isAnonymous}"
 >
     <!-- Display contact initials, default is empty string  -->
     <div class="token-text">

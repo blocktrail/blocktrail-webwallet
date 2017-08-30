@@ -142,8 +142,8 @@ angular.module('blocktrail.wallet')
             if ($scope.sendInput.recipientAddress) {
                 localPay[$scope.sendInput.recipientAddress] = amount;
             } else {
-                var fakeP2SHScript = bitcoinJS.scripts.scriptHashOutput(new blocktrailSDK.Buffer("0000000000000000000000000000000000000000", 'hex'));
-                var fakeAddress = bitcoinJS.Address.fromOutputScript(fakeP2SHScript, activeWallet._sdkWallet.sdk.network);
+                var fakeP2SHScript = bitcoinJS.script.scriptHash.output.encode(new blocktrailSDK.Buffer("0000000000000000000000000000000000000000", 'hex'));
+                var fakeAddress = bitcoinJS.address.fromOutputScript(fakeP2SHScript, activeWallet._sdkWallet.sdk.network);
                 localPay[fakeAddress.toString()] = amount;
             }
 
