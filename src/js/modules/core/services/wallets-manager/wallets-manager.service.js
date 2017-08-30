@@ -23,10 +23,11 @@
      */
     WalletsManagerService.prototype.fetchWalletsList = function() {
         var self = this;
+
         // TODO sync
         return self._$q.when(self._sdk.sdk())
-            .then(function (sdk) {
-                return sdk.getAllWallets({mywallet: 1, limit: 200})
+            .then(function(sdk) {
+                return sdk.getAllWallets({ mywallet: 1, limit: 200 })
                     .then(function(resp) {
                         self._walletsList = resp.data;
 
@@ -47,7 +48,7 @@
 
     /**
      * Get the active wallet
-     * @return {Wallet|null}
+     * @return { Wallet|null }
      */
     WalletsManagerService.prototype.getActiveWallet = function() {
         var self = this;

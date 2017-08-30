@@ -18,7 +18,7 @@ var livereload = require('gulp-livereload');
 var fontello = require('gulp-fontello');
 var del = require('del');
 var html2js = require('gulp-html2js');
-var karma = require('gulp-karma');
+var KarmaServer = require('karma').Server;
 
 var readAppConfig = require('./gulp/readappconfig');
 var buildAppConfig = require('./gulp/buildappconfig');
@@ -152,6 +152,7 @@ gulp.task('js:app', ['appconfig'], function() {
 
     return appConfig.then(function(APPCONFIG) {
         return streamAsPromise(gulp.src([
+            '!./src/js/**/*.spec.js',
             './src/js/**/*.js'
         ])
             .pipe(concat('app.js'))
@@ -408,8 +409,13 @@ gulp.task('js', ['js:libs', 'js:app', 'js:sdk', 'js:zxcvbn', 'js:config']);
 gulp.task('templates', ['templates:index', 'templates:rest']);
 gulp.task('default', ['copystatics', 'sass', 'templates', 'js']);
 
-gulp.task('test', function() {
-    return gulp.src('./test/')
+gulp.task('test', function(done) {
+    new KarmaServer({
+        configFile: __dirname + '/karma.config.js',
+        singleRun: true
+    }, done).start();
+/*
+    return gulp.src('./src/js/!**!/!*.spec.js')
         .pipe(karma({
             configFile: 'karma.config.js',
             action: 'run'
@@ -418,5 +424,5 @@ gulp.task('test', function() {
             // Make sure failed tests cause gulp to exit non-zero
             console.log(err);
             this.emit('end'); //instead of erroring the stream, end it
-        });
+        });*/
 });

@@ -1,7 +1,7 @@
 <ul class="sidebar-nav">
     <li
+            ui-sref-active="active"
             ng-repeat="item in list"
-            ng-class="{ 'active': $state.includes(item.stateName) }"
             ng-hide="item.isHidden"
     >
         <a ng-href="{{ item.stateHref }}">

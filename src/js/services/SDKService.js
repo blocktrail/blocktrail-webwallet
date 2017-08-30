@@ -185,7 +185,7 @@ angular.module('blocktrail.wallet').factory(
         };
 
         var _sdk = null;
-        var sdk = function() {
+        var sdk = function realSDK() {
             if (!_sdk) {
                 _sdk = accountInfo()
                     .then(function(accountInfo) {

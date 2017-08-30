@@ -11,23 +11,23 @@ module.exports = function(karma) {
          */
         files: [
             "www/dev/js/libs.js",
+            "node_modules/angular-mocks/angular-mocks.js",
             "www/dev/js/sdk.js",
-            "www/dev/js/app.js",
+            "www/dev/js/config.js",
+            "www/dev/js/translations.js",
             "www/dev/js/templates.js",
-            "temp/*.spec.js"
+            "www/dev/js/app.js",
+            "src/js/**/*.spec.js"
         ],
+
+        browserConsoleLogOptions: {
+            level: 'log',
+            format: '%b %T: %m',
+            terminal: true
+        },
+
         frameworks: ["jasmine"],
-        plugins: ["karma-jasmine", "karma-phantomjs-launcher"],
-
-        /**
-         * How to report, by default.
-         */
-        reporters: "dots",
-
-        /**
-         * Enable / disable colors in the output (reporters and logs)
-         */
-        colors: true,
+        plugins: ["karma-jasmine", "karma-phantomjs-launcher", "karma-spec-reporter"],
 
         /**
          * On which port should the browser connect, on which port is the test runner
@@ -36,6 +36,17 @@ module.exports = function(karma) {
         port: 9018,
         runnerPort: 9100,
         urlRoot: "/",
+
+        reporters: ["spec"],
+        specReporter: {
+            maxLogLines: 5,             // limit number of lines logged per test
+            suppressErrorSummary: true, // do not print error summary
+            suppressFailed: false,      // do not print information about failed tests
+            suppressPassed: false,      // do not print information about passed tests
+            suppressSkipped: true,      // do not print information about skipped tests
+            showSpecTiming: false,      // print the time elapsed for each spec
+            failFast: true              // test would finish with error when a first fail occurs.
+        },
 
         /**
          * Disable file watching by default.
@@ -55,9 +66,7 @@ module.exports = function(karma) {
          * open and the tests will automatically occur there during the build. This has
          * the aesthetic advantage of not launching a browser every time you save.
          */
-        browsers: [
-            "PhantomJS"
-        ],
+        browsers: ["PhantomJS"],
 
         /**
          * Continuous Integration mode
