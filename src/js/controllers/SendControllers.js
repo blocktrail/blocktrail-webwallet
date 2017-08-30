@@ -1,7 +1,6 @@
 angular.module('blocktrail.wallet')
     .controller('SendCtrl', function($scope, $log, $modal, bitcoinJS, CurrencyConverter, Currencies, Contacts, activeWallet, $timeout, dialogService,
                                      QR, $q, $state, $rootScope, $translate, launchService, CONFIG, settingsService) {
-        // TODO Review
         $scope.settings = settingsService.getReadOnlySettings();
 
         //$scope.fiatFirst = false;

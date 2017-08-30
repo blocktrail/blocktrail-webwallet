@@ -1362,14 +1362,12 @@ $display-token-size: 50px;
 
         form {
             background-color: $white;
-            padding: 0px 0px 0px 0px;
-            border-radius: 8px;
+            padding: 15px 0 0 ;
         }
 
         .qrcode-display-section {
             background-color: $white;
-            //   padding: 10px;
-            padding: 20px 0px;
+            padding: 20px 0;
         }
         .receivePaymentStatus {
             float: right;
