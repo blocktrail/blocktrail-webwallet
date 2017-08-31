@@ -42,11 +42,10 @@
             }).then(function (result) {
                 var addresses = Object.keys(result);
                 // Add important data (privkey and derive index)
-                for (var i = 0; i < addresses.length; i++) {
-                    var address = addresses[i]; // fkn javascript objects
+                addresses.forEach(function(address) {
                     result[address].priv_key = batchDataObject[address].priv_key;
                     result[address].derive_idx = batchDataObject[address].derive_idx;
-                }
+                });
                 return result;
             });
         }
@@ -82,24 +81,20 @@
             // For each address (key) of res object, the value is an array of UTXO objects
             for (var i = 0; i < addresses.length; i++) {
                 var address = addresses[i];
-                for (var utxoIndex in resultUTXOs[address]) {
-                    // If index is integer (UTXO)
-                    if (utxoIndex == parseInt(utxoIndex, 10)) {
-                        var utxo = resultUTXOs[address][utxoIndex];
 
-                        // Add to totalValue
-                        totalValue += parseInt(utxo['value']);
+                resultUTXOs[address].forEach(function(utxo) {
+                    // Add to totalValue
+                    totalValue += parseInt(utxo['value']);
 
-                        rawTransaction.addInput(utxo['hash'], utxo['index']);
-                        inputs.push({
-                            txid: utxo['hash'],
-                            vout: utxo['index'],
-                            scriptPubKey: utxo['script_hex'],
-                            value: utxo['value'],
-                            address: address
-                        });
-                    }
-                }
+                    rawTransaction.addInput(utxo['hash'], utxo['index']);
+                    inputs.push({
+                        txid: utxo['hash'],
+                        vout: utxo['index'],
+                        scriptPubKey: utxo['script_hex'],
+                        value: utxo['value'],
+                        address: address
+                    });
+                });
             }
 
             return bitcoinDataClient.estimateFee().then(function (feePerKB) {
@@ -159,20 +154,27 @@
                 });
         }
 
-        function genericHdNodeDiscover(root, options) {
+        function getBitcoinDataClient(options) {
             return launchService.getAccountInfo()
-                .then(function (accountInfo) {
+                .then(function(accountInfo) {
                     bitcoinDataClient = new BlocktrailBitcoinService({
                         apiKey: accountInfo.api_key,
                         apiSecret: accountInfo.api_secret,
                         network: options.network,
                         testnet: options.testnet
                     });
+                    return bitcoinDataClient;
+                });
+        }
+
+        function genericHdNodeDiscover(root, options) {
+            return getBitcoinDataClient()
+                .then(function () {
                     return hdDiscover(root, options.batchSize, options.accountBatchSize, options.testnet)
                 });
         }
 
-        function genericSweep(mnemonic, options) {
+        function bip44Sweep(mnemonic, options) {
             if (!bip39.validateMnemonic(mnemonic)) {
                 return Promise.reject("Invalid Mnemonic.");
             }
@@ -183,14 +185,52 @@
             var root = bitcoinJS.HDNode.fromSeedBuffer(entropy);
 
             return genericHdNodeDiscover(root, options).then(function (resultUTXOs) {
-                    return signAndSweep(resultUTXOs, options);
-                }, function () {
-                    console.log("Discovery failed")
-                })
+                return signAndSweep(resultUTXOs, options);
+            }, function () {
+                console.log("Discovery failed")
+            })
+        }
+
+        function wifSweep(WIFs, options) {
+            return $q.when()
+                .then(function() {
+                    var keys = WIFs.map(function(WIF) {
+                        return bitcoinJS.ECPair.fromWIF(WIF);
+                    });
+
+                    var keysByAddress = {};
+                    keys.forEach(function(key) {
+                        keysByAddress[key.getAddress()] = key;
+                    });
+
+                    var addresses = Object.keys(keysByAddress);
+
+                    return getBitcoinDataClient(options).then(function() {
+                        return bitcoinDataClient.batchAddressHasTransactions(addresses).then(function(success) {
+                            if (!success) {
+                                return false;
+                            }
+                            return bitcoinDataClient.getBatchUnspentOutputs(addresses);
+                        }).then(function(result) {
+                            var addresses = Object.keys(result);
+                            addresses.forEach(function(address) {
+                                result[address].priv_key = keysByAddress[address];
+                            });
+
+                            return result;
+                        })
+                        .then(function(resultUTXOs) {
+                            return signAndSweep(resultUTXOs, options);
+                        }, function() {
+                            console.log("Discovery failed")
+                        });
+                    });
+                });
         }
 
         return {
-            genericSweep: genericSweep
+            bip44Sweep: bip44Sweep,
+            wifSweep: wifSweep,
         };
     }
 
