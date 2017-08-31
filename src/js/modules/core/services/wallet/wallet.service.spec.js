@@ -1,7 +1,7 @@
 (function () {
     describe("Module: blocktrail.core", function () {
         describe("Services:", function () {
-            describe("walletService", function () {
+            describe("* walletService", function () {
                 var service;
 
                 var sdkService = {};

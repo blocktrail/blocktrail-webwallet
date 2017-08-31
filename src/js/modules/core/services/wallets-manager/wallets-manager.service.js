@@ -30,7 +30,6 @@
                 return sdk.getAllWallets({ mywallet: 1, limit: 200 })
                     .then(function(resp) {
                         self._walletsList = resp.data;
-
                         return self._walletsList;
                     });
             });
@@ -58,39 +57,48 @@
 
     /**
      * Set the active wallet by id
-     * @param id
+     * @param id { string|null}
      */
     WalletsManagerService.prototype.setActiveWalletById = function(id) {
         var self = this;
         var promise = null;
 
         if(!self._isExistingWalletId(id)) {
-            id = self._walletsList[0];
+            if(self._activeWallet) {
+                id = self._activeWallet.getReadOnlyWalletData().identifier;
+            } else {
+                id = self._walletsList[0] ? self._walletsList[0].identifier : self._walletsList[0];
+            }
         }
 
-        if(self._activeWallet) {
-            if(self._activeWallet.getReadOnlyWalletData().identifier !== id) {
-                // Disable polling for active wallet and enable polling for new active wallet
-                self._activeWallet.disablePolling();
+        if(typeof(id) !== "undefined") {
+            if(self._activeWallet) {
+                if(self._activeWallet.getReadOnlyWalletData().identifier !== id) {
+                    // Disable polling for active wallet and enable polling for new active wallet
+                    self._activeWallet.disablePolling();
 
-                // Check the wallet in the buffer
-                if(self._wallets[id]) {
-                    self._wallets[id].enablePolling();
-                    // Set a link to the new active wallet
-                    self._activeWallet = self._wallets[id];
+                    // Check the wallet in the buffer
+                    if(self._wallets[id]) {
+                        self._wallets[id].enablePolling();
+                        // Set a link to the new active wallet
+                        self._activeWallet = self._wallets[id];
 
-                    promise = self._$q.when(self._activeWallet);
+                        promise = self._$q.when(self._activeWallet);
+                    } else {
+                        // if wallet is not in the buffer we have to initialize it
+                        promise = self._initAndSetActiveWalletById(id);
+                    }
                 } else {
-                    // if wallet is not in the buffer we have to initialize it
-                    promise = self._setActiveWalletById(id);
+                    promise = self._$q.when(self._activeWallet);
                 }
             } else {
-                promise = self._$q.when(self._activeWallet);
+                // if active wallet is not exist have to initialize it
+                promise = self._initAndSetActiveWalletById(id);
             }
         } else {
-            // if active wallet is not exist have to initialize it
-            promise = self._setActiveWalletById(id);
+            promise = self._$q.when(self._activeWallet);
         }
+
 
         return self._$q.when(promise);
     };
@@ -98,15 +106,15 @@
     /**
      * Is existing wallet id
      * @param id
-     * @return {boolean}
+     * @return { boolean }
      * @private
      */
     WalletsManagerService.prototype._isExistingWalletId = function(id) {
         var self = this;
 
-        return !!self._walletsList.filter(function(item) {
+        return !!(self._walletsList.filter(function(item) {
             return item.identifier === id;
-        });
+        }).length);
     };
 
     /**
@@ -115,9 +123,9 @@
      * @return _activeWallet { promise }
      * @private
      */
-    WalletsManagerService.prototype._setActiveWalletById = function(id) {
+    WalletsManagerService.prototype._initAndSetActiveWalletById = function(id) {
         var self = this;
-
+        // TODO Add check if wallet is not exist on backend
         return self._walletService.initWallet(id)
             .then(function(wallet) {
                 // Add wallet to buffer
