@@ -12,10 +12,20 @@
 
         $scope.working = true;
         $scope.discovering = false;
-        $scope.stepCount = 0;
+
+        $scope.STEPS = {
+            WELCOME: 'WELCOME',
+            WIF: 'WIF',
+            BIP44: 'BIP44',
+            SWEEP: 'SWEEP',
+            PUBLISH: 'PUBLISH'
+        };
 
         $scope.form = {
-            mnemonic: null
+            step: $scope.STEPS.WELCOME,
+            sweepMode: 'WIF',
+            mnemonic: null,
+            inputWIF: null
         };
 
         $scope.sweepData = {
@@ -61,11 +71,53 @@
                 }
             }
         });
-
         $scope.startSweeping = function() {
+            if ($scope.form.sweepMode === 'BIP44') {
+                $scope.startSweepingBIP44();
+            } else {
+                $scope.startSweepingWIF();
+            }
+        };
+
+        $scope.startSweepingBIP44 = function() {
             $scope.working = true;
             $scope.discovering = true;
-            sweeperService.genericSweep($scope.form.mnemonic.trim().replace(/  +/g, ' '), options).then(function (result) {
+            sweeperService.bip44Sweep($scope.form.mnemonic.trim().replace(/  +/g, ' '), options).then(function (result) {
+                $scope.working = false;
+                $scope.discovering = false;
+
+                if (result) {
+                    trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_BALANCE);
+                    $scope.sweepData = result;
+                    $scope.form.step = $scope.STEPS.SWEEP;
+                } else {
+                    trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_NO_BALANCE);
+                    return dialogService.alert(
+                        $translate.instant("IMPORT_ERROR"),
+                        $translate.instant("NO_BALANCES_FOUND")
+                    ).result;
+                }
+            }).catch(function (error) {
+                $scope.working = false;
+                $scope.discovering = false;
+                $log.error(error);
+                return dialogService.alert(
+                    $translate.instant("IMPORT_ERROR"),
+                    $translate.instant("INVALID_MNEMONIC")
+                ).result;
+            });
+        };
+
+        $scope.startSweepingWIF = function() {
+            $scope.working = true;
+            $scope.discovering = true;
+
+            var WIFs = $scope.form.inputWIF.trim().replace(/  +/g, ' ').replace(/\r\n/g, ',').replace(/\n/g, ',').replace(/ /g, ',');
+            WIFs = WIFs.split(',').filter(function(WIF) { return !!WIF.trim(); });
+
+            console.log(WIFs);
+
+            sweeperService.wifSweep(WIFs, options).then(function (result) {
                 $scope.working = false;
                 $scope.discovering = false;
 
@@ -74,7 +126,7 @@
                 if (result) {
                     trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_BALANCE);
                     $scope.sweepData = result;
-                    $scope.stepCount += 1;
+                    $scope.form.step = $scope.STEPS.SWEEP;
                 } else {
                     trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_NO_BALANCE);
                     return dialogService.alert(
@@ -101,7 +153,7 @@
                     if(result.hash) {
                         $timeout(function() {
                             $scope.sweepData.txId = result.hash;
-                            $scope.stepCount++;
+                            $scope.form.step = $scope.STEPS.PUBLISH;
                         });
                         trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_SUCCESS);
                     } else {
