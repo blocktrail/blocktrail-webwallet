@@ -1,7 +1,10 @@
 angular.module('blocktrail.wallet').factory(
     'glideraService',
-    function(CONFIG, $log, $q, Wallet, dialogService, $state, $rootScope, $translate, $http, _,
-             $timeout, $interval, settingsService, launchService, sdkService, trackingService, CurrencyConverter) {
+    function(CONFIG, $log, $q, walletsManagerService, dialogService, $state, $rootScope, $translate, $http, _,
+             $timeout, $interval, settingsService, launchService, sdkService, trackingService) {
+
+        // TODO Review !
+        var activeWallet = walletsManagerService.getActiveWallet();
         var clientId;
         var returnuri = CONFIG.WALLET_URL + "/#/wallet/buy/glidera/oaoth2/callback";
         var decryptedAccessToken = null;
@@ -125,7 +128,7 @@ angular.module('blocktrail.wallet').factory(
                                     })
                                         .result
                                         .then(function(password) {
-                                            return Wallet.unlockWithPassword(password)
+                                            return activeWallet.unlockWithPassword(password)
                                         })
                                         .then(function(wallet) {
                                             var secretBuf = wallet.secret;
@@ -315,7 +318,7 @@ angular.module('blocktrail.wallet').factory(
                         })
                             .result
                             .then(function(password) {
-                                return Wallet.unlockWithPassword(password)
+                                return activeWallet.unlockWithPassword(password)
                                     .catch(function(e) {
                                         return unlockWallet();
                                     })
@@ -386,7 +389,7 @@ angular.module('blocktrail.wallet').factory(
 
                 return accessToken().then(function(accessToken) {
 
-                    return Wallet.getNewAddress().then(function(address) {
+                    return activeWallet.getNewAddress().then(function(address) {
 
                         return twoFactor().then(function(twoFactor) {
                             var r = createRequest(null, accessToken, twoFactor);
@@ -408,7 +411,9 @@ angular.module('blocktrail.wallet').factory(
                                         qty: result.qty,
                                         price: result.price,
                                         total: result.total,
-                                        currency: result.currency
+                                        currency: result.currency,
+                                        // add walletIdentifier so we always know which wallet it belongs to
+                                        walletIdentifier: activeWallet._sdkWallet.identifier
                                     };
 
                                     return settingsService.addGlideraTransaction(glideraTransaction).then(function() {
@@ -430,7 +435,6 @@ angular.module('blocktrail.wallet').factory(
         var pollPendingTransactions = true;
 
         var updatePendingTransactions = function() {
-
             var _update = function() {
                 pollPendingTransactions = false;
                 var delay = 10000;
@@ -478,7 +482,7 @@ angular.module('blocktrail.wallet').factory(
                                         return transaction;
                                     });
 
-                                    return settingsService.updateGlideraTransaction(glideraTransactions);
+                                    return settingsService.updateGlideraTransactions(glideraTransactions);
                                 });
                         });
                     }
@@ -538,11 +542,12 @@ angular.module('blocktrail.wallet').factory(
                                             status: updateTx.status,
                                             price: updateTx.price,
                                             total: updateTx.total,
-                                            currency: updateTx.currency
+                                            currency: updateTx.currency,
+                                            walletIdentifier: null
                                         };
                                     });
 
-                                    return settingsService.updateGlideraTransaction(glideraTransactions)
+                                    return settingsService.updateGlideraTransactions(glideraTransactions)
                                 });
                         })
                     ;
@@ -565,7 +570,7 @@ angular.module('blocktrail.wallet').factory(
 
         // don't really init the service unless BUYBTC is enabled
         if (CONFIG.BUYBTC) {
-            var firstUpdate = $q.when(launchService.getWalletSecret())
+            $q.when(launchService.getWalletSecret())
                 .then(function(walletSecret) {
                     if (!walletSecret) {
                         return;
@@ -580,35 +585,6 @@ angular.module('blocktrail.wallet').factory(
                 }, function(e) {
                     $log.debug('initDecryptAccessToken2 ERR ' + e);
                 });
-
-            Wallet.addTransactionMetaResolver(function(transaction) {
-                return firstUpdate
-                    .then(function () {
-                        return settingsService.getSettings();
-                    })
-                    .then(function(settings) {
-                        settings.glideraTransactions.forEach(function(glideraTxInfo) {
-                            var isTxhash = false && glideraTxInfo.transactionHash === transaction.hash;
-                            var isAddr = glideraTxInfo.address && transaction.self_addresses.indexOf(glideraTxInfo.address) !== -1;
-
-                            if (!isTxhash && isAddr) {
-                                glideraTxInfo.transactionHash = transaction.hash;
-                                isTxhash = true;
-                            }
-
-                            if (isTxhash || isAddr) {
-                                transaction.buybtc = {
-                                    broker: 'glidera',
-                                    qty: glideraTxInfo.qty,
-                                    currency: glideraTxInfo.currency,
-                                    price: glideraTxInfo.price
-                                };
-                            }
-                        });
-
-                        return transaction;
-                    });
-            });
         }
 
         return {

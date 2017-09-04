@@ -18,6 +18,7 @@ var livereload = require('gulp-livereload');
 var fontello = require('gulp-fontello');
 var del = require('del');
 var html2js = require('gulp-html2js');
+var KarmaServer = require('karma').Server;
 
 var readAppConfig = require('./gulp/readappconfig');
 var buildAppConfig = require('./gulp/buildappconfig');
@@ -65,73 +66,28 @@ gulp.task('appconfig:print', ['appconfig'], function() {
 });
 
 gulp.task('templates:index', ['appconfig', 'js', 'sass'], function() {
-    var readTranslations = function(filename) {
-        var def = Q.defer();
-
-        fs.readFile(filename, function(err, raw) {
-            if (!raw) {
-                throw new Error("Missing translations!");
-            }
-
-            def.resolve(JSON.parse(stripJsonComments(raw.toString('utf8'))));
-        });
-
-        return def.promise;
-    };
 
     return appConfig.then(function(APPCONFIG) {
-        var translations = {
-            'mobile': {}
-        };
-
-        return Q.all(_.map([
-            './src/translations/translations/english.json',
-            './src/translations/translations/americanEnglish.json',
-            './src/translations/translations/french.json',
-            './src/translations/translations/dutch.json',
-            './src/translations/translations/chinese.json',
-            './src/translations/translations/spanish.json',
-            './src/translations/translations/russian.json',
-            './src/translations/translations/swahili.json',
-            './src/translations/translations/arabic.json',
-            './src/translations/translations/hindi.json',
-            './src/translations/translations/korean.json',
-            './src/translations/translations/german.json',
-            './src/translations/translations/japanese.json',
-            './src/translations/translations/portuguese.json'
-        ], function(filename) {
-            var language = path.basename(filename, '.json');
-            var isMobile = filename.indexOf('mobile/') !== -1;
-
-            return readTranslations(filename).then(function(result) {
-                if (isMobile) {
-                    translations['mobile'][language] = result;
-                } else {
-                    translations[language] = result;
-                }
-            })
-        })).then(function() {
-            return buildSRIMap([
-                "./www/" + APPCONFIG.STATICSDIR + "/js/app.js",
-                "./www/" + APPCONFIG.STATICSDIR + "/js/libs.js",
-                "./www/" + APPCONFIG.STATICSDIR + "/js/templates.js",
-                "./www/" + APPCONFIG.STATICSDIR + "/js/sdk.js",
-                "./www/" + APPCONFIG.STATICSDIR + "/js/zxcvbn.js",
-                "./www/" + APPCONFIG.STATICSDIR + "/css/app.css"
-            ], "./www/" + APPCONFIG.STATICSDIR + "/").then(function(SRI) {
-                return streamAsPromise(gulp.src("./src/index.html")
-                    .pipe(template({
-                        APPCONFIG: APPCONFIG,
-                        SRI: doSRI && SRI,
-                        VERSION: APPCONFIG.VERSION,
-                        STATICSDIR: APPCONFIG.STATICSDIR,
-                        STATICSURL: APPCONFIG.STATICSURL,
-                        APPCONFIG_JSON: JSON.stringify(APPCONFIG),
-                        TRANSLATIONS: JSON.stringify(translations)
-                    }))
-                    .pipe(gulp.dest("./www"))
-                );
-            });
+        return buildSRIMap([
+            "./www/" + APPCONFIG.STATICSDIR + "/js/app.js",
+            "./www/" + APPCONFIG.STATICSDIR + "/js/libs.js",
+            "./www/" + APPCONFIG.STATICSDIR + "/js/templates.js",
+            "./www/" + APPCONFIG.STATICSDIR + "/js/sdk.js",
+            "./www/" + APPCONFIG.STATICSDIR + "/js/zxcvbn.js",
+            "./www/" + APPCONFIG.STATICSDIR + "/js/config.js",
+            "./www/" + APPCONFIG.STATICSDIR + "/js/translations.js",
+            "./www/" + APPCONFIG.STATICSDIR + "/css/app.css"
+        ], "./www/" + APPCONFIG.STATICSDIR + "/").then(function(SRI) {
+            return streamAsPromise(gulp.src("./src/index.html")
+                .pipe(template({
+                    APPCONFIG: APPCONFIG,
+                    SRI: doSRI && SRI,
+                    VERSION: APPCONFIG.VERSION,
+                    STATICSDIR: APPCONFIG.STATICSDIR,
+                    STATICSURL: APPCONFIG.STATICSURL
+                }))
+                .pipe(gulp.dest("./www"))
+            );
         });
     });
 });
@@ -196,6 +152,7 @@ gulp.task('js:app', ['appconfig'], function() {
 
     return appConfig.then(function(APPCONFIG) {
         return streamAsPromise(gulp.src([
+            '!./src/js/**/*.spec.js',
             './src/js/**/*.js'
         ])
             .pipe(concat('app.js'))
@@ -222,16 +179,81 @@ gulp.task('js:sdk', ['appconfig'], function() {
 
     return appConfig.then(function(APPCONFIG) {
         return streamAsPromise(gulp.src([
-            "./src/lib/blocktrail-sdk/build/blocktrail-sdk-full.js"
-        ])
-            .pipe(concat('sdk.js'))
-            .pipe(gulpif(APPCONFIG.MINIFY, uglify({
-                mangle: {
-                    except: ['Buffer', 'BigInteger', 'Point', 'Script', 'ECPubKey', 'ECKey', 'sha512_asm', 'asm', 'ECPair', 'HDNode']
-                }
-            })))
-            .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
+                "./src/lib/blocktrail-sdk/build/blocktrail-sdk-full.js"
+            ])
+                .pipe(concat('sdk.js'))
+                .pipe(gulpif(APPCONFIG.MINIFY, uglify({
+                    mangle: {
+                        except: ['Buffer', 'BigInteger', 'Point', 'Script', 'ECPubKey', 'ECKey', 'sha512_asm', 'asm', 'ECPair', 'HDNode']
+                    }
+                })))
+                .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
         );
+    });
+});
+
+gulp.task('js:config', ['appconfig'], function() {
+    var readTranslations = function(filename) {
+        var def = Q.defer();
+
+        fs.readFile(filename, function(err, raw) {
+            if (!raw) {
+                throw new Error("Missing translations!");
+            }
+
+            def.resolve(JSON.parse(stripJsonComments(raw.toString('utf8'))));
+        });
+
+        return def.promise;
+    };
+
+    var translations = {
+        'mobile': {}
+    };
+
+    return appConfig.then(function(APPCONFIG) {
+        return Q.all(_.map([
+            './src/translations/translations/english.json',
+            './src/translations/translations/americanEnglish.json',
+            './src/translations/translations/french.json',
+            './src/translations/translations/dutch.json',
+            './src/translations/translations/chinese.json',
+            './src/translations/translations/spanish.json',
+            './src/translations/translations/russian.json',
+            './src/translations/translations/swahili.json',
+            './src/translations/translations/arabic.json',
+            './src/translations/translations/hindi.json',
+            './src/translations/translations/korean.json',
+            './src/translations/translations/german.json',
+            './src/translations/translations/japanese.json',
+            './src/translations/translations/portuguese.json'
+        ], function(filename) {
+            var language = path.basename(filename, '.json');
+            var isMobile = filename.indexOf('mobile/') !== -1;
+
+            return readTranslations(filename).then(function(result) {
+                if (isMobile) {
+                    translations['mobile'][language] = result;
+                } else {
+                    translations[language] = result;
+                }
+            })
+        })).then(function() {
+
+            return streamAsPromise(gulp.src([
+                "./src/config.js.template",
+                "./src/translations.js.template"
+            ])
+                .pipe(template({
+                    APPCONFIG: APPCONFIG,
+                    APPCONFIG_JSON: JSON.stringify(APPCONFIG),
+                    TRANSLATIONS: JSON.stringify(translations)
+                }))
+                .pipe(rename({
+                    extname: ""
+                }))
+                .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/')));
+        });
     });
 });
 
@@ -383,6 +405,24 @@ gulp.task('copystatics:livereload', ['copystatics'], function() {
     livereload.reload();
 });
 
-gulp.task('js', ['js:libs', 'js:app', 'js:sdk', 'js:zxcvbn']);
+gulp.task('js', ['js:libs', 'js:app', 'js:sdk', 'js:zxcvbn', 'js:config']);
 gulp.task('templates', ['templates:index', 'templates:rest']);
 gulp.task('default', ['copystatics', 'sass', 'templates', 'js']);
+
+gulp.task('test', function(done) {
+    new KarmaServer({
+        configFile: __dirname + '/karma.config.js',
+        singleRun: true
+    }, done).start();
+/*
+    return gulp.src('./src/js/!**!/!*.spec.js')
+        .pipe(karma({
+            configFile: 'karma.config.js',
+            action: 'run'
+        }))
+        .on('error', function(err) {
+            // Make sure failed tests cause gulp to exit non-zero
+            console.log(err);
+            this.emit('end'); //instead of erroring the stream, end it
+        });*/
+});

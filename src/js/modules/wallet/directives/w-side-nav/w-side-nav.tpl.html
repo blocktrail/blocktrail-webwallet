@@ -1,0 +1,12 @@
+<ul class="sidebar-nav">
+    <li
+            ui-sref-active="active"
+            ng-repeat="item in list"
+            ng-hide="item.isHidden"
+    >
+        <a ng-href="{{ item.stateHref }}">
+            <i class="bticon" ng-class="item.linkIcon"></i>
+            <span>{{ item.linkText | translate }}</span>
+        </a>
+    </li>
+</ul>

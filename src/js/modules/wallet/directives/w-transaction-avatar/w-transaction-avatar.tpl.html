@@ -1,0 +1,15 @@
+<div
+        class="display-token"
+        ng-class="isReceived ? 'received' : 'sent'"
+>
+    <!-- Display contact initials, default is empty string  -->
+    <div class="token-text">
+        {{ contactInitials }}
+    </div>
+
+    <!-- Display avatar -->
+    <span
+            class="avatar"
+            ng-style="{'background-image':'url({{ avatarUrl }})'}"
+    ></span>
+</div>

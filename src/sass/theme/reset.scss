@@ -206,16 +206,11 @@ a:focus {
 }
 
 .mainMenu {
-    position: relative;
     background-color: $black-light;
     height: 100%;
 
-    // fix navbar offset
-    padding-top: 60px;
-    margin-top: -60px;
-
     .sidebar-nav {
-        padding-top: 80px;
+        padding-top: 70px;
     }
 
     ul {
@@ -306,82 +301,46 @@ a:focus {
 $appHeaderHeight: 80px;
 
 .appWrapper {
+    position: relative;
+    height: calc(100% - 60px);
     min-height: 400px;
-    clear: both;
-
-    @extend .height-100;
 
     .appContainer {
         height: 100%;
-        padding: 0px;
+        padding: 0;
         position: relative;
 
-        .appLeftCol, .appRightCol {
+        .app-left-col, .app-right-col {
             height: 100%;
-            float: left;
             position: relative;
         }
 
-        .appLeftCol {
+        .app-left-col {
+            float: left;
             width: 25%;
         }
 
-        .appRightCol {
+        .app-right-col {
+            float: right;
             width: 75%;
-            padding-bottom: $appHeaderHeight;
+            border-right: 1px solid $muted;
+            margin: 0 0 0 -1px;
         }
 
-        .appBody {
-            width: 100%;
-            height: 100%;
+        .app-body {
+            height: calc(100% - #{$appHeaderHeight});
             overflow-y: auto;
             overflow-x: hidden;
             background-color: $white;
-            border-right: 1px solid $muted;
 
-            .appBodyContainer {
+            .app-body-container {
                 position: relative;
-                padding-bottom: 20px;
+                min-height: 100%;
 
                 .appPage {
                     padding: 10px 40px 20px 40px;
 
                 }
-            }
-        }
-
-        .appHeader {
-            border-bottom: 1px solid $muted;
-            padding: 0px;
-
-            height: $appHeaderHeight;
-            border-right: 1px solid $muted;
-
-            .appHeaderContent {
-                padding: 20px 40px;
-            }
-
-            h1 {
-                font-size: 24px;
-                font-weight: $bold;
-                padding: 10px 0px 10px 0px;
-                margin: 0px;
-                color: $darkgray-dark;
-
-                small {
-                    color: $text-muted;
-                    font-size: 20px;
-                }
-
-                &.pageTitle {
-                    @include networkPrimaryBG('color');
-                }
-            }
-
-            span {
-                font-size: 14px;
-                font-weight: $normal;
-                color: $darkgray-light;
             }
         }
     }
@@ -729,59 +688,43 @@ $display-token-size: 50px;
 
 .display-token {
     position: relative;
-    display: inline-block;
     width: $display-token-size;
     height: $display-token-size;
-    border-radius: 100%;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.13);
     text-decoration: none;
+    overflow: hidden;
+    border-radius: 50%;
 
-    &.contact-token {
-        background-color: #bcbcbc;
+    &.received {
+        border: 2px solid $blue;
+    }
+
+    &.sent {
+        border: 2px solid $red;
+    }
+
+    .token-text {
+        position: relative;
+        z-index: 100;
+        color: $white;
         text-align: center;
-        font-size: $display-token-size/2;
+        font-size: round($display-token-size/2.3);
         line-height: $display-token-size;
         text-transform: uppercase;
         font-weight: 200;
-        overflow: hidden;
-        color: transparent;
-        text-shadow: 0 0 0px $white, 0 -1px 1px rgba(0, 0, 0, 0.35);
-
-        .avatar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-position: 50% 50%;
-            background-size: cover;
-        }
+        text-shadow: 0 0 0 $white, 0 -1px 1px rgba(0, 0, 0, 0.35);
+        opacity: .5;
     }
 
-    &.anon-token {
-        color: $darkgray-light;
-        text-align: center;
-        font-size: $display-token-size/1.5;
-        line-height: $display-token-size;
-
-        img {
-            max-width: 50px;
-            vertical-align: top;
-
-        }
-    }
-
-    &.anon-token, &.contact-token {
-        img, span {
-            &.received {
-                border: 2px solid $blue;
-                border-radius: 50%;
-            }
-            &.sent {
-                border: 2px solid $red;
-                border-radius: 50%;
-            }
-        }
+    .avatar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-position: 50% 50%;
+        background-size: cover;
+        z-index: 1;
     }
 }
 
@@ -1119,7 +1062,7 @@ $display-token-size: 50px;
         box-shadow: inset 0px -9px 22px -13px #888;
 
         .profile {
-            padding: 20px 0px 20px 0px;
+            padding: 20px 0 20px 0;
 
             .profile-img-container {
                 height: 100%;
@@ -1233,39 +1176,13 @@ $display-token-size: 50px;
             }
         }
 */
-        .noTransactions {
-            display: block;
-            padding-top: 100px;
-            padding-bottom: 100px;
-            color: $darkgray-light;
-            text-align: center;
-            width: 100%;
 
-            i {
-                font-size: 35px;
-            }
-
-            h1 {
-                font-size: 28px;
-                line-height: 32px;
-            }
-
-            h2 {
-                margin-top: 20px;
-                font-size: 22px;
-                line-height: 26px;
-
-                a {
-                    font-weight: $semi-bold;
-                }
-            }
-        }
 
         .loadingSpinner {
             display: block;
             padding: 60px 0px 100px 0px;
         }
-        .txList {
+        .tx-list {
             .item-transaction {
                 padding: 10px 30px;
 

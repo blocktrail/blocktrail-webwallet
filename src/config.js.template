@@ -1,0 +1,1 @@
+angular.module('blocktrail.config', []).constant('CONFIG', <%= APPCONFIG_JSON %>);

@@ -1,5 +1,9 @@
 angular.module('blocktrail.wallet')
-    .controller('ReceiveCtrl', function($scope, $rootScope, CONFIG, Wallet, CurrencyConverter, Currencies, $q, $timeout, $translate, trackingService) {
+    .controller('ReceiveCtrl', function($scope, $rootScope, CONFIG, activeWallet, settingsService, CurrencyConverter,
+                                        Currencies, $q, $timeout, $translate, trackingService) {
+        // TODO Review
+        $scope.settings = settingsService.getReadOnlySettings();
+
         $rootScope.pageTitle = 'RECEIVE';
 
         $scope.paymentReceived = false;
@@ -68,9 +72,10 @@ angular.module('blocktrail.wallet')
 
         $scope.newAddress = function() {
             $scope.newRequest.address = null;
-
-            $q.when(Wallet.getNewAddress()).then(function(address) {
+            $q.when(activeWallet.getNewAddress()).then(function(address) {
                 $scope.newRequest.address = address;
+            }).catch(function(e) {
+                console.log(e);
             });
         };
 
@@ -103,6 +108,7 @@ angular.module('blocktrail.wallet')
         //generate the first address
         $scope.newAddress();
 
+        // TODO Create a subscription on change transaction list
         $scope.$on('new_transactions', function(event, transactions) {
             //show popup (and maybe vibrate?) on new tx
             $scope.paymentReceived = true;
@@ -152,7 +158,7 @@ angular.module('blocktrail.wallet')
                         ok: $translate.instant('OK')
                     });
                 } else {
-                    return Wallet.wallet.then(function (wallet) {
+                    return activeWallet._sdkWallet.then(function (wallet) {
                         return wallet.labelAddress($scope.items[addrNumber].address, data).then(function () {
                             $scope.items[addrNumber].label = data;
                             $cache.removeAll(); // flush cache
@@ -171,7 +177,7 @@ angular.module('blocktrail.wallet')
                 ok: $translate.instant('OK'),
                 cancel: $translate.instant('CANCEL')
             }).result.then(function() {
-                return Wallet.wallet.then(function (wallet) {
+                return activeWallet._sdkWallet.then(function (wallet) {
                     return wallet.labelAddress($scope.items[addrNumber].address, "").then(function (res) {
                         $scope.items[addrNumber].label = "";
                         $cache.removeAll(); // flush cache
@@ -201,7 +207,7 @@ angular.module('blocktrail.wallet')
                     if (cached) {
                         return cached;
                     } else {
-                        return Wallet.wallet.then(function (wallet) {
+                        return activeWallet._sdkWallet.then(function (wallet) {
                             var options = {
                                 page: page,
                                 limit: limit,
