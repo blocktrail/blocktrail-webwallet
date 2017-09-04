@@ -181,7 +181,7 @@
         }
 
         function genericHdNodeDiscover(root, options) {
-            return getBitcoinDataClient()
+            return getBitcoinDataClient(options)
                 .then(function () {
                     // reset debugInfo
                     debugInfo = [];

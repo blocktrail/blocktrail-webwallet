@@ -23,7 +23,6 @@
 
         $scope.form = {
             step: $scope.STEPS.WELCOME,
-            sweepMode: 'WIF',
             mnemonic: null,
             inputWIF: null
         };
@@ -72,7 +71,7 @@
             }
         });
         $scope.startSweeping = function() {
-            if ($scope.form.sweepMode === 'BIP44') {
+            if ($scope.form.step === $scope.STEPS.BIP44) {
                 $scope.startSweepingBIP44();
             } else {
                 $scope.startSweepingWIF();
@@ -82,7 +81,7 @@
         $scope.startSweepingBIP44 = function() {
             $scope.working = true;
             $scope.discovering = true;
-            sweeperService.bip44Sweep($scope.form.mnemonic.trim().replace(/  +/g, ' '), options).then(function (result) {
+            sweeperService.bip44Sweep(($scope.form.mnemonic || "").trim().replace(/  +/g, ' '), options).then(function (result) {
                 $scope.working = false;
                 $scope.discovering = false;
 
@@ -112,7 +111,7 @@
             $scope.working = true;
             $scope.discovering = true;
 
-            var WIFs = $scope.form.inputWIF.trim().replace(/  +/g, ' ').replace(/\r\n/g, ',').replace(/\n/g, ',').replace(/ /g, ',');
+            var WIFs = ($scope.form.inputWIF || "").trim().replace(/  +/g, ' ').replace(/\r\n/g, ',').replace(/\n/g, ',').replace(/ /g, ',');
             WIFs = WIFs.split(',').filter(function(WIF) { return !!WIF.trim(); });
 
             console.log(WIFs);
