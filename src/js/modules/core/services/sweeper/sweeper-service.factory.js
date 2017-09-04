@@ -51,7 +51,7 @@
                 batchDebugInfo.push(['utxos', result]);
                 var addresses = Object.keys(result);
                 // Add important data (privkey and derive index)
-                addresses.forEach(function(address) {
+                angular.forEach(addresses, function(address) {
                     result[address].priv_key = batchDataObject[address].priv_key;
                     result[address].derive_idx = batchDataObject[address].derive_idx;
                 });
@@ -91,7 +91,7 @@
             for (var i = 0; i < addresses.length; i++) {
                 var address = addresses[i];
 
-                resultUTXOs[address].forEach(function(utxo) {
+                angular.forEach(resultUTXOs[address], function(utxo) {
                     // Add to totalValue
                     totalValue += parseInt(utxo['value']);
 
@@ -151,7 +151,7 @@
             }))
                 .then(function (resultLists) {
                     var done = true;
-                    resultLists.map(function (result) {
+                    angular.forEach(resultLists, function (result) {
                         if(Object.keys(result).length > 0) {
                             done = false;
                         }
@@ -215,7 +215,7 @@
                     });
 
                     var keysByAddress = {};
-                    keys.forEach(function(key) {
+                    angular.forEach(keys, function(key) {
                         keysByAddress[key.getAddress()] = key;
                     });
 
@@ -229,7 +229,7 @@
                             return bitcoinDataClient.getBatchUnspentOutputs(addresses);
                         }).then(function(result) {
                             var addresses = Object.keys(result);
-                            addresses.forEach(function(address) {
+                            angular.forEach(addresses, function(address) {
                                 result[address].priv_key = keysByAddress[address];
                             });
 
