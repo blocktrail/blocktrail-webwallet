@@ -251,6 +251,12 @@
       "css": "export",
       "code": 59431,
       "src": "fontawesome"
+    },
+    {
+      "uid": "078fec38562c3f83a1201a908040c141",
+      "css": "emo-sunglasses",
+      "code": 59432,
+      "src": "fontelico"
     }
   ]
 }

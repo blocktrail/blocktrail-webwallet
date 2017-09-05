@@ -41,6 +41,7 @@
 
             latestVersionWeb: null,
             glideraActivationNoticePending: null,
+            hideBCCSweepWarning: false,
 
             buyBTCRegion: null
         };
@@ -79,7 +80,8 @@
             "glideraActivationNoticePending",
             "buyBTCRegion",
             "username",
-            "email"
+            "email",
+            "hideBCCSweepWarning"
         ];
 
         // Pending property list for portfolio
@@ -412,6 +414,7 @@
         self._doc.buyBTCRegion = sdkSettings.buyBTCRegion;
         self._doc.latestVersionWeb = sdkSettings.latestVersionWeb;
         self._doc.glideraActivationNoticePending = sdkSettings.glideraActivationNoticePending;
+        self._doc.hideBCCSweepWarning = sdkSettings.hideBCCSweepWarning;
 
         return self._doc;
     };
@@ -540,7 +543,8 @@
                     glideraActivationNoticePending: self._doc.glideraActivationNoticePending,
                     buyBTCRegion: self._doc.buyBTCRegion,
                     username: self._doc.username,
-                    email: self._doc.email
+                    email: self._doc.email,
+                    hideBCCSweepWarning: self._doc.hideBCCSweepWarning
                 };
 
                 return sdk.syncSettings(settingsData);

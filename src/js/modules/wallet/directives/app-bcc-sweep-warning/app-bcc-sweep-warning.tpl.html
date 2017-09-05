@@ -1,0 +1,12 @@
+<div class="row bcc-sweep-warning">
+    <div class="col-xs-12">
+        <div class="alert alert-success col-xs-12"
+             ng-click="dismissBCCSweepWarning()">
+            <a href class="close" data-dismiss="alert">&times;</a>
+            <div>
+                <b><i class="bticon bticon-emo-sunglasses"></i> {{ 'BCC_SWEEP_NOTICE_TITLE' | translate }}</b>
+                <p ng-bind-html="'BCC_SWEEP_NOTICE_BODY' | translate | nl2br"></p>
+            </div>
+        </div>
+    </div>
+</div>

@@ -2,8 +2,12 @@
         class="tx-list page-blur"
         ng-class="{'page-blur-active': isLoading}"
 >
-    <!-- Two factor warning -->
-    <app-two-factor-warning ng-show="isTwoFactorWarning"></app-two-factor-warning>
+
+    <div class="wallet-alerts">
+        <app-two-factor-warning ng-show="isTwoFactorWarning"></app-two-factor-warning>
+        <app-bcc-sweep-warning ng-show="showBCCSweepWarning"></app-bcc-sweep-warning>
+    </div>
+
     <!-- Transactions with an infinite scroll -->
     <div infinite-scroll="onShowMoreTransactions()" infinite-scroll-container="'#app-body'" infinite-scroll-distance="0.15">
         <div ng-if="buybtcPendingOrders.length > 0">

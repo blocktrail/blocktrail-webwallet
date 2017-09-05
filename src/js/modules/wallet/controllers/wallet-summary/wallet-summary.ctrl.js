@@ -4,7 +4,7 @@
     angular.module("blocktrail.wallet")
         .controller("WalletSummaryCtrl", WalletSummaryCtrl);
 
-    function WalletSummaryCtrl($scope, $rootScope, $q, $timeout, activeWallet,
+    function WalletSummaryCtrl($scope, $rootScope, $q, $timeout, activeWallet, CONFIG,
                                launchService, settingsService, buyBTCService, $modal, CurrencyConverter) {
 
         var settings = settingsService.getReadOnlySettings();
@@ -18,6 +18,7 @@
         $scope.isLoading = true;
         $scope.isShowNoMoreTransactions = false;
         $scope.isTwoFactorWarning = false; // display 2FA warning once every day when it's not enabled
+        $scope.showBCCSweepWarning = true;
         $scope.lastDateHeader = lastDateHeader;
         $scope.buybtcPendingOrders = []; // Glidera transactions
         $scope.transactionsListLimit = transactionsListLimitStep;
@@ -27,16 +28,23 @@
         $scope.getTransactionHeader = getTransactionHeader;
         $scope.onShowTransaction = onShowTransaction;
         $scope.onShowMoreTransactions = onShowMoreTransactions;
+        $scope.dismissBCCSweepWarning = dismissBCCSweepWarning;
 
         $scope.$on("$destroy", onDestroy);
 
-        initData();
+        var initializingData = initData();
+
+        if (CONFIG.NETWORK === "BCC") {
+            initializingData.then(function() {
+                $scope.showBCCSweepWarning = !$scope.walletData.transactions.length && !$scope.settings.hideBCCSweepWarning;
+            });
+        }
 
         /**
          * Init data
          */
         function initData() {
-            $q.all([
+            return $q.all([
                 $q.when($rootScope.getPrice()),
                 $q.when(twoFactorWarning()),
                 $q.when(getGlideraTransactions())
@@ -44,6 +52,13 @@
                 $scope.isLoading = false;
             }, function (err) {
                 console.log('err', err);
+            });
+        }
+
+        function dismissBCCSweepWarning() {
+            $scope.showBCCSweepWarning = false;
+            settingsService.updateSettingsUp({
+                hideBCCSweepWarning: true
             });
         }
 
