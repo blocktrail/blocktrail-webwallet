@@ -176,14 +176,14 @@
             if(settingsUpFlag && profileUpFlag) {
                 var promiseForSettingsAndProfile = self._$q.all([self._syncSettingsUp(), self._syncProfileUp()]);
 
-                promise.then(promiseForSettingsAndProfile);
+                promise = promise.then(promiseForSettingsAndProfile);
             } else if(settingsUpFlag) {
-                promise.then(self._syncSettingsUp.bind(this));
+                promise = promise.then(self._syncSettingsUp.bind(this));
             } else if(profileUpFlag) {
-                promise.then(self._syncProfileUp.bind(this));
+                promise = promise.then(self._syncProfileUp.bind(this));
             }
 
-            promise.then(function() {
+            promise = promise.then(function() {
                 return self._readonlyDoc;
             });
         }

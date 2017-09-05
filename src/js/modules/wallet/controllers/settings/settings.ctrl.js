@@ -146,7 +146,7 @@
                 $scope.errors.email = true;
             }
 
-            if(($scope.formSettings.username.length < 6 && $scope.formSettings.username.length > 0) || !stringOrEmptyRule.test($scope.formSettings.username)) {
+            if($scope.formSettings.username.length && ($scope.formSettings.username.length < 4 || !stringOrEmptyRule.test($scope.formSettings.username))) {
                 $scope.errors.name = true;
             }
 
@@ -190,7 +190,7 @@
         /**
          * Handler on save error
          */
-        function saveDataErrorHandler() {
+        function saveDataErrorHandler(e) {
             $scope.isLoading = false;
 
             dialogService.alert({
