@@ -32,10 +32,10 @@
 
         $scope.$on("$destroy", onDestroy);
 
-        var initializingData = initData();
+        initData();
 
         if (CONFIG.NETWORK === "BCC") {
-            initializingData.then(function() {
+            activeWallet.isReady.then(function() {
                 $scope.showBCCSweepWarning = !$scope.walletData.transactions.length && !$scope.settings.hideBCCSweepWarning;
             });
         }
