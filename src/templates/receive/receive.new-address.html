@@ -1,13 +1,4 @@
 <div class="appPage">
-    <div class="receivePaymentStatus" ng-class="{'text-success': paymentReceived}">
-        <div ng-if="!paymentReceived">
-            <span class="progress-spinner"><span class="bticon bticon-progress"></span></span> <span class="sentence-case">{{ 'WAITING_FOR_PAYMENT' | translate }}</span>
-        </div>
-        <div ng-if="paymentReceived">
-            <span class="bticon bticon-ok"></span> <span class="sentence-case">{{ 'PAYMENT_RECEIVED' | translate }}</span>
-        </div>
-    </div>
-
     <form class="form"  name="sendInputForm" novalidate ng-init="showQR=false">
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">

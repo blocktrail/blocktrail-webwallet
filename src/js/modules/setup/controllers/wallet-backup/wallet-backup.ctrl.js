@@ -5,7 +5,7 @@
         .controller("SetupWalletBackupCtrl", SetupWalletBackupCtrl);
 
     function SetupWalletBackupCtrl(backupInfo, $scope, $state, $translate, $log, bitcoinJS,
-                                   setupService, sdkService, dialogService, launchService, $injector, CONFIG) {
+                                   setupService, sdkService, dialogService, launchService, CONFIG, walletsManagerService) {
 
         $scope.displayTextBackup = true;
         $scope.backupSaved = false;
@@ -88,10 +88,14 @@
                 // delete all temp backup info
                 launchService.clearBackupInfo()
                     .then(function() {
+                        return launchService.getWalletInfo().then(function(walletInfo) {
+                            return walletsManagerService.setActiveWalletById(walletInfo.identifier);
+                        })
+                    })
+                    .then(function(activeWallet) {
                         // we don't want to get the Wallet service until we're finally ready to send the user onwards
                         //  then we want to poll for transactions before sending him onwards
-                        var Wallet = $injector.get('Wallet');
-                        Wallet.pollTransactions().then(function() {
+                        activeWallet.forcePolling().then(function() {
                             $state.go('app.wallet.summary');
                         });
                     })

@@ -20,6 +20,15 @@ angular.module('blocktrail.wallet').factory(
             return self.client.get("/mywallet/profile");
         };
 
+
+        blocktrailSDK.prototype.getAllWallets = function () {
+            var self = this;
+
+            return self.client.get("/mywallet/wallets");
+        };
+
+
+
         /**
          * update the server with this user's profile info
          * @param data
