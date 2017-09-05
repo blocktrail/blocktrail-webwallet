@@ -18,7 +18,7 @@
         $scope.isLoading = true;
         $scope.isShowNoMoreTransactions = false;
         $scope.isTwoFactorWarning = false; // display 2FA warning once every day when it's not enabled
-        $scope.showBCCSweepWarning = true;
+        $scope.showBCCSweepWarning = false;
         $scope.lastDateHeader = lastDateHeader;
         $scope.buybtcPendingOrders = []; // Glidera transactions
         $scope.transactionsListLimit = transactionsListLimitStep;

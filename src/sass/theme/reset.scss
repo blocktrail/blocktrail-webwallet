@@ -1344,8 +1344,12 @@ $display-token-size: 50px;
     &.state-app_wallet_send, &.state-app_wallet_receive {
 
         form {
+            padding: 0px 0px 0px 0px;
+        }
+
+        & > form {
             background-color: $white;
-            padding: 15px 0 0 ;
+            padding: 15px 0 0;
         }
 
         .qrcode-display-section {
