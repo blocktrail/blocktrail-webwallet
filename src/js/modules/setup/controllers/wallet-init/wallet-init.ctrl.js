@@ -239,7 +239,7 @@
                 .then(function() {
                     $log.debug("All done. Onwards to victory!");
                     if ($scope.setupInfo.backupInfo) {
-                        trackingService.trackEvent(trackingService.EVENTS.REGISTRATION);
+                        trackingService.trackEvent(trackingService.EVENTS.SIGN_UP);
 
                         //if a new wallet has been created, go to the wallet backup page
                         $state.go("app.setup.walletBackup");

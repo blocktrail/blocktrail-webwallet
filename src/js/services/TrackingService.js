@@ -2,7 +2,8 @@ angular.module('blocktrail.wallet')
     .factory('trackingService', function(CONFIG, $analytics) {
 
         var EVENTS = {
-            REGISTRATION: "registration",
+            ACTIVATED: 'activated',
+            SIGN_UP: "sign_up",
             LOGIN: "login",
             RECEIVE_CUSTOM_AMOUNT: "receive_custom_amount",
             BUYBTC: {
@@ -45,7 +46,7 @@ angular.module('blocktrail.wallet')
                 } else {
                     fbq('track', 'Other');
                 }
-            } else if (event === EVENTS.REGISTRATION) {
+            } else if (event === EVENTS.SIGN_UP) {
                 if (CONFIG.FBTRACKING_ID) {
                     if (!window.fbq) {
                         console.error("`fbq` doesn't exist!")

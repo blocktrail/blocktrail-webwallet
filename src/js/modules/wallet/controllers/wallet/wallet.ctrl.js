@@ -6,7 +6,8 @@
 
     function WalletCtrl($scope, $state, $rootScope, storageService, walletsManagerService, activeWallet,
                         CONFIG, settingsService, setupService, $timeout, launchService, blocktrailLocalisation,
-                        dialogService, $translate, Currencies, AppVersionService, $filter, Contacts) {
+                        dialogService, $translate, Currencies, AppVersionService, $filter, Contacts,
+                        trackingService, $interval) {
 
         $scope.settings = settingsService.getReadOnlySettings();
         $scope.walletData = activeWallet.getReadOnlyWalletData();
@@ -60,6 +61,18 @@
         $scope.activeWalletIdentifier = $scope.walletData.identifier;
         $scope.walletsList = walletsManagerService.getWalletsList();
 
+        // track when wallet is activated (first time > 0 balance)
+        if (!$scope.settings.walletActivated) {
+            var walletActivatedInterval = $interval(function() {
+                if ($scope.walletData.balance + $scope.walletData.uncBalance > 0) {
+                    settingsService.updateSettingsUp({walletActivated: true});
+                    trackingService.trackEvent(trackingService.EVENTS.ACTIVATED);
+
+                    $interval.cancel(walletActivatedInterval);
+                }
+            }, 60000);
+        }
+
         $scope.onChangeActiveWallet = function(id) {
             walletsManagerService.setActiveWalletById(id)
                 .then(function() {
@@ -72,9 +85,9 @@
         setupService.getUserInfo().then(function(userInfo) {
             if (userInfo.username || userInfo.displayName || userInfo.email) {
                 var updateSettings = {
-                    username: userInfo.username || settings.username,
-                    displayName: userInfo.displayName || settings.displayName,
-                    email: userInfo.email || settings.email
+                    username: userInfo.username || $scope.settings.username,
+                    displayName: userInfo.displayName || $scope.settings.displayName,
+                    email: userInfo.email || $scope.settings.email
                 };
 
                 setupService.clearUserInfo();
