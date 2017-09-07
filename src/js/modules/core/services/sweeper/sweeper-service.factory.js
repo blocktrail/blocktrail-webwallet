@@ -8,11 +8,6 @@
         var bitcoinDataClient = null;
         var debugInfo = [];
 
-        function estimateApproximateFeeP2PKH(inputCount, outputCount) {
-            // https://bitcoin.stackexchange.com/a/46379
-            return inputCount * 146 + outputCount * 33 + 10;
-        }
-
         function batchDeriveAddressesAndPrivKeys(parentNode, startIndex, batchSize) {
             var currentNode = null;
             var currentAddress = null;
@@ -107,27 +102,29 @@
             }
 
             return bitcoinDataClient.estimateFee().then(function (feePerKB) {
-                var approxTxSize = estimateApproximateFeeP2PKH(inputs.length, 1);
-                var approxFee = Math.floor(approxTxSize * feePerKB / 1000);
-
-                var outputValue = totalValue - approxFee;
-
-                if (outputValue > 2730) {
-                    rawTransaction.addOutput(options.recipient, outputValue);
-
-                    angular.forEach(inputs, function (input, index) {
-                        var currentPrivKey = resultUTXOs[input.address].priv_key;
-                        rawTransaction.sign(index, currentPrivKey, null, hashType, input.value);
-                    });
-
-                    return {
-                        rawTx: rawTransaction.build().toHex(),
-                        feePaid: approxFee,
-                        inputCount: inputs.length,
-                        totalValue: totalValue
-                    }
-                } else {
+                if (totalValue <= blocktrailSDK.DUST) {
                     return false;
+                }
+
+                rawTransaction.addOutput(options.recipient, totalValue);
+
+                var fee = blocktrailSDK.Wallet.estimateIncompleteTxFee(rawTransaction.tx, feePerKB);
+                rawTransaction.tx.outs[0].value -= fee;
+
+                if (rawTransaction.tx.outs[0].value <= blocktrailSDK.DUST) {
+                    return false;
+                }
+
+                angular.forEach(inputs, function (input, index) {
+                    var currentPrivKey = resultUTXOs[input.address].priv_key;
+                    rawTransaction.sign(index, currentPrivKey, null, hashType, input.value);
+                });
+
+                return {
+                    rawTx: rawTransaction.build().toHex(),
+                    feePaid: fee,
+                    inputCount: inputs.length,
+                    totalValue: totalValue
                 }
             });
         }

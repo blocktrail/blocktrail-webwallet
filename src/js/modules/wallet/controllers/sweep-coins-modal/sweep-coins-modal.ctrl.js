@@ -5,7 +5,7 @@
         .controller("SweepCoinsModalController", SweepCoinsModalController);
 
     function SweepCoinsModalController($scope, $modalInstance, sweeperService, sdkService, walletsManagerService, CONFIG, dialogService,
-                                        $translate, $log, trackingService) {
+                                        $translate, $log, $timeout, trackingService) {
 
         var activeWallet = walletsManagerService.getActiveWallet();
 
