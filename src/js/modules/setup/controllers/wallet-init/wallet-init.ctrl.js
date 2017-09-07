@@ -10,6 +10,7 @@
         $scope.progressStatus = {};
         // this automatically updates an already open modal instead of popping a new one open
         $scope.alert = dialogService.alertSingleton();
+
         $scope.$on("$destroy", function() {
             $scope.alert.dismiss();
         });
@@ -34,12 +35,14 @@
         };
 
         $scope.progressWidth = 5;
+
         var defaultProgress = {
             title: null,
             body: null,
             header_class: "text-neutral",
             ok: false
         };
+
         $scope.updateProgress = function (progress) {
             progress = angular.extend({}, defaultProgress, progress);
             $log.debug("updateProgress: " + progress.title + " - " + progress.body);
@@ -54,9 +57,11 @@
         };
 
         $scope.createWallet = function() {
-            return sdkService.sdk()
+            return $q.when(sdkService.getSdkByActiveNetwork())
                 .then(function(sdk) {
                     $scope.sdk = sdk;
+                    $scope.sdkReadOnlyObject = sdkService.getReadOnlySdkData();
+
                     $log.debug("initialising wallet: " + $scope.setupInfo.identifier, $scope.sdk);
                     return $scope.sdk.initWallet({identifier: $scope.setupInfo.identifier, password: $scope.setupInfo.password});
                 })
@@ -203,9 +208,9 @@
                     return $scope.sdk.setMainMobileWallet($scope.setupInfo.identifier);
                 })
                 .then(function() {
-                    //store the identity and encrypted password
+                    // store the identity and encrypted password
                     $log.debug("saving wallet info", $scope.setupInfo.identifier, null);
-                    return launchService.storeWalletInfo($scope.setupInfo.identifier, null);
+                    return launchService.storeWalletInfo($scope.setupInfo.identifier, null, $scope.sdkReadOnlyObject.networkType);
                 })
                 .then(function() {
                     // clear sensitive data

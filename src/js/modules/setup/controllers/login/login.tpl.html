@@ -4,7 +4,13 @@
             <div class="appWrapper">
                 <h1 class="pageTitle">{{ 'SETUP_LOGIN' | translate }}</h1>
                 <div class="formContainer">
-                    <form name="loginForm" class="form" novalidate>
+                    <form
+                        name="loginForm"
+                        class="form page-blur"
+                        ng-class="{'page-blur-active': isLoading}"
+                        novalidate
+                    >
+
                         <div ng-if="error" class="alert alert-danger">
                             {{ error | translate }}
                             <div ng-if="errorDetailed">
@@ -28,6 +34,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="form-group form-group-lg" ng-class="{'has-error': loginForm.password.$dirty && loginForm.password.$invalid}">
                             <label class="control-label">{{ 'SETUP_PASSWORD_PLACEHOLDER' | translate }}</label>
                             <input class="form-control" type="password" placeholder="{{ 'SETUP_PASSWORD_PLACEHOLDER' | translate }}"
@@ -53,55 +60,30 @@
 
                         <div class="form-group form-group-lg">
                             <label class="control-label">{{ 'SETUP_NETWORK_CHOICE' | translate }}</label>
-                            <div class="custom-select" ng-init="showselect=false">
-                                <div class="custom-select-choice" ng-click="showselect=true">
-                                    <span class="custom-select-arrow">
-                                        <i class="bticon bticon-down-open" ng-click=""></i>
-                                    </span>
-                                    <div class="custom-option">
-                                        <div class="row">
-                                            <div class="col-xs-9">
-                                                <span class="custom-option-title">
-                                                    {{ CONFIG.NETWORK_LONG }} ({{ CONFIG.NETWORK }})
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="custom-select-menu"
-                                     ng-show="showselect"
-                                     click-anywhere-but-here="showselect = false"
-                                     is-active="showselect == true"
-                                >
-                                    <a class="custom-option" href>
-                                        <div class="row">
-                                            <div class="col-xs-9">
-                                                <span class="custom-option-title sentence-case">
-                                                    {{ CONFIG.NETWORK_LONG }} ({{ CONFIG.NETWORK }})
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <hr style="margin: 0px;" />
-                                    <a class="custom-option" href="{{ CONFIG.MIRROR_WALLET_URL }}">
-                                        <div class="row">
-                                            <div class="col-xs-9">
-                                                <span class="custom-option-title sentence-case">
-                                                    {{ CONFIG.MIRROR_NETWORK_LONG }} ({{ CONFIG.MIRROR_NETWORK }})
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </a>
+
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <label class="radio-inline">
+                                        <input type="radio" ng-model="form.networkType" value="{{CONFIG.NETWORKS.BTC.NETWORK}}"> {{ CONFIG.NETWORKS.BTC.NETWORK_LONG }} ({{ CONFIG.NETWORKS.BTC.NETWORK }})
+                                    </label>
+
+                                    <label class="radio-inline">
+                                        <input type="radio" ng-model="form.networkType" value="{{CONFIG.NETWORKS.BCC.NETWORK}}"> {{ CONFIG.NETWORKS.BCC.NETWORK_LONG }} ({{ CONFIG.NETWORKS.BCC.NETWORK }})
+                                    </label>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-group form-group-lg form-group-buttons" ng-if="!working">
-                            <button class="form-control btn btn-primary" ng-disabled="working" ng-click="doLogin(loginForm)">{{ 'SETUP_LOGIN' | translate }}</button>
+                        <div class="form-group form-group-lg form-group-buttons">
+                            <button class="form-control btn btn-primary" ng-click="onSubmitFormLogin(loginForm)">{{ 'SETUP_LOGIN' | translate }}</button>
                         </div>
-                        <div ng-if="working">
+
+                        <!-- Loader overlay -->
+                        <div
+                            class="page-loader"
+                            ng-class="{'active': isLoading}"
+                        >
                             <loading-spinner></loading-spinner>
-                            {{ 'LOGGING_IN' | translate }}
                         </div>
                     </form>
                 </div>

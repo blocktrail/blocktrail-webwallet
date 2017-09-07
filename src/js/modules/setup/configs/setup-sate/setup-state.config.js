@@ -31,7 +31,12 @@
                     globalLock: function(globalLockService) {
                         globalLockService.init();
                     },
-                    preferredLanguage: preferredLanguage
+                    preferredLanguage: preferredLanguage,
+                    sdkSetAccountInfo: function(launchService, sdkService) {
+                        return launchService.getAccountInfo().then(function(accountInfo) {
+                            return sdkService.setAccountInfo(accountInfo);
+                        });
+                    }
                 }
             })
             .state("app.setup.login", {

@@ -1,6 +1,6 @@
 angular.module('blocktrail.wallet').factory(
     'launchService',
-    function(storageService, $q, $log, $http, CONFIG) {
+    function(storageService, $q, $log, $http, CONFIG, sdkService) {
         var LaunchService = function() {
             var self = this;
 
@@ -67,6 +67,8 @@ angular.module('blocktrail.wallet').factory(
 
             return self.getAccountInfo(true).then(
                 function(accountInfo) {
+                    sdkService.setAccountInfo(accountInfo);
+
                     return self.getWalletInfo(true).then(
                         function(walletInfo) {
                             return self.getBackupInfo(true).then(
@@ -194,16 +196,22 @@ angular.module('blocktrail.wallet').factory(
             return self._walletInfo;
         };
 
-        LaunchService.prototype.storeWalletInfo = function(identifier, encryptedPassword) {
+        LaunchService.prototype.storeWalletInfo = function(identifier, encryptedPassword, networkType) {
             var self = this;
+
+            debugger;
 
             self._walletInfo = null;
 
             return $q.when(self.storage.get('wallet_info'))
                 .then(function(doc) { return doc; }, function() { return {_id: "wallet_info"}; })
                 .then(function(doc) {
+
+                        debugger;
+
                         doc.identifier = identifier;
                         doc.encryptedPassword = encryptedPassword;
+                        doc.networkType = networkType;
 
                         return self.storage.put(doc).then(function() {
                             return true;

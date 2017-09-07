@@ -5,6 +5,39 @@
     "POUCHDB_DRIVER": null,
     "API_HOST": "api.blocktrail.com",
     "API_HTTPS": true,
+
+    "NETWORKS": {
+        "BTC": {
+            "NETWORK": "BTC",
+            "NETWORK_LONG": "Bitcoin",
+            // currency display
+            "TICKER": "BTC",
+            "TICKER_LONG": "Bitcoin",
+
+            // config
+            "TX_FILTER_MIN_BLOCK_HEIGHT": null,
+            "BUYBTC": true,
+            "PRIOBOOST": true,
+            "EXPLORER_ADDRESS_URL": "https://btc.com",
+            "EXPLORER_TX_URL": "https://btc.com"
+        },
+        "BCC": {
+            "NETWORK": "BCC",
+            "NETWORK_LONG": "BitcoinCash",
+            // currency display
+            "TICKER": "BCC",
+            "TICKER_LONG": "BitcoinCash",
+
+            // config
+            "TX_FILTER_MIN_BLOCK_HEIGHT": 400000,
+            "BUYBTC": false,
+            "PRIOBOOST": false,
+            "EXPLORER_ADDRESS_URL": "https://www.blocktrail.com/BCC/address",
+            "EXPLORER_TX_URL": "https://www.blocktrail.com/BCC/tx"
+        }
+    },
+
+
     "BUYBTC": false,
     "PRIOBOOST": true,
 
@@ -44,3 +77,116 @@
     
     "NULL": null // just here so we can have a trailing , on every line
 }
+
+/*{
+    "DEBUG": false,
+    "MINIFY": true,
+    "TESTNET": true,
+    "POUCHDB_DRIVER": null,
+    "API_HOST": "api.blocktrail.com",
+    "API_HTTPS": true,
+
+    "NETWORKS": {
+        "BTC": {
+            "NETWORK": "BTC",
+            "NETWORK_LONG": "Bitcoin",
+            "MIRROR_NETWORK": "BCC",
+            // currency display
+            "TICKER": "BTC",
+            "TICKER_LONG": "Bitcoin",
+
+            // config
+            "TX_FILTER_MIN_BLOCK_HEIGHT": null,
+            "BUYBTC": true,
+            "PRIOBOOST": true,
+            "EXPLORER_ADDRESS_URL": "https://btc.com",
+            "EXPLORER_TX_URL": "https://btc.com"
+        },
+        "BCC": {
+            "NETWORK": "BCC",
+            "NETWORK_LONG": "BitcoinCash",
+            "MIRROR_NETWORK": "BTC",
+            // currency display
+            "TICKER": "BCC",
+            "TICKER_LONG": "BitcoinCash",
+
+            // config
+            "TX_FILTER_MIN_BLOCK_HEIGHT": 400000,
+            "BUYBTC": false,
+            "PRIOBOOST": false,
+            "EXPLORER_ADDRESS_URL": "https://www.blocktrail.com/BCC/address",
+            "EXPLORER_TX_URL": "https://www.blocktrail.com/BCC/tx"
+        },
+        "tBTC": {
+            "NETWORK": "tBTC",
+            "NETWORK_LONG": "Bitcoin Testnet",
+            "MIRROR_NETWORK": "tBCC",
+            // currency display
+            "TICKER": "tBTC",
+            "TICKER_LONG": "Bitcoin Testnet",
+
+            // config
+            "TX_FILTER_MIN_BLOCK_HEIGHT": 400000,
+            "BUYBTC": true,
+            "PRIOBOOST": false,
+            "EXPLORER_ADDRESS_URL": "https://www.blocktrail.com/BCC/address",
+            "EXPLORER_TX_URL": "https://www.blocktrail.com/BCC/tx"
+        },
+        "tBCC": {
+            "NETWORK": "tBCC",
+            "NETWORK_LONG": "BitcoinCash Testnet",
+            "MIRROR_NETWORK": "tBTC",
+            // currency display
+            "TICKER": "tBCC",
+            "TICKER_LONG": "BitcoinCash Testnet",
+
+            // config
+            "TX_FILTER_MIN_BLOCK_HEIGHT": 400000,
+            "BUYBTC": false,
+            "PRIOBOOST": false,
+            "EXPLORER_ADDRESS_URL": "https://www.blocktrail.com/BCC/address",
+            "EXPLORER_TX_URL": "https://www.blocktrail.com/BCC/tx"
+        }
+    },
+
+    "BUYBTC": false,
+    "PRIOBOOST": true,
+    "TICKER": "BTC",
+    "TICKER_LONG": "Bitcoin",
+    "NETWORK": "BTC",
+    "NETWORK_LONG": "Bitcoin",
+    "MIRROR_NETWORK": "BCC",
+    "TX_FILTER_MIN_BLOCK_HEIGHT": null,
+    "EXPLORER_ADDRESS_URL": "https://btc.com",
+    "EXPLORER_TX_URL": "https://btc.com",
+
+    "MIRROR_NETWORK_LONG": "BitcoinCash",
+    "PROMOTE_MOBILE": true,
+
+    "EXTRA_LANGUAGES": ["es", "nl", "ru", "fr", "hi", "sw", "cn"],
+    "CURRENCIES": ["USD", "EUR", "GBP", "CNY"],
+
+    "STATICSDIR": "dev",
+    "STATICSDIR_PREFIX": null,
+
+    "FALLBACK_LANGUAGE": false,
+
+    "DEFAULT_WALLET_VERSION": "v3",
+
+    "REQUIRED_PASSWORD_STRENGTH": 2,
+
+    "HOMEPAGE_URL": "https://btc.com",
+    "WALLET_URL": "https://wallet.btc.com",
+    "MIRROR_WALLET_URL": "https://bcc-wallet.btc.com",
+
+    "DEVELOPERS_URL": "https://www.blocktrail.com/api",
+
+    "GLIDERA_URL": "https://www.glidera.io",
+    "BITONIC_URL": "https://bitonic.nl",
+
+    "DEFAULT_IDENTIFIER": "mywallet",
+
+    "NULL": null // just here so we can have a trailing , on every line
+}*/
+
+

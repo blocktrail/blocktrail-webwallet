@@ -39,7 +39,9 @@ angular.module('blocktrail.wallet').config(function() {
 });
 
 angular.module('blocktrail.wallet').run(
-    function($rootScope, $state, $log, $interval, $timeout, blocktrailLocalisation, storageService, CONFIG, $locale, $translate, amMoment) {
+    function($rootScope, $state, $log, $interval, $timeout, blocktrailLocalisation, CONFIG, $locale, $translate, amMoment) {
+        // TODO HERE !!!
+
         $rootScope.CONFIG       = CONFIG || {};
         $rootScope.$state       = $state;
         $rootScope.appVersion   = CONFIG.VERSION || CONFIG.VERSION_REV;
@@ -239,14 +241,16 @@ angular.module('blocktrail.wallet').config(
                         globalLockService.init();
                     },
                     handleSetupState: function($state, launchService) {
+                        console.log('handleSetupState');
                         return launchService.handleSetupState('app.wallet', $state);
                     },
                     checkApiKeyStatus: function(launchService, dialogService, $filter, $translate, $state, storageService) {
+                        console.log('checkApiKeyStatus');
                         return launchService.getWalletConfig()
                             .then(function(result) {
                                 var bannedIp = result.is_banned_ip;
                                 if (bannedIp) {
-                                    $state.go("app.bannedip", {bannedIp: bannedIp});
+                                    $state.go("app.bannedip", { bannedIp: bannedIp });
                                 } else if (result.api_key && (result.api_key !== 'ok')) {
                                     // alert user session is invalid
                                     dialogService.alert({
@@ -263,20 +267,41 @@ angular.module('blocktrail.wallet').config(
                                 }
                             })
                     },
-                    activeWallet: function($state, launchService, walletsManagerService) {
-                        return walletsManagerService.fetchWalletsList()
-                            .then(function() {
-                                return launchService.getWalletInfo().then(function(walletInfo) {
-                                    var activeWallet = walletsManagerService.getActiveWallet();
+                    activeWallet: function($state, launchService, sdkService, walletsManagerService) {
+                        return launchService.getAccountInfo().then(function(accountInfo) {
+                            sdkService.setAccountInfo(accountInfo);
 
-                                    // active wallet is null when we load first time
-                                    if(!activeWallet) {
-                                        activeWallet = walletsManagerService.setActiveWalletById(walletInfo.identifier);
-                                    }
+                            return launchService.getWalletInfo()
+                                .then(function(walletInfo){
+                                    sdkService.setNetworkType(walletInfo.networkType);
 
-                                    return activeWallet;
+                                    return walletsManagerService.fetchWalletsList()
+                                        .then(function() {
+                                            var activeWallet = walletsManagerService.getActiveWallet();
+
+                                            // active wallet is null when we load first time
+                                            if(!activeWallet) {
+                                                activeWallet = walletsManagerService.setActiveWallet(walletInfo.identifier, walletInfo.networkType);
+                                            }
+
+                                            return activeWallet;
+                                        });
                                 });
-                            });
+
+                            /*return walletsManagerService.fetchWalletsList()
+                                .then(function() {
+                                    return launchService.getWalletInfo().then(function(walletInfo) {
+                                        var activeWallet = walletsManagerService.getActiveWallet();
+
+                                        // active wallet is null when we load first time
+                                        if(!activeWallet) {
+                                            activeWallet = walletsManagerService.setActiveWalletById(walletInfo.identifier);
+                                        }
+
+                                        return activeWallet;
+                                    });
+                                });*/
+                        });
                     },
                     /**
                      * @param handleSetupState      require handleSetupState to make sure we don't load anything before we're sure we're allowed too
@@ -287,7 +312,7 @@ angular.module('blocktrail.wallet').config(
                      * @param $log
                      * @param Currencies
                      */
-                    loadingData: function(handleSetupState, settingsService, $q, $rootScope, $log, Currencies) {
+                    loadingData: function(handleSetupState, settingsService, $q, $rootScope, $log, Currencies, activeWallet) {
                         // Do an initial load of cached user data
                         return $q.all([
                             Currencies.updatePrices(true),

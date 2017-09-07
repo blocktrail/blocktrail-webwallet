@@ -4,38 +4,35 @@
     angular.module("blocktrail.setup")
         .controller("SetupLoginCtrl", SetupLoginCtrl);
 
-    // TODO Review this part, decrease dependencies, create login service and move $http request to service
-    function SetupLoginCtrl($rootScope, $scope, $state, $sce, $translate, $log, $q, $http, _, cryptoJS, CONFIG,
-                            launchService, setupService, dialogService, FormHelper, trackingService) {
+    function SetupLoginCtrl($scope, $state, $sce, CONFIG, dialogService, FormHelper, loginFormService, sdkService) {
+        var listenerForm;
+        var twoFactorToken = null;
+
         // display mobile app download popup
         $scope.showMobileDialogOnce();
-
-        $scope.twoFactorToken = null;
-        $scope.working = false;
-        $scope.form = {
-            username: "",
-            password: "",
-            forceNewWallet: false
-        };
-        $scope.error = null;
-        $scope.errorDetailed = null;
         // this automatically updates an already open modal instead of popping a new one open
         $scope.alert = dialogService.alertSingleton();
 
-        $scope.$watch("form", function() {
-            $scope.error = null;
-            $scope.errorDetailed = null;
-        }, true);
+        $scope.isLoading = false;
+        $scope.form = {
+            username: "",
+            password: "",
+            forceNewWallet: false,
+            networkType: CONFIG.NETWORKS.BTC.NETWORK
+        };
 
-        $scope.$on("$destroy", function() {
-            $scope.alert.dismiss();
-        });
+        $scope.error = null;
+        $scope.errorDetailed = null;
 
-        $scope.doLogin = function(loginForm) {
-            if ($scope.working) {
-                return false;
-            }
+        listenerForm = $scope.$watch("form", onFormChange, true);
 
+        // Set default network
+        sdkService.setNetworkType(CONFIG.NETWORKS.BTC.NETWORK);
+
+        // Methods
+        $scope.onSubmitFormLogin = onSubmitFormLogin;
+
+        function onSubmitFormLogin(loginForm) {
             $scope.error = null;
             $scope.errorDetailed = null;
 
@@ -45,147 +42,102 @@
                 return false;
             }
 
-            $scope.working = true;
-            $scope.login();
-        };
+            $scope.isLoading = true;
 
-        $scope.login = function() {
-            return trackingService.getBrowserFingerprint().then(function(fingerprint) {
-                return fingerprint.hash;
-            }, function(e) {
-                return null;
-            }).then(function(fingerprint) {
-                return $scope._login(fingerprint);
-            });
-        };
+            twoFactorToken = null;
 
-        $scope._login = function(fingerprint) {
-            var twoFactorToken = $scope.twoFactorToken;
-            $scope.twoFactorToken = null; // consumed
+            login();
+        }
 
-            return $http.post(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "t" : "") + CONFIG.NETWORK + "/mywallet/enable", {
+        function login() {
+            var data = {
                 login: $scope.form.username,
-                password: cryptoJS.SHA512($scope.form.password).toString(),
-                platform: "Web",
-                version: $rootScope.appVersion,
-                two_factor_token: twoFactorToken,
-                device_name: navigator.userAgent || "Unknown Browser",
-                browser_fingerprint: fingerprint || null
-            }).then(
-                function(result) {
-                    $q.when(result.data.encrypted_secret)
-                        .then(function(encryptedSecret) {
-                            if (!encryptedSecret) {
-                                return null;
-                            } else {
-                                var secret;
-                                try {
-                                    secret = cryptoJS.AES.decrypt(encryptedSecret, $scope.form.password).toString(cryptoJS.enc.Utf8);
-                                } catch (e) {
-                                    $log.error(e);
-                                    secret = null;
-                                }
+                password: $scope.form.password,
+                twoFactorToken: twoFactorToken,
+                networkType: $scope.form.networkType
+            };
 
-                                // @TODO: we should have a checksum
-                                if (!secret || secret.length != 44) {
-                                    $log.error("failed to decrypt encryptedSecret");
-                                    secret = null;
-                                }
+            return loginFormService.login(data)
+                .then(loginFormSuccessHandler, loginFormErrorHandler);
+        }
 
-                                return secret;
+        function loginFormSuccessHandler(data) {
+            if (!$scope.form.forceNewWallet) {
+                $scope.setupInfo.identifier = data.existing_wallet || $scope.setupInfo.identifier;
+            }
+
+            $scope.setupInfo.password = $scope.form.password;
+            $scope.setupInfo.network = $scope.form.network;
+
+            $state.go('app.setup.wallet');
+        }
+
+        function loginFormErrorHandler(error) {
+            switch (error.type) {
+                case "BANNED_IP":
+                    $state.go("app.bannedip", { bannedIp: error.data });
+                    break;
+
+                case "SHA_512":
+                    return dialogService.alert({
+                        title: $translate.instant("SETUP_LOGIN_FAILED"),
+                        bodyHtml: $sce.trustAsHtml($translate.instant("MSG_UPGRADE_REQUIRED"))
+                    });
+                    break;
+
+                case "2FA_MISSING":
+                    return dialogService.prompt($translate.instant("SETUP_LOGIN"), $translate.instant("MSG_MISSING_TWO_FACTOR_TOKEN"))
+                        .result
+                        .then(function(token) {
+                                twoFactorToken = token;
+                                return login();
+                            }, function(e) {
+                                $scope.isLoading = false;
+                                throw e;
                             }
-                        })
-                        .then(function(secret) {
-                            return launchService.storeAccountInfo(_.merge({}, {secret: secret}, result.data)).then(function() {
-                                $log.debug("existing_wallet", result.data.existing_wallet);
-                                $log.debug("forceNewWallet", $scope.form.forceNewWallet);
+                        );
+                    break;
 
-                                if (!$scope.form.forceNewWallet) {
-                                    $scope.setupInfo.identifier = result.data.existing_wallet || $scope.setupInfo.identifier;
-                                }
-                                $scope.setupInfo.password = $scope.form.password;
+                case "2FA_INVALID":
+                    return dialogService.prompt($translate.instant("SETUP_LOGIN"), $translate.instant("MSG_INCORRECT_TWO_FACTOR_TOKEN"))
+                        .result
+                        .then(function(token) {
+                                twoFactorToken = token;
+                                return login();
+                            }, function(e) {
+                                $scope.isLoading = false;
+                                throw e;
+                            }
+                        );
+                    break;
 
-                                // save the default settings
-                                setupService.setUserInfo({
-                                    username: result.data.username,
-                                    displayName: result.data.username,
-                                    email: result.data.email
-                                });
+                case "MSG_BAD_LOGIN":
+                    $scope.error = "MSG_BAD_LOGIN";
+                    break;
 
-                                $state.go('app.setup.wallet');
-                            });
-                        })
-                    ;
-                },
-                function(error) {
-                    $scope.working = false;
+                case "MSG_BAD_LOGIN_UNKNOWN":
+                    $scope.error = "MSG_BAD_LOGIN_UNKNOWN";
+                    $scope.errorDetailed = error.data;
+                    break;
+            }
+        }
 
-                    if (error.data) {
-                        error = blocktrailSDK.Request.handleFailure(error.data);
+        function onFormChange(newValue, oldValue) {
+            $scope.error = null;
+            $scope.errorDetailed = null;
 
-                        if (error.is_banned) {
-                            return $state.go("app.bannedip", {bannedIp: error.is_banned});
+            if(newValue.networkType !== oldValue.networkType) {
+                sdkService.setNetworkType(newValue.networkType);
+            }
+        }
 
-                        } else if (error.requires_sha512) {
-                            return dialogService.alert({
-                                title: $translate.instant("SETUP_LOGIN_FAILED"),
-                                bodyHtml: $sce.trustAsHtml($translate.instant("MSG_UPGRADE_REQUIRED"))
-                            });
+        $scope.$on('$destroy', function() {
+            // Remove existing listeners
+            if(listenerForm) {
+                listenerForm();
+            }
 
-                        } else if (error instanceof blocktrailSDK.WalletMissing2FAError) {
-                            return dialogService.prompt(
-                                $translate.instant("SETUP_LOGIN"),
-                                $translate.instant("MSG_MISSING_TWO_FACTOR_TOKEN")
-                            )
-                                .result
-                                .then(
-                                    function(twoFactorToken) {
-                                        $scope.twoFactorToken = twoFactorToken;
-
-                                        return $scope.login();
-                                    },
-                                    function(e) {
-                                        $scope.working = false;
-
-                                        throw e;
-                                    }
-                                )
-                                ;
-                        } else if (error instanceof blocktrailSDK.WalletInvalid2FAError) {
-                            return dialogService.prompt(
-                                $translate.instant("SETUP_LOGIN"),
-                                $translate.instant("MSG_INCORRECT_TWO_FACTOR_TOKEN")
-                            )
-                                .result
-                                .then(
-                                    function(twoFactorToken) {
-                                        $scope.twoFactorToken = twoFactorToken;
-
-                                        return $scope.login();
-                                    },
-                                    function(e) {
-                                        $scope.working = false;
-
-                                        throw e;
-                                    }
-                                )
-                                ;
-                        } else {
-                            $scope.error = "MSG_BAD_LOGIN";
-                        }
-
-                    } else if(error) {
-                        console.log(error);
-                        $scope.error = "MSG_BAD_LOGIN_UNKNOWN";
-                        $scope.errorDetailed = "" + (error.message || error.msg || error);
-                        if ($scope.errorDetailed === ("" + {})) {
-                            $scope.errorDetailed = null;
-                        }
-                    } else {
-                        $scope.error = "MSG_BAD_NETWORK";
-                    }
-                }
-            );
-        };
+            $scope.alert.dismiss();
+        });
     }
 })();

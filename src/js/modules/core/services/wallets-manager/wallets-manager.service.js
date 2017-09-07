@@ -2,15 +2,15 @@
     "use strict";
 
     angular.module('blocktrail.core')
-        .factory('walletsManagerService', function($q, sdkService, walletService) {
-            return new WalletsManagerService($q, sdkService, walletService)
+        .factory('walletsManagerService', function($q, CONFIG, sdkService, walletService) {
+            return new WalletsManagerService($q, CONFIG, sdkService, walletService)
         });
 
-    function WalletsManagerService($q, sdkService, walletService) {
+    function WalletsManagerService($q, CONFIG, sdkService, walletService) {
         var self = this;
 
         self._$q = $q;
-        self._sdk = sdkService;
+        self._sdkService = sdkService;
         self._walletService = walletService;
 
         self._wallets = {};
@@ -23,15 +23,12 @@
      */
     WalletsManagerService.prototype.fetchWalletsList = function() {
         var self = this;
-        // TODO sync
-        return self._$q.when(self._sdk.sdk())
-            .then(function (sdk) {
-                return sdk.getAllWallets({mywallet: 1, limit: 200})
-                    .then(function(resp) {
-                        self._walletsList = resp.data;
 
-                        return self._walletsList;
-                    });
+        return self._sdkService.getSdkByActiveNetwork()
+            .getAllWallets({mywallet: 1, limit: 200})
+            .then(function(resp) {
+                self._walletsList = resp.data;
+                return self._walletsList;
             });
     };
 
@@ -59,11 +56,11 @@
      * Set the active wallet by id
      * @param id
      */
-    WalletsManagerService.prototype.setActiveWalletById = function(id) {
+    WalletsManagerService.prototype.setActiveWallet = function(id, networkType) {
         var self = this;
         var promise = null;
 
-        if(!self._isExistingWalletId(id)) {
+        if(!self._isExistingWallet(id, networkType)) {
             id = self._walletsList[0];
         }
 
@@ -100,11 +97,11 @@
      * @return {boolean}
      * @private
      */
-    WalletsManagerService.prototype._isExistingWalletId = function(id) {
+    WalletsManagerService.prototype._isExistingWallet = function(id, networkType) {
         var self = this;
 
         return !!self._walletsList.filter(function(item) {
-            return item.identifier === id;
+            return item.identifier === id && item.network === networkType;
         });
     };
 

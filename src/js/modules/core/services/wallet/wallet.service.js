@@ -92,7 +92,8 @@
             balance: 0,
             uncBalance: 0,
             blockHeight: 0,
-            identifier: self._sdkWallet.identifier
+            identifier: self._sdkWallet.identifier,
+            sdk: sdkWallet
         };
 
         self.isReady = self._initData();
@@ -126,6 +127,12 @@
         return self._readonlyDoc;
     };
 
+    Wallet.prototype.getSdk = function() {
+        var self = this;
+
+        return self._sdkWallet;
+    };
+
     Wallet.prototype._initData = function() {
         var self = this;
 
@@ -143,6 +150,7 @@
                 });
         }
     };
+
 
     /**
      * START polling
