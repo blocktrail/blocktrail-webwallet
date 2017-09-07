@@ -24,6 +24,7 @@ var readAppConfig = require('./gulp/readappconfig');
 var buildAppConfig = require('./gulp/buildappconfig');
 var streamAsPromise = require('./gulp/streamaspromise');
 var buildSRIMap = require('./gulp/sri');
+var sriHash = require('gulp-sri-hash');
 
 var DONT_MANGLE = ['Buffer', 'BigInteger', 'Point', 'Script', 'ECPubKey', 'ECKey', 'sha512_asm', 'asm', 'ECPair', 'HDNode', 'ngRaven'];
 
@@ -31,25 +32,11 @@ var isWatch = false;
 var isLiveReload = process.argv.indexOf('--live-reload') !== -1 || process.argv.indexOf('--livereload') !== -1;
 
 // determine SRI strategy
-var noSRI = false;
+var doSRI = true;
 if (process.argv.indexOf('--no-sri') !== -1) {
-    // even with you force --no-sri it requires the STATICSDIR to be set, because when it's NULL it will autodetect
-    //  and switch with new commits etc, which will make `gulp watch` fail horribly
-    if (!readAppConfig()['STATICSDIR']) {
-        throw new Error("STATICSDIR needs to be set to be able to build with --no-sri");
-    }
-    noSRI = true;
-} else {
-    // use config value if present
-    var configSRI = readAppConfig()['SRI'];
-    if (typeof configSRI !== "undefined" && configSRI !== null) {
-        noSRI = !configSRI;
-    } else {
-        // disable when `DEBUG=true` and `STATICSDIR=dev`, this is so that `gulp watch` doesn't have to rebuild everything all the time.
-        noSRI = readAppConfig()['DEBUG'] && readAppConfig()['STATICSDIR'];
-    }
+    doSRI = false;
 }
-var doSRI = !noSRI;
+
 if (process.argv.indexOf('--silent') === -1) {
     console.log('SRI?', doSRI);
 }
@@ -132,6 +119,7 @@ gulp.task('templates:index', ['appconfig', 'js', 'sass'], function() {
                         APPCONFIG_JSON: JSON.stringify(APPCONFIG),
                         TRANSLATIONS: JSON.stringify(translations)
                     }))
+                    .pipe(gulpif(doSRI, sriHash()))
                     .pipe(gulp.dest("./www"))
                 );
             });
@@ -150,6 +138,7 @@ gulp.task('templates:rest', ['appconfig'], function() {
                 base: './src/',
                 name: 'blocktrail.templates'
             }))
+            .pipe(gulpif(doSRI, sriHash()))
             .pipe(gulp.dest("./www/" + APPCONFIG.STATICSDIR + "/js"))
         );
     });
