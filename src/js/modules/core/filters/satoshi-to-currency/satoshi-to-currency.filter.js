@@ -4,7 +4,7 @@
     angular.module("blocktrail.core")
         .filter("satoshiToCurrency", satoshiToCurrency);
 
-    function satoshiToCurrency($rootScope, Currencies, CONFIG) {
+    function satoshiToCurrency($rootScope, Currencies, $filter) {
         var coin = 100000000;
         var precision = 8;
 
@@ -15,8 +15,6 @@
         };
 
         return function(input, currency, currencyRates, fractionSize, useMarkup, currencyDisplayMode) {
-            // normalize
-
             if (typeof currencyDisplayMode === "undefined" || currencyDisplayMode === false) {
                 currencyDisplayMode = CURRENCY_DISPLAY_MODE.SHORT;
             } else if (currencyDisplayMode === true) {
@@ -25,10 +23,10 @@
 
             currency = currency.toUpperCase();
 
-            var btc = parseFloat((input/ coin).toFixed(precision));
-            var localValue;
-            var symbol, long;
-            var currencyDisplay;
+            // deprecated
+            if (currency === "BTC") {
+                throw new Error("use satoshiToCoin filter instead");
+            }
 
             if (typeof fractionSize === "undefined") {
                 fractionSize = 2;
@@ -36,23 +34,27 @@
                 fractionSize = parseInt(fractionSize);
             }
 
-            // use global prices
+            var btc = parseFloat((input/ coin).toFixed(precision));
+            var localValue;
+            var symbol, long;
+            var currencyDisplay;
+
+            // use global prices if not provided
             if (typeof currencyRates === "undefined") {
                 currencyRates = $rootScope.bitcoinPrices;
             }
 
+            // calculate value in specified currency
             if (typeof currencyRates[currency] !== "undefined") {
                 localValue = (btc * currencyRates[currency]).toFixed(fractionSize);
             } else {
                 localValue = (0).toFixed(fractionSize);
             }
 
-            if (currency === 'BTC') {
-                symbol = CONFIG.TICKER;
-                long = CONFIG.TICKER_LONG;
-            } else if (typeof Currencies.currencies[currency] === "undefined") {
-                symbol = input;
-                long = input;
+            // if currency is unknown we use the currency for it
+            if (typeof Currencies.currencies[currency] === "undefined") {
+                symbol = currency;
+                long = currency;
             } else {
                 symbol = Currencies.currencies[currency].symbol || currency;
                 long = Currencies.currencies[currency].code || currency;
@@ -61,11 +63,7 @@
             currencyDisplay = currencyDisplayMode === CURRENCY_DISPLAY_MODE.LONG ? long : symbol;
             currencyDisplay = useMarkup ? ('<span class="disp">' + (currencyDisplay) + '</span>') : (" " + currencyDisplay);
 
-            if (currency === "BTC") {
-                return currencyDisplayMode === CURRENCY_DISPLAY_MODE.HIDE ? btc.toFixed(fractionSize) : btc.toFixed(fractionSize) + currencyDisplay;
-            } else {
-                return currencyDisplayMode === CURRENCY_DISPLAY_MODE.HIDE ? localValue : currencyDisplay + localValue;
-            }
+            return currencyDisplayMode === CURRENCY_DISPLAY_MODE.HIDE ? localValue : currencyDisplay + localValue;
         };
     }
 

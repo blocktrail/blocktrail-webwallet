@@ -7,7 +7,7 @@
     function setupStateConfig($stateProvider) {
         $stateProvider
             .state('app.logout', {
-                url: "/logout",
+                url: "/logout?continue",
                 controller: "LogoutCtrl"
             })
             .state('app.bannedip', {
@@ -22,6 +22,12 @@
                 controller: "LostLockCtrl",
                 templateUrl: "js/modules/setup/controllers/lost-lock/lost-lock.tpl.html"
             })
+            .state("app.loggedout", {
+                url: "/loggedout",
+                cache: false,
+                controller: "SetupLoggedoutCtrl",
+                templateUrl: "js/modules/setup/controllers/loggedout/loggedout.tpl.html"
+            })
             .state("app.setup", {
                 url: "/setup",
                 abstract: true,
@@ -31,7 +37,12 @@
                     globalLock: function(globalLockService) {
                         globalLockService.init();
                     },
-                    preferredLanguage: preferredLanguage
+                    preferredLanguage: preferredLanguage,
+                    sdkSetAccountInfo: function(launchService, sdkService) {
+                        return launchService.getAccountInfo().then(function(accountInfo) {
+                            return sdkService.setAccountInfo(accountInfo);
+                        });
+                    }
                 }
             })
             .state("app.setup.login", {
@@ -39,15 +50,6 @@
                 cache: false,
                 controller: "SetupLoginCtrl",
                 templateUrl: "js/modules/setup/controllers/login/login.tpl.html",
-                resolve: {
-                    handleSetupState: handleSetupState
-                }
-            })
-            .state("app.setup.loggedout", {
-                url: "/loggedout",
-                cache: false,
-                controller: "SetupLoggedoutCtrl",
-                templateUrl: "js/modules/setup/controllers/loggedout/loggedout.tpl.html",
                 resolve: {
                     handleSetupState: handleSetupState
                 }

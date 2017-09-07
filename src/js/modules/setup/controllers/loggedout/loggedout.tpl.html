@@ -1,14 +1,12 @@
-<div class="loggedoutWrapper">
-    <div>
-        <div class="col-md-6 col-md-offset-3 col-sm-12 col-xs-12 text-center">
+<div>
+    <navbar mode="'loggedout'"></navbar>
+
+    <div class="container">
+        <div class="loggedoutWrapper">
             <div class="alert alert-success">
                 <h2>{{'LOGGED_OUT_CONFIRMATION_TITLE' | translate }}</h2>
             </div>
-        </div>
-    </div>
 
-    <div>
-        <div class="col-md-6 col-md-offset-3 col-sm-12 col-xs-12 text-center">
             <p>{{'LOGGED_OUT_CONFIRMATION_TEXT' | translate }}</p>
             <div class="appstoreimages">
                 <a href="https://itunes.apple.com/us/app/btc.com-wallet-bitcoin-wallet/id1019614423?mt=8" target="_new">
@@ -20,4 +18,7 @@
             </div>
         </div>
     </div>
+
+    <div ng-include="'templates/common/footer.html'"></div>
 </div>
+

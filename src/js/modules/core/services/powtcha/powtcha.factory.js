@@ -7,7 +7,7 @@
     function PowtchaService($http, CONFIG, powtcha) {
 
         function fetchPoWtcha() {
-            return $http.get(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "t" : "") + CONFIG.NETWORK + "/mywallet/powtcha").then(function(result) {
+            return $http.get(CONFIG.API_URL + "/v1/mywallet/powtcha").then(function(result) {
                 return result.data;
             });
         }

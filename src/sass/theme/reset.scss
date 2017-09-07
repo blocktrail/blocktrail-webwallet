@@ -12,6 +12,7 @@ html {
 
 body {
     position: relative;
+    min-height: 100%;
     $background-color: $body-bg;
 
     &.state-app_wallet {
@@ -19,10 +20,11 @@ body {
         overflow: hidden;
     }
 
-    &.state-app_setup, &.state-app_bannedip {
+    &.state-app_setup {
         @extend .fill-height-or-more;
 
         padding-bottom: $big-footer-height * 2;
+
         @media (min-width: $screen-md-min) {
             padding-bottom: $big-footer-height;
         }
@@ -209,15 +211,49 @@ a:focus {
     background-color: $black-light;
     height: 100%;
 
-    .sidebar-nav {
-        padding-top: 70px;
+    .wallets-list-holder {
+        padding: 30px 18px 16px;
+
+        .wallets-list {
+            .dropdown-menu {
+                min-width: 100%;
+                max-height: 260px;
+                overflow-y: auto;
+                border-radius: 0;
+                padding: 0;
+                font-size: 17px;
+                line-height: 24px;
+
+                a {
+                    padding: 6px 16px;
+                }
+            }
+
+            .btn {
+                text-align: left;
+                background-color: #666;
+                color: white;
+                border-color: #666;
+                border-radius: 0;
+                padding: 12px 16px;
+                font-size: 18px;
+                font-weight: 400;
+
+                .text {
+                    float: left;
+                    width: calc(100% - 16px);
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            }
+        }
     }
 
-    ul {
+    .sidebar-nav {
         list-style: none;
         width: 100%;
         height: 100%;
-        padding: 100px 0px 0px 0px;
+        padding: 0;
 
         li {
             a {
@@ -902,6 +938,7 @@ $display-token-size: 50px;
         .custom-option {
             padding: 10px;
             display: block;
+            cursor: pointer;
 
             .custom-option-title {
                 font-weight: 400;
@@ -953,6 +990,10 @@ $display-token-size: 50px;
             background-color: white;
             z-index: 1;
             border: 1px solid $border-color;
+
+            .custom-option {
+                border-bottom: 1px solid #eee;
+            }
         }
     }
 
@@ -1036,9 +1077,13 @@ $display-token-size: 50px;
             }
         }
     }
+}
 
+.state-app_loggedout {
     .loggedoutWrapper {
+        text-align: center;
         padding: 80px 0px 20px 0px;
+
         .alert {
             h2 {
                 margin: 0px;
@@ -1049,6 +1094,7 @@ $display-token-size: 50px;
             padding: 20px 0px 20px 0px;
             font-size: $font-size-large;
         }
+
         .appstoreimages {
             margin-bottom:100px;
         }

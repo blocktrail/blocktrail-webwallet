@@ -1,6 +1,6 @@
 angular.module('blocktrail.wallet').factory(
     'launchService',
-    function(storageService, $q, $log, $http, CONFIG) {
+    function(storageService, $q, $log, $http, CONFIG, sdkService) {
         var LaunchService = function() {
             var self = this;
 
@@ -20,7 +20,7 @@ angular.module('blocktrail.wallet').factory(
                         return {};
                     })
                     .then(function(accountInfo) {
-                        var url = CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "t" : "") + CONFIG.NETWORK + "/mywallet/config?";
+                        var url = CONFIG.API_URL + "/v1/" + CONFIG.API_NETWORK + "/mywallet/config?";
                         var params = [
                             "v=" + (CONFIG.VERSION || ""),
                             "platform=web"
@@ -67,6 +67,8 @@ angular.module('blocktrail.wallet').factory(
 
             return self.getAccountInfo(true).then(
                 function(accountInfo) {
+                    sdkService.setAccountInfo(accountInfo);
+
                     return self.getWalletInfo(true).then(
                         function(walletInfo) {
                             return self.getBackupInfo(true).then(
@@ -194,7 +196,7 @@ angular.module('blocktrail.wallet').factory(
             return self._walletInfo;
         };
 
-        LaunchService.prototype.storeWalletInfo = function(identifier, encryptedPassword) {
+        LaunchService.prototype.storeWalletInfo = function(identifier, networkType) {
             var self = this;
 
             self._walletInfo = null;
@@ -203,7 +205,7 @@ angular.module('blocktrail.wallet').factory(
                 .then(function(doc) { return doc; }, function() { return {_id: "wallet_info"}; })
                 .then(function(doc) {
                         doc.identifier = identifier;
-                        doc.encryptedPassword = encryptedPassword;
+                        doc.networkType = networkType;
 
                         return self.storage.put(doc).then(function() {
                             return true;

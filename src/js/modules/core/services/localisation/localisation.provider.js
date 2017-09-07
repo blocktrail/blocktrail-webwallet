@@ -141,7 +141,7 @@
 
             // If everything fails, just return the preferred, unchanged.
             return preferred;
-        };
+        }
 
         function languageName(langKey) {
             return names[langKey.replace("_", "-")];

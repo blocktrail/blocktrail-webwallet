@@ -48,7 +48,7 @@ angular.module('blocktrail.wallet').factory(
                     params.euros = fiat;
                 }
 
-                return sdkService.sdk().then(function (sdk) {
+                return sdkService.getSdkByActiveNetwork().then(function (sdk) {
                     sdk.getSignedBitonicUrl(activeWallet._sdkWallet.identifier, params).then(function (result) {
 
                         return dialogService.prompt({

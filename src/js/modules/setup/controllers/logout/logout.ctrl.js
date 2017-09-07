@@ -4,20 +4,22 @@
     angular.module("blocktrail.setup")
         .controller("LogoutCtrl", LogoutCtrl);
 
-
-    function LogoutCtrl($window, storageService, CONFIG) {
-        storageService
-            .resetAll()
-            .then(function() {
-                if (CONFIG.PROMOTE_MOBILE) {
-                    $window.location.replace("/#/setup/loggedout");
-                } else {
-                    $window.location.replace("/#/setup/login");
-                }
-
-                $window.location.reload();
+    function LogoutCtrl($window, $stateParams, storageService, walletsManagerService) {
+        if ($stateParams.continue) {
+            $window.location.replace("/#/loggedout");
+        } else {
+            var activeWallet = walletsManagerService.getActiveWallet();
+            if (activeWallet) {
+                activeWallet.disablePolling();
             }
-        );
-    }
 
+            storageService
+                .resetAll()
+                .then(function() {
+                        $window.location.replace("/#/logout?continue=1");
+                        $window.location.reload();
+                    }
+                );
+        }
+    }
 })();

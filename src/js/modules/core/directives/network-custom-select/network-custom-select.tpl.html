@@ -1,0 +1,33 @@
+<div class="custom-select" ng-init="customSelect={showselect: false}">
+    <div class="custom-select-choice" ng-click="customSelect.showselect=true">
+        <span class="custom-select-arrow">
+            <i class="bticon bticon-down-open" ng-click=""></i>
+        </span>
+        <div class="custom-option">
+            <div class="row">
+                <div class="col-xs-9">
+                    <span class="custom-option-title">
+                        {{ CONFIG.NETWORKS[form.networkType].NETWORK_LONG }} ({{ CONFIG.NETWORKS[form.networkType].NETWORK }})
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="custom-select-menu"
+         ng-show="customSelect.showselect"
+         click-anywhere-but-here="customSelect.showselect = false"
+         is-active="customSelect.showselect == true"
+    >
+        <div class="custom-option"
+             ng-repeat="networkOption in networkTypes | orderBy:'index'"
+             ng-click="form.networkType = networkOption.value; customSelect.showselect=false">
+            <div class="row">
+                <div class="col-xs-9">
+                    <span class="custom-option-title sentence-case">
+                        {{ networkOption.label }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

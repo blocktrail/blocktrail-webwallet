@@ -6,7 +6,7 @@
             return new FormSettingsService($rootScope, $q, $http, $translate, sdkService, cryptoJS, launchService, settingsService, Currencies, blocktrailLocalisation);
         });
 
-    function FormSettingsService($rootScope, $q, $http, $translate, sdk, cryptoJS, launchService, settingsService, Currencies, blocktrailLocalisation) {
+    function FormSettingsService($rootScope, $q, $http, $translate, sdkService, cryptoJS, launchService, settingsService, Currencies, blocktrailLocalisation) {
         var self = this;
 
         // TODO Remove $rootScope
@@ -14,7 +14,7 @@
         self._$q = $q;
         self._$http = $http;
         self._$translate = $translate;
-        self._sdk = sdk;
+        self._sdkService = sdkService;
         self._cryptoJS = cryptoJS;
         self._launchService = launchService;
         self._settingsService = settingsService;
@@ -165,7 +165,7 @@
     FormSettingsService.prototype._getSdk = function () {
         var self = this;
 
-        return self._sdk.sdk();
+        return self._sdkService.getSdkByActiveNetwork();
     };
 
     /**

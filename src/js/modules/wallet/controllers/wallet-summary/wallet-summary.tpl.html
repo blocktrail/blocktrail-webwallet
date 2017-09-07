@@ -55,7 +55,7 @@
                         </div>
                         <div class="col-xs-4 text-right">
                             <div class="value received">
-                                {{ buybtcPendingOrder.qty | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}
+                                {{ buybtcPendingOrder.qty | satoshiToCoin : walletData.networkType }}
                             </div>
                         </div>
                     </div>
@@ -78,6 +78,7 @@
 
             <!-- Wallet transaction -->
             <wallet-transaction
+                    wallet-data="walletData"
                     transaction="transaction"
                     on-show-transaction="onShowTransaction(transaction)"
             ></wallet-transaction>

@@ -35,7 +35,7 @@
                 <td class="colCounter"> {{ (currentPage - 1) * itemsPerPage + items.indexOf(item) + 1 }}</td>
                 <td class="colAddress">
                     <a title="{{ 'CHECKOUT_AT_BTCCOM' | translate }}"
-                       href="{{ explorerAddressURL + '/' + item.address }}"
+                       href="{{ CONFIG.NETWORKS[walletData.networkType].EXPLORER_ADDRESS_URL + '/' + item.address }}"
                        target="_blank">
                         {{ item.address }}
                     </a>
@@ -59,7 +59,7 @@
                 <td class="colTxCount text-center">{{ item.tx_cnt }}</td>
                 <td class="colBalance text-center"
                     ng-class="{ 'positive-balance' : item.balance > 0 }">
-                    {{ item.balance | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 : false }}
+                    {{ item.balance | satoshiToCoin : walletData.networkType : false }}
                 </td>
             </tr>
             </tbody>

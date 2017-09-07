@@ -8,6 +8,7 @@
                                         $translate, $log, $timeout, trackingService) {
 
         var activeWallet = walletsManagerService.getActiveWallet();
+        var walletData = activeWallet.getReadOnlyWalletData();
 
         trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_START);
 
@@ -41,9 +42,14 @@
         var options = {
             batchSize: 50,
             accountBatchSize: 5,
-            network: CONFIG.NETWORK,
-            testnet: CONFIG.TESTNET
+            network: walletData.networkType,
+            testnet: false
         };
+
+        if (options.network.substr(0, 1) === "t") {
+            options.network = options.network.substr(1);
+            options.testnet = true;
+        }
 
         activeWallet.getNewAddress().then(function (address) {
             options.recipient = address;
@@ -150,7 +156,7 @@
         };
 
         $scope.publishRawTransaction = function () {
-            sdkService.sdk().then(function (sdk) {
+            sdkService.getSdkByActiveNetwork().then(function (sdk) {
                 sdk.sendRawTransaction($scope.sweepData.rawTx, function (err, result) {
                     $scope.working = false;
 

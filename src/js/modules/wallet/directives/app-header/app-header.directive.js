@@ -10,8 +10,7 @@
             replace: true,
             scope: {
                 pageTitle: '=',
-                balance: '=',
-                uncBalance: '=',
+                walletData: '=',
                 bitcoinPrices: '=',
                 settings: '='
             },

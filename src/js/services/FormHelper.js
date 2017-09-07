@@ -7,9 +7,11 @@ angular.module('blocktrail.wallet')
         this.setAllDirty = function(form) {
             // sets form and all form controls to dirty state
             form.$setDirty();
+
             angular.forEach(form.$error, function(value, index) {
                 angular.forEach(value, function(value, index) {
                     value.$dirty = true;
+                    value.$touched = true;
                     value.$pristine = false;
                 });
             });

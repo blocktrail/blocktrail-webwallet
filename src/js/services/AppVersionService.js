@@ -4,46 +4,11 @@ angular.module('blocktrail.wallet').factory(
         var _CHECKS = AppVersionBaseService.CHECKS;
         var isCheck = AppVersionBaseService.isCheck;
 
-        var GLIDERA_VERSION = 'v3.4.5';
-
         // priority order, first one met is used (allows older version update messages to be prioritized when a user jumps multiple versions)
         var UPDATE_MESSAGES = [
-            CONFIG.NETWORK === "BTC" ? ["3.5.0", "UPDATE_NOTICE_BTC_030500"] : null,
-            CONFIG.NETWORK === "BCC" ? ["3.5.0", "UPDATE_NOTICE_BCC_030500"] : null,
             ["3.4.7", "UPDATE_NOTICE_030407"],
             ["3.3.4", "UPDATE_NOTICE_030304"]
         ].clean();
-
-        var checkGlideraActivated = function() {
-            // only do the check if buybtc is activated and we're in loggedin state
-            if (CONFIG.BUYBTC && $state.includes('app.wallet')) {
-                return settingsService.getSettings()
-                    .then(function (settings) {
-                        var promise;
-
-                        if (settings.glideraActivationNoticePending) {
-                            var updateSettings = {
-                                glideraActivationNoticePending: false
-                            };
-
-                            promise = settingsService.updateSettingsUp(updateSettings);
-
-                            dialogService.alert({
-                                body: $translate.instant('GLIDERA_UPDATE'),
-                                title: $translate.instant('UPDATED_NOTICE')
-                            });
-                        } else {
-                            $q.when(true).then(function () {
-                               return settings;
-                            });
-                        }
-
-                        return promise;
-                    });
-            }
-        };
-
-        checkGlideraActivated();
 
         var CHECKS = {
             SETUP: 0,
@@ -51,21 +16,6 @@ angular.module('blocktrail.wallet').factory(
         };
 
         var checkVersion = function(latestVersion, versionInfo, checks) {
-            // if this version of the app supports glidera and it's new we glideraActivationNoticePending=true so that when glidera is activated we can display update notice
-            //  this is a special case because glidera is pending server activation
-            if ((latestVersion && isCheck(checks, _CHECKS.UPDATED) && $state.includes('app.wallet') && semver.lt(latestVersion, GLIDERA_VERSION))) {
-                settingsService.getSettings().then(function(settings) {
-                    if (settings.glideraActivationNoticePending === null) {
-                        var updateSettings = {
-                            glideraActivationNoticePending: true
-                        };
-
-                        settingsService.updateSettingsUp(updateSettings)
-                            .then(checkGlideraActivated);
-                    }
-                });
-            }
-
             var results = AppVersionBaseService.checkVersion(latestVersion, versionInfo, checks, UPDATE_MESSAGES);
             if (results) {
                 var match = results[0];

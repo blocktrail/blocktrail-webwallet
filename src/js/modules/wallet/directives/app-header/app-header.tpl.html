@@ -7,8 +7,8 @@
         <div class="col-xs-8">
             <div class="text-right">
                 <h1>
-                    {{ (balance + uncBalance) | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 : false : 'long' }}
-                    <small>≃ {{ (balance + uncBalance) | satoshiToCurrency : settings.localCurrency : bitcoinPrices }}</small>
+                    {{ (walletData.balance + walletData.uncBalance) | satoshiToCoin : walletData.networkType : 8 : false : 'long' }}
+                    <small>≃ {{ (walletData.balance + walletData.uncBalance) | satoshiToCurrency : settings.localCurrency : bitcoinPrices }}</small>
                 </h1>
             </div>
         </div>

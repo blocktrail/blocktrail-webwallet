@@ -4,41 +4,42 @@
     var POUCHDB_ERR_CONFLICT = 409;
 
     angular.module('blocktrail.core')
-        .factory('walletService', function($q, $timeout, bitcoinJS, sdkService, storageService, settingsService, Contacts) {
-            return new WalletService($q, $timeout, bitcoinJS, sdkService, storageService, settingsService, Contacts)
+        .factory('walletService', function($q, $timeout, bitcoinJS, sdkService, storageService, settingsService, Contacts, CONFIG) {
+            return new WalletService($q, $timeout, bitcoinJS, sdkService, storageService, settingsService, Contacts, CONFIG)
         });
     
-    function WalletService($q, $timeout, bitcoinJS, sdkService, storageService, settingsService, Contacts) {
+    function WalletService($q, $timeout, bitcoinJS, sdkService, storageService, settingsService, Contacts, CONFIG) {
         var self = this;
 
         self._$q = $q;
         self._$timeout = $timeout;
         self._bitcoinJS = bitcoinJS;
-        self._sdk = sdkService;
+        self._sdkService = sdkService;
         self._storageService = storageService;
         self._settingsService = settingsService;
         self._contactsService = Contacts;
+        self._CONFIG = CONFIG;
     }
 
-    WalletService.prototype.initWallet = function(walletId) {
+    WalletService.prototype.initWallet = function(networkType, identifier, uniqueIdentifier) {
         var self = this;
 
-        return self._$q.when(self._sdk.sdk())
-            .then(self._sdkInitWallet.bind(self, walletId), self._errorHandler.bind(self))
-            .then(self._initWallet.bind(self, walletId));
+        return self._$q.when(self._sdkService.getSdkByNetworkType(networkType))
+            .then(self._sdkInitWallet.bind(self, identifier), self._errorHandler.bind(self))
+            .then(self._initWallet.bind(self, networkType, uniqueIdentifier));
     };
 
-    WalletService.prototype._sdkInitWallet = function(walletId, sdk) {
+    WalletService.prototype._sdkInitWallet = function(identifier, sdk) {
         return sdk.initWallet({
-            identifier: walletId,
+            identifier: identifier,
             readOnly: true,
             bypassNewAddressCheck: true
         });
     };
 
-    WalletService.prototype._initWallet = function(walletId, sdkWallet) {
+    WalletService.prototype._initWallet = function(networkType, uniqueIdentifier, sdkWallet) {
         var self = this;
-        var wallet =  new Wallet(sdkWallet, self._$q, self._$timeout,  self._bitcoinJS, self._storageService, self._settingsService, self._contactsService);
+        var wallet =  new Wallet(sdkWallet, networkType, uniqueIdentifier, self._CONFIG.NETWORKS[networkType].TX_FILTER_MIN_BLOCK_HEIGHT, self._$q, self._$timeout,  self._bitcoinJS, self._storageService, self._settingsService, self._contactsService);
 
         return wallet.isReady;
     };
@@ -47,22 +48,15 @@
         throw new Error(e);
     };
 
-
     /**
      * WALLET CLASS
-     * @param sdkWallet
-     * @param $q
-     * @param $timeout
-     * @param bitcoinJS
-     * @param storageService
-     * @param settingsService
-     * @param contactsService
+
      * @constructor
      */
     // TODO Remove glidera transactions form the settings service and remove 'settingsService' from wallet
     // TODO Create a method for updating contacts and and remove 'contactsService' from wallet
     // TODO Or try to handle this in the avatar directive
-    function Wallet(sdkWallet, $q, $timeout, bitcoinJS, storageService, settingsService, contactsService) {
+    function Wallet(sdkWallet, networkType, uniqueIdentifier, TX_FILTER_MIN_BLOCK_HEIGHT, $q, $timeout, bitcoinJS, storageService, settingsService, contactsService) {
         var self = this;
 
         console.log('new Wallet', sdkWallet.identifier);
@@ -72,6 +66,7 @@
         self._bitcoinJS = bitcoinJS;
         self._contactsService = contactsService;
         self._settingsService = settingsService;
+        self._TX_FILTER_MIN_BLOCK_HEIGHT = TX_FILTER_MIN_BLOCK_HEIGHT;
 
         self._isInitData = false;
 
@@ -92,7 +87,9 @@
             balance: 0,
             uncBalance: 0,
             blockHeight: 0,
-            identifier: self._sdkWallet.identifier
+            identifier: self._sdkWallet.identifier,
+            networkType: networkType,
+            uniqueIdentifier: uniqueIdentifier
         };
 
         self.isReady = self._initData();
@@ -124,6 +121,12 @@
         var self = this;
 
         return self._readonlyDoc;
+    };
+
+    Wallet.prototype.getSdkWallet = function() {
+        var self = this;
+
+        return self._sdkWallet;
     };
 
     Wallet.prototype._initData = function() {
@@ -312,10 +315,10 @@
     Wallet.prototype._getBalanceFromStorage = function() {
         var self = this;
 
-        return self._$q.when(self._walletStore.get(self._getUniqueId("balance")))
+        return self._$q.when(self._walletStore.get(self._getUniqueIdentifier("balance")))
             .catch(function () {
                 return {
-                    _id: self._getUniqueId("balance"),
+                    _id: self._getUniqueIdentifier("balance"),
                     balance: 0,
                     uncBalance: 0
                 };
@@ -410,16 +413,16 @@
     Wallet.prototype._getBlockHeightFromStorage = function() {
         var self = this;
 
-        return self._$q.when(self._walletStore.get(self._getUniqueId("block-height")))
+        return self._$q.when(self._walletStore.get(self._getUniqueIdentifier("block-height")))
+            .catch(function() {
+                return {
+                    _id: self._getUniqueIdentifier("block-height"),
+                    height: null
+                };
+            })
             .then(function(doc) {
                 console.log('_getBlockHeightFromStorage', doc.height, doc._rev);
                 return doc;
-            })
-            .catch(function() {
-                return {
-                    _id: self._getUniqueId("block-height"),
-                    height: null
-                };
             });
     };
 
@@ -494,10 +497,10 @@
     Wallet.prototype._getLastBlockHashFromStorage = function() {
         var self = this;
 
-        return self._walletStore.get(self._getUniqueId("last-block-hash"))
+        return self._walletStore.get(self._getUniqueIdentifier("last-block-hash"))
             .catch(function() {
                 return {
-                    _id: self._getUniqueId("last-block-hash"),
+                    _id: self._getUniqueIdentifier("last-block-hash"),
                     hash: null
                 };
             });
@@ -571,10 +574,10 @@
     Wallet.prototype._getTransactionsHistoryFromStorage = function() {
         var self = this;
 
-        return self._walletStore.get(self._getUniqueId("transactions-history"))
+        return self._walletStore.get(self._getUniqueIdentifier("transactions-history"))
             .catch(function() {
                 return {
-                    _id: self._getUniqueId("transactions-history"),
+                    _id: self._getUniqueIdentifier("transactions-history"),
                     confirmed: [],
                     unconfirmed: []
                 }
@@ -754,10 +757,10 @@
     Wallet.prototype._getTransactionFromStorageByHash = function(transactionHash, transaction) {
         var self = this;
 
-        return self._$q.when(self._walletStore.get(self._getUniqueId("transaction", transactionHash)))
+        return self._$q.when(self._walletStore.get(self._getUniqueIdentifier("transaction", transactionHash)))
             .catch(function() {
                 return {
-                    _id: self._getUniqueId("transaction", transaction.hash),
+                    _id: self._getUniqueIdentifier("transaction", transaction.hash),
                     data: transaction ? transaction : {}
                 }
             });
@@ -773,7 +776,7 @@
         var self = this;
 
         return self._setTransactionToStorage({
-            _id: self._getUniqueId("transaction", transaction.hash),
+            _id: self._getUniqueIdentifier("transaction", transaction.hash),
             data: transaction
         });
     };
@@ -915,6 +918,12 @@
         // TODO Create a method and call it on new contacts
         return self._extentTransactionsWithContactsAndGlideraData(transactions)
             .then(function() {
+                if (self._TX_FILTER_MIN_BLOCK_HEIGHT) {
+                    transactions = transactions.filter(function(transaction) {
+                        return transaction.block_height === null || transaction.block_height >= self._TX_FILTER_MIN_BLOCK_HEIGHT;
+                    })
+                }
+
                 self._walletData.transactions
                     .splice
                     .apply(self._walletData.transactions, [0, self._walletData.transactions.length]
@@ -1029,21 +1038,21 @@
      * @return { string }
      * @private
      */
-    Wallet.prototype._getUniqueId = function(type, id) {
+    Wallet.prototype._getUniqueIdentifier = function(type, id) {
         var idWithPrefix;
         var self = this;
 
         switch (type) {
             // +++
             case "balance":
-                idWithPrefix = self._sdkWallet.identifier + ":bc";
+                idWithPrefix = self._walletData.uniqueIdentifier + ":bc";
                 break;
             // +++
             case "block-height":
-                idWithPrefix = self._sdkWallet.identifier + ":bh";
+                idWithPrefix = self._walletData.uniqueIdentifier + ":bh";
                 break;
             case "addresses":
-                idWithPrefix = self._sdkWallet.identifier + ":ad";
+                idWithPrefix = self._walletData.uniqueIdentifier + ":ad";
                 break;
             // +++
             case "transaction":
@@ -1052,15 +1061,15 @@
                         message: "method _addIdPrefix, id for transaction should be defined"
                     });
                 }
-                idWithPrefix = self._sdkWallet.identifier + ":tx:" + id;
+                idWithPrefix = self._walletData.uniqueIdentifier + ":tx:" + id;
                 break;
             // +++
             case "transactions-history":
-                idWithPrefix = self._sdkWallet.identifier + ":th";
+                idWithPrefix = self._walletData.uniqueIdentifier + ":th";
                 break;
             // +++
             case "last-block-hash":
-                idWithPrefix = self._sdkWallet.identifier + ":lh";
+                idWithPrefix = self._walletData.uniqueIdentifier + ":lh";
                 break;
             default:
                 self._errorHandler({
@@ -1138,12 +1147,12 @@
 
         self.isRefilling = true;
 
-        return self.addressRefillPromise = self._walletStore.get(self._getUniqueId("addresses"))
+        return self.addressRefillPromise = self._walletStore.get(self._getUniqueIdentifier("addresses"))
             .then(function(addressesDoc) {
                 return addressesDoc;
-            }, function(e) {
+            }, function() {
                 return {
-                    _id: self._getUniqueId("addresses"),
+                    _id: self._getUniqueIdentifier("addresses"),
                     available: []
                 }
             })
@@ -1159,11 +1168,11 @@
                         });
                     })).then(function() {
                         // fetch doc again, might have been modified!
-                        self._walletStore.get(self._getUniqueId("addresses"))
+                        self._walletStore.get(self._getUniqueIdentifier("addresses"))
                             .then(function(r) {
                                 return r;
                             }, function(e) { return {
-                                _id: self._getUniqueId("addresses"),
+                                _id: self._getUniqueIdentifier("addresses"),
                                 available: []}
                             })
                             .then(function(_addressesDoc) {
@@ -1200,7 +1209,7 @@
             function(address) {
                 return address;
             },
-            function(e) {
+            function() {
                 return self._sdkWallet.getNewAddress().then(function(result) {
                     return result[0];
                 });
@@ -1211,7 +1220,7 @@
     Wallet.prototype.getNewOfflineAddress = function() {
         var self = this;
 
-        return self._walletStore.get(self._getUniqueId("addresses"))
+        return self._walletStore.get(self._getUniqueIdentifier("addresses"))
             .then(function(addressesDoc) {
                     var address = addressesDoc.available.shift();
                     if (!address) {

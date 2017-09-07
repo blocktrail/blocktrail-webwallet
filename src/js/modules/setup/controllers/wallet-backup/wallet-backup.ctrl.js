@@ -30,15 +30,14 @@
 
         // hacky, we asume that user won't click generate backup before this promise is finished
         if (!$scope.setupInfo.backupInfo.blocktrailPublicKeys) {
-            sdkService.sdk().then(function(sdk) {
-                $scope.setupInfo.backupInfo.blocktrailPublicKeys = {};
-                angular.forEach(backupInfo.blocktrailPublicKeys, function(pubkey, key) {
-                    $scope.setupInfo.backupInfo.blocktrailPublicKeys[pubkey.keyIndex] = bitcoinJS.HDNode.fromBase58(pubkey.pubKey, sdk.network);
-                });
+            var sdk = sdkService.getSdkByActiveNetwork();
+            $scope.setupInfo.backupInfo.blocktrailPublicKeys = {};
+            angular.forEach(backupInfo.blocktrailPublicKeys, function(pubkey, key) {
+                $scope.setupInfo.backupInfo.blocktrailPublicKeys[pubkey.keyIndex] = bitcoinJS.HDNode.fromBase58(pubkey.pubKey, sdk.network);
             });
         }
 
-        $scope.backupPageError  = false;
+        $scope.backupPageError = false;
 
         $scope.export = function() {
             var extraInfo = [];
@@ -58,11 +57,11 @@
                     });
                 }
 
-                var backup = new sdkService.BackupGenerator(
+                var backup = new blocktrailSDK.BackupGenerator(
                     $scope.setupInfo.identifier,
                     $scope.setupInfo.backupInfo,
                     extraInfo,
-                    {network: CONFIG.NETWORK_LONG}
+                    {network: CONFIG.NETWORKS[sdkService.getNetworkType()].NETWORK_LONG}
                 );
 
                 try {
@@ -73,7 +72,7 @@
                         } else {
                             $scope.backupSaved = true;
                             $scope.backupPDF = pdf;
-                            $scope.backupPDF.save("BTC.com " + CONFIG.NETWORK_LONG + " Wallet Recovery Backup Sheet - " + $scope.setupInfo.identifier + ".pdf");
+                            $scope.backupPDF.save("BTC.com " + CONFIG.NETWORKS[sdkService.getNetworkType()].NETWORK_LONG + " Wallet Recovery Backup Sheet - " + $scope.setupInfo.identifier + ".pdf");
                         }
                     });
                 } catch (error) {
@@ -96,7 +95,7 @@
                 launchService.clearBackupInfo()
                     .then(function() {
                         return launchService.getWalletInfo().then(function(walletInfo) {
-                            return walletsManagerService.setActiveWalletById(walletInfo.identifier);
+                            return walletsManagerService.setActiveWalletByNetworkTypeAndIdentifier(sdkService.getNetworkType(), walletInfo.identifier);
                         })
                     })
                     .then(function() {

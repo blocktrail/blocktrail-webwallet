@@ -9,8 +9,7 @@
         </div>
 
         <div class="collapse navbar-collapse" id="blocktrail-webwallet-nav">
-
-            <ul class="nav navbar-nav pull-right" ng-if="( $state.is('app.lostlock') || $state.is('app.setup.register') || $state.is('app.setup.login') || $state.is('app.setup.loggedout'))">
+            <ul class="nav navbar-nav pull-right" ng-if="mode == 'loggedout'">
                 <li ng-class="{'active':$state.is('app.setup.register')}">
                     <a ui-sref="app.setup.register">{{ 'NAVBAR_SIGNUP' | translate }}</a>
                 </li>
@@ -19,7 +18,7 @@
                 </li>
             </ul>
 
-            <ul class="nav navbar-nav" ng-if="!$state.includes('app.lostlock') && !$state.includes('app.wallet') && !$state.includes('app.setup')">
+            <ul class="nav navbar-nav" ng-if="mode == 'explorer'">
                 <li>
                     <a href="/">{{ 'NAVBAR_HOME' | translate }}</a>
                 </li>
@@ -37,7 +36,7 @@
                 </li>
             </ul>
 
-            <div class="searchbar"  ng-if="!$state.includes('app.lostlock') && !$state.includes('app.wallet') && !$state.includes('app.setup')">
+            <div class="searchbar"  ng-if="mode == 'explorer'">
                 <div class="searchbar-inner">
                     <form action="https://www.btc.com/search/" method="GET" class="searchbar-form clearfix" onsubmit="this.q.value = this.q.value.trim()">
                         <button class="searchbar-submit" type="submit">
@@ -55,7 +54,7 @@
             </div>
 
 
-            <ul class="nav navbar-nav navbar-right" ng-if="$state.includes('app.wallet')">
+            <ul class="nav navbar-nav navbar-right" ng-if="mode == 'loggedin'">
                 <li>
                     <a ui-sref="app.logout">{{ 'LOGOUT' | translate }}</a>
                 </li>

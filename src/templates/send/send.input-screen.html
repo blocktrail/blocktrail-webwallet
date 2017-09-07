@@ -8,7 +8,7 @@
                            type="text"
                            ng-model="sendInput.recipientAddress"
                            ng-change="onRecipientChange()"
-                           placeholder="{{ 'BITCOIN_ADDRESS' | translate : {network: CONFIG.NETWORK_LONG} }}"
+                           placeholder="{{ 'BITCOIN_ADDRESS' | translate : {network: CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG} }}"
                            autocomplete="off"
                            name="recipient"
                            class="form-control"
@@ -72,7 +72,7 @@
                                         </span>
                                     </div>
                                     <div class="col-xs-3">
-                                        <span class="custom-option-fee" ng-if="fees.optimal">{{ fees.optimal | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}</span>
+                                        <span class="custom-option-fee" ng-if="fees.optimal">{{ fees.optimal | satoshiToCoin : walletData.networkType }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -87,7 +87,7 @@
                                         </span>
                                     </div>
                                     <div class="col-xs-3">
-                                        <span class="custom-option-fee" ng-if="fees.lowPriority">{{ fees.lowPriority | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}</span>
+                                        <span class="custom-option-fee" ng-if="fees.lowPriority">{{ fees.lowPriority | satoshiToCoin : walletData.networkType }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -105,7 +105,7 @@
                                         </span>
                                     </div>
                                     <div class="col-xs-3">
-                                        <span class="custom-option-fee extra-top" ng-if="fees.minRelayFee && (prioboost.possible)">{{ fees.minRelayFee | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}</span>
+                                        <span class="custom-option-fee extra-top" ng-if="fees.minRelayFee && (prioboost.possible)">{{ fees.minRelayFee | satoshiToCoin : walletData.networkType }}</span>
                                         <span class="error custom-option-fee extra-top" ng-if="prioboost.credits > 0 && (prioboost.tooLarge || prioboost.zeroConf)">{{ 'PRIOBOOST_NOT_POSSIBLE' | translate }}</span>
                                         <span class="error custom-option-fee extra-top" ng-if="prioboost.credits <= 0">{{ 'PRIOBOOST_NO_CREDITS_SHORT' | translate }}</span>
                                     </div>
@@ -128,7 +128,7 @@
                                         </span>
                                     </div>
                                     <div class="col-xs-3">
-                                        <span class="custom-option-fee" ng-if="fees.optimal">{{ fees.optimal | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}</span>
+                                        <span class="custom-option-fee" ng-if="fees.optimal">{{ fees.optimal | satoshiToCoin : walletData.networkType }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -146,13 +146,13 @@
                                         </span>
                                     </div>
                                     <div class="col-xs-3">
-                                        <span class="custom-option-fee" ng-if="fees.lowPriority">{{ fees.lowPriority | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}</span>
+                                        <span class="custom-option-fee" ng-if="fees.lowPriority">{{ fees.lowPriority | satoshiToCoin : walletData.networkType }}</span>
                                     </div>
                                 </div>
                             </div>
                             <hr style="margin :0px;" />
                             <div class="custom-option"
-                                 ng-if="CONFIG.PRIOBOOST"
+                                 ng-if="CONFIG.NETWORKS[walletData.networkType].PRIOBOOST"
                                  ng-class="{selected: sendInput.feeChoice == PRIOBOOST, error: !prioboost.possible}"
                                  ng-click="sendInput.feeChoice = PRIOBOOST; showselect = false;">
                                 <div class="row">
@@ -168,7 +168,7 @@
                                         </span>
                                     </div>
                                     <div class="col-xs-3">
-                                        <span class="custom-option-fee extra-top" ng-if="fees.minRelayFee && (prioboost.possible)">{{ fees.minRelayFee | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 }}</span>
+                                        <span class="custom-option-fee extra-top" ng-if="fees.minRelayFee && (prioboost.possible)">{{ fees.minRelayFee | satoshiToCoin : walletData.networkType }}</span>
                                         <span class="error custom-option-fee extra-top" ng-if="prioboost.credits > 0 && (prioboost.tooLarge || prioboost.zeroConf)">{{ 'PRIOBOOST_NOT_POSSIBLE' | translate }}</span>
                                         <span class="error custom-option-fee extra-top" ng-if="prioboost.credits <= 0">{{ 'PRIOBOOST_NO_CREDITS_SHORT' | translate }}</span>
                                     </div>

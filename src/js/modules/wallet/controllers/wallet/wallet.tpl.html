@@ -1,29 +1,80 @@
-<div ng-include="'templates/common/navbar.html'"></div>
+<navbar mode="'loggedin'"></navbar>
 
 <div class="appWrapper">
-    <div class="appContainer container">
+    <div
+        class="appContainer container page-blur"
+        ng-class="{'page-blur-active': isLoadingNewWallet}"
+    >
         <!-- Left column -->
         <div class="app-left-col">
             <div class="mainMenu">
-                <div ng-if="debugMode" style="border: 1px dashed #fff;" class="iit-10 iil-15 iir-15 iib-10">
-                    <p style="color: #fff;">Debug mode only</p>
-                    <p style="color: #fff;">{{ walletData.identifier }}</p>
-                    <p style="color: #fff;">{{ activeWalletIdentifier }}</p>
-
-                    <select ng-model="activeWalletIdentifier"
-                            ng-change="onChangeActiveWallet(activeWalletIdentifier)">
-                        <option ng-repeat="option in walletsList"
-                                ng-if="option.network === CONFIG.NETWORK"
-                                value="{{ option.identifier }}">
-                            [{{ option.network }}] {{ option.identifier }} ({{ option.balance | satoshiToCurrency : 'BTC' : bitcoinPrices : 5 }})
-                        </option>
-                    </select>
+                <!-- Wallets list PROD normal case -->
+                <div
+                        ng-if="!CONFIG.DEBUG && walletsListOptions.length <= 2"
+                        class="wallets-list-holder"
+                >
+                    <div class="wallets-list" dropdown>
+                        <button type="button" class="btn btn-default btn-block" dropdown-toggle>
+                            <span class="text">{{ CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG }}</span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="option in walletsListOptions">
+                                <a class="pointer" ng-click="onClickSetActiveWallet(option.value)">
+                                    {{ CONFIG.NETWORKS[option.wallet.network].NETWORK_LONG }}
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
+                <!-- Wallets list PROD more than 2 wallets case -->
+                <div
+                        ng-if="!CONFIG.DEBUG && walletsListOptions.length > 2"
+                        class="wallets-list-holder"
+                >
+                    <div class="wallets-list" dropdown>
+                        <button type="button" class="btn btn-default btn-block" dropdown-toggle>
+                            <span class="text">{{ CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG }}: {{ walletData.identifier }}</span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="option in walletsListOptions">
+                                <a class="pointer" ng-click="onClickSetActiveWallet(option.value)">
+                                    {{ CONFIG.NETWORKS[option.wallet.network].NETWORK_LONG }}: {{ option.wallet.identifier }}
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Wallets list DEV -->
+                <div
+                    ng-if="CONFIG.DEBUG"
+                    class="wallets-list-holder"
+                >
+                    <p style="color: #fff;">{{ walletData.identifier }}</p>
+
+                    <div class="wallets-list" dropdown>
+                        <button type="button" class="btn btn-default btn-block" dropdown-toggle>
+                            <span class="text">
+                                {{ walletData.networkType }} ({{ walletData.balance | satoshiToCoin : 'BTC' : 4 }}) {{ walletData.identifier }}
+                            </span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="option in walletsListOptions">
+                                <a class="pointer" ng-click="onClickSetActiveWallet(option.value)">
+                                    {{ option.wallet.network }} ({{ option.wallet.balance | satoshiToCoin : 'BTC' : 4 }}) {{ option.wallet.identifier }}
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
                 <!-- Side Nav -->
                 <wallet-side-nav list="sideNavList"></wallet-side-nav>
                 <!-- App store buttons -->
-                <wallet-app-store-buttons data="appStoreButtonsData"></wallet-app-store-buttons>
+                <wallet-app-store-buttons language="settings.language"></wallet-app-store-buttons>
             </div>
         </div>
         <!-- Right column -->
@@ -31,8 +82,7 @@
             <!-- App header -->
             <app-header
                     page-title="pageTitle"
-                    balance="walletData.balance"
-                    unc-balance="walletData.uncBalance"
+                    wallet-data="walletData"
                     bitcoin-prices="bitcoinPrices"
                     settings="settings"
             ></app-header>
@@ -40,6 +90,14 @@
             <div class="app-body" id="app-body">
                 <div class="app-body-container" ui-view="mainView"></div>
             </div>
+        </div>
+
+        <!-- Loader overlay -->
+        <div
+            class="page-loader"
+            ng-class="{'active': isLoadingNewWallet}"
+        >
+            <loading-spinner></loading-spinner>
         </div>
     </div>
 </div>

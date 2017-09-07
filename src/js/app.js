@@ -39,16 +39,19 @@ angular.module('blocktrail.wallet').config(function() {
 });
 
 angular.module('blocktrail.wallet').run(
-    function($rootScope, $state, $log, $interval, $timeout, blocktrailLocalisation, storageService, CONFIG, $locale, $translate, amMoment) {
+    function($rootScope, $state, $log, $interval, $timeout, $locale, $translate, CONFIG, amMoment, blocktrailLocalisation, sdkService) {
+        var bodyStateClasses = [];
+        var networkClassType = "";
+
+        $rootScope.sdkReadOnlySdkData = sdkService.getReadOnlySdkData();
+
         $rootScope.CONFIG       = CONFIG || {};
         $rootScope.$state       = $state;
         $rootScope.appVersion   = CONFIG.VERSION || CONFIG.VERSION_REV;
 
-        $rootScope.bodyClass = [("network-" + CONFIG.NETWORK).toLowerCase()];
-        $rootScope.bodyClassStr = "";
-
-        $rootScope.explorerAddressURL = CONFIG.EXPLORER_ADDRESS_URL;
-        $rootScope.explorerTxURL = CONFIG.EXPLORER_TX_URL;
+        $rootScope.getBodyClasses = function() {
+            return bodyStateClasses.concat([networkClassType]);
+        };
 
         $rootScope.changeLanguage = function(language) {
             language = language || blocktrailLocalisation.preferredAvailableLanguage() || CONFIG.FALLBACK_LANGUAGE || 'en';
@@ -63,6 +66,15 @@ angular.module('blocktrail.wallet').run(
 
             $translate.use(language);
         };
+
+        $rootScope.$watch("sdkReadOnlySdkData.networkType", function(newValue) {
+            var network = CONFIG.NETWORKS[newValue].NETWORK;
+            if (network.substr(0, 1) === "t") {
+                network = network.substr(1);
+            }
+
+            networkClassType = newValue ? ("network-" + network).toLowerCase(): "";
+        });
 
         $rootScope.$on("$stateChangeError", function(event, toState, toParams, fromState, fromParams, error) {
             $log.error("Error transitioning to " + toState.name + " from  " + fromState.name, toState, fromState, error);
@@ -83,7 +95,9 @@ angular.module('blocktrail.wallet').run(
 
         $rootScope.$on("$stateChangeSuccess", function(event, toState, toParams, fromState, fromParams) {
             $log.debug("$stateChangeSuccess", toState.name, Object.keys(toParams).map(function(k) { return k + ":" + toParams[k]; }));
-
+            var name = [];
+            bodyStateClasses = [];
+            
             if (window.Raven) {
                 Raven.setTagsContext({
                     state: toState && toState.name,
@@ -91,24 +105,10 @@ angular.module('blocktrail.wallet').run(
                 });
             }
 
-            var name;
-
-            name = [];
-            fromState.name.split('.').forEach(function(part) {
-                name.push(part);
-                var idx = $rootScope.bodyClass.indexOf('state-' + name.join("_"));
-                if (idx !== -1) {
-                    $rootScope.bodyClass.splice(idx, 1);
-                }
-            });
-
-            name = [];
             toState.name.split('.').forEach(function(part) {
                 name.push(part);
-                $rootScope.bodyClass.push('state-' + name.join("_"));
+               bodyStateClasses.push('state-' + name.join("_"));
             });
-
-            $rootScope.bodyClassStr = $rootScope.bodyClass.join(" ");
         });
 
         $rootScope.$on("$stateChangeError", function(event, toState, toParams, fromState, fromParams) {
@@ -246,7 +246,7 @@ angular.module('blocktrail.wallet').config(
                             .then(function(result) {
                                 var bannedIp = result.is_banned_ip;
                                 if (bannedIp) {
-                                    $state.go("app.bannedip", {bannedIp: bannedIp});
+                                    $state.go("app.bannedip", { bannedIp: bannedIp });
                                 } else if (result.api_key && (result.api_key !== 'ok')) {
                                     // alert user session is invalid
                                     dialogService.alert({
@@ -263,31 +263,48 @@ angular.module('blocktrail.wallet').config(
                                 }
                             })
                     },
-                    activeWallet: function($state, launchService, walletsManagerService) {
-                        return walletsManagerService.fetchWalletsList()
-                            .then(function() {
-                                return launchService.getWalletInfo().then(function(walletInfo) {
-                                    var activeWallet = walletsManagerService.getActiveWallet();
+                    activeWallet: function($state, $q, launchService, sdkService, walletsManagerService) {
+                        return $q.all([launchService.getAccountInfo(), launchService.getWalletInfo()])
+                            .then(function(data) {
+                                var accountInfo = data[0];
+                                var walletInfo = data[1];
 
-                                    // active wallet is null when we load first time
-                                    if(!activeWallet) {
-                                        activeWallet = walletsManagerService.setActiveWalletById(walletInfo.identifier);
-                                    }
+                                if (!walletInfo.networkType || !walletInfo.identifier) {
+                                    $state.go('app.logout');
+                                    return;
+                                }
 
-                                    return activeWallet;
-                                });
+                                sdkService.setAccountInfo(accountInfo);
+                                sdkService.setNetworkType(walletInfo.networkType);
+
+                                return walletsManagerService.fetchWalletsList()
+                                    .then(function() {
+                                        var activeWallet = walletsManagerService.getActiveWallet();
+
+                                        // active wallet is null when we load first time
+                                        if(!activeWallet) {
+                                            activeWallet = walletsManagerService.setActiveWalletByNetworkTypeAndIdentifier(walletInfo.networkType, walletInfo.identifier);
+                                        } else {
+                                            sdkService.setNetworkType(activeWallet.getReadOnlyWalletData().networkType);
+                                        }
+
+                                        return activeWallet;
+                                    });
+                            })
+                            .then(function(activeWallet) {
+                                var walletData = activeWallet.getReadOnlyWalletData();
+
+                                return launchService.storeWalletInfo(walletData.identifier, walletData.networkType)
+                                    .then(function() {
+                                        return activeWallet;
+                                    });
                             });
                     },
                     /**
-                     * @param handleSetupState      require handleSetupState to make sure we don't load anything before we're sure we're allowed too
-                     * @param Wallet
-                     * @param settingsService
-                     * @param $q
-                     * @param $rootScope
-                     * @param $log
-                     * @param Currencies
+                     * !! activeWallet and handleSetupState should stay in here even when not used
+                     * !! to make sure the resolves happen in the correct order
                      */
-                    loadingData: function(handleSetupState, settingsService, $q, $rootScope, $log, Currencies) {
+                    loadingData: function(settingsService, $q, $rootScope, $log, Currencies, handleSetupState, activeWallet) {
                         // Do an initial load of cached user data
                         return $q.all([
                             Currencies.updatePrices(true),

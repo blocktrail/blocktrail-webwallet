@@ -4,13 +4,18 @@
     angular.module("blocktrail.wallet")
         .controller("WalletCtrl", WalletCtrl);
 
-    function WalletCtrl($scope, $state, $rootScope, storageService, walletsManagerService, activeWallet,
+    function WalletCtrl($scope, $state, $rootScope, $interval, walletsManagerService, activeWallet, sdkService,
                         CONFIG, settingsService, setupService, $timeout, launchService, blocktrailLocalisation,
-                        dialogService, $translate, Currencies, AppVersionService, $filter, Contacts,
-                        trackingService, $interval) {
+                        dialogService, $translate, Currencies, AppVersionService, Contacts, $filter, trackingService,
+                        glideraService) {
 
         $scope.settings = settingsService.getReadOnlySettings();
         $scope.walletData = activeWallet.getReadOnlyWalletData();
+
+        $scope.$watch('walletData.networkType', function() {
+            glideraService.init();
+        });
+
         $scope.sideNavList = [
             {
                 stateHref: $state.href("app.wallet.summary"),
@@ -38,7 +43,7 @@
                 activeStateName: "app.wallet.buybtc",
                 linkText: "BUYBTC_NAVTITLE",
                 linkIcon: "bticon-credit-card",
-                isHidden: !CONFIG.BUYBTC
+                isHidden: !CONFIG.NETWORKS[$scope.walletData.networkType].BUYBTC
             },
             {
                 stateHref: $state.href("app.wallet.settings"),
@@ -48,18 +53,8 @@
                 isHidden: false
             }
         ];
-        $scope.appStoreButtonsData = {
-            config: CONFIG,
-            settings: $scope.settings
-        };
 
-        /**
-         * Start temporal implementation for multiple wallets
-         * TODO Add select to template
-         */
-        $scope.debugMode = CONFIG.DEBUG;
-        $scope.activeWalletIdentifier = $scope.walletData.identifier;
-        $scope.walletsList = walletsManagerService.getWalletsList();
+        $scope.isLoadingNewWallet = false;
 
         // track when wallet is activated (first time > 0 balance)
         if (!$scope.settings.walletActivated) {
@@ -73,10 +68,53 @@
             }, 60000);
         }
 
-        $scope.onChangeActiveWallet = function(id) {
-            walletsManagerService.setActiveWalletById(id)
+        /**
+         * Start temporal implementation for multiple wallets
+         * TODO Add select to template
+         */
+        $scope.debugMode = CONFIG.DEBUG;
+
+        $scope.sdkActiveNetwork = sdkService.getReadOnlySdkData().networkType;
+        $scope.activeWalletUniqueIdentifier = $scope.walletData.uniqueIdentifier;
+        $scope.walletsListOptions = prepareWalletListOptions(walletsManagerService.getWalletsList());
+
+        function prepareWalletListOptions(walletsList) {
+            var list = [];
+
+            walletsList.forEach(function(wallet) {
+                list.push({
+                    value: wallet.uniqueIdentifier,
+                    wallet: wallet
+                })
+            });
+
+            // copy original list for the order
+            var originalList = list.slice();
+            list.sort(function(a, b) {
+                // always prioritize the selected value
+                if (a.value === $scope.walletData.uniqueIdentifier) {
+                    return -1;
+                } else if (b.value === $scope.walletData.uniqueIdentifier) {
+                    return 1;
+                }
+
+                // otherwise just sort
+                return (originalList.indexOf(a) < originalList.indexOf(b)) ? -1 : 1;
+            });
+
+            return list;
+        }
+
+        $scope.onClickSetActiveWallet = function(uniqueIdentifier) {
+            if(uniqueIdentifier === $scope.walletData.uniqueIdentifier) {
+                return;
+            }
+
+            $scope.isLoadingNewWallet = true;
+
+            walletsManagerService.setActiveWalletByUniqueIdentifier(uniqueIdentifier)
                 .then(function() {
-                    $scope.isInitWallet = false;
+                    $scope.isLoadingNewWallet = false;
                     $state.reload();
                 });
         };
