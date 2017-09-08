@@ -8,7 +8,7 @@
                            type="text"
                            ng-model="sendInput.recipientAddress"
                            ng-change="onRecipientChange()"
-                           placeholder="{{ 'BITCOIN_ADDRESS' | translate : {network: CONFIG.NETWORK_LONG} }}"
+                           placeholder="{{ 'BITCOIN_ADDRESS' | translate : {network: CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG} }}"
                            autocomplete="off"
                            name="recipient"
                            class="form-control"

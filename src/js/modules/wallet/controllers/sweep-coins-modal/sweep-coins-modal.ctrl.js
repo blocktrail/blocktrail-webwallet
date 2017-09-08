@@ -8,6 +8,7 @@
                                         $translate, $log, $timeout, trackingService) {
 
         var activeWallet = walletsManagerService.getActiveWallet();
+        $scope.walletData = activeWallet.getReadOnlyWalletData();
 
         trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_START);
 
