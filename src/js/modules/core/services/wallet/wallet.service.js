@@ -128,7 +128,8 @@
         if (self._isInitData) {
             return self._$q.when(self);
         } else {
-            return self._$q.all([self._getBalance(), self._pollTransactionsAndGetBlockHeight()])
+            return self._pollTransactionsAndGetBlockHeight()
+                .then(self._getBalance.bind(self))
                 .then(self._getTransactions.bind(self))
                 .then(function() {
                     self._isInitData = true;
