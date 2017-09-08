@@ -43,7 +43,7 @@
                 }
                 return bitcoinDataClient.getBatchUnspentOutputs(addresses);
             }).then(function (result) {
-                batchDebugInfo.push(['utxos', result]);
+                batchDebugInfo.push(['utxos', JSON.parse(JSON.stringify(result))]); // JSON to make a clean copy
                 var addresses = Object.keys(result);
                 // Add important data (privkey and derive index)
                 angular.forEach(addresses, function(address) {
@@ -207,12 +207,18 @@
         function wifSweep(WIFs, options) {
             return $q.when()
                 .then(function() {
+                    // reset debugInfo
+                    debugInfo = [];
+
                     var keys = WIFs.map(function(WIF) {
                         return bitcoinJS.ECPair.fromWIF(WIF);
                     });
 
                     var keysByAddress = {};
                     angular.forEach(keys, function(key) {
+                        var mirrorKey = new bitcoinJS.ECPair(key.d, null, {network: key.network, compressed: !key.compressed});
+                        debugInfo.push(['WIF', key.getAddress(), mirrorKey.getAddress()]);
+
                         keysByAddress[key.getAddress()] = key;
                     });
 
@@ -220,11 +226,15 @@
 
                     return getBitcoinDataClient(options).then(function() {
                         return bitcoinDataClient.batchAddressHasTransactions(addresses).then(function(success) {
+                            debugInfo.push(['batchAddressHasTransactions', success]);
+
                             if (!success) {
                                 return false;
                             }
                             return bitcoinDataClient.getBatchUnspentOutputs(addresses);
                         }).then(function(result) {
+                            debugInfo.push(['getBatchUnspentOutputs', JSON.parse(JSON.stringify(result))]); // JSON to make a clean copy
+
                             var addresses = Object.keys(result);
                             angular.forEach(addresses, function(address) {
                                 result[address].priv_key = keysByAddress[address];

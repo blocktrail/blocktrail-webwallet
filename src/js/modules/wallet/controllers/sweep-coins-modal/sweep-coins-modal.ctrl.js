@@ -88,6 +88,8 @@
                 $scope.working = false;
                 $scope.discovering = false;
 
+                sweeperService.submitDebugInfo();
+
                 if (result) {
                     trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_BALANCE);
                     $scope.sweepData = result;
