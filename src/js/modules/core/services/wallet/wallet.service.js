@@ -128,8 +128,8 @@
         if (self._isInitData) {
             return self._$q.when(self);
         } else {
-            return self._pollTransactionsAndGetBlockHeight()
-                .then(self._getBalance.bind(self))
+            return self._$q.when(self._getBalance())
+                .then(self._pollTransactionsAndGetBlockHeight.bind(self))
                 .then(self._getTransactions.bind(self))
                 .then(function() {
                     self._isInitData = true;
@@ -787,7 +787,9 @@
             // ORPHAN means we need to resync (completely)
             return self._resetWalletData()
                 .then(function () {
-                    return self._$q.all([self._getBalance(), self._getBlockHeight(), self._pollTransactions()]);
+                    return self._$q.when(self._getBalance.bind(self))
+                        .then(self._getBlockHeight.bind(self))
+                        .then(self._pollTransactions.bind(self));
                 });
         } else {
             self._errorHandler(e);
