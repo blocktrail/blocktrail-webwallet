@@ -337,6 +337,7 @@ angular.module('blocktrail.wallet')
                                             CurrencyConverter, sendData, FormHelper, $analytics, launchService,
                                             activeWallet) {
         $scope.sendData = sendData;
+        $scope.walletData = activeWallet.getReadOnlyWalletData();
         $scope.complete = false;
         $scope.working = false;
 

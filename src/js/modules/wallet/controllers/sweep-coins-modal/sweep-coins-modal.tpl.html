@@ -111,8 +111,8 @@
 
             <div ng-if="form.step === STEPS.SWEEP">
                 <span translate="SWEEPING_CONFIRM_MSG"
-                      translate-value-amount="{{ sweepData.totalValue | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 : false : 'hide' }}"
-                      translate-value-fee="{{ sweepData.feePaid | satoshiToCurrency: 'BTC' : bitcoinPrices : 8 : false : 'hide' }}"
+                      translate-value-amount="{{ sweepData.totalValue | satoshiToCoin : walletData.networkType : 8 : false : 'hide' }}"
+                      translate-value-fee="{{ sweepData.feePaid | satoshiToCoin : walletData.networkType : 8 : false : 'hide' }}"
                       translate-value-network="{{ CONFIG.NETWORK }}">
                 </span>
 

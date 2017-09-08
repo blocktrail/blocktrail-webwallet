@@ -101,7 +101,7 @@
                     <span ng-if="!fee">
                         <loading-spinner style="display: inline-block;" ng-if="!fee"></loading-spinner>
                     </span>
-                    <span ng-if="fee">{{ fee | satoshiToCurrency : 'BTC' : bitcoinPrices : 8 }}</span>
+                    <span ng-if="fee">{{ fee | satoshiToCoin : walletData.networkType }}</span>
                 </div>
             </div>
             <div class="col-xs-7">

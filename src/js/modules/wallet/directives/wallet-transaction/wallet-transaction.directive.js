@@ -10,6 +10,7 @@
             replace: true,
             scope: {
                 transaction: "=",
+                walletData: "=",
                 onShowTransaction: "&"
             },
             templateUrl: "js/modules/wallet/directives/wallet-transaction/wallet-transaction.tpl.html",

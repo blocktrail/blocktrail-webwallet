@@ -81,7 +81,7 @@
             walletsList.forEach(function(wallet) {
                 list.push({
                     value: wallet.uniqueIdentifier,
-                    label: "[" + wallet.network + "] " + wallet.identifier + " " + $filter('satoshiToCurrency')(wallet.balance, 'BTC', 5)
+                    label: "[" + wallet.network + "] " + wallet.identifier + " " + $filter('satoshiToCoin')(wallet.balance, wallet.network, 5)
                 })
             });
 
