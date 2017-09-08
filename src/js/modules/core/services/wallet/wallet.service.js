@@ -87,8 +87,7 @@
             blockHeight: 0,
             identifier: self._sdkWallet.identifier,
             networkType: networkType,
-            uniqueIdentifier: uniqueIdentifier,
-            sdk: sdkWallet
+            uniqueIdentifier: uniqueIdentifier
         };
 
         self.isReady = self._initData();
@@ -122,7 +121,7 @@
         return self._readonlyDoc;
     };
 
-    Wallet.prototype.getSdk = function() {
+    Wallet.prototype.getSdkWallet = function() {
         var self = this;
 
         return self._sdkWallet;

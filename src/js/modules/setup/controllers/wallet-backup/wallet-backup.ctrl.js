@@ -30,11 +30,10 @@
 
         // hacky, we asume that user won't click generate backup before this promise is finished
         if (!$scope.setupInfo.backupInfo.blocktrailPublicKeys) {
-            sdkService.sdk().then(function(sdk) {
-                $scope.setupInfo.backupInfo.blocktrailPublicKeys = {};
-                angular.forEach(backupInfo.blocktrailPublicKeys, function(pubkey, key) {
-                    $scope.setupInfo.backupInfo.blocktrailPublicKeys[pubkey.keyIndex] = bitcoinJS.HDNode.fromBase58(pubkey.pubKey, sdk.network);
-                });
+            var sdk = sdkService.getSdkByActiveNetwork();
+            $scope.setupInfo.backupInfo.blocktrailPublicKeys = {};
+            angular.forEach(backupInfo.blocktrailPublicKeys, function(pubkey, key) {
+                $scope.setupInfo.backupInfo.blocktrailPublicKeys[pubkey.keyIndex] = bitcoinJS.HDNode.fromBase58(pubkey.pubKey, sdk.network);
             });
         }
 
@@ -58,7 +57,7 @@
                     });
                 }
 
-                var backup = new sdkService.BackupGenerator(
+                var backup = new blocktrailSDK.BackupGenerator(
                     $scope.setupInfo.identifier,
                     $scope.setupInfo.backupInfo,
                     extraInfo,
