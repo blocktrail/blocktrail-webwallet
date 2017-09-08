@@ -3,7 +3,6 @@ angular.module('blocktrail.wallet')
         var self = this;
 
         self.cache = storageService.db('currency-rates-cache');
-        self.sdk = sdkService.sdk();
 
         // currencies that the app supports and their symbols
         //  this list shouldn't be used directly `self.currencies` contains the enabled currencies
@@ -99,14 +98,12 @@ angular.module('blocktrail.wallet')
                     })
                     .then(function(pricesDoc) {
                         if (forceFetch) {
-                            return self.sdk.then(function(sdk) {
-                                return sdk.price().then(function(result) {
-                                    angular.extend(pricesDoc, result);
+                            return sdkService.getSdkByActiveNetwork().price().then(function(result) {
+                                angular.extend(pricesDoc, result);
 
-                                    //store in cache and then return
-                                    return self.cache.put(pricesDoc).then(function() {
-                                        return pricesDoc;
-                                    });
+                                //store in cache and then return
+                                return self.cache.put(pricesDoc).then(function() {
+                                    return pricesDoc;
                                 });
                             });
                         } else {

@@ -156,6 +156,7 @@
             $http.post(CONFIG.API_URL + "/v1/BTC/mywallet/register", postData)
                 .then(function(result) {
                         return launchService.storeAccountInfo(result.data).then(function() {
+                            // TODO Add network type
                             $scope.setupInfo.password = $scope.form.password;
 
                             $scope.working = false;

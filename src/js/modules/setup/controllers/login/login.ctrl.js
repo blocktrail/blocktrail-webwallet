@@ -13,13 +13,16 @@
         // this automatically updates an already open modal instead of popping a new one open
         $scope.alert = dialogService.alertSingleton();
 
+
+        $scope.isDebugMode = CONFIG.DEBUG;
         $scope.isLoading = false;
         $scope.form = {
             username: "",
             password: "",
             forceNewWallet: false,
-            networkType: CONFIG.NETWORKS.BTC.NETWORK
+            networkType: CONFIG.NETWORKS_ENABLED[0]
         };
+        $scope.networkTypes = getNetworkTypes();
 
         $scope.error = null;
         $scope.errorDetailed = null;
@@ -27,10 +30,25 @@
         listenerForm = $scope.$watch("form", onFormChange, true);
 
         // Set default network
-        sdkService.setNetworkType(CONFIG.NETWORKS.BTC.NETWORK);
+        sdkService.setNetworkType($scope.form.networkType);
 
         // Methods
         $scope.onSubmitFormLogin = onSubmitFormLogin;
+
+        function getNetworkTypes() {
+            var list = [];
+
+            CONFIG.NETWORKS_ENABLED.forEach(function(networkType) {
+                if(CONFIG.NETWORKS[networkType]) {
+                    list.push({
+                        label: CONFIG.NETWORKS[networkType].NETWORK_LONG + " (" + CONFIG.NETWORKS[[networkType]].NETWORK + ")",
+                        value: networkType
+                    });
+                }
+            });
+
+            return list;
+        }
 
         function onSubmitFormLogin(loginForm) {
             $scope.error = null;

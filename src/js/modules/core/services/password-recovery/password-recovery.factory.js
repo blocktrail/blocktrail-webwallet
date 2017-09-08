@@ -64,8 +64,6 @@
                 encryptedRecoverySecret = blocktrailSDK.EncryptionMnemonic.decode(encryptedSecretMnemonic);
                 secret = blocktrailSDK.Encryption.decrypt(encryptedRecoverySecret, new blocktrailSDK.Buffer(password, 'hex'));
             } else {
-                debugger;
-
                 encryptedRecoverySecret = blocktrailSDK.convert(blocktrailSDK.bip39.mnemonicToEntropy(encryptedSecretMnemonic), 'hex', 'base64');
                 secret = cryptoJS.AES.decrypt(encryptedRecoverySecret, password).toString(cryptoJS.enc.Utf8);
             }

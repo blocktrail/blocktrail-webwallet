@@ -49,7 +49,7 @@
                             </div>
                         </div>
 
-                        <div ng-if="CONFIG.DEBUG" class="form-group form-group-lg">
+                        <div ng-if="isDebugMode" class="form-group form-group-lg">
                             <div class="checkbox">
                                 <label>
                                     <input type="checkbox" ng-model="form.forceNewWallet">
@@ -63,12 +63,11 @@
 
                             <div class="row">
                                 <div class="col-xs-12">
-                                    <label class="radio-inline">
-                                        <input type="radio" ng-model="form.networkType" value="{{CONFIG.NETWORKS.BTC.NETWORK}}"> {{ CONFIG.NETWORKS.BTC.NETWORK_LONG }} ({{ CONFIG.NETWORKS.BTC.NETWORK }})
-                                    </label>
-
-                                    <label class="radio-inline">
-                                        <input type="radio" ng-model="form.networkType" value="{{CONFIG.NETWORKS.BCC.NETWORK}}"> {{ CONFIG.NETWORKS.BCC.NETWORK_LONG }} ({{ CONFIG.NETWORKS.BCC.NETWORK }})
+                                    <label
+                                        class="radio-inline"
+                                        ng-repeat="network in networkTypes"
+                                    >
+                                        <input type="radio" ng-model="form.networkType" value="{{ network.value }}"> {{ network.label }}
                                     </label>
                                 </div>
                             </div>

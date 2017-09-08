@@ -6,15 +6,14 @@
     "API_HOST": "api.blocktrail.com",
     "API_HTTPS": true,
 
+    "NETWORKS_ENABLED": ["BTC", "BCC", "tBTC", "tBCC"],
+
     "NETWORKS": {
         "BTC": {
             "NETWORK": "BTC",
             "NETWORK_LONG": "Bitcoin",
-            // currency display
             "TICKER": "BTC",
             "TICKER_LONG": "Bitcoin",
-
-            // config
             "TX_FILTER_MIN_BLOCK_HEIGHT": null,
             "BUYBTC": true,
             "PRIOBOOST": true,
@@ -24,19 +23,37 @@
         "BCC": {
             "NETWORK": "BCC",
             "NETWORK_LONG": "BitcoinCash",
-            // currency display
             "TICKER": "BCC",
             "TICKER_LONG": "BitcoinCash",
-
-            // config
             "TX_FILTER_MIN_BLOCK_HEIGHT": 400000,
             "BUYBTC": false,
             "PRIOBOOST": false,
             "EXPLORER_ADDRESS_URL": "https://www.blocktrail.com/BCC/address",
             "EXPLORER_TX_URL": "https://www.blocktrail.com/BCC/tx"
+        },
+        "tBTC": {
+            "NETWORK": "BTC",
+            "NETWORK_LONG": "Bitcoin TESTNET",
+            "TICKER": "BTC",
+            "TICKER_LONG": "Bitcoin TESTNET",
+            "TX_FILTER_MIN_BLOCK_HEIGHT": null,
+            "BUYBTC": false,
+            "PRIOBOOST": false,
+            "EXPLORER_ADDRESS_URL": "https://www.blocktrail.com/tBTC/address",
+            "EXPLORER_TX_URL": "https://www.blocktrail.com/tBTC/tx"
+        },
+        "tBCC": {
+            "NETWORK": "BCC",
+            "NETWORK_LONG": "BitcoinCash TESTNET",
+            "TICKER": "BCC",
+            "TICKER_LONG": "BitcoinCash TESTNET",
+            "TX_FILTER_MIN_BLOCK_HEIGHT": null,
+            "BUYBTC": false,
+            "PRIOBOOST": false,
+            "EXPLORER_ADDRESS_URL": "https://www.blocktrail.com/tBCC/address",
+            "EXPLORER_TX_URL": "https://www.blocktrail.com/tBCC/tx"
         }
     },
-
 
     "BUYBTC": false,
     "PRIOBOOST": true,

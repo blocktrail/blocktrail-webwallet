@@ -10,6 +10,7 @@
         var self = this;
 
         self._$q = $q;
+        self._CONFIG = CONFIG;
         self._sdkService = sdkService;
         self._walletService = walletService;
 
@@ -18,110 +19,139 @@
         self._activeWallet = null;
     }
 
-    /**
-     * Fetch the wallets list
-     */
     WalletsManagerService.prototype.fetchWalletsList = function() {
         var self = this;
 
         return self._sdkService.getSdkByActiveNetwork()
             .getAllWallets({mywallet: 1, limit: 200})
             .then(function(resp) {
-                self._walletsList = resp.data;
+                resp.data.forEach(function(wallet) {
+                    if(self._CONFIG.NETWORKS_ENABLED.indexOf(wallet.network) !== -1) {
+                        // Add unique id
+                        wallet.uniqueIdentifier = self._getWalletUniqueIdentifier(wallet.network, wallet.identifier);
+                        self._walletsList.push(wallet)
+                    }
+                });
+
                 return self._walletsList;
             });
     };
 
-    /**
-     * Get the wallets list
-     * @return { Array }
-     */
     WalletsManagerService.prototype.getWalletsList = function() {
         var self = this;
 
         return self._walletsList;
     };
 
-    /**
-     * Get the active wallet
-     * @return {Wallet|null}
-     */
     WalletsManagerService.prototype.getActiveWallet = function() {
         var self = this;
 
         return self._activeWallet;
     };
 
-    /**
-     * Set the active wallet by id
-     * @param id
-     */
-    WalletsManagerService.prototype.setActiveWallet = function(id, networkType) {
+    WalletsManagerService.prototype.setActiveWalletByNetworkTypeAndIdentifier = function(networkType, identifier) {
+        var self = this;
+        var uniqueIdentifier = self._getWalletUniqueIdentifier(networkType, identifier);
+
+        if (!networkType) {
+            throw new Error("Blocktrail core module, wallets manager service. Network type should be defined.");
+        }
+
+        if (!identifier) {
+            throw new Error("Blocktrail core module, wallets manager service. Identifier should be defined.");
+        }
+
+        if(!self._isExistingWalletByUniqueIdentifier(uniqueIdentifier)) {
+            var wallets = self._filterWalletsByNetworkType(networkType);
+
+            if(wallets.length) {
+                identifier = wallets[0].identifier;
+                uniqueIdentifier = self._getWalletUniqueIdentifier(networkType, identifier);
+            } else {
+                throw new Error("Blocktrail core module, wallets manager service. No wallets for " + networkType + " network type.");
+            }
+        }
+
+        return self._setActiveWallet(networkType, identifier, uniqueIdentifier);
+    };
+
+    WalletsManagerService.prototype.setActiveWalletByUniqueIdentifier = function(uniqueIdentifier) {
+        var self = this;
+
+        var wallet = self._walletsList.filter(function(wallet) {
+             return wallet.uniqueIdentifier === uniqueIdentifier;
+        })[0];
+
+        if(!wallet) {
+            throw new Error("Blocktrail core module, wallets manager service. Wallet with unique identifier " + uniqueIdentifier + " is not exist.");
+        }
+
+        return self._setActiveWallet(wallet.network, wallet.identifier, wallet.uniqueIdentifier);
+    };
+
+    WalletsManagerService.prototype._setActiveWallet = function(networkType, identifier, uniqueIdentifier) {
         var self = this;
         var promise = null;
 
-        if(!self._isExistingWallet(id, networkType)) {
-            id = self._walletsList[0];
-        }
-
         if(self._activeWallet) {
-            if(self._activeWallet.getReadOnlyWalletData().identifier !== id) {
+            // Check on the same wallet
+            if(self._activeWallet.getReadOnlyWalletData().uniqueIdentifier !== uniqueIdentifier) {
                 // Disable polling for active wallet and enable polling for new active wallet
                 self._activeWallet.disablePolling();
 
                 // Check the wallet in the buffer
-                if(self._wallets[id]) {
-                    self._wallets[id].enablePolling();
+                if(self._wallets[uniqueIdentifier]) {
+                    self._wallets[uniqueIdentifier].enablePolling();
                     // Set a link to the new active wallet
-                    self._activeWallet = self._wallets[id];
+                    self._activeWallet = self._wallets[uniqueIdentifier];
 
                     promise = self._$q.when(self._activeWallet);
                 } else {
                     // if wallet is not in the buffer we have to initialize it
-                    promise = self._setActiveWalletById(id);
+                    promise = self._initWallet(networkType, identifier, uniqueIdentifier);
                 }
             } else {
                 promise = self._$q.when(self._activeWallet);
             }
         } else {
             // if active wallet is not exist have to initialize it
-            promise = self._setActiveWalletById(id);
+            promise = self._initWallet(networkType, identifier, uniqueIdentifier);
         }
 
         return self._$q.when(promise);
     };
 
-    /**
-     * Is existing wallet id
-     * @param id
-     * @return {boolean}
-     * @private
-     */
-    WalletsManagerService.prototype._isExistingWallet = function(id, networkType) {
+    WalletsManagerService.prototype._initWallet = function(networkType, identifier, uniqueIdentifier) {
         var self = this;
 
-        return !!self._walletsList.filter(function(item) {
-            return item.identifier === id && item.network === networkType;
-        });
-    };
-
-    /**
-     * Set the active wallet by id
-     * @param id
-     * @return _activeWallet { promise }
-     * @private
-     */
-    WalletsManagerService.prototype._setActiveWalletById = function(id) {
-        var self = this;
-
-        return self._walletService.initWallet(id)
+        return self._walletService.initWallet(networkType, identifier, uniqueIdentifier)
             .then(function(wallet) {
                 // Add wallet to buffer
-                self._wallets[wallet.getReadOnlyWalletData().identifier] = wallet;
+                self._wallets[wallet.getReadOnlyWalletData().uniqueIdentifier] = wallet;
                 // Set a link to the active wallet
-                self._activeWallet = self._wallets[wallet.getReadOnlyWalletData().identifier];
+                self._activeWallet = self._wallets[wallet.getReadOnlyWalletData().uniqueIdentifier];
 
                 return self._activeWallet;
             });
     };
+
+    WalletsManagerService.prototype._isExistingWalletByUniqueIdentifier = function(uniqueIdentifier) {
+        var self = this;
+
+        return !!self._walletsList.filter(function(item) {
+            return item.uniqueIdentifier === uniqueIdentifier;
+        });
+    };
+
+    WalletsManagerService.prototype._filterWalletsByNetworkType = function(networkType) {
+        var self = this;
+
+        return self._walletsList.filter(function(item) {
+            return item.network === networkType;
+        });
+    };
+
+    WalletsManagerService.prototype._getWalletUniqueIdentifier = function(networkType, identifier) {
+        return networkType + "_" + identifier;
+    }
 })();

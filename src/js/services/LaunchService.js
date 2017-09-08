@@ -196,21 +196,15 @@ angular.module('blocktrail.wallet').factory(
             return self._walletInfo;
         };
 
-        LaunchService.prototype.storeWalletInfo = function(identifier, encryptedPassword, networkType) {
+        LaunchService.prototype.storeWalletInfo = function(identifier, networkType) {
             var self = this;
-
-            debugger;
 
             self._walletInfo = null;
 
             return $q.when(self.storage.get('wallet_info'))
                 .then(function(doc) { return doc; }, function() { return {_id: "wallet_info"}; })
                 .then(function(doc) {
-
-                        debugger;
-
                         doc.identifier = identifier;
-                        doc.encryptedPassword = encryptedPassword;
                         doc.networkType = networkType;
 
                         return self.storage.put(doc).then(function() {

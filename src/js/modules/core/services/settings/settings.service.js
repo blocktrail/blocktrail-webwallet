@@ -6,7 +6,7 @@
             return new Settings($q, sdkService, storageService);
         });
 
-    function Settings($q, sdk, storage) {
+    function Settings($q, sdkService, storageService) {
         var self = this;
         // Document id
         var documentId = "user_settings";
@@ -49,7 +49,7 @@
 
         // Mapping for object dependencies
         self._$q = $q;
-        self._sdk = sdk;
+        self._sdkService = sdkService;
 
         // Id of the document we keep in storage
         self._id = documentId;
@@ -62,7 +62,7 @@
         self._loaded = false;
 
         // Init storage DB
-        self._storage = storage.db('settings');
+        self._storage = storageService.db('settings');
 
         // Settings object with pending functionality, only for internal usage!
         self._doc = {};
@@ -380,7 +380,7 @@
     Settings.prototype._syncSettingsDown = function() {
         var self = this;
 
-        return self._$q.when(self._sdk.sdk())
+        return self._$q.when(self._sdkService.getSdkByActiveNetwork())
             .then(self._getSDKSettings.bind(self))
             .then(self._setSDKSettingsToDoc.bind(self));
     };
@@ -430,7 +430,7 @@
     Settings.prototype._syncProfileDown = function() {
         var self = this;
 
-        return this._$q.when(this._sdk.sdk())
+        return this._$q.when(this._sdkService.getSdkByActiveNetwork())
             .then(this._getSDKProfile.bind(self))
             .then(this._setSDKProfileToDoc.bind(self));
     };
@@ -534,7 +534,7 @@
     Settings.prototype._syncSettingsUp = function() {
         var self = this;
 
-        return this._$q.when(self._sdk.sdk())
+        return this._$q.when(self._sdkService.getSdkByActiveNetwork())
             .then(function(sdk) {
                 var settingsData = {
                     localCurrency: self._doc.localCurrency,
@@ -563,7 +563,7 @@
     Settings.prototype._syncProfileUp = function() {
         var self = this;
 
-        return this._$q.when(self._sdk.sdk())
+        return this._$q.when(self._sdkService.getSdkByActiveNetwork())
             .then(function(sdk) {
                 var profileData = {
                     profilePic: self._doc.profilePic

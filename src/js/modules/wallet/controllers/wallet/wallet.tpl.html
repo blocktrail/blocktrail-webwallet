@@ -7,16 +7,16 @@
             <div class="mainMenu">
                 <div ng-if="debugMode" style="border: 1px dashed #fff;" class="iit-10 iil-15 iir-15 iib-10">
                     <p style="color: #fff;">Debug mode only</p>
-                    <p style="color: #fff;">{{ walletData.identifier }}</p>
-                    <p style="color: #fff;">{{ activeWalletIdentifier }}</p>
 
-                    <select ng-model="activeWalletIdentifier"
-                            ng-change="onChangeActiveWallet(activeWalletIdentifier)">
-                        <option ng-repeat="option in walletsList"
-                                ng-if="option.network === CONFIG.NETWORK"
-                                value="{{ option.identifier }}">
-                            [{{ option.network }}] {{ option.identifier }} ({{ option.balance | satoshiToCurrency : 'BTC' : bitcoinPrices : 5 }})
-                        </option>
+                    <p style="color: #fff;">SDK active network: {{ sdkActiveNetwork }}</p>
+                    <p style="color: #fff;">[{{ walletData.networkType }}] {{ walletData.identifier }}</p>
+                    <p style="color: #fff;">{{ activeWalletUniqueIdentifier }}</p>
+
+                    <select ng-model="activeWalletUniqueIdentifier"
+                            ng-change="onChangeActiveWallet(activeWalletUniqueIdentifier)"
+                            ng-options="option.value as option.label for option in walletsListOptions"
+                            style="width: 100%;"
+                    >
                     </select>
                 </div>
 

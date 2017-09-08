@@ -57,7 +57,11 @@
         };
 
         $scope.createWallet = function() {
-            return $q.when(sdkService.getSdkByActiveNetwork())
+            return $q.when(launchService.getAccountInfo())
+                .then(function(accountInfo) {
+                    sdkService.setAccountInfo(accountInfo);
+                    return sdkService.getSdkByActiveNetwork();
+                })
                 .then(function(sdk) {
                     $scope.sdk = sdk;
                     $scope.sdkReadOnlyObject = sdkService.getReadOnlySdkData();
@@ -210,7 +214,7 @@
                 .then(function() {
                     // store the identity and encrypted password
                     $log.debug("saving wallet info", $scope.setupInfo.identifier, null);
-                    return launchService.storeWalletInfo($scope.setupInfo.identifier, null, $scope.sdkReadOnlyObject.networkType);
+                    return launchService.storeWalletInfo($scope.setupInfo.identifier, $scope.sdkReadOnlyObject.networkType);
                 })
                 .then(function() {
                     // clear sensitive data

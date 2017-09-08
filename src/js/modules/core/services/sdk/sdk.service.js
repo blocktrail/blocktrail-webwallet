@@ -2,7 +2,7 @@
     "use strict";
 
     angular.module('blocktrail.core')
-        .factory('sdkService', function(blocktrailSDK, CONFIG, networkService) {
+        .factory('sdkService', function(blocktrailSDK, CONFIG) {
             extendBlocktrailSDK(blocktrailSDK);
 
             /*var accountInfo = null;
@@ -84,7 +84,7 @@
                 BackupGenerator: blocktrailSDK.BackupGenerator
             };*/
 
-            return new SdkService(blocktrailSDK, CONFIG, networkService);
+            return new SdkService(blocktrailSDK, CONFIG);
         }
     );
 
@@ -100,10 +100,7 @@
 
         self._accountInfo = null;
 
-        self._sdkList = {
-            BTC: null,
-            BCC: null
-        };
+        self._sdkList = {};
 
         self._sdkData = {
             networkType: null
@@ -139,10 +136,8 @@
     SdkService.prototype.setNetworkType = function(networkType) {
         var self = this;
 
-        networkType = networkType.toUpperCase();
-
-        if(typeof self._sdkList[networkType] === 'undefined') {
-            throw new Error("Blocktrail core module, sdk service. Network type " + networkType + "is not exist.");
+        if(self._CONFIG.NETWORKS_ENABLED.indexOf(networkType) === -1) {
+            throw new Error("Blocktrail core module, sdk service. Network type " + networkType + "is not enable.");
         }
 
         self._sdkData.networkType = networkType;
@@ -163,8 +158,6 @@
 
     SdkService.prototype.getSdkByNetworkType = function(networkType) {
         var self = this;
-
-        networkType = networkType.toUpperCase();
 
         if(!self._accountInfo) {
             throw new Error("Blocktrail core module, sdk service. Can't get the SDK without accountInfo.");
@@ -188,22 +181,18 @@
     SdkService.prototype._initSdkList = function() {
         var self = this;
 
-        self._sdkList.BTC = new self._blocktrailSDK({
-            apiKey: self._accountInfo ? self._accountInfo.api_key : null,
-            apiSecret: self._accountInfo ? self._accountInfo.api_secret : null,
-            testnet: self._CONFIG.TESTNET,
-            host: self._CONFIG.API_HOST || null,
-            network: self._CONFIG.NETWORKS.BTC.NETWORK,
-            https: self._CONFIG.API_HTTPS ? self._CONFIG.API_HTTPS : true
-        });
+        self._CONFIG.NETWORKS_ENABLED.forEach(function(networkType) {
+            var isTestNet = (networkType.substr(0, 1) === 't');
+            var sdkConfiguration = {
+                apiKey: self._accountInfo ? self._accountInfo.api_key : null,
+                apiSecret: self._accountInfo ? self._accountInfo.api_secret : null,
+                testnet: isTestNet,
+                host: self._CONFIG.API_HOST || null,
+                network: self._CONFIG.NETWORKS[networkType].NETWORK,
+                https: self._CONFIG.API_HTTPS ? self._CONFIG.API_HTTPS : true
+            };
 
-        self._sdkList.BCC = new self._blocktrailSDK({
-            apiKey: self._accountInfo ? self._accountInfo.api_key : null,
-            apiSecret: self._accountInfo ? self._accountInfo.api_secret : null,
-            testnet: self._CONFIG.TESTNET,
-            host: self._CONFIG.API_HOST || null,
-            network: self._CONFIG.NETWORKS.BCC.NETWORK,
-            https: self._CONFIG.API_HTTPS ? self._CONFIG.API_HTTPS : true
+            self._sdkList[networkType] = new self._blocktrailSDK(sdkConfiguration);
         });
     };
 

@@ -253,7 +253,7 @@
         }
 
         function submitDebugInfo() {
-            return sdkService.sdk().then(function(sdk) {
+            return sdkService.getSdkByActiveNetwork().then(function(sdk) {
                 return sdk.client.post("/mywallet/sweeper/submit-debug-info", null, debugInfo);
             });
         }

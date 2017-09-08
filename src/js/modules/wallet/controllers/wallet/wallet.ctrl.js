@@ -4,13 +4,13 @@
     angular.module("blocktrail.wallet")
         .controller("WalletCtrl", WalletCtrl);
 
-    function WalletCtrl($scope, $state, $rootScope, storageService, walletsManagerService, activeWallet,
+    function WalletCtrl($scope, $state, $rootScope, walletsManagerService, activeWallet, sdkService,
                         CONFIG, settingsService, setupService, $timeout, launchService, blocktrailLocalisation,
-                        dialogService, $translate, Currencies, AppVersionService, $filter, Contacts,
-                        trackingService, $interval) {
+                        dialogService, $translate, Currencies, AppVersionService, Contacts, $filter) {
 
         $scope.settings = settingsService.getReadOnlySettings();
         $scope.walletData = activeWallet.getReadOnlyWalletData();
+
         $scope.sideNavList = [
             {
                 stateHref: $state.href("app.wallet.summary"),
@@ -58,23 +58,27 @@
          * TODO Add select to template
          */
         $scope.debugMode = CONFIG.DEBUG;
-        $scope.activeWalletIdentifier = $scope.walletData.identifier;
-        $scope.walletsList = walletsManagerService.getWalletsList();
 
-        // track when wallet is activated (first time > 0 balance)
-        if (!$scope.settings.walletActivated) {
-            var walletActivatedInterval = $interval(function() {
-                if ($scope.walletData.balance + $scope.walletData.uncBalance > 0) {
-                    settingsService.updateSettingsUp({walletActivated: true});
-                    trackingService.trackEvent(trackingService.EVENTS.ACTIVATED);
+        $scope.sdkActiveNetwork = sdkService.getReadOnlySdkData().networkType;
+        $scope.activeWalletUniqueIdentifier = $scope.walletData.uniqueIdentifier;
+        $scope.walletsListOptions = prepareWalletListOptions(walletsManagerService.getWalletsList());
 
-                    $interval.cancel(walletActivatedInterval);
-                }
-            }, 60000);
+        function prepareWalletListOptions(walletsList) {
+            var list = [];
+
+            walletsList.forEach(function(wallet) {
+                list.push({
+                    value: wallet.uniqueIdentifier,
+                    label: "[" + wallet.network + "] " + wallet.identifier + " " + $filter('satoshiToCurrency')(wallet.balance, 'BTC', 5)
+                })
+            });
+
+            return list;
         }
 
-        $scope.onChangeActiveWallet = function(id) {
-            walletsManagerService.setActiveWalletById(id)
+
+        $scope.onChangeActiveWallet = function(uniqueIdentifier) {
+            walletsManagerService.setActiveWalletByUniqueIdentifier(uniqueIdentifier)
                 .then(function() {
                     $scope.isInitWallet = false;
                     $state.reload();
@@ -85,9 +89,9 @@
         setupService.getUserInfo().then(function(userInfo) {
             if (userInfo.username || userInfo.displayName || userInfo.email) {
                 var updateSettings = {
-                    username: userInfo.username || $scope.settings.username,
-                    displayName: userInfo.displayName || $scope.settings.displayName,
-                    email: userInfo.email || $scope.settings.email
+                    username: userInfo.username || settings.username,
+                    displayName: userInfo.displayName || settings.displayName,
+                    email: userInfo.email || settings.email
                 };
 
                 setupService.clearUserInfo();

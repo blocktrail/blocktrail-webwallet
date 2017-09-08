@@ -14,31 +14,31 @@
         self._$q = $q;
         self._$timeout = $timeout;
         self._bitcoinJS = bitcoinJS;
-        self._sdk = sdkService;
+        self._sdkService = sdkService;
         self._storageService = storageService;
         self._settingsService = settingsService;
         self._contactsService = Contacts;
     }
 
-    WalletService.prototype.initWallet = function(walletId) {
+    WalletService.prototype.initWallet = function(networkType, identifier, uniqueIdentifier) {
         var self = this;
 
-        return self._$q.when(self._sdk.sdk())
-            .then(self._sdkInitWallet.bind(self, walletId), self._errorHandler.bind(self))
-            .then(self._initWallet.bind(self, walletId));
+        return self._$q.when(self._sdkService.getSdkByNetworkType(networkType))
+            .then(self._sdkInitWallet.bind(self, identifier), self._errorHandler.bind(self))
+            .then(self._initWallet.bind(self, networkType, uniqueIdentifier));
     };
 
-    WalletService.prototype._sdkInitWallet = function(walletId, sdk) {
+    WalletService.prototype._sdkInitWallet = function(identifier, sdk) {
         return sdk.initWallet({
-            identifier: walletId,
+            identifier: identifier,
             readOnly: true,
             bypassNewAddressCheck: true
         });
     };
 
-    WalletService.prototype._initWallet = function(walletId, sdkWallet) {
+    WalletService.prototype._initWallet = function(networkType, uniqueIdentifier, sdkWallet) {
         var self = this;
-        var wallet =  new Wallet(sdkWallet, self._$q, self._$timeout,  self._bitcoinJS, self._storageService, self._settingsService, self._contactsService);
+        var wallet =  new Wallet(sdkWallet, networkType, uniqueIdentifier, self._$q, self._$timeout,  self._bitcoinJS, self._storageService, self._settingsService, self._contactsService);
 
         return wallet.isReady;
     };
@@ -47,22 +47,15 @@
         throw new Error(e);
     };
 
-
     /**
      * WALLET CLASS
-     * @param sdkWallet
-     * @param $q
-     * @param $timeout
-     * @param bitcoinJS
-     * @param storageService
-     * @param settingsService
-     * @param contactsService
+
      * @constructor
      */
     // TODO Remove glidera transactions form the settings service and remove 'settingsService' from wallet
     // TODO Create a method for updating contacts and and remove 'contactsService' from wallet
     // TODO Or try to handle this in the avatar directive
-    function Wallet(sdkWallet, $q, $timeout, bitcoinJS, storageService, settingsService, contactsService) {
+    function Wallet(sdkWallet, networkType, uniqueIdentifier, $q, $timeout, bitcoinJS, storageService, settingsService, contactsService) {
         var self = this;
 
         console.log('new Wallet', sdkWallet.identifier);
@@ -93,6 +86,8 @@
             uncBalance: 0,
             blockHeight: 0,
             identifier: self._sdkWallet.identifier,
+            networkType: networkType,
+            uniqueIdentifier: uniqueIdentifier,
             sdk: sdkWallet
         };
 

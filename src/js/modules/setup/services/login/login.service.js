@@ -2,9 +2,9 @@
     "use strict";
 
     angular.module('blocktrail.setup')
-        .factory('loginFormService', function($http, _, cryptoJS, navigator, CONFIG, launchService, setupService, sdkService, networkService) {
+        .factory('loginFormService', function($http, _, cryptoJS, navigator, CONFIG, launchService, setupService, sdkService) {
 
-            return new LoginFormService($http, _, cryptoJS, navigator, CONFIG, launchService, setupService, sdkService, networkService);
+            return new LoginFormService($http, _, cryptoJS, navigator, CONFIG, launchService, setupService, sdkService);
         }
     );
 
@@ -12,7 +12,7 @@
      * TODO here
      * @constructor
      */
-    function LoginFormService($http, _, cryptoJS, navigator, CONFIG, launchService, setupService, sdkService, networkService) {
+    function LoginFormService($http, _, cryptoJS, navigator, CONFIG, launchService, setupService, sdkService) {
         var self = this;
 
         self._$http = $http;
@@ -35,7 +35,8 @@
             two_factor_token: data.twoFactorToken,
             device_name: self._navigator.userAgent || "Unknown Browser"
         };
-        var url = self._CONFIG.API_URL + "/v1/" + (self._CONFIG.TESTNET ? "t" : "") + self._CONFIG.NETWORKS[data.networkType].NETWORK + "/mywallet/enable";
+
+        var url = self._CONFIG.API_URL + "/v1/" + data.networkType + "/mywallet/enable";
 
         return self._$http.post(url, postData)
             .then(self._decryptSecret.bind(self, data.password))
@@ -73,8 +74,6 @@
 
         return self._launchService.storeAccountInfo(accountInfo)
             .then(function() {
-                self._sdkService.setAccountInfo(accountInfo);
-
                 self._setupService.setUserInfo({
                     username: data.responseData.username,
                     displayName: data.responseData.username,

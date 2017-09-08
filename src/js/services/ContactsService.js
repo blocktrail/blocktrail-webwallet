@@ -1,6 +1,6 @@
 angular.module('blocktrail.wallet').factory(
     'Contacts',
-    function($log, $rootScope, cryptoJS, settingsService, launchService, sdkService, storageService, $q) {
+    function($log, $rootScope, cryptoJS, settingsService, launchService, sdkService, storageService) {
         var Contacts = function() {
             var self = this;
 
@@ -44,8 +44,8 @@ angular.module('blocktrail.wallet').factory(
                     syncedDoc.lastSynced = Math.floor((new Date).getTime() / 1000);
 
                     return launchService.getAccountInfo().then(function(accountInfo) {
-                        return sdkService.sdk().then(function(sdk) {
-                            return sdk.contacts(!forceAll ? lastSynced : null).then(function(result) {
+                        return sdkService.getSdkByActiveNetwork().contacts(!forceAll ? lastSynced : null)
+                            .then(function(result) {
                                 var contactsByHash = {};
 
                                 syncedDoc.contacts.forEach(function(contact) {
@@ -88,7 +88,6 @@ angular.module('blocktrail.wallet').factory(
                                     return {contacts: syncedDoc.contacts, contactsByHash: contactsByHash};
                                 });
                             });
-                        });
                     });
                 })
             ;
@@ -117,7 +116,7 @@ angular.module('blocktrail.wallet').factory(
             var self = this;
             hashIndex = hashIndex ? hashIndex: 0;
 
-            return sdkService.sdk().then(function(sdk) {
+            return sdkService.getSdkByActiveNetwork().then(function(sdk) {
                 return sdk.requestContactAddress(contact.hashes[hashIndex]).then(function(result) {
                     return result;
                 }, function(err) {

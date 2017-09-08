@@ -267,41 +267,28 @@ angular.module('blocktrail.wallet').config(
                                 }
                             })
                     },
-                    activeWallet: function($state, launchService, sdkService, walletsManagerService) {
-                        return launchService.getAccountInfo().then(function(accountInfo) {
-                            sdkService.setAccountInfo(accountInfo);
+                    activeWallet: function($state, $q, launchService, sdkService, walletsManagerService) {
+                        return $q.all([launchService.getAccountInfo(), launchService.getWalletInfo()])
+                            .then(function(data) {
+                                sdkService.setAccountInfo(data[0]);
+                                sdkService.setNetworkType(data[1].networkType);
 
-                            return launchService.getWalletInfo()
-                                .then(function(walletInfo){
-                                    sdkService.setNetworkType(walletInfo.networkType);
+                                var walletInfo = data[1];
 
-                                    return walletsManagerService.fetchWalletsList()
-                                        .then(function() {
-                                            var activeWallet = walletsManagerService.getActiveWallet();
-
-                                            // active wallet is null when we load first time
-                                            if(!activeWallet) {
-                                                activeWallet = walletsManagerService.setActiveWallet(walletInfo.identifier, walletInfo.networkType);
-                                            }
-
-                                            return activeWallet;
-                                        });
-                                });
-
-                            /*return walletsManagerService.fetchWalletsList()
-                                .then(function() {
-                                    return launchService.getWalletInfo().then(function(walletInfo) {
+                                return walletsManagerService.fetchWalletsList()
+                                    .then(function() {
                                         var activeWallet = walletsManagerService.getActiveWallet();
 
                                         // active wallet is null when we load first time
                                         if(!activeWallet) {
-                                            activeWallet = walletsManagerService.setActiveWalletById(walletInfo.identifier);
+                                            activeWallet = walletsManagerService.setActiveWalletByNetworkTypeAndIdentifier(walletInfo.networkType, walletInfo.identifier);
+                                        } else {
+                                            sdkService.setNetworkType(activeWallet.getReadOnlyWalletData().networkType);
                                         }
 
                                         return activeWallet;
                                     });
-                                });*/
-                        });
+                            });
                     },
                     /**
                      * @param handleSetupState      require handleSetupState to make sure we don't load anything before we're sure we're allowed too
