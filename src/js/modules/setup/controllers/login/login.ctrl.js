@@ -131,11 +131,13 @@
 
                 case "MSG_BAD_LOGIN":
                     $scope.error = "MSG_BAD_LOGIN";
+                    $scope.isLoading = false;
                     break;
 
                 case "MSG_BAD_LOGIN_UNKNOWN":
                     $scope.error = "MSG_BAD_LOGIN_UNKNOWN";
                     $scope.errorDetailed = error.data;
+                    $scope.isLoading = false;
                     break;
             }
         }

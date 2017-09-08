@@ -90,7 +90,7 @@
 
         return self._launchService.storeAccountInfo(accountInfo)
             .then(function() {
-                self._setupService.setUserInfo({
+                return self._setupService.setUserInfo({
                     username: data.responseData.username,
                     displayName: data.responseData.username,
                     email: data.responseData.email
