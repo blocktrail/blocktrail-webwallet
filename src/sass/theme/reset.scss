@@ -19,7 +19,7 @@ body {
         overflow: hidden;
     }
 
-    &.state-app_setup {
+    &.state-app_setup, &.state-app_bannedip {
         @extend .fill-height-or-more;
 
         padding-bottom: $big-footer-height * 2;
