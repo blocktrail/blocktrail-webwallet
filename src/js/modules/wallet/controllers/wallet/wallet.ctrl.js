@@ -4,9 +4,9 @@
     angular.module("blocktrail.wallet")
         .controller("WalletCtrl", WalletCtrl);
 
-    function WalletCtrl($scope, $state, $rootScope, walletsManagerService, activeWallet, sdkService,
+    function WalletCtrl($scope, $state, $rootScope, $interval, walletsManagerService, activeWallet, sdkService,
                         CONFIG, settingsService, setupService, $timeout, launchService, blocktrailLocalisation,
-                        dialogService, $translate, Currencies, AppVersionService, Contacts, $filter) {
+                        dialogService, $translate, Currencies, AppVersionService, Contacts, $filter, trackingService) {
 
         $scope.settings = settingsService.getReadOnlySettings();
         $scope.walletData = activeWallet.getReadOnlyWalletData();
@@ -52,6 +52,18 @@
             config: CONFIG,
             settings: $scope.settings
         };
+
+        // track when wallet is activated (first time > 0 balance)
+        if (!$scope.settings.walletActivated) {
+            var walletActivatedInterval = $interval(function() {
+                if ($scope.walletData.balance + $scope.walletData.uncBalance > 0) {
+                    settingsService.updateSettingsUp({walletActivated: true});
+                    trackingService.trackEvent(trackingService.EVENTS.ACTIVATED);
+
+                    $interval.cancel(walletActivatedInterval);
+                }
+            }, 60000);
+        }
 
         /**
          * Start temporal implementation for multiple wallets

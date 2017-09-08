@@ -130,7 +130,8 @@
                 return powtcha.findNonce().then(function(powtchaResult) {
                     return trackingService.getBrowserFingerprint().then(function(fingerprint) {
                         return fingerprint.hash;
-                    }, function(e) {
+                    }, function() {
+                        // if fingerprint fails we just leave it NULL
                         return null;
                     }).then(function(fingerprint) {
                         return $scope._register(powtchaResult, fingerprint);

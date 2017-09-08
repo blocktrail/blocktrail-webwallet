@@ -2,9 +2,9 @@
     "use strict";
 
     angular.module('blocktrail.setup')
-        .factory('loginFormService', function($http, _, cryptoJS, navigator, CONFIG, launchService, setupService, sdkService) {
+        .factory('loginFormService', function($http, $q, _, cryptoJS, navigator, CONFIG, launchService, setupService, sdkService, trackingService) {
 
-            return new LoginFormService($http, _, cryptoJS, navigator, CONFIG, launchService, setupService, sdkService);
+            return new LoginFormService($http, $q, _, cryptoJS, navigator, CONFIG, launchService, setupService, sdkService, trackingService);
         }
     );
 
@@ -12,10 +12,11 @@
      * TODO here
      * @constructor
      */
-    function LoginFormService($http, _, cryptoJS, navigator, CONFIG, launchService, setupService, sdkService) {
+    function LoginFormService($http, $q, _, cryptoJS, navigator, CONFIG, launchService, setupService, sdkService, trackingService) {
         var self = this;
 
         self._$http = $http;
+        self._$q = $q;
         self._lodash = _;
         self._cryptoJS = cryptoJS;
         self._navigator = navigator;
@@ -23,24 +24,39 @@
         self._launchService = launchService;
         self._setupService = setupService;
         self._sdkService = sdkService;
+        self._trackingService = trackingService;
     }
 
     LoginFormService.prototype.login = function(data) {
         var self = this;
+
         var postData = {
             login: data.login,
             password: self._cryptoJS.SHA512(data.password).toString(),
             platform: "Web",
             version: self._CONFIG.VERSION || self._CONFIG.VERSION_REV,
             two_factor_token: data.twoFactorToken,
-            device_name: self._navigator.userAgent || "Unknown Browser"
+            device_name: self._navigator.userAgent || "Unknown Browser",
+            browser_fingerprint: null
         };
-
         var url = self._CONFIG.API_URL + "/v1/" + data.networkType + "/mywallet/enable";
 
-        return self._$http.post(url, postData)
-            .then(self._decryptSecret.bind(self, data.password))
-            .then(self._storeAccountInfo.bind(self))
+        return self._$q.when(postData)
+            .then(function(postData) {
+                return self._trackingService.getBrowserFingerprint()
+                    .then(function(fingerprint) {
+                        postData.browser_fingerprint = fingerprint.hash;
+                        return postData;
+                    }, function() {
+                        // if fingerprint fails we just leave it NULL
+                        return postData;
+                    })
+            })
+            .then(function(postData) {
+                return self._$http.post(url, postData)
+                    .then(self._decryptSecret.bind(self, data.password))
+                    .then(self._storeAccountInfo.bind(self));
+            })
             .catch(self._errorHandler.bind(self));
     };
 
