@@ -37,7 +37,7 @@
             "TICKER": "BTC",
             "TICKER_LONG": "Bitcoin TESTNET",
             "TX_FILTER_MIN_BLOCK_HEIGHT": null,
-            "BUYBTC": false,
+            "BUYBTC": true,
             "PRIOBOOST": false,
             "EXPLORER_ADDRESS_URL": "https://www.blocktrail.com/tBTC/address",
             "EXPLORER_TX_URL": "https://www.blocktrail.com/tBTC/tx"

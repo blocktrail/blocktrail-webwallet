@@ -1,28 +1,28 @@
 angular.module('blocktrail.wallet')
     .controller('BuyBTCChooseCtrl', function($q, $scope, $state, $rootScope, _, dialogService, settingsService,
                                              $translate, glideraService, buyBTCService, $log, $timeout, trackingService) {
+        var settings = settingsService.getReadOnlySettings();
+
         $scope.brokers = [];
 
         // load chooseRegion from settingsService
         $scope.chooseRegion = null;
-        settingsService.getSettings().then(function(settings) {
-            $q.all([,
-                buyBTCService.regions().then(function(regions) {
-                    $scope.regions = regions;
-                }),
-                buyBTCService.usStates().then(function(usStates) {
-                    $scope.usStates = usStates;
-                })
-            ]).then(function() {
-                $scope.chooseRegion = _.defaults({}, settings.buyBTCRegion, {
-                    code: null,
-                    name: null
-                });
+        $q.all([,
+            buyBTCService.regions().then(function(regions) {
+                $scope.regions = regions;
+            }),
+            buyBTCService.usStates().then(function(usStates) {
+                $scope.usStates = usStates;
+            })
+        ]).then(function() {
+            $scope.chooseRegion = _.defaults({}, settings.buyBTCRegion, {
+                code: null,
+                name: null
+            });
 
-                return buyBTCService.regionBrokers($scope.chooseRegion.code).then(function(brokers) {
-                    $scope.brokers = brokers;
-                    $scope.chooseRegion.regionOk = $scope.brokers.length;
-                });
+            return buyBTCService.regionBrokers($scope.chooseRegion.code).then(function(brokers) {
+                $scope.brokers = brokers;
+                $scope.chooseRegion.regionOk = $scope.brokers.length;
             });
         });
 
@@ -41,13 +41,11 @@ angular.module('blocktrail.wallet')
                     trackingService.trackEvent(trackingService.EVENTS.BUYBTC.REGION_NOTOK);
                 }
 
-                settingsService.getSettings().then(function() {
-                    var updateSettings = {
-                        buyBTCRegion: _.defaults({}, $scope.chooseRegion)
-                    };
+                var updateSettings = {
+                    buyBTCRegion: _.defaults({}, $scope.chooseRegion)
+                };
 
-                    return settingsService.updateSettingsUp(updateSettings);
-                })
+                return settingsService.updateSettingsUp(updateSettings);
             });
         };
 
@@ -60,30 +58,28 @@ angular.module('blocktrail.wallet')
                 if (!userCanTransact) {
                     return glideraService.accessToken().then(function(accessToken) {
                         if (accessToken) {
-                            return settingsService.getSettings().then(function(settings) {
-                                // 2: Additional user verification information is required
-                                if (settings.glideraAccessToken.userCanTransactInfo.code == 2) {
-                                    trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_SETUP_UPDATE);
-                                    return dialogService.prompt({
-                                        body: $translate.instant('MSG_BUYBTC_SETUP_MORE_GLIDERA_BODY', {
-                                            message: settings.glideraAccessToken.userCanTransactInfo.message
-                                        }),
-                                        title: $translate.instant('MSG_BUYBTC_SETUP_MORE_GLIDERA_TITLE'),
-                                        prompt: false
-                                    })
-                                        .result
-                                        .then(function() {
-                                            return glideraService.setup();
-                                        }, function() {
-                                            // -
-                                        });
+                            // 2: Additional user verification information is required
+                            if (settings.glideraAccessToken.userCanTransactInfo.code == 2) {
+                                trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_SETUP_UPDATE);
+                                return dialogService.prompt({
+                                    body: $translate.instant('MSG_BUYBTC_SETUP_MORE_GLIDERA_BODY', {
+                                        message: settings.glideraAccessToken.userCanTransactInfo.message
+                                    }),
+                                    title: $translate.instant('MSG_BUYBTC_SETUP_MORE_GLIDERA_TITLE'),
+                                    prompt: false
+                                })
+                                    .result
+                                    .then(function() {
+                                        return glideraService.setup();
+                                    }, function() {
+                                        // -
+                                    });
 
-                                } else if (settings.glideraAccessToken.userCanTransactInfo) {
-                                    throw new Error("User can't transact because: " + settings.glideraAccessToken.userCanTransactInfo.message);
-                                } else {
-                                    throw new Error("User can't transact for unknown reason!");
-                                }
-                            });
+                            } else if (settings.glideraAccessToken.userCanTransactInfo) {
+                                throw new Error("User can't transact because: " + settings.glideraAccessToken.userCanTransactInfo.message);
+                            } else {
+                                throw new Error("User can't transact for unknown reason!");
+                            }
 
                         } else {
                             trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_SETUP_INIT);
@@ -119,24 +115,23 @@ angular.module('blocktrail.wallet')
          * reset buy BTC state for debugging purposes
          */
         $scope.resetBuyBTC = function() {
-            return settingsService.getSettings().then(function() {
-                var updateSettings = {
-                    glideraAccessToken: null,
-                    buyBTCRegion: null,
-                    glideraTransactions: []
-                };
+            return $q.when()
+                .then(function() {
+                    var updateSettings = {
+                        glideraAccessToken: null,
+                        buyBTCRegion: null,
+                        glideraTransactions: []
+                    };
 
-                return settingsService.updateSettingsUp(updateSettings);
-            })
+                    return settingsService.updateSettingsUp(updateSettings);
+                })
                 .then(function() {
                     $state.go('app.wallet.summary');
                 }, function(err) {
                     alert(err);
-                })
-            ;
+                });
         };
-    })
-;
+    });
 
 angular.module('blocktrail.wallet')
     .controller('BuyBTCChooseRegionCtrl', function($q, $scope, $log) {
@@ -145,8 +140,7 @@ angular.module('blocktrail.wallet')
         $scope.selectUS = function() {
             $scope.usSelected = true;
         };
-    })
-;
+    });
 
 angular.module('blocktrail.wallet')
     .controller('BuyBTCGlideraOauthCallbackCtrl', function($scope, $state, $rootScope, glideraService) {
