@@ -10,9 +10,7 @@ angular.module('blocktrail.wallet').factory(
         };
 
         var buyPrices = function(qty, fiat) {
-
-            return new Promise(function(resolve, reject) {
-                $http({
+            return $http({
                     method: 'GET',
                     url: CONFIG.BITONIC_URL + '/api/buy',
                     params: {
@@ -27,13 +25,13 @@ angular.module('blocktrail.wallet').factory(
                             delete data.btc;
                             delete data.eur;
                             $log.log('buyPrices ' + JSON.stringify(response));
-                            resolve(data);
+
+                            return data;
                         }, function error(response, status, headers) {
                             $log.error('buyPrices - fetch price estimate failed ', response, status, headers);
-                            reject(response);
+                            throw new Error("" + response);
                         }
                     );
-            });
         };
 
         var buy = function(qty, fiat) {
