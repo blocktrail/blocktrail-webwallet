@@ -16,6 +16,7 @@
         self._wallets = {};
         self._walletsList = [];
         self._activeWallet = null;
+        self._activatingWallets = {};
     }
 
     /**
@@ -67,6 +68,21 @@
             id = self._walletsList[0];
         }
 
+        if (self._activatingWallets[id]) {
+            if (Raven) {
+                var e = new Error();
+
+                console.log('CONFLICTING setActiveWalletById CALL', id);
+                console.log(e.stack);
+                console.log(self._activatingWallets[id].stack);
+
+                Raven.captureException(e);
+            }
+        }
+
+        var e = new Error();
+        self._activatingWallets[id] = e;
+
         if(self._activeWallet) {
             if(self._activeWallet.getReadOnlyWalletData().identifier !== id) {
                 // Disable polling for active wallet and enable polling for new active wallet
@@ -91,7 +107,11 @@
             promise = self._setActiveWalletById(id);
         }
 
-        return self._$q.when(promise);
+        return self._$q.when(promise).then(function(activeWallet) {
+            delete self._activatingWallets[id];
+
+            return activeWallet;
+        });
     };
 
     /**
