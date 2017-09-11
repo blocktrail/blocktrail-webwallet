@@ -92,12 +92,8 @@
                             return walletsManagerService.setActiveWalletById(walletInfo.identifier);
                         })
                     })
-                    .then(function(activeWallet) {
-                        // we don't want to get the Wallet service until we're finally ready to send the user onwards
-                        //  then we want to poll for transactions before sending him onwards
-                        activeWallet.forcePolling().then(function() {
-                            $state.go('app.wallet.summary');
-                        });
+                    .then(function() {
+                        $state.go('app.wallet.summary');
                     })
                 ;
             }
