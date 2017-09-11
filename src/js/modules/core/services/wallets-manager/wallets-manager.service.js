@@ -70,7 +70,7 @@
 
         if (self._activatingWallets[id]) {
             if (Raven) {
-                var e = new Error();
+                var e = new Error('CONFLICTING setActiveWalletById CALL [' + id + ']');
 
                 console.log('CONFLICTING setActiveWalletById CALL', id);
                 console.log(e.stack);
