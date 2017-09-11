@@ -8,7 +8,7 @@ var blocktrail = angular.module('blocktrail.wallet', [
     'angularMoment',
     'ja.qr',
     'ngImgCrop',
-    'ngRaven',
+    window.Raven && 'ngRaven',
 
     'angulartics',
     'angulartics.google.analytics',
@@ -18,7 +18,9 @@ var blocktrail = angular.module('blocktrail.wallet', [
     'blocktrail.setup',
 
     'blocktrail.templates'
-]);
+].filter(function onlyNotNull(value) {
+    return !!value;
+}));
 
 /*--- Blocktrail Error Classes ---*/
 angular.module('blocktrail.wallet').config(function() {

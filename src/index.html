@@ -88,7 +88,6 @@
                 <% if (SRI) { %>integrity="sha256-<%= SRI['js/sdk.js'] %>"<% } %>
                 src="<%= STATICSURL %>/js/sdk.js"></script>
 
-
         <% if (APPCONFIG.SENTRY_TRACKING_URL) { %>
         <script>
             Raven
@@ -96,6 +95,11 @@
                 .addPlugin(Raven.Plugins.Angular)
                 .install();
         </script>
+        <% } else { %>
+            <script>
+                // unset Raven because we won't be initializing it
+                window.Raven = null;
+            </script>
         <% } %>
 
         <script>
