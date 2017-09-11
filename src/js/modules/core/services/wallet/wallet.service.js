@@ -65,6 +65,8 @@
     function Wallet(sdkWallet, $q, $timeout, bitcoinJS, storageService, settingsService, contactsService) {
         var self = this;
 
+        console.log('new Wallet', sdkWallet.identifier);
+
         self._$q = $q;
         self._$timeout = $timeout;
         self._bitcoinJS = bitcoinJS;
