@@ -196,6 +196,10 @@
         console.log('_setupTimeout');
 
         if(!self._noPolling) {
+            if(self._pollTimeout) {
+                self._$timeout.cancel(self._pollTimeout);
+            }
+
             self._pollTimeout = self._$timeout(self._pollTransactionsAndGetBlockHeight.bind(self), self._pollingInterval);
         }
 
