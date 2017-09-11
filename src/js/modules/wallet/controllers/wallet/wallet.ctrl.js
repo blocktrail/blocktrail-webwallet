@@ -160,7 +160,7 @@
                         return settingsService.updateSettingsUp(updateSettings)
                             .then(function(settings) {
                                 // check if we have a new preferred language
-                                if (preferredLanguage != settings.language && extraLanguages.indexOf(preferredLanguage) !== -1) {
+                                if (preferredLanguage && settings.language && preferredLanguage !== settings.language && extraLanguages.indexOf(preferredLanguage) !== -1) {
                                     // prompt to enable
                                     return dialogService.prompt({
                                         body: $translate.instant('MSG_BETTER_LANGUAGE', {
