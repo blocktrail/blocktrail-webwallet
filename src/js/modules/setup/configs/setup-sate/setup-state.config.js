@@ -16,12 +16,21 @@
                 controller: "BannedIpCtrl",
                 templateUrl: "js/modules/setup/controllers/banned-ip/banned-ip.tpl.html"
             })
+            .state('app.lostlock', {
+                url: "/lostlock?refresh",
+                cache: false,
+                controller: "LostLockCtrl",
+                templateUrl: "js/modules/setup/controllers/lost-lock/lost-lock.tpl.html"
+            })
             .state("app.setup", {
                 url: "/setup",
                 abstract: true,
                 controller: "SetupWrapperCtrl",
                 templateUrl: "js/modules/setup/controllers/wrapper/wrapper.tpl.html",
                 resolve: {
+                    globalLock: function(globalLockService) {
+                        globalLockService.init();
+                    },
                     preferredLanguage: preferredLanguage
                 }
             })
