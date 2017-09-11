@@ -39,7 +39,7 @@ angular.module('blocktrail.wallet').config(function() {
 });
 
 angular.module('blocktrail.wallet').run(
-    function($rootScope, $state, $log, $interval, $timeout, blocktrailLocalisation, CONFIG, $locale, $translate, amMoment) {
+    function($rootScope, $state, $log, $interval, $timeout, blocktrailLocalisation, storageService, CONFIG, $locale, $translate, amMoment) {
         $rootScope.CONFIG       = CONFIG || {};
         $rootScope.$state       = $state;
         $rootScope.appVersion   = CONFIG.VERSION || CONFIG.VERSION_REV;
@@ -222,6 +222,9 @@ angular.module('blocktrail.wallet').config(
                 controller: "WalletCtrl",
                 templateUrl: "js/modules/wallet/controllers/wallet/wallet.tpl.html",
                 resolve: {
+                    globalLock: function(globalLockService) {
+                        globalLockService.init();
+                    },
                     handleSetupState: function($state, launchService) {
                         return launchService.handleSetupState('app.wallet', $state);
                     },
