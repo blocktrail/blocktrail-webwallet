@@ -411,6 +411,10 @@
         var self = this;
 
         return self._$q.when(self._walletStore.get(self._getUniqueId("block-height")))
+            .then(function(doc) {
+                console.log('_getBlockHeightFromStorage', doc.height, doc._rev);
+                return doc;
+            })
             .catch(function() {
                 return {
                     _id: self._getUniqueId("block-height"),
@@ -446,7 +450,7 @@
      */
     Wallet.prototype._setBlockHeightToStorage = function(blockHeightDoc) {
         var self = this;
-        console.log('_setBlockHeightToStorage', blockHeightDoc.height);
+        console.log('_setBlockHeightToStorage', blockHeightDoc.height, blockHeightDoc._rev);
 
         return self._$q.when(self._walletStore.put(blockHeightDoc))
             .then(function() {
