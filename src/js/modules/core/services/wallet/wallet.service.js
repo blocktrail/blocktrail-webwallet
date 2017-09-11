@@ -818,6 +818,8 @@
         if (e.message === 'NO_TX') {
             return self._$q.when(true);
         } else if (e.message === 'ORPHAN') {
+            console.error('ORPHAN');
+
             // ORPHAN means we need to resync (completely)
             return self._resetWalletData()
                 .then(function () {
