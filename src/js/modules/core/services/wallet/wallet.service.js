@@ -1,6 +1,8 @@
 (function () {
     "use strict";
 
+    var POUCHDB_ERR_CONFLICT = 409;
+
     angular.module('blocktrail.core')
         .factory('walletService', function($q, $timeout, bitcoinJS, sdkService, storageService, settingsService, Contacts) {
             return new WalletService($q, $timeout, bitcoinJS, sdkService, storageService, settingsService, Contacts)
@@ -335,7 +337,15 @@
         var self = this;
 
         return self._$q.when(self._walletStore.put(balanceDoc))
-            .then(function() { return balanceDoc; });
+            .then(function() {
+                return balanceDoc;
+            }, function(e) {
+                if (e.status === POUCHDB_ERR_CONFLICT) {
+                    console.error('_setBalanceToStorage CONFLICT');
+                }
+
+                throw e;
+            });
     };
 
     /**
@@ -423,6 +433,12 @@
         return self._$q.when(self._walletStore.put(blockHeightDoc))
             .then(function() {
                 return blockHeightDoc;
+            }, function(e) {
+                if (e.status === POUCHDB_ERR_CONFLICT) {
+                    console.error('_setBlockHeightToStorage CONFLICT');
+                }
+
+                throw e;
             });
     };
 
@@ -477,6 +493,12 @@
         return self._walletStore.put(lastBlockHashDoc)
             .then(function() {
                 return lastBlockHashDoc;
+            }, function(e) {
+                if (e.status === POUCHDB_ERR_CONFLICT) {
+                    console.error('_setLastBlockHashToStorage CONFLICT');
+                }
+
+                throw e;
             });
     };
 
@@ -548,6 +570,12 @@
         return self._walletStore.put(transactionsHistoryDoc)
             .then(function() {
                 return transactionsHistoryDoc;
+            }, function(e) {
+                if (e.status === POUCHDB_ERR_CONFLICT) {
+                    console.error('_setTransactionHistoryToStorage CONFLICT');
+                }
+
+                throw e;
             });
     };
 
@@ -563,6 +591,12 @@
         return self._$q.when(self._walletStore.put(transactionDoc))
             .then(function() {
                 return transactionDoc;
+            }, function(e) {
+                if (e.status === POUCHDB_ERR_CONFLICT) {
+                    console.error('_setTransactionToStorage[' + transactionDoc.hash + '] CONFLICT');
+                }
+
+                throw e;
             });
     };
 
@@ -1104,7 +1138,14 @@
                             })
                             .then(function(_addressesDoc) {
                                 _addressesDoc.available = _addressesDoc.available.concat(addressesDoc.available).unique();
-                                return self._walletStore.put(_addressesDoc);
+                                return self._walletStore.put(_addressesDoc)
+                                    .catch(function(e) {
+                                        if (e.status === POUCHDB_ERR_CONFLICT) {
+                                            console.error('refillOfflineAddresses CONFLICT');
+                                        }
+
+                                        throw e;
+                                    });
                             })
                             .then(function() {
                                 self.isRefilling = false;
@@ -1151,6 +1192,12 @@
                         return self._walletStore.put(addressesDoc)
                             .then(function() {
                                 return address;
+                            }, function(e) {
+                                if (e.status === POUCHDB_ERR_CONFLICT) {
+                                    console.error('getNewOfflineAddress CONFLICT');
+                                }
+
+                                throw e;
                             });
                     }
                 },
