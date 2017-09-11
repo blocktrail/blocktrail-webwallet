@@ -1,5 +1,5 @@
 angular.module('blocktrail.wallet')
-    .factory('trackingService', function(CONFIG, $analytics) {
+    .factory('trackingService', function(CONFIG, $q, $analytics) {
 
         var EVENTS = {
             ACTIVATED: 'activated',
@@ -38,16 +38,17 @@ angular.module('blocktrail.wallet')
         });
 
         var getBrowserFingerprint = function() {
-            // Return a promise for a fingerprint
-            return new Promise(function (resolve, reject) {
-                new Fingerprint2({excludeFlashFonts: true}).get(function (result, components) {
-                    if(!result) reject();
-                    resolve({
-                        "hash": result,
-                        "components": components
-                    });
+            var def = $q.defer();
+
+            new Fingerprint2({excludeFlashFonts: true}).get(function (result, components) {
+                if(!result) def.reject();
+                def.resolve({
+                    "hash": result,
+                    "components": components
                 });
             });
+
+            return def.promise;
         };
 
         var trackEvent = function(event) {
