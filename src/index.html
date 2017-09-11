@@ -91,7 +91,7 @@
         <% if (APPCONFIG.SENTRY_TRACKING_URL) { %>
         <script>
             Raven
-                .config('<%= APPCONFIG.SENTRY_TRACKING_URL %>', {tags: {version: '<%= APPCONFIG.VERSION %>'}})
+                .config('<%= APPCONFIG.SENTRY_TRACKING_URL %>', {release: '<%= APPCONFIG.VERSION %>'})
                 .addPlugin(Raven.Plugins.Angular)
                 .install();
         </script>
