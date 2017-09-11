@@ -117,6 +117,10 @@
     WalletsManagerService.prototype._setActiveWalletById = function(id) {
         var self = this;
 
+        console.log('_setActiveWalletById', id);
+        var e = new Error();
+        console.log(e.stack);
+
         return self._walletService.initWallet(id)
             .then(function(wallet) {
                 // Add wallet to buffer

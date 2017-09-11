@@ -38,6 +38,7 @@
 
     WalletService.prototype._initWallet = function(walletId, sdkWallet) {
         var self = this;
+
         var wallet =  new Wallet(sdkWallet, self._$q, self._$timeout,  self._bitcoinJS, self._storageService, self._settingsService, self._contactsService);
 
         return wallet.isReady;

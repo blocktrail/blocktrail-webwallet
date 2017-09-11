@@ -248,6 +248,8 @@ angular.module('blocktrail.wallet').config(
                             })
                     },
                     activeWallet: function($state, launchService, walletsManagerService) {
+                        console.log('resolve:activeWallet');
+
                         return walletsManagerService.fetchWalletsList()
                             .then(function() {
                                 return launchService.getWalletInfo().then(function(walletInfo) {
