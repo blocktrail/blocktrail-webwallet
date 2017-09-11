@@ -617,7 +617,7 @@
                 return transactionDoc;
             }, function(e) {
                 if (e.status === POUCHDB_ERR_CONFLICT) {
-                    console.error('_setTransactionToStorage[' + transactionDoc.hash + '] CONFLICT');
+                    console.error('_setTransactionToStorage[' + transactionDoc.data.hash + '] CONFLICT');
                 }
 
                 throw e;
