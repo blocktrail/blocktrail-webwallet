@@ -24,6 +24,8 @@
 
                             lostLock();
                         }
+                    }, function() {
+                        clearInterval(interval);
                     });
             }, 100);
         }
