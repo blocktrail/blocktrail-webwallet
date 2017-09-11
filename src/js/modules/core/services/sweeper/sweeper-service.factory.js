@@ -220,6 +220,7 @@
                         debugInfo.push(['WIF', key.getAddress(), mirrorKey.getAddress()]);
 
                         keysByAddress[key.getAddress()] = key;
+                        keysByAddress[mirrorKey.getAddress()] = mirrorKey;
                     });
 
                     var addresses = Object.keys(keysByAddress);
