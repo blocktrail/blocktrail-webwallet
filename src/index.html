@@ -88,6 +88,16 @@
                 <% if (SRI) { %>integrity="sha256-<%= SRI['js/sdk.js'] %>"<% } %>
                 src="<%= STATICSURL %>/js/sdk.js"></script>
 
+
+        <% if (APPCONFIG.SENTRY_TRACKING_URL) { %>
+        <script>
+            Raven
+                .config('<%= APPCONFIG.SENTRY_TRACKING_URL %>')
+                .addPlugin(Raven.Plugins.Angular)
+                .install();
+        </script>
+        <% } %>
+
         <script>
             angular.module('blocktrail.config', []).constant('CONFIG', <%= APPCONFIG_JSON %>);
             angular.module('blocktrail.translations', []).constant('TRANSLATIONS', <%= TRANSLATIONS %>);

@@ -185,7 +185,9 @@ gulp.task('js:libs', ['appconfig'], function() {
             "./src/lib/qrcode/lib/qrcode.js",
             "./src/lib/angular-qr/src/angular-qr.js",
 
-            "./src/lib/fingerprintjs2/fingerprint2.js"
+            "./src/lib/fingerprintjs2/fingerprint2.js",
+            "./src/lib/raven-js/dist/raven.js",
+            "./src/lib/raven-js/dist/plugins/angular.js"
         ])
             .pipe(concat('libs.js'))
             .pipe(gulpif(APPCONFIG.MINIFY, uglify()))

@@ -8,6 +8,7 @@ var blocktrail = angular.module('blocktrail.wallet', [
     'angularMoment',
     'ja.qr',
     'ngImgCrop',
+    'ngRaven',
 
     'angulartics',
     'angulartics.google.analytics',
