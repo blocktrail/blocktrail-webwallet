@@ -135,7 +135,7 @@ angular.module('blocktrail.wallet')
 
             // halt if input is 0
             if (amount <= 0) {
-                return;
+                return $q.reject(new Error("Amount needs to be > 0"));
             }
 
             // either use the real destination address or otherwise use a fake address
