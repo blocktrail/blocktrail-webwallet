@@ -128,8 +128,10 @@
         var self = this;
 
         if (self._isInitData) {
+            console.log('_initData', true);
             return self._$q.when(self);
         } else {
+            console.log('_initData', false);
             return self._$q.when(self._getBalance())
                 .then(self._pollTransactionsAndGetBlockHeight.bind(self))
                 .then(self._getTransactions.bind(self))
@@ -149,6 +151,7 @@
      */
     Wallet.prototype.disablePolling = function() {
         var self = this;
+        console.log('disablePolling');
 
         if(self._pollTimeout) {
             self._$timeout.cancel(self._pollTimeout);
@@ -162,6 +165,7 @@
      */
     Wallet.prototype.enablePolling = function() {
         var self = this;
+        console.log('enablePolling');
 
         self._noPolling = false;
 
@@ -173,6 +177,7 @@
      */
     Wallet.prototype.forcePolling = function() {
         var self = this;
+        console.log('forcePolling');
 
         if(self._pollTimeout) {
             self._$timeout.cancel(self._pollTimeout);
@@ -188,6 +193,7 @@
      */
     Wallet.prototype._setupTimeout = function() {
         var self = this;
+        console.log('_setupTimeout');
 
         if(!self._noPolling) {
             self._pollTimeout = self._$timeout(self._pollTransactionsAndGetBlockHeight.bind(self), self._pollingInterval);
@@ -203,6 +209,7 @@
      */
     Wallet.prototype._pollTransactionsAndGetBlockHeight = function() {
         var self = this;
+        console.log('_pollTransactionsAndGetBlockHeight', !!self._pollPromise);
 
         if (self._pollPromise) {
             return self._pollPromise;
@@ -229,6 +236,7 @@
      */
     Wallet.prototype._resetWalletData = function() {
         var self = this;
+        console.log('_resetWalletData');
 
         return self._walletStore.allDocs({
                 include_docs: true,
@@ -262,6 +270,7 @@
      */
     Wallet.prototype._deleteDocumentFromStorage = function(doc) {
         var self = this;
+        console.log('_deleteDocumentFromStorage');
 
         return self._walletStore.remove(doc);
     };
@@ -281,6 +290,7 @@
      */
     Wallet.prototype._getBalance = function() {
         var self = this;
+        console.log('_getBalance');
 
         return self._getBalanceFromStorage()
             .then(self._getBalanceFromSdkAndUpdateBalanceDoc.bind(self))
@@ -378,6 +388,7 @@
      */
     Wallet.prototype._getBlockHeight = function() {
         var self = this;
+        console.log('_getBlockHeight');
 
         return self._getBlockHeightFromStorage()
             .then(self._getBlockHeightFromSdkAndUpdateBlockHeightDoc.bind(self))
@@ -429,6 +440,7 @@
      */
     Wallet.prototype._setBlockHeightToStorage = function(blockHeightDoc) {
         var self = this;
+        console.log('_setBlockHeightToStorage', blockHeightDoc.height);
 
         return self._$q.when(self._walletStore.put(blockHeightDoc))
             .then(function() {
@@ -529,6 +541,7 @@
      */
     Wallet.prototype._pollTransactions = function() {
         var self = this;
+        console.log('_pollTransactions');
 
         return self._$q.when(self._getLastBlockHashFromStorage())
             // We reject the promise if we do not have new transactions and handle it in '_pollTransactionsCatchHandler'
@@ -633,6 +646,7 @@
      */
     Wallet.prototype._getTransactionsHistoryFromStorageAndTransactionsFromSdk = function (lastBlockHashDoc) {
         var self = this;
+        console.log('_getTransactionsHistoryFromStorageAndTransactionsFromSdk');
 
         return self._$q.all([
             self._$q.when(lastBlockHashDoc),
@@ -648,6 +662,7 @@
      */
     Wallet.prototype._processTransactionsAndGetBalance = function(data) {
         var self = this;
+        console.log('_processTransactionsAndGetBalance');
 
         return self._$q.all([self._processTransactions(data), self._getBalance()])
             .then(function(results) {
@@ -663,6 +678,7 @@
      */
     Wallet.prototype._processTransactions = function(data) {
         var self = this;
+        console.log('_processTransactions');
 
         var lastBlockHashDoc = data[0];
         var transactionHistoryDoc = data[1];
@@ -800,6 +816,7 @@
      */
     Wallet.prototype._setLastBlockHashToStorageAndTransactionHistoryToStorage = function(data) {
         var self = this;
+        console.log('_setLastBlockHashToStorageAndTransactionHistoryToStorage');
 
         return self._$q.all([self._setLastBlockHashToStorage(data.lastBlockHashDoc), self._setTransactionHistoryToStorage(data.transactionHistoryDoc)])
             .then(function() {
@@ -814,6 +831,7 @@
      */
     Wallet.prototype._pollTransactionsCatchHandler = function(e) {
         var self = this;
+        console.log('_pollTransactionsCatchHandler', e.message);
 
         if (e.message === 'NO_TX') {
             return self._$q.when(true);
