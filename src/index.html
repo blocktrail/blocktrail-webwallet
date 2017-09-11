@@ -21,8 +21,8 @@
                     //  and then bootstrap angular
                     var check = setInterval(function() {
                         if (window.supportsIndexedDB !== null) {
-                            angular.bootstrap(document, ['blocktrail.wallet']);
                             clearInterval(check);
+                            angular.bootstrap(document, ['blocktrail.wallet']);
                         }
                     }, 5);
                 };
