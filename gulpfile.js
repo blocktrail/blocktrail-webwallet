@@ -9,6 +9,7 @@ var minifyCss = require('gulp-minify-css');
 var rename = require('gulp-rename');
 var template = require('gulp-template');
 var uglify = require('gulp-uglify');
+var sourcemaps = require('gulp-sourcemaps');
 var fs = require('fs');
 var path = require('path');
 var Q = require('q');
@@ -192,11 +193,13 @@ gulp.task('js:libs', ['appconfig'], function() {
             "./src/lib/raven-js/dist/plugins/angular.js"
         ])
             .pipe(concat('libs.js'))
+            .pipe(sourcemaps.init())
             .pipe(gulpif(APPCONFIG.MINIFY, uglify({
                 mangle: {
                     except: DONT_MANGLE
                 }
             })))
+            .pipe(sourcemaps.write('./'))
             .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
         );
     });
@@ -222,7 +225,13 @@ gulp.task('js:app', ['appconfig'], function() {
                     throw e;
                 }
             })
-            .pipe(gulpif(APPCONFIG.MINIFY, uglify()))
+            .pipe(sourcemaps.init())
+            .pipe(gulpif(APPCONFIG.MINIFY, uglify({
+                mangle: {
+                    except: DONT_MANGLE
+                }
+            })))
+            .pipe(sourcemaps.write('./'))
             .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
         );
     });
@@ -235,11 +244,13 @@ gulp.task('js:sdk', ['appconfig'], function() {
             "./src/lib/blocktrail-sdk/build/blocktrail-sdk-full.js"
         ])
             .pipe(concat('sdk.js'))
+            .pipe(sourcemaps.init())
             .pipe(gulpif(APPCONFIG.MINIFY, uglify({
                 mangle: {
                     except: DONT_MANGLE
                 }
             })))
+            .pipe(sourcemaps.write('./'))
             .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
         );
     });
