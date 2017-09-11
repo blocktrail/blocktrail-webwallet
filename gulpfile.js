@@ -24,6 +24,8 @@ var buildAppConfig = require('./gulp/buildappconfig');
 var streamAsPromise = require('./gulp/streamaspromise');
 var buildSRIMap = require('./gulp/sri');
 
+var DONT_MANGLE = ['Buffer', 'BigInteger', 'Point', 'Script', 'ECPubKey', 'ECKey', 'sha512_asm', 'asm', 'ECPair', 'HDNode', 'ngRaven'];
+
 var isWatch = false;
 var isLiveReload = process.argv.indexOf('--live-reload') !== -1 || process.argv.indexOf('--livereload') !== -1;
 
@@ -190,7 +192,11 @@ gulp.task('js:libs', ['appconfig'], function() {
             "./src/lib/raven-js/dist/plugins/angular.js"
         ])
             .pipe(concat('libs.js'))
-            .pipe(gulpif(APPCONFIG.MINIFY, uglify()))
+            .pipe(gulpif(APPCONFIG.MINIFY, uglify({
+                mangle: {
+                    except: DONT_MANGLE
+                }
+            })))
             .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
         );
     });
@@ -231,7 +237,7 @@ gulp.task('js:sdk', ['appconfig'], function() {
             .pipe(concat('sdk.js'))
             .pipe(gulpif(APPCONFIG.MINIFY, uglify({
                 mangle: {
-                    except: ['Buffer', 'BigInteger', 'Point', 'Script', 'ECPubKey', 'ECKey', 'sha512_asm', 'asm', 'ECPair', 'HDNode']
+                    except: DONT_MANGLE
                 }
             })))
             .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
