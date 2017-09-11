@@ -184,8 +184,6 @@
                     } else {
                         $scope.error = "MSG_BAD_NETWORK";
                     }
-
-                    throw error;
                 }
             );
         };
