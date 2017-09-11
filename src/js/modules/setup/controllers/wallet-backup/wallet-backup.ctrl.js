@@ -10,6 +10,7 @@
         $scope.displayTextBackup = true;
         $scope.backupSaved = false;
         $scope.backupSavedCheck = false;
+        $scope.working = false;
         $scope.qrSettings = {
             correctionLevel: 7,
             SIZE: 150,
@@ -82,6 +83,12 @@
         };
 
         $scope.continue = function() {
+            if ($scope.working) {
+                return;
+            }
+
+            $scope.working = true;
+
             if (!$scope.backupSaved || !$scope.backupSavedCheck) {
                 $scope.backupPageError = $translate.instant("SETUP_WALLET_BACKUP_CHECKBOX");
             } else {
