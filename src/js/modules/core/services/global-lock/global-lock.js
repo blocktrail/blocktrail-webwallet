@@ -14,31 +14,46 @@
             return $state.go('app.lostlock', {refresh: 1});
         }
 
-        function setupCheckInterval() {
-            interval = setInterval(function() {
-                db.get("LOCK")
-                    .then(function(doc) {
-                        if (doc.uuid !== uuid) {
-                            clearInterval(interval);
-                            console.log("Lost our lock");
+        function checkLock() {
+            return db.get("LOCK")
+                .then(function(doc) {
+                    if (doc.uuid !== uuid) {
+                        console.log("Lost our lock");
 
-                            lostLock();
-                        }
-                    }, function() {
-                        clearInterval(interval);
-                    });
+                        lostLock();
+                    } else {
+                        doc.ts = (new Date).getTime();
+
+                        return db.put(doc);
+                    }
+                });
+        }
+
+        function setupCheckTimeout() {
+            setTimeout(function() {
+                checkLock().then(function() {
+                    setupCheckTimeout();
+                });
             }, 100);
         }
 
         function acquireLock() {
             return db.get("LOCK")
                 .catch(function() {
-                    return {_id: "LOCK"};
+                    return {_id: "LOCK", uuid: null, ts: null};
                 })
                 .then(function(doc) {
-                    doc.uuid = uuid;
+                    var prevTs = doc.ts;
 
-                    return db.put(doc)
+                    doc.uuid = uuid;
+                    doc.ts = (new Date).getTime();
+
+                    // check if we took a recently active lock
+                    var tookLook = prevTs && prevTs > doc.ts - 1000;
+
+                    return db.put(doc).then(function() {
+                        return tookLook;
+                    });
                 });
         }
 
@@ -55,9 +70,9 @@
 
                     lostLock();
                 })
-                .then(function() {
-                    console.log("Got lock");
-                    setupCheckInterval();
+                .then(function(tookLock) {
+                    console.log(tookLock ? "Took lock" : "Got lock");
+                    setupCheckTimeout();
                 });
         }
 
