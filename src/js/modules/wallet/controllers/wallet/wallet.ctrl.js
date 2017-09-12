@@ -53,10 +53,6 @@
                 isHidden: false
             }
         ];
-        $scope.appStoreButtonsData = {
-            config: CONFIG,
-            settings: $scope.settings
-        };
 
         $scope.isLoadingNewWallet = false;
 

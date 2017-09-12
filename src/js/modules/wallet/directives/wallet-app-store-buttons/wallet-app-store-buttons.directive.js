@@ -9,7 +9,7 @@
             restrict: "E",
             replace: true,
             scope: {
-                data: '='
+                language: '='
             },
             templateUrl: "js/modules/wallet/directives/wallet-app-store-buttons/wallet-app-store-buttons.tpl.html"
         };

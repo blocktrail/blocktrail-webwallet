@@ -59,8 +59,6 @@
         }
     },
 
-    "PROMOTE_MOBILE": true,
-
     "EXTRA_LANGUAGES": ["es", "nl", "ru", "fr", "hi", "sw", "cn"],
     "CURRENCIES": ["BTC", "BCC", "tBTC", "tBCC", "USD", "EUR", "GBP", "CNY"],
 

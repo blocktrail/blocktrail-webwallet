@@ -16,11 +16,7 @@
                     }
                 );
         } else {
-            if (CONFIG.PROMOTE_MOBILE) {
-                $window.location.replace("/#/setup/loggedout");
-            } else {
-                $window.location.replace("/#/setup/login");
-            }
+            $window.location.replace("/#/setup/loggedout");
         }
     }
 })();
