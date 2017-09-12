@@ -6,10 +6,16 @@
 
     function WalletCtrl($scope, $state, $rootScope, $interval, walletsManagerService, activeWallet, sdkService,
                         CONFIG, settingsService, setupService, $timeout, launchService, blocktrailLocalisation,
-                        dialogService, $translate, Currencies, AppVersionService, Contacts, $filter, trackingService) {
+                        dialogService, $translate, Currencies, AppVersionService, Contacts, $filter, trackingService,
+                        glideraService) {
 
         $scope.settings = settingsService.getReadOnlySettings();
         $scope.walletData = activeWallet.getReadOnlyWalletData();
+
+        $scope.$watch('walletData.networkType', function() {
+            glideraService.init();
+        });
+
         $scope.sideNavList = [
             {
                 stateHref: $state.href("app.wallet.summary"),
@@ -37,7 +43,7 @@
                 activeStateName: "app.wallet.buybtc",
                 linkText: "BUYBTC_NAVTITLE",
                 linkIcon: "bticon-credit-card",
-                isHidden: !CONFIG.BUYBTC
+                isHidden: !CONFIG.NETWORKS[$scope.walletData.networkType].BUYBTC
             },
             {
                 stateHref: $state.href("app.wallet.settings"),

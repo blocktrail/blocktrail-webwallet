@@ -1,7 +1,6 @@
 {
     "DEBUG": false,
     "MINIFY": true,
-    "TESTNET": true,
     "POUCHDB_DRIVER": null,
     "API_HOST": "api.blocktrail.com",
     "API_HTTPS": true,
@@ -60,7 +59,6 @@
         }
     },
 
-    "BUYBTC": false,
     "PRIOBOOST": true,
 
     "PROMOTE_MOBILE": true,

@@ -556,26 +556,36 @@ angular.module('blocktrail.wallet').factory(
             ;
         };
 
-        // don't really init the service unless BUYBTC is enabled
-        if (CONFIG.BUYBTC) {
-            $q.when(launchService.getWalletSecret())
-                .then(function(walletSecret) {
-                    if (!walletSecret) {
-                        return;
-                    }
-                    var walletSecretBuf = new blocktrailSDK.Buffer(walletSecret, 'hex');
+        var initialized = false;
+        var init = function() {
+            if (initialized) {
+                return;
+            }
 
-                    return decryptAccessToken(walletSecretBuf);
-                })
-                .then(function() {
-                    // return updateAllTransactions(); // @TODO: DEBUG
-                    return updatePendingTransactions();
-                }, function(e) {
-                    $log.debug('initDecryptAccessToken2 ERR ' + e);
-                });
-        }
+            // only initialize if we're on a network that supports it
+            if (CONFIG.NETWORKS[walletsManagerService.getActiveWallet().getReadOnlyWalletData().networkType].BUYBTC) {
+                initialized = true;
+
+                $q.when(launchService.getWalletSecret())
+                    .then(function(walletSecret) {
+                        if (!walletSecret) {
+                            return;
+                        }
+                        var walletSecretBuf = new blocktrailSDK.Buffer(walletSecret, 'hex');
+
+                        return decryptAccessToken(walletSecretBuf);
+                    })
+                    .then(function() {
+                        // return updateAllTransactions(); // @TODO: DEBUG
+                        return updatePendingTransactions();
+                    }, function(e) {
+                        $log.debug('initDecryptAccessToken2 ERR ' + e);
+                    });
+            }
+        };
 
         return {
+            init: init,
             setClientId: setClientId,
             createRequest: createRequest,
             oauth2: oauth2,
