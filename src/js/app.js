@@ -73,10 +73,23 @@ angular.module('blocktrail.wallet').run(
         //--- Debugging info ---
         $rootScope.$on("$stateChangeStart", function(event, toState, toParams, fromState, fromParams) {
             $log.debug("$stateChangeStart", toState.name, Object.keys(toParams).map(function(k) { return k + ":" + toParams[k]; }));
+
+            if (window.Raven) {
+                Raven.setTagsContext({
+                    to_state: toState && toState.name
+                });
+            }
         });
 
         $rootScope.$on("$stateChangeSuccess", function(event, toState, toParams, fromState, fromParams) {
             $log.debug("$stateChangeSuccess", toState.name, Object.keys(toParams).map(function(k) { return k + ":" + toParams[k]; }));
+
+            if (window.Raven) {
+                Raven.setTagsContext({
+                    state: toState && toState.name,
+                    to_state: null
+                });
+            }
 
             var name;
 
