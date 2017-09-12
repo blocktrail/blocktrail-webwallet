@@ -8,16 +8,38 @@
         <!-- Left column -->
         <div class="app-left-col">
             <div class="mainMenu">
-                <!-- Wallets list -->
-                <div class="wallets-list-holder">
+                <!-- Wallets list PROD -->
+                <div
+                    ng-if="!CONFIG.DEBUG"
+                    class="wallets-list-holder"
+                >
                     <div class="wallets-list" dropdown>
                         <button type="button" class="btn btn-default btn-block" dropdown-toggle>
-                            <span class="text">{{ CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG }}</span>
+                             <span class="text">{{ CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG }}</span>
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
                             <li ng-repeat="option in walletsListOptions">
                                 <a class="pointer" ng-click="onClickSetActiveWallet(option.value)">{{ option.label }}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Wallets list DEV -->
+                <div
+                    ng-if="CONFIG.DEBUG"
+                    class="wallets-list-holder"
+                >
+                    <p style="color: #fff;">{{ walletData.identifier }}</p>
+
+                    <div class="wallets-list" dropdown>
+                        <button type="button" class="btn btn-default btn-block" dropdown-toggle>
+                            <span class="text">{{ walletData.networkType }} ({{ walletData.balance | satoshiToCoin : 'BTC' : 4 }}) {{ walletData.identifier }}</span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="option in walletsListOptions">
+                                <a class="pointer" ng-click="onClickSetActiveWallet(option.value)">{{ option.wallet.network }} ({{ option.wallet.balance | satoshiToCoin : 'BTC' : 4 }}) {{ option.wallet.identifier }}</a>
                             </li>
                         </ul>
                     </div>

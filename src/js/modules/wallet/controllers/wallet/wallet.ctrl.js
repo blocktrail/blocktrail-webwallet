@@ -10,7 +10,6 @@
 
         $scope.settings = settingsService.getReadOnlySettings();
         $scope.walletData = activeWallet.getReadOnlyWalletData();
-
         $scope.sideNavList = [
             {
                 stateHref: $state.href("app.wallet.summary"),
@@ -83,7 +82,8 @@
             walletsList.forEach(function(wallet) {
                 list.push({
                     value: wallet.uniqueIdentifier,
-                    label: CONFIG.NETWORKS[wallet.network].NETWORK_LONG
+                    label: CONFIG.NETWORKS[wallet.network].NETWORK_LONG,
+                    wallet: wallet
                 })
             });
 
