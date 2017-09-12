@@ -24,15 +24,26 @@
                     } else {
                         doc.ts = (new Date).getTime();
 
-                        return db.put(doc);
+                        return db.put(doc).then(function() {
+                            return true;
+                        });
+                    }
+                }, function(e) {
+                    // if it's a DB closing error then we're done
+                    if (e.name === "InvalidStateError" && e.code === 11) {
+                        return false;
+                    } else {
+                        throw e;
                     }
                 });
         }
 
         function setupCheckTimeout() {
             setTimeout(function() {
-                checkLock().then(function() {
-                    setupCheckTimeout();
+                checkLock().then(function(continueChecking) {
+                    if (continueChecking) {
+                        setupCheckTimeout();
+                    }
                 });
             }, 100);
         }

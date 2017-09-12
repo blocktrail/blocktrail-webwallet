@@ -46,6 +46,7 @@ angular.module('blocktrail.wallet').factory(
         db('wallet');
         db('wallet_info');
         db('settings');
+        db('LOCK');
 
         return {
             db: db,
