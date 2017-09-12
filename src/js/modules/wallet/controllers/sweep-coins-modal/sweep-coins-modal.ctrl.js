@@ -42,9 +42,14 @@
         var options = {
             batchSize: 50,
             accountBatchSize: 5,
-            network: CONFIG.NETWORK,
-            testnet: CONFIG.TESTNET
+            network: activeWallet.networkType,
+            testnet: false
         };
+
+        if (options.network.substr(0, 1) === "t") {
+            options.network = options.network.substr(1);
+            options.testnet = true;
+        }
 
         activeWallet.getNewAddress().then(function (address) {
             options.recipient = address;

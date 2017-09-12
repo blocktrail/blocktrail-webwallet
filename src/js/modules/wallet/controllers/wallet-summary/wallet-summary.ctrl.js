@@ -34,7 +34,7 @@
 
         initData();
 
-        if (CONFIG.NETWORK === "BCC") {
+        if (walletData.networkType === "BCC") {
             activeWallet.isReady.then(function() {
                 $scope.showBCCSweepWarning = !$scope.walletData.transactions.length && !$scope.settings.hideBCCSweepWarning;
             });

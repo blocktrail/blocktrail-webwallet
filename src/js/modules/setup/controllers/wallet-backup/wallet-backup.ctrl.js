@@ -37,7 +37,7 @@
             });
         }
 
-        $scope.backupPageError  = false;
+        $scope.backupPageError = false;
 
         $scope.export = function() {
             var extraInfo = [];
@@ -61,7 +61,7 @@
                     $scope.setupInfo.identifier,
                     $scope.setupInfo.backupInfo,
                     extraInfo,
-                    {network: CONFIG.NETWORK_LONG}
+                    {network: CONFIG.NETWORKS[sdkService.getNetworkType()].NETWORK_LONG}
                 );
 
                 try {
@@ -72,7 +72,7 @@
                         } else {
                             $scope.backupSaved = true;
                             $scope.backupPDF = pdf;
-                            $scope.backupPDF.save("BTC.com " + CONFIG.NETWORK_LONG + " Wallet Recovery Backup Sheet - " + $scope.setupInfo.identifier + ".pdf");
+                            $scope.backupPDF.save("BTC.com " + CONFIG.NETWORKS[sdkService.getNetworkType()].NETWORK_LONG + " Wallet Recovery Backup Sheet - " + $scope.setupInfo.identifier + ".pdf");
                         }
                     });
                 } catch (error) {
