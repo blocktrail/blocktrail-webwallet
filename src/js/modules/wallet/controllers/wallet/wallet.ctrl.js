@@ -108,9 +108,9 @@
         setupService.getUserInfo().then(function(userInfo) {
             if (userInfo.username || userInfo.displayName || userInfo.email) {
                 var updateSettings = {
-                    username: userInfo.username || settings.username,
-                    displayName: userInfo.displayName || settings.displayName,
-                    email: userInfo.email || settings.email
+                    username: userInfo.username || $scope.settings.username,
+                    displayName: userInfo.displayName || $scope.settings.displayName,
+                    email: userInfo.email || $scope.settings.email
                 };
 
                 setupService.clearUserInfo();
