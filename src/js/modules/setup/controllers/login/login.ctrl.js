@@ -13,28 +13,30 @@
         // this automatically updates an already open modal instead of popping a new one open
         $scope.alert = dialogService.alertSingleton();
 
-
         $scope.isDebugMode = CONFIG.DEBUG;
         $scope.isLoading = false;
+        $scope.networkTypes = getNetworkTypes();
+        $scope.error = null;
+        $scope.errorDetailed = null;
         $scope.form = {
             username: "",
             password: "",
             forceNewWallet: false,
-            networkType: CONFIG.NETWORKS_ENABLED[0]
+            networkType: sdkService.getNetworkType()
         };
-        $scope.networkTypes = getNetworkTypes();
 
-        $scope.error = null;
-        $scope.errorDetailed = null;
-
+        // Listeners
         listenerForm = $scope.$watch("form", onFormChange, true);
 
-        // Set default network
-        sdkService.setNetworkType($scope.form.networkType);
+        $scope.$on('$destroy', onScopeDestroy);
 
         // Methods
         $scope.onSubmitFormLogin = onSubmitFormLogin;
 
+        /**
+         * Get the network types
+         * @return { Array }
+         */
         function getNetworkTypes() {
             var list = [];
 
@@ -50,6 +52,25 @@
             return list;
         }
 
+        /**
+         * On form change handler
+         * @param newValue
+         * @param oldValue
+         */
+        function onFormChange(newValue, oldValue) {
+            $scope.error = null;
+            $scope.errorDetailed = null;
+
+            if(newValue.networkType !== oldValue.networkType) {
+                sdkService.setNetworkType(newValue.networkType);
+            }
+        }
+
+        /**
+         * On submit form login handler
+         * @param loginForm
+         * @return { boolean }
+         */
         function onSubmitFormLogin(loginForm) {
             $scope.error = null;
             $scope.errorDetailed = null;
@@ -67,6 +88,10 @@
             login();
         }
 
+        /**
+         * Login
+         * @return { promise }
+         */
         function login() {
             var data = {
                 login: $scope.form.username,
@@ -79,6 +104,10 @@
                 .then(loginFormSuccessHandler, loginFormErrorHandler);
         }
 
+        /**
+         * Login success handle
+         * @param data
+         */
         function loginFormSuccessHandler(data) {
             if (!$scope.form.forceNewWallet) {
                 $scope.setupInfo.identifier = data.existing_wallet || $scope.setupInfo.identifier;
@@ -90,6 +119,10 @@
             $state.go('app.setup.wallet');
         }
 
+        /**
+         * Login error handle
+         * @param error
+         */
         function loginFormErrorHandler(error) {
             switch (error.type) {
                 case "BANNED_IP":
@@ -142,22 +175,16 @@
             }
         }
 
-        function onFormChange(newValue, oldValue) {
-            $scope.error = null;
-            $scope.errorDetailed = null;
-
-            if(newValue.networkType !== oldValue.networkType) {
-                sdkService.setNetworkType(newValue.networkType);
-            }
-        }
-
-        $scope.$on('$destroy', function() {
+        /**
+         * On the scope destroy handler
+         */
+        function onScopeDestroy() {
             // Remove existing listeners
             if(listenerForm) {
                 listenerForm();
             }
 
             $scope.alert.dismiss();
-        });
+        }
     }
 })();

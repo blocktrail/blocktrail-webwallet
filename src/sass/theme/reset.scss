@@ -12,6 +12,7 @@ html {
 
 body {
     position: relative;
+    min-height: 100%;
     $background-color: $body-bg;
 
     &.state-app_wallet {
@@ -19,10 +20,11 @@ body {
         overflow: hidden;
     }
 
-    &.state-app_setup, &.state-app_bannedip {
+    &.state-app_setup {
         @extend .fill-height-or-more;
 
         padding-bottom: $big-footer-height * 2;
+
         @media (min-width: $screen-md-min) {
             padding-bottom: $big-footer-height;
         }

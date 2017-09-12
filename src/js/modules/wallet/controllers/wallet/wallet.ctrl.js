@@ -53,6 +53,8 @@
             settings: $scope.settings
         };
 
+        $scope.isLoadingNewWallet = false;
+
         // track when wallet is activated (first time > 0 balance)
         if (!$scope.settings.walletActivated) {
             var walletActivatedInterval = $interval(function() {
@@ -90,9 +92,11 @@
 
 
         $scope.onChangeActiveWallet = function(uniqueIdentifier) {
+            $scope.isLoadingNewWallet = true;
+
             walletsManagerService.setActiveWalletByUniqueIdentifier(uniqueIdentifier)
                 .then(function() {
-                    $scope.isInitWallet = false;
+                    $scope.isLoadingNewWallet = false;
                     $state.reload();
                 });
         };

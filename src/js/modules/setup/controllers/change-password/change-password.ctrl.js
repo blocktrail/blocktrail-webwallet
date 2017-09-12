@@ -4,7 +4,7 @@
     angular.module("blocktrail.setup")
         .controller("SetupChangePasswordCtrl", SetupChangePasswordCtrl);
 
-    function SetupChangePasswordCtrl($scope, $stateParams, $http, $q, $sce, PasswordStrength, dialogService, $log, $filter,
+    function SetupChangePasswordCtrl($scope, $stateParams, $http, $q, $sce, passwordStrengthService, dialogService, $log, $filter,
                                      sdkService, $translate, CONFIG, passwordRecoveryService) {
 
         $scope.bip39EN = blocktrailSDK.bip39wordlist;
@@ -67,7 +67,7 @@
                 return $q.when(false);
             }
 
-            return PasswordStrength.check($scope.form.newPassword, [$scope.form.email, "BTC.com", "wallet"])
+            return passwordStrengthService.checkPassword($scope.form.newPassword, [$scope.form.email, "BTC.com", "wallet"])
                 .then(function(result) {
                     result.duration = $filter("duration")(result.crack_times_seconds.online_no_throttling_10_per_second * 1000);
                     $scope.form.passwordCheck = result;

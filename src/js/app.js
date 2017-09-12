@@ -39,18 +39,23 @@ angular.module('blocktrail.wallet').config(function() {
 });
 
 angular.module('blocktrail.wallet').run(
-    function($rootScope, $state, $log, $interval, $timeout, blocktrailLocalisation, CONFIG, $locale, $translate, amMoment) {
+    function($rootScope, $state, $log, $interval, $timeout, $locale, $translate, CONFIG, amMoment, blocktrailLocalisation, sdkService) {
+        var bodyStateClasses = [];
+        var networkClassType = "";
+
         // TODO HERE !!!
+        $rootScope.sdkReadOnlySdkData = sdkService.getReadOnlySdkData();
 
         $rootScope.CONFIG       = CONFIG || {};
         $rootScope.$state       = $state;
         $rootScope.appVersion   = CONFIG.VERSION || CONFIG.VERSION_REV;
 
-        $rootScope.bodyClass = [("network-" + CONFIG.NETWORK).toLowerCase()];
-        $rootScope.bodyClassStr = "";
-
         $rootScope.explorerAddressURL = CONFIG.EXPLORER_ADDRESS_URL;
         $rootScope.explorerTxURL = CONFIG.EXPLORER_TX_URL;
+
+        $rootScope.getBodyClasses = function() {
+            return bodyStateClasses.concat([networkClassType]);
+        };
 
         $rootScope.changeLanguage = function(language) {
             language = language || blocktrailLocalisation.preferredAvailableLanguage() || CONFIG.FALLBACK_LANGUAGE || 'en';
@@ -65,6 +70,10 @@ angular.module('blocktrail.wallet').run(
 
             $translate.use(language);
         };
+
+        $rootScope.$watch("sdkReadOnlySdkData.networkType", function(newValue) {
+            networkClassType = newValue ? ("network-" + CONFIG.NETWORKS[newValue].NETWORK).toLowerCase(): "";
+        });
 
         $rootScope.$on("$stateChangeError", function(event, toState, toParams, fromState, fromParams, error) {
             $log.error("Error transitioning to " + toState.name + " from  " + fromState.name, toState, fromState, error);
@@ -85,7 +94,9 @@ angular.module('blocktrail.wallet').run(
 
         $rootScope.$on("$stateChangeSuccess", function(event, toState, toParams, fromState, fromParams) {
             $log.debug("$stateChangeSuccess", toState.name, Object.keys(toParams).map(function(k) { return k + ":" + toParams[k]; }));
-
+            var name = [];
+            bodyStateClasses = [];
+            
             if (window.Raven) {
                 Raven.setTagsContext({
                     state: toState && toState.name,
@@ -93,24 +104,10 @@ angular.module('blocktrail.wallet').run(
                 });
             }
 
-            var name;
-
-            name = [];
-            fromState.name.split('.').forEach(function(part) {
-                name.push(part);
-                var idx = $rootScope.bodyClass.indexOf('state-' + name.join("_"));
-                if (idx !== -1) {
-                    $rootScope.bodyClass.splice(idx, 1);
-                }
-            });
-
-            name = [];
             toState.name.split('.').forEach(function(part) {
                 name.push(part);
-                $rootScope.bodyClass.push('state-' + name.join("_"));
+               bodyStateClasses.push('state-' + name.join("_"));
             });
-
-            $rootScope.bodyClassStr = $rootScope.bodyClass.join(" ");
         });
 
         $rootScope.$on("$stateChangeError", function(event, toState, toParams, fromState, fromParams) {

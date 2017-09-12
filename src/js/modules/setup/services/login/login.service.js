@@ -27,6 +27,11 @@
         self._trackingService = trackingService;
     }
 
+    /**
+     * Login
+     * @param data
+     * @return { promise }
+     */
     LoginFormService.prototype.login = function(data) {
         var self = this;
 
@@ -39,6 +44,7 @@
             device_name: self._navigator.userAgent || "Unknown Browser",
             browser_fingerprint: null
         };
+
         var url = self._CONFIG.API_URL + "/v1/" + data.networkType + "/mywallet/enable";
 
         return self._$q.when(postData)
@@ -60,6 +66,13 @@
             .catch(self._errorHandler.bind(self));
     };
 
+    /**
+     * Decrypt the secret
+     * @param password
+     * @param response
+     * @return {{responseData, secret: *}}
+     * @private
+     */
     LoginFormService.prototype._decryptSecret = function(password, response) {
         var self = this;
         var secret = null;
@@ -83,6 +96,12 @@
         };
     };
 
+    /**
+     * Store the account info
+     * @param data
+     * @return { promise }
+     * @private
+     */
     LoginFormService.prototype._storeAccountInfo = function(data) {
         var self = this;
 
@@ -101,6 +120,11 @@
             })
     };
 
+    /**
+     * Error handler
+     * @param response
+     * @private
+     */
     LoginFormService.prototype._errorHandler = function(response) {
         var error = {
             type: "MSG_BAD_NETWORK",

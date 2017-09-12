@@ -19,12 +19,18 @@
         self._activeWallet = null;
     }
 
+    /**
+     * Fetch the wallets list
+     * @return { promise } _walletsList
+     */
     WalletsManagerService.prototype.fetchWalletsList = function() {
         var self = this;
 
         return self._sdkService.getSdkByActiveNetwork()
             .getAllWallets({mywallet: 1, limit: 200})
             .then(function(resp) {
+                self._walletsList = [];
+
                 resp.data.forEach(function(wallet) {
                     if(self._CONFIG.NETWORKS_ENABLED.indexOf(wallet.network) !== -1) {
                         // Add unique id
@@ -37,18 +43,32 @@
             });
     };
 
+    /**
+     * Get the wallet list
+     * @return { Array } _walletsList
+     */
     WalletsManagerService.prototype.getWalletsList = function() {
         var self = this;
 
         return self._walletsList;
     };
 
+    /**
+     * Get the active wallet
+     * @return { null | object } _activeWallet
+     */
     WalletsManagerService.prototype.getActiveWallet = function() {
         var self = this;
 
         return self._activeWallet;
     };
 
+    /**
+     * Set the active wallet by the network type and the identifier
+     * @param networkType
+     * @param identifier
+     * @return { object } _activeWallet
+     */
     WalletsManagerService.prototype.setActiveWalletByNetworkTypeAndIdentifier = function(networkType, identifier) {
         var self = this;
         var uniqueIdentifier = self._getWalletUniqueIdentifier(networkType, identifier);
@@ -75,6 +95,11 @@
         return self._setActiveWallet(networkType, identifier, uniqueIdentifier);
     };
 
+    /**
+     * Set the active wallet by the unique identifier
+     * @param uniqueIdentifier
+     * @return { object } _activeWallet
+     */
     WalletsManagerService.prototype.setActiveWalletByUniqueIdentifier = function(uniqueIdentifier) {
         var self = this;
 
@@ -89,6 +114,14 @@
         return self._setActiveWallet(wallet.network, wallet.identifier, wallet.uniqueIdentifier);
     };
 
+    /**
+     * Set the active wallet
+     * @param networkType
+     * @param identifier
+     * @param uniqueIdentifier
+     * @return { object } _activeWallet
+     * @private
+     */
     WalletsManagerService.prototype._setActiveWallet = function(networkType, identifier, uniqueIdentifier) {
         var self = this;
         var promise = null;
@@ -114,6 +147,9 @@
                 promise = self._$q.when(self._activeWallet);
             }
         } else {
+
+
+
             // if active wallet is not exist have to initialize it
             promise = self._initWallet(networkType, identifier, uniqueIdentifier);
         }
@@ -121,6 +157,14 @@
         return self._$q.when(promise);
     };
 
+    /**
+     * Initialize the wallet
+     * @param networkType
+     * @param identifier
+     * @param uniqueIdentifier
+     * @return { object } _activeWallet
+     * @private
+     */
     WalletsManagerService.prototype._initWallet = function(networkType, identifier, uniqueIdentifier) {
         var self = this;
 
@@ -135,6 +179,12 @@
             });
     };
 
+    /**
+     * Is existing the wallet by unique identifier
+     * @param uniqueIdentifier
+     * @return {boolean}
+     * @private
+     */
     WalletsManagerService.prototype._isExistingWalletByUniqueIdentifier = function(uniqueIdentifier) {
         var self = this;
 
@@ -143,6 +193,12 @@
         });
     };
 
+    /**
+     * Filter the wallets by network type
+     * @param networkType
+     * @return { Array }
+     * @private
+     */
     WalletsManagerService.prototype._filterWalletsByNetworkType = function(networkType) {
         var self = this;
 
@@ -151,6 +207,13 @@
         });
     };
 
+    /**
+     * Get the wallet unique identifier
+     * @param networkType
+     * @param identifier
+     * @return {string}
+     * @private
+     */
     WalletsManagerService.prototype._getWalletUniqueIdentifier = function(networkType, identifier) {
         return networkType + "_" + identifier;
     }

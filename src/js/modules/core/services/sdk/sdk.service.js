@@ -5,85 +5,6 @@
         .factory('sdkService', function(blocktrailSDK, CONFIG) {
             extendBlocktrailSDK(blocktrailSDK);
 
-            /*var accountInfo = null;
-
-            var _sdk = null;
-            /!*var sdk = function() {
-                // sanity check, should never happen
-                if (!accountInfo) {
-                    throw new Error("Can't init SDK without accountInfo");
-                }
-
-                if (!_sdk) {
-                    _sdk = new blocktrailSDK({
-                        apiKey: accountInfo.api_key,
-                        apiSecret: accountInfo.api_secret,
-                        testnet: CONFIG.TESTNET || accountInfo.testnet,
-                        host: CONFIG.API_HOST || null,
-                        network: CONFIG.NETWORK || "BTC",
-                        https: typeof CONFIG.API_HTTPS !== "undefined" ? CONFIG.API_HTTPS : true
-                    });
-                }
-
-                return _sdk;
-            };*!/
-
-
-            var _accountInfo = null;
-            var accountInfo = function() {
-                if (!_accountInfo) {
-                    _accountInfo = launchService.getAccountInfo().then(
-                        function(accountInfo) {
-                            return accountInfo;
-                        },
-                        function(e) {
-                            _accountInfo = null;
-                            throw e;
-                        }
-                    );
-                }
-
-                return _accountInfo;
-            };
-
-            var _sdk = null;
-
-            var sdk = function() {
-                if (!_sdk) {
-                    _sdk = accountInfo()
-                        .then(function(accountInfo) {
-                            return new blocktrailSDK({
-                                apiKey: accountInfo.api_key,
-                                apiSecret: accountInfo.api_secret,
-                                testnet: CONFIG.TESTNET || accountInfo.testnet,
-                                host: CONFIG.API_HOST || null,
-                                network: CONFIG.NETWORK || "BTC",
-                                https: typeof CONFIG.API_HTTPS !== "undefined" ? CONFIG.API_HTTPS : true
-                            });
-                        }, function(e) {
-                            console.error('Missing account info for SDK');
-                            throw e;
-                        })
-                        .then(function(sdk) {
-                            return sdk;
-                        }, function(e) {
-                            _sdk = null;
-                            throw e;
-                        });
-                }
-
-                return _sdk;
-            };
-
-            return {
-                sdk : sdk,
-                setAccountInfo: function(_accountInfo) {
-                    // accountInfo = _accountInfo;
-                    // _sdk = null;
-                },
-                BackupGenerator: blocktrailSDK.BackupGenerator
-            };*/
-
             return new SdkService(blocktrailSDK, CONFIG);
         }
     );
@@ -103,7 +24,7 @@
         self._sdkList = {};
 
         self._sdkData = {
-            networkType: null
+            networkType: CONFIG.NETWORKS_ENABLED[0]
         };
 
         // Read only settings object
@@ -131,6 +52,12 @@
         var self = this;
 
         return self._readonlyDoc;
+    };
+
+    SdkService.prototype.getNetworkType = function() {
+        var self = this;
+
+        return self._sdkData.networkType;
     };
 
     SdkService.prototype.setNetworkType = function(networkType) {

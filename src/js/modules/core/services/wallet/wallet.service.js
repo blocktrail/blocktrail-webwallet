@@ -145,7 +145,6 @@
         }
     };
 
-
     /**
      * START polling
      */
@@ -1143,7 +1142,7 @@
         return self.addressRefillPromise = self._walletStore.get(self._getUniqueIdentifier("addresses"))
             .then(function(addressesDoc) {
                 return addressesDoc;
-            }, function(e) {
+            }, function() {
                 return {
                     _id: self._getUniqueIdentifier("addresses"),
                     available: []
@@ -1202,7 +1201,7 @@
             function(address) {
                 return address;
             },
-            function(e) {
+            function() {
                 return self._sdkWallet.getNewAddress().then(function(result) {
                     return result[0];
                 });

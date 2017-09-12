@@ -95,7 +95,7 @@
                 launchService.clearBackupInfo()
                     .then(function() {
                         return launchService.getWalletInfo().then(function(walletInfo) {
-                            return walletsManagerService.setActiveWalletById(walletInfo.identifier);
+                            return walletsManagerService.setActiveWalletByNetworkTypeAndIdentifier(sdkService.getNetworkType(), walletInfo.identifier);
                         })
                     })
                     .then(function() {
