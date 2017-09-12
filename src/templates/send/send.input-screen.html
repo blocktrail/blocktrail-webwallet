@@ -152,7 +152,7 @@
                             </div>
                             <hr style="margin :0px;" />
                             <div class="custom-option"
-                                 ng-if="CONFIG.PRIOBOOST"
+                                 ng-if="CONFIG.NETWORKS[walletData.networkType].PRIOBOOST"
                                  ng-class="{selected: sendInput.feeChoice == PRIOBOOST, error: !prioboost.possible}"
                                  ng-click="sendInput.feeChoice = PRIOBOOST; showselect = false;">
                                 <div class="row">

@@ -59,8 +59,6 @@
         }
     },
 
-    "PRIOBOOST": true,
-
     "PROMOTE_MOBILE": true,
 
     "EXTRA_LANGUAGES": ["es", "nl", "ru", "fr", "hi", "sw", "cn"],
