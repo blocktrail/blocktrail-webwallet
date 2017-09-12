@@ -1,6 +1,9 @@
 angular.module('blocktrail.wallet')
     .controller('SendCtrl', function($scope, $log, $modal, bitcoinJS, CurrencyConverter, Currencies, Contacts, activeWallet, $timeout, dialogService,
                                      QR, $q, $state, $rootScope, $translate, launchService, CONFIG, settingsService) {
+        // get current active wallets native currency
+        var NATIVE_CURRENCY = CONFIG.NETWORKS[$scope.walletData.networkType].TICKER;
+
         $scope.settings = settingsService.getReadOnlySettings();
 
         //$scope.fiatFirst = false;
@@ -52,8 +55,14 @@ angular.module('blocktrail.wallet')
         $scope.currencyType = null;
         $scope.altCurrency  = {};
         $scope.updateCurrentType = function(currencyType) {
-            $scope.currencies = Currencies.getFiatCurrencies();
-            $scope.currencies.unshift({code: 'BTC', 'symbol': CONFIG.TICKER});
+            $scope.currencies = Currencies.getCurrencies();
+
+            // filter out crypto currencies that are not current
+            $scope.currencies = $scope.currencies.filter(function(currency) {
+                return currency.isFiat || currency.code === NATIVE_CURRENCY;
+            });
+
+            // filter out selected currency
             $scope.currencies = $scope.currencies.filter(function(currency) {
                 return currency.code !== currencyType;
             });
@@ -67,17 +76,17 @@ angular.module('blocktrail.wallet')
         });
 
         $scope.setAltCurrency = function() {
-            if ($scope.currencyType === 'BTC') {
+            if ($scope.currencyType === NATIVE_CURRENCY) {
                 $scope.altCurrency.code     = $scope.settings.localCurrency;
                 $scope.altCurrency.amount   = parseFloat(CurrencyConverter.fromBTC($scope.sendInput.amount, $scope.settings.localCurrency, 2)) || 0;
             } else {
-                $scope.altCurrency.code     = 'BTC';
+                $scope.altCurrency.code     = NATIVE_CURRENCY;
                 $scope.altCurrency.amount   = parseFloat(CurrencyConverter.toBTC($scope.sendInput.amount, $scope.currencyType, 6)) || 0;
             }
         };
 
         // set default BTC
-        $scope.updateCurrentType('BTC');
+        $scope.updateCurrentType(NATIVE_CURRENCY);
 
         var _maxSpendable = null;
         var _maxSpendablePromise = null;
@@ -126,7 +135,7 @@ angular.module('blocktrail.wallet')
             var localPay = {};
             var amount = 0;
 
-            if ($scope.currencyType === 'BTC') {
+            if ($scope.currencyType === NATIVE_CURRENCY) {
                 amount = $scope.sendInput.amount;
             } else {
                 amount = $scope.altCurrency.amount;
@@ -267,7 +276,7 @@ angular.module('blocktrail.wallet')
                 }
 
                 var sendAmount = 0;
-                if ($scope.currencyType === 'BTC') {
+                if ($scope.currencyType === NATIVE_CURRENCY) {
                     sendAmount = $scope.sendInput.amount;
                 } else {
                     sendAmount = $scope.altCurrency.amount;

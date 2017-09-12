@@ -7,7 +7,10 @@ angular.module('blocktrail.wallet')
         // currencies that the app supports and their symbols
         //  this list shouldn't be used directly `self.currencies` contains the enabled currencies
         var _currencies = {
-            BTC: {code: 'BTC', ticker: CONFIG.TICKER, symbol: "฿"},
+            BTC: {code: 'BTC', ticker: 'BTC', symbol: "฿", isFiat: false},
+            BCC: {code: 'BCC', ticker: 'BCC', symbol: "฿", isFiat: false},
+            tBTC: {code: 'tBTC', ticker: 'tBTC', symbol: "t฿", isFiat: false},
+            tBCC: {code: 'tBCC', ticker: 'tBCC', symbol: "t฿", isFiat: false},
             GBP: {code: "GBP", symbol: "£"},
             EUR: {code: "EUR", symbol: "€"},
             USD: {code: "USD", symbol: "$"},
@@ -142,7 +145,7 @@ angular.module('blocktrail.wallet')
             var isNew = typeof self.currencies[code] === "undefined";
 
             self.currencies[code] = _currencies[code];
-            self.currencies[code].isFiat = self.currencies[code].code !== 'BTC';
+            self.currencies[code].isFiat = typeof self.currencies[code].isFiat === "undefined" ? true : self.currencies[code].isFiat;
             self.currencies[code].btcRate = 0;
 
             if (isNew) {
@@ -157,7 +160,7 @@ angular.module('blocktrail.wallet')
             self.enableCurrency(code);
         });
     })
-    .service('CurrencyConverter', function($rootScope, Currencies, CONFIG) {
+    .service('CurrencyConverter', function($rootScope, Currencies) {
         var self = this;
         var coin = 100000000;
         var precision = 8;
@@ -169,7 +172,7 @@ angular.module('blocktrail.wallet')
          * @param fractionSize (optional)
          */
         self.fromBTC = function(value, currency, fractionSize) {
-            if (typeof(fractionSize) == "undefined") {
+            if (typeof(fractionSize) === "undefined") {
                 fractionSize = 2;
             }
 
@@ -183,7 +186,7 @@ angular.module('blocktrail.wallet')
          * @param fractionSize (optional)
          */
         self.toBTC = function(value, currency, fractionSize) {
-            if (typeof(fractionSize) == "undefined") {
+            if (typeof(fractionSize) === "undefined") {
                 fractionSize = 8;
             }
 
@@ -198,7 +201,7 @@ angular.module('blocktrail.wallet')
          */
         self.fromSatoshi = function(value, currency, fractionSize) {
             var btcValue = parseFloat((value/ coin).toFixed(precision));
-            if (typeof(fractionSize) == "undefined") {
+            if (typeof(fractionSize) === "undefined") {
                 fractionSize = 2;
             }
 
@@ -212,7 +215,7 @@ angular.module('blocktrail.wallet')
          */
         self.toSatoshi = function(value, currency) {
             var btcValue;
-            if (currency == 'BTC') {
+            if (currency === 'BTC') {
                 btcValue = parseFloat(value);
             } else {
                 btcValue = self.toBTC(value, currency, precision);

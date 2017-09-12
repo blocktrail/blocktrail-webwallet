@@ -71,7 +71,12 @@ angular.module('blocktrail.wallet').run(
         };
 
         $rootScope.$watch("sdkReadOnlySdkData.networkType", function(newValue) {
-            networkClassType = newValue ? ("network-" + CONFIG.NETWORKS[newValue].NETWORK).toLowerCase(): "";
+            var network = CONFIG.NETWORKS[newValue].NETWORK;
+            if (network.substr(0, 1) === "t") {
+                network = network.substr(1);
+            }
+
+            networkClassType = newValue ? ("network-" + network).toLowerCase(): "";
         });
 
         $rootScope.$on("$stateChangeError", function(event, toState, toParams, fromState, fromParams, error) {

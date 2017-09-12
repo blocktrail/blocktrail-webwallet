@@ -37,9 +37,9 @@
             "EXPLORER_TX_URL": "https://www.blocktrail.com/BCC/tx"
         },
         "tBTC": {
-            "NETWORK": "BTC",
+            "NETWORK": "tBTC",
             "NETWORK_LONG": "Bitcoin TESTNET",
-            "TICKER": "BTC",
+            "TICKER": "tBTC",
             "TICKER_LONG": "Bitcoin TESTNET",
             "TX_FILTER_MIN_BLOCK_HEIGHT": null,
             "BUYBTC": true,
@@ -48,9 +48,9 @@
             "EXPLORER_TX_URL": "https://www.blocktrail.com/tBTC/tx"
         },
         "tBCC": {
-            "NETWORK": "BCC",
+            "NETWORK": "tBCC",
             "NETWORK_LONG": "BitcoinCash TESTNET",
-            "TICKER": "BCC",
+            "TICKER": "tBCC",
             "TICKER_LONG": "BitcoinCash TESTNET",
             "TX_FILTER_MIN_BLOCK_HEIGHT": null,
             "BUYBTC": false,
@@ -63,18 +63,12 @@
     "BUYBTC": false,
     "PRIOBOOST": true,
 
-    "TICKER": "BTC",
-    "TICKER_LONG": "Bitcoin",
-    "NETWORK": "BTC",
-    "NETWORK_LONG": "Bitcoin",
-    "MIRROR_NETWORK": "BCC",
-    "MIRROR_NETWORK_LONG": "BitcoinCash",
     "TX_FILTER_MIN_BLOCK_HEIGHT": null,
 
     "PROMOTE_MOBILE": true,
 
     "EXTRA_LANGUAGES": ["es", "nl", "ru", "fr", "hi", "sw", "cn"],
-    "CURRENCIES": ["USD", "EUR", "GBP", "CNY"],
+    "CURRENCIES": ["BTC", "BCC", "tBTC", "tBCC", "USD", "EUR", "GBP", "CNY"],
 
     "STATICSDIR": "dev",
     "STATICSDIR_PREFIX": null,

@@ -2,14 +2,11 @@
     "use strict";
 
     angular.module("blocktrail.core")
-        .filter("toCurrencyTicker", toCurrencySymbol);
+        .filter("toCurrencyTicker", toCurrencyTicker);
 
-    function toCurrencySymbol(Currencies, CONFIG) {
+    function toCurrencyTicker(Currencies) {
         return function(input) {
             if (typeof Currencies.currencies[input] === "undefined") {
-                if (input === 'BTC') {
-                    return CONFIG.TICKER;
-                }
                 return input;
             } else {
                 return Currencies.currencies[input].ticker || Currencies.currencies[input].code || input;

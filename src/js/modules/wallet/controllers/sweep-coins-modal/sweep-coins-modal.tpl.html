@@ -130,7 +130,7 @@
             <div ng-if="form.step === STEPS.PUBLISH">
                 <h4>{{ 'DONE' | translate }}!</h4>
                 <p>
-                    {{ 'SWEEP_COMPLETED' | translate : { ticker: CONFIG.TICKER_LONG } }}
+                    {{ 'SWEEP_COMPLETED' | translate : { ticker: CONFIG.NETWORKS[walletData.networkType].TICKER_LONG } }}
                 </p>
                 <p class="help-block">
                     <a href="{{ explorerTxURL }}/{{ sweepData.txId }}" target="_blank">{{ 'TX_INFO_MORE_LINK' | translate }}</a>

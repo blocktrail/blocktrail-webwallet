@@ -110,12 +110,17 @@
 
         self._CONFIG.NETWORKS_ENABLED.forEach(function(networkType) {
             var isTestNet = (networkType.substr(0, 1) === 't');
+            var sdkNetwork = self._CONFIG.NETWORKS[networkType].NETWORK;
+            if (isTestNet) {
+                sdkNetwork = sdkNetwork.substr(1);
+            }
+
             var sdkConfiguration = {
                 apiKey: self._accountInfo ? self._accountInfo.api_key : null,
                 apiSecret: self._accountInfo ? self._accountInfo.api_secret : null,
                 testnet: isTestNet,
                 host: self._CONFIG.API_HOST || null,
-                network: self._CONFIG.NETWORKS[networkType].NETWORK,
+                network: sdkNetwork,
                 https: self._CONFIG.API_HTTPS ? self._CONFIG.API_HTTPS : true
             };
 
