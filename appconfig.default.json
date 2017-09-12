@@ -63,8 +63,6 @@
     "BUYBTC": false,
     "PRIOBOOST": true,
 
-    "TX_FILTER_MIN_BLOCK_HEIGHT": null,
-
     "PROMOTE_MOBILE": true,
 
     "EXTRA_LANGUAGES": ["es", "nl", "ru", "fr", "hi", "sw", "cn"],

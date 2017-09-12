@@ -4,11 +4,11 @@
     var POUCHDB_ERR_CONFLICT = 409;
 
     angular.module('blocktrail.core')
-        .factory('walletService', function($q, $timeout, bitcoinJS, sdkService, storageService, settingsService, Contacts) {
-            return new WalletService($q, $timeout, bitcoinJS, sdkService, storageService, settingsService, Contacts)
+        .factory('walletService', function($q, $timeout, bitcoinJS, sdkService, storageService, settingsService, Contacts, CONFIG) {
+            return new WalletService($q, $timeout, bitcoinJS, sdkService, storageService, settingsService, Contacts, CONFIG)
         });
     
-    function WalletService($q, $timeout, bitcoinJS, sdkService, storageService, settingsService, Contacts) {
+    function WalletService($q, $timeout, bitcoinJS, sdkService, storageService, settingsService, Contacts, CONFIG) {
         var self = this;
 
         self._$q = $q;
@@ -18,6 +18,7 @@
         self._storageService = storageService;
         self._settingsService = settingsService;
         self._contactsService = Contacts;
+        self._CONFIG = CONFIG;
     }
 
     WalletService.prototype.initWallet = function(networkType, identifier, uniqueIdentifier) {
@@ -38,7 +39,7 @@
 
     WalletService.prototype._initWallet = function(networkType, uniqueIdentifier, sdkWallet) {
         var self = this;
-        var wallet =  new Wallet(sdkWallet, networkType, uniqueIdentifier, self._$q, self._$timeout,  self._bitcoinJS, self._storageService, self._settingsService, self._contactsService);
+        var wallet =  new Wallet(sdkWallet, networkType, uniqueIdentifier, self._CONFIG.NETWORKS[networkType].TX_FILTER_MIN_BLOCK_HEIGHT, self._$q, self._$timeout,  self._bitcoinJS, self._storageService, self._settingsService, self._contactsService);
 
         return wallet.isReady;
     };
@@ -55,7 +56,7 @@
     // TODO Remove glidera transactions form the settings service and remove 'settingsService' from wallet
     // TODO Create a method for updating contacts and and remove 'contactsService' from wallet
     // TODO Or try to handle this in the avatar directive
-    function Wallet(sdkWallet, networkType, uniqueIdentifier, $q, $timeout, bitcoinJS, storageService, settingsService, contactsService) {
+    function Wallet(sdkWallet, networkType, uniqueIdentifier, TX_FILTER_MIN_BLOCK_HEIGHT, $q, $timeout, bitcoinJS, storageService, settingsService, contactsService) {
         var self = this;
 
         console.log('new Wallet', sdkWallet.identifier);
@@ -65,6 +66,7 @@
         self._bitcoinJS = bitcoinJS;
         self._contactsService = contactsService;
         self._settingsService = settingsService;
+        self._TX_FILTER_MIN_BLOCK_HEIGHT = TX_FILTER_MIN_BLOCK_HEIGHT;
 
         self._isInitData = false;
 
@@ -916,6 +918,12 @@
         // TODO Create a method and call it on new contacts
         return self._extentTransactionsWithContactsAndGlideraData(transactions)
             .then(function() {
+                if (self._TX_FILTER_MIN_BLOCK_HEIGHT) {
+                    transactions = transactions.filter(function(transaction) {
+                        return transaction.block_height === null || transaction.block_height >= self._TX_FILTER_MIN_BLOCK_HEIGHT;
+                    })
+                }
+
                 self._walletData.transactions
                     .splice
                     .apply(self._walletData.transactions, [0, self._walletData.transactions.length]
