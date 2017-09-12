@@ -35,7 +35,7 @@
                 <td class="colCounter"> {{ (currentPage - 1) * itemsPerPage + items.indexOf(item) + 1 }}</td>
                 <td class="colAddress">
                     <a title="{{ 'CHECKOUT_AT_BTCCOM' | translate }}"
-                       href="{{ explorerAddressURL + '/' + item.address }}"
+                       href="{{ CONFIG.NETWORKS[walletData.networkType].EXPLORER_ADDRESS_URL + '/' + item.address }}"
                        target="_blank">
                         {{ item.address }}
                     </a>

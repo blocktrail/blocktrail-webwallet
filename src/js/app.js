@@ -49,9 +49,6 @@ angular.module('blocktrail.wallet').run(
         $rootScope.$state       = $state;
         $rootScope.appVersion   = CONFIG.VERSION || CONFIG.VERSION_REV;
 
-        $rootScope.explorerAddressURL = CONFIG.EXPLORER_ADDRESS_URL;
-        $rootScope.explorerTxURL = CONFIG.EXPLORER_TX_URL;
-
         $rootScope.getBodyClasses = function() {
             return bodyStateClasses.concat([networkClassType]);
         };

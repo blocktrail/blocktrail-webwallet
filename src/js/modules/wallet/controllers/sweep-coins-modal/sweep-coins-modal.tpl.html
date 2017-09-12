@@ -133,7 +133,7 @@
                     {{ 'SWEEP_COMPLETED' | translate : { ticker: CONFIG.NETWORKS[walletData.networkType].TICKER_LONG } }}
                 </p>
                 <p class="help-block">
-                    <a href="{{ explorerTxURL }}/{{ sweepData.txId }}" target="_blank">{{ 'TX_INFO_MORE_LINK' | translate }}</a>
+                    <a href="{{ CONFIG.NETWORKS[walletData.networkType].EXPLORER_TX_URL }}/{{ sweepData.txId }}" target="_blank">{{ 'TX_INFO_MORE_LINK' | translate }}</a>
                 </p>
 
                 <form class="form">
