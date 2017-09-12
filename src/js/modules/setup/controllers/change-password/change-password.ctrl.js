@@ -193,7 +193,6 @@
 
             if ($scope.form.ERS.length > 0) {
                 recoverySecret.then(function(recoverySecret) {
-                    console.log(recoverySecret);
                     try {
                         recoverySecret = recoverySecret.trim();
                         var encryptedRecoverySecretMnemonic = $scope.form.ERS

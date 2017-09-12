@@ -43,7 +43,6 @@ angular.module('blocktrail.wallet').run(
         var bodyStateClasses = [];
         var networkClassType = "";
 
-        // TODO HERE !!!
         $rootScope.sdkReadOnlySdkData = sdkService.getReadOnlySdkData();
 
         $rootScope.CONFIG       = CONFIG || {};
@@ -238,11 +237,9 @@ angular.module('blocktrail.wallet').config(
                         globalLockService.init();
                     },
                     handleSetupState: function($state, launchService) {
-                        console.log('handleSetupState');
                         return launchService.handleSetupState('app.wallet', $state);
                     },
                     checkApiKeyStatus: function(launchService, dialogService, $filter, $translate, $state, storageService) {
-                        console.log('checkApiKeyStatus');
                         return launchService.getWalletConfig()
                             .then(function(result) {
                                 var bannedIp = result.is_banned_ip;

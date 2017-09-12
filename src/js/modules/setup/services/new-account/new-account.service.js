@@ -42,7 +42,6 @@
             version: self._CONFIG.VERSION || self._CONFIG.VERSION_REV,
             device_name: self._navigator.userAgent || "Unknown Browser",
             super_secret: self._CONFIG.SUPER_SECRET || null,
-            // TODO
             powtcha: null,
             browser_fingerprint: null
         };
