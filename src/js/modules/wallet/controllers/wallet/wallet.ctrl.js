@@ -83,15 +83,18 @@
             walletsList.forEach(function(wallet) {
                 list.push({
                     value: wallet.uniqueIdentifier,
-                    label: "[" + wallet.network + "] " + wallet.identifier + " " + $filter('satoshiToCoin')(wallet.balance, wallet.network, 5)
+                    label: CONFIG.NETWORKS[wallet.network].NETWORK_LONG
                 })
             });
 
             return list;
         }
 
+        $scope.onClickSetActiveWallet = function(uniqueIdentifier) {
+            if(uniqueIdentifier === $scope.walletData.uniqueIdentifier) {
+                return;
+            }
 
-        $scope.onChangeActiveWallet = function(uniqueIdentifier) {
             $scope.isLoadingNewWallet = true;
 
             walletsManagerService.setActiveWalletByUniqueIdentifier(uniqueIdentifier)

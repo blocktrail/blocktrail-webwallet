@@ -8,21 +8,20 @@
         <!-- Left column -->
         <div class="app-left-col">
             <div class="mainMenu">
-                <div ng-if="debugMode" style="border: 1px dashed #fff;" class="iit-10 iil-15 iir-15 iib-10">
-                    <p style="color: #fff;">Debug mode only</p>
-
-                    <p style="color: #fff;">SDK active network: {{ sdkActiveNetwork }}</p>
-                    <p style="color: #fff;">[{{ walletData.networkType }}] {{ walletData.identifier }}</p>
-                    <p style="color: #fff;">{{ activeWalletUniqueIdentifier }}</p>
-
-                    <select ng-model="activeWalletUniqueIdentifier"
-                            ng-change="onChangeActiveWallet(activeWalletUniqueIdentifier)"
-                            ng-options="option.value as option.label for option in walletsListOptions"
-                            style="width: 100%;"
-                    >
-                    </select>
+                <!-- Wallets list -->
+                <div class="wallets-list-holder">
+                    <div class="wallets-list" dropdown>
+                        <button type="button" class="btn btn-default btn-block" dropdown-toggle>
+                            <span class="text">{{ CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG }}</span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="option in walletsListOptions">
+                                <a class="pointer" ng-click="onClickSetActiveWallet(option.value)">{{ option.label }}</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-
                 <!-- Side Nav -->
                 <wallet-side-nav list="sideNavList"></wallet-side-nav>
                 <!-- App store buttons -->
