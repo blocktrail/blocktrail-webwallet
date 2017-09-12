@@ -155,7 +155,7 @@
                         data['two_factor_token'] = twoFactorToken;
                     }
 
-                    $http.post(CONFIG.API_URL + "/v1/" + (CONFIG.TESTNET ? "t" : "") + CONFIG.NETWORK + "/recovery/change-password", data).then(function (res) {
+                    $http.post(CONFIG.API_URL + "/v1/" + CONFIG.API_NETWORK + "/recovery/change-password", data).then(function (res) {
                         // Generate backup PDF
                         generateBackupPageTwo("", encryptedData.secret_mnemonic);
                         $scope.stepCount = 2;

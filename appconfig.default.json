@@ -6,6 +6,11 @@
     "API_HOST": "api.blocktrail.com",
     "API_HTTPS": true,
 
+
+    // @deprecated
+    // until we have a cleaner solution for the API endpoints, should either by BTC or tBTC
+    "API_NETWORK": "BTC",
+
     "NETWORKS_ENABLED": ["BTC", "BCC", "tBTC", "tBCC"],
 
     "NETWORKS": {
