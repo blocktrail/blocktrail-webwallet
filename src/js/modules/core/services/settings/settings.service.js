@@ -16,8 +16,13 @@
             displayName:  null,
             username:  '',
             email:  null,
+
+            // [UP] language stores the currently selected language
             language: null,
+            // [LOCAL] extraLanguages is the list of languages we can enable, cached locally
             extraLanguages: [],
+            // [UP] knownLanguages is the list of languages we know are available (used to prompt user when we have new languages)
+            knownLanguages: [],
             timezone:  "GMT+1",
             localCurrency:  "EUR",
             profilePic:  null,
@@ -61,11 +66,15 @@
         // We only load from local storage once, after that this is set to TRUE
         self._loaded = false;
 
+        self.$_updateLocalStorage = null;
+
         // Init storage DB
         self._storage = storageService.db('settings');
 
         // Settings object with pending functionality, only for internal usage!
-        self._doc = {};
+        self._doc = {
+            _id: documentId
+        };
 
         // Pending object will hold settings changed while we syncing
         self._pending = {};
@@ -83,7 +92,8 @@
             "username",
             "email",
             "hideBCCSweepWarning",
-            "walletActivated"
+            "walletActivated",
+            "knownLanguages"
         ];
 
         // Pending property list for portfolio
@@ -418,6 +428,7 @@
         self._doc.glideraActivationNoticePending = sdkSettings.glideraActivationNoticePending;
         self._doc.hideBCCSweepWarning = sdkSettings.hideBCCSweepWarning;
         self._doc.walletActivated = sdkSettings.walletActivated;
+        self._doc.knownLanguages = sdkSettings.knownLanguages;
 
         return self._doc;
     };
@@ -508,22 +519,28 @@
     Settings.prototype._updateLocalStorage = function() {
         var self = this;
 
-        return self._$q.when(this._storage.get(self._id)
-            .catch(function() {}) // suppress document not exists error
-            .then(function() {
-                return self._storage.put(angular.copy(self._doc))
-                    .then(
-                        function() {
-                            return self._doc;
-                        },
-                        function(e) {
+        if (self.$_updateLocalStorage) {
+            return self.$_updateLocalStorage.then(function() {
+                return self._updateLocalStorage();
+            });
+        } else {
+            self.$_updateLocalStorage = self._$q.when(this._storage.get(self._id)
+                .catch(function() {
+                }) // suppress document not exists error
+                .then(function() {
+                    return self._storage.put(angular.copy(self._doc))
+                        .catch(function(e) {
                             // Supress error, worst case it wasn't stored locally...
-                            // TODO Handle exception
+                        })
+                        .then(function() {
+                            self.$_updateLocalStorage = null;
                             return self._doc;
-                        }
-                    );
-            })
-        );
+                        });
+                })
+            );
+        }
+
+        return self.$_updateLocalStorage;
     };
 
     /**
@@ -548,7 +565,8 @@
                     username: self._doc.username,
                     email: self._doc.email,
                     hideBCCSweepWarning: self._doc.hideBCCSweepWarning,
-                    walletActivated: self._doc.walletActivated
+                    walletActivated: self._doc.walletActivated,
+                    knownLanguages: self._doc.knownLanguages
                 };
 
                 return sdk.syncSettings(settingsData);

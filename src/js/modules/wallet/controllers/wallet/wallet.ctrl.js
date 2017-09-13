@@ -179,26 +179,35 @@
             })
             .then(function(extraLanguages) {
                 return settingsService.getSettings().then(function(settings) {
-                    (settings.extraLanguages || []).forEach(function(language) {
+                    // copy languages we knew before this update
+                    var knownLanguages = (settings.knownLanguages || []).slice();
+
+                    // enable all languages
+                    extraLanguages.forEach(function(language) {
                         blocktrailLocalisation.enableLanguage(language);
                     });
 
-                    // determine (new) preferred language
-                    var r = blocktrailLocalisation.parseExtraLanguages(extraLanguages);
+                    // filter out any new languages
+                    var newLanguages = extraLanguages.filter(function(language) {
+                        return knownLanguages.indexOf(language) === -1;
+                    });
 
-                    if (r) {
-                        var newLanguages = r[0];
-                        var preferredLanguage = r[1];
-
-                        // store extra languages
+                    // check if there's newLanguages
+                    if (newLanguages.length) {
+                        // store languages
                         var updateSettings = {
-                            extraLanguages: settings.extraLanguages.concat(newLanguages).unique()
+                            extraLanguages: blocktrailLocalisation.getLanguages(),
+                            knownLanguages: blocktrailLocalisation.getLanguages()
                         };
 
                         return settingsService.updateSettingsUp(updateSettings)
                             .then(function(settings) {
-                                // check if we have a new preferred language
-                                if (preferredLanguage && settings.language && preferredLanguage !== settings.language && extraLanguages.indexOf(preferredLanguage) !== -1) {
+                                // auto detect preferred language
+                                var preferredLanguage = blocktrailLocalisation.preferredAvailableLanguage();
+
+                                // check if we should recommend switching to the auto detected preferred language,
+                                //  but only if it's new (don't want to nag the user about it)
+                                if (preferredLanguage && settings.language && preferredLanguage !== settings.language && newLanguages.indexOf(preferredLanguage) !== -1) {
                                     // prompt to enable
                                     return dialogService.prompt({
                                         body: $translate.instant('MSG_BETTER_LANGUAGE', {
@@ -212,11 +221,17 @@
                                         .then(function() {
                                             // enable new language
                                             var updateSettings = {
-                                                extraLanguages: preferredLanguage
+                                                language: preferredLanguage
                                             };
                                             // TODO root scope language should have a subscription on property language from settings service
                                             $rootScope.changeLanguage(preferredLanguage);
                                             return settingsService.updateSettingsUp(updateSettings);
+                                        }, function(e) {
+                                            if (e === "dismiss") {
+                                                // ignore
+                                            } else {
+                                                throw e;
+                                            }
                                         });
                                 }
                             });
