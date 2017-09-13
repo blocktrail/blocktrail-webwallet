@@ -8,7 +8,7 @@
                                         $translate, $log, $timeout, trackingService) {
 
         var activeWallet = walletsManagerService.getActiveWallet();
-        var walletData = activeWallet.getReadOnlyWalletData();
+        $scope.walletData = activeWallet.getReadOnlyWalletData();
 
         trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_START);
 
@@ -42,7 +42,7 @@
         var options = {
             batchSize: 50,
             accountBatchSize: 5,
-            network: walletData.networkType,
+            network: $scope.walletData.networkType,
             testnet: false
         };
 
@@ -156,24 +156,24 @@
         };
 
         $scope.publishRawTransaction = function () {
-            sdkService.getSdkByActiveNetwork().then(function (sdk) {
-                sdk.sendRawTransaction($scope.sweepData.rawTx, function (err, result) {
-                    $scope.working = false;
+            var sdk = activeWallet.getSdkWallet().sdk;
 
-                    if(result.hash) {
-                        $timeout(function() {
-                            $scope.sweepData.txId = result.hash;
-                            $scope.form.step = $scope.STEPS.PUBLISH;
-                        });
-                        trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_SUCCESS);
-                    } else {
-                        trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_FAIL);
-                        return dialogService.alert(
-                            $translate.instant("IMPORT_ERROR"),
-                            $translate.instant("TX_CANT_BE_PUSHED")
-                        ).result;
-                    }
-                });
+            sdk.sendRawTransaction($scope.sweepData.rawTx, function (err, result) {
+                $scope.working = false;
+
+                if(result.hash) {
+                    $timeout(function() {
+                        $scope.sweepData.txId = result.hash;
+                        $scope.form.step = $scope.STEPS.PUBLISH;
+                    });
+                    trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_SUCCESS);
+                } else {
+                    trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_FAIL);
+                    return dialogService.alert(
+                        $translate.instant("IMPORT_ERROR"),
+                        $translate.instant("TX_CANT_BE_PUSHED")
+                    ).result;
+                }
             });
         };
 
