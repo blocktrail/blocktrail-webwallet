@@ -20,13 +20,19 @@
                 url: "/lostlock?refresh",
                 cache: false,
                 controller: "LostLockCtrl",
-                templateUrl: "js/modules/setup/controllers/lost-lock/lost-lock.tpl.html"
+                templateUrl: "js/modules/setup/controllers/lost-lock/lost-lock.tpl.html",
+                resolve: {
+                    preferredLanguage: preferredLanguage
+                }
             })
             .state("app.loggedout", {
                 url: "/loggedout",
                 cache: false,
                 controller: "SetupLoggedoutCtrl",
-                templateUrl: "js/modules/setup/controllers/loggedout/loggedout.tpl.html"
+                templateUrl: "js/modules/setup/controllers/loggedout/loggedout.tpl.html",
+                resolve: {
+                    preferredLanguage: preferredLanguage
+                }
             })
             .state("app.setup", {
                 url: "/setup",
