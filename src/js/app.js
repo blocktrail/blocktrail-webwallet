@@ -211,14 +211,15 @@ angular.module('blocktrail.wallet')
 angular.module('blocktrail.wallet').config(
     function($compileProvider, $stateProvider, $urlRouterProvider, $logProvider, $analyticsProvider, $sceDelegateProvider, CONFIG) {
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|bitcoin):/);
-        $analyticsProvider.firstPageview(false);
         $logProvider.debugEnabled(CONFIG.DEBUG);
 
         var urlWhitelist = ['self'];
-
         if (CONFIG.CDN) {
             urlWhitelist.push(CONFIG.CDN + "**");
         }
+
+        $analyticsProvider.firstPageview(false);
+        $analyticsProvider.settings.ga.additionalAccountNames = ['globalGA'];
 
         $sceDelegateProvider.resourceUrlWhitelist(urlWhitelist);
 
