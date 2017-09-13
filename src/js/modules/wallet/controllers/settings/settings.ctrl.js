@@ -138,16 +138,18 @@
         function onSubmitFormSettings() {
             // TODO Create validation service, add custom validation directives (provide array of rule's names and model)
             var emailRule = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-            var stringOrEmptyRule = /(^[a-zA-Z]+$)|(^$)/;
+            var stringOrEmptyRule = /(^[a-zA-Z\d]+$)|(^$)/;
 
             resetErrors();
 
             if(!emailRule.test($scope.formSettings.email)) {
                 $scope.errors.email = true;
+                emailErrorModal();
             }
 
             if($scope.formSettings.username.length && ($scope.formSettings.username.length < 4 || !stringOrEmptyRule.test($scope.formSettings.username))) {
                 $scope.errors.name = true;
+                usernameErrorModal();
             }
 
             if(!$scope.errors.email && !$scope.errors.name) {
@@ -256,6 +258,22 @@
                     disable2FA();
                 }
             }
+        }
+
+        // TODO move to modal controller
+        function usernameErrorModal() {
+            return dialogService.alert(
+                $translate.instant('ERROR_TITLE_2'),
+                $translate.instant('MSG_INVALID_USERNAME')
+            ).result;
+        }
+
+        // TODO move to modal controller
+        function emailErrorModal() {
+            return dialogService.alert(
+                $translate.instant('ERROR_TITLE_2'),
+                $translate.instant('MSG_BAD_EMAIL')
+            ).result;
         }
 
         // TODO move to modal controller
