@@ -272,7 +272,7 @@ angular.module('blocktrail.wallet').config(
 
                                 if (!walletInfo.networkType || !walletInfo.identifier) {
                                     $state.go('app.logout');
-                                    return;
+                                    throw new Error("Missing networkType or identifier");
                                 }
 
                                 sdkService.setAccountInfo(accountInfo);
