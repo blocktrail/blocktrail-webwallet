@@ -35,7 +35,7 @@
                             <div class="help-block" ng-if="registerForm.email.$dirty && registerForm.email.$touched && registerForm.email.$invalid">
                                 <div ng-if="registerForm.email.$error.required">{{ 'MSG_MISSING_LOGIN' | translate }}</div>
                                 <div ng-if="!registerForm.email.$error.required && registerForm.email.$error.email">
-                                    {{ 'REAL FUNKY' | translate }}
+                                    {{ 'MSG_BAD_EMAIL' | translate }}
                                 </div>
                             </div>
                         </div>
