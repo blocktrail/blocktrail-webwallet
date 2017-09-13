@@ -13,5 +13,6 @@
         .constant("bowserJS",       window.bowser)
         .constant("PouchDB",        window.PouchDB)
         .constant("powtcha",        window.powtcha)
-        .constant("navigator",      window.navigator);
+        .constant("navigator",      window.navigator)
+        .constant("zxcvbn",         window.zxcvbn);
 })();
