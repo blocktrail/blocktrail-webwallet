@@ -84,9 +84,18 @@
         <script crossorigin="anonymous"
                 <% if (SRI) { %>integrity="sha256-<%= SRI['js/libs.js'] %>"<% } %>
                 src="<%= STATICSURL %>/js/libs.js"></script>
+
         <script crossorigin="anonymous"
                 <% if (SRI) { %>integrity="sha256-<%= SRI['js/sdk.js'] %>"<% } %>
                 src="<%= STATICSURL %>/js/sdk.js"></script>
+
+        <script crossorigin="anonymous"
+                <% if (SRI) { %>integrity="sha256-<%= SRI['js/config.js'] %>"<% } %>
+                src="<%= STATICSURL %>/js/config.js"></script>
+
+        <script crossorigin="anonymous"
+                <% if (SRI) { %>integrity="sha256-<%= SRI['js/translations.js'] %>"<% } %>
+                src="<%= STATICSURL %>/js/translations.js"></script>
 
         <% if (APPCONFIG.SENTRY_TRACKING_URL) { %>
         <script>
@@ -109,11 +118,6 @@
                 window.Raven = null;
             </script>
         <% } %>
-
-        <script>
-            angular.module('blocktrail.config', []).constant('CONFIG', <%= APPCONFIG_JSON %>);
-            angular.module('blocktrail.translations', []).constant('TRANSLATIONS', <%= TRANSLATIONS %>);
-        </script>
 
         <script crossorigin="anonymous"
                 <% if (SRI) { %>integrity="sha256-<%= SRI['js/templates.js'] %>"<% } %>
