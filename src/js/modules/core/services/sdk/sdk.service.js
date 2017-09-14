@@ -121,7 +121,7 @@
                 testnet: isTestNet,
                 host: self._CONFIG.API_HOST || null,
                 network: sdkNetwork,
-                https: self._CONFIG.API_HTTPS ? self._CONFIG.API_HTTPS : true
+                https: typeof self._CONFIG.API_HTTPS !== "undefined" ? self._CONFIG.API_HTTPS : true
             };
 
             self._sdkList[networkType] = new self._blocktrailSDK(sdkConfiguration);

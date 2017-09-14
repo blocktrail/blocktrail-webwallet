@@ -176,7 +176,7 @@
                         } else {
                             return dialogService.alert(
                                 $translate.instant("RECOVERY_ERROR"),
-                                $translate.instant("MSG_PASSWORD_NOT_CHANGED")
+                                $translate.instant("MSG_CHANGE_PASSWORD_UNKNOWN_ERROR")
                             ).result;
                         }
                     });
@@ -226,7 +226,7 @@
                             $scope.working = false;
                             return dialogService.alert(
                                 $translate.instant("RECOVERY_ERROR"),
-                                $translate.instant("MSG_PASSWORD_NOT_CHANGED")
+                                $translate.instant("MSG_RECOVERY_DECRYPT_FAILED")
                             ).result;
                         }
 
