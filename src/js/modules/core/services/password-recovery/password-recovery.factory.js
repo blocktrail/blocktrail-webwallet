@@ -56,19 +56,38 @@
             }
         }
 
-        function decryptSecretMnemonicWithPassword(encryptedSecretMnemonic, password, walletVersion) {
-            var encryptedRecoverySecret = null;
-            var secret = null;
-
-            if (walletVersion === 'v3') {
-                encryptedRecoverySecret = blocktrailSDK.EncryptionMnemonic.decode(encryptedSecretMnemonic);
-                secret = blocktrailSDK.Encryption.decrypt(encryptedRecoverySecret, new blocktrailSDK.Buffer(password, 'hex'));
-            } else {
-                encryptedRecoverySecret = blocktrailSDK.convert(blocktrailSDK.bip39.mnemonicToEntropy(encryptedSecretMnemonic), 'hex', 'base64');
-                secret = cryptoJS.AES.decrypt(encryptedRecoverySecret, password).toString(cryptoJS.enc.Utf8);
-            }
+        function decryptSecretMnemonicWithPasswordV3(encryptedSecretMnemonic, password) {
+            var encryptedRecoverySecret = blocktrailSDK.EncryptionMnemonic.decode(encryptedSecretMnemonic);
+            var secret = blocktrailSDK.Encryption.decrypt(encryptedRecoverySecret, new blocktrailSDK.Buffer(password, 'hex'));
 
             return secret;
+        }
+
+        function decryptSecretMnemonicWithPasswordV2(encryptedSecretMnemonic, password) {
+            var encryptedRecoverySecret = blocktrailSDK.convert(blocktrailSDK.bip39.mnemonicToEntropy(encryptedSecretMnemonic), 'hex', 'base64');
+            var secret = new blocktrailSDK.Buffer(cryptoJS.AES.decrypt(encryptedRecoverySecret, password).toString(cryptoJS.enc.Utf8), 'hex');
+
+            return secret;
+        }
+
+        function decryptSecretMnemonicWithPassword(encryptedSecretMnemonic, password) {
+            var eV3, eV2;
+
+            try {
+                return [decryptSecretMnemonicWithPasswordV3(encryptedSecretMnemonic, password), blocktrailSDK.Wallet.WALLET_VERSION_V3];
+            } catch (_eV3) {
+                console.log('decryptSecretMnemonicWithPasswordV3 ERR', _eV3);
+                eV3 = _eV3;
+            }
+
+            try {
+                return [decryptSecretMnemonicWithPasswordV2(encryptedSecretMnemonic, password), blocktrailSDK.Wallet.WALLET_VERSION_V2];
+            } catch (_eV2) {
+                console.log('decryptSecretMnemonicWithPasswordV2 ERR', _eV2);
+                eV2 = _eV2;
+            }
+
+            throw new Error("Failed to decrypt; v3=" + eV3 + "; v2=" + eV2);
         }
 
         return {

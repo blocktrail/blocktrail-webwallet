@@ -28,7 +28,7 @@
         // Get state parameters
         var token = $stateParams.token;
         var walletVersion = $stateParams.version;
-        var requires2FA = $stateParams.requires_2fa;
+        var requires2FA = $stateParams.requires_2fa === "1";
 
         var recoverySecret = passwordRecoveryService.requestRecoverySecret(token);
 
@@ -135,7 +135,7 @@
                     ).result;
                 }
                 // If 2FA is required, ask for and and then continue
-                else if (requires2FA == true && twoFactorToken == null) {
+                else if (requires2FA && !twoFactorToken) {
                     return askFor2FA().then(function () {
                         $scope.encryptNewERS();
                     });
@@ -220,7 +220,17 @@
 
                         // Try decrypting
                         try {
-                            secret = passwordRecoveryService.decryptSecretMnemonicWithPassword(encryptedRecoverySecretMnemonic, recoverySecret, walletVersion);
+                            var decrypt = passwordRecoveryService.decryptSecretMnemonicWithPassword(encryptedRecoverySecretMnemonic, recoverySecret, walletVersion);
+                            secret = decrypt[0];
+                            var decryptVersion = decrypt[1];
+
+                            if (decryptVersion === blocktrailSDK.Wallet.WALLET_VERSION_V2 && walletVersion !== blocktrailSDK.Wallet.WALLET_VERSION_V2) {
+                                $scope.working = false;
+                                return dialogService.alert(
+                                    $translate.instant("RECOVERY_ERROR"),
+                                    $translate.instant("MSG_RECOVERY_V2_UPGRADED")
+                                ).result;
+                            }
                         } catch (e) {
                             $log.error(e, e.message);
                             $scope.working = false;
