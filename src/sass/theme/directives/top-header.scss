@@ -1,0 +1,176 @@
+.top-header {
+    @include networkPrimaryBG('background-color');
+    margin: 0;
+    position: relative;
+    z-index: 10;
+    height: 60px;
+
+    .logo {
+        padding: 16px 0 0 0;
+
+        a {
+            display: block;
+            width: 160px;
+        }
+
+        img {
+            display: block;
+            width: 100%;
+        }
+    }
+
+    .navbar-nav {
+        height: 60px;
+
+        li {
+            height: 100%;
+
+            a {
+                padding: 10px 20px;
+                margin: 10px;
+                background: transparent;
+                color: $white;
+                font-size: 16px;
+                font-weight: $normal;
+                border-radius: 3px;
+
+                &:active, &:focus, &:hover {
+                    color: $white;
+                    background: none;
+                    background-color: transparent;
+                }
+            }
+
+            &.active {
+                a {
+                    @include networkPrimaryBGActive('background-color');
+
+                    &:active, &:focus, &:hover {
+                        @include networkPrimaryBGActive('background-color');
+                    }
+                }
+            }
+        }
+
+        &.navbar-right {
+            li {
+                a {
+                    padding:10px 0;
+                }
+            }
+        }
+    }
+
+    .searchbar {
+        float: right;
+        font-size: 0;
+        margin-top: 13px;
+        margin-right: 20px;
+
+        .searchbar-inner {
+            font-size: $font-size-base;
+            display: inline-block;
+            padding: 6px;
+            background-color: #508ad3;
+            border-radius: 3px;
+        }
+
+        .searchbar-input-container {
+            overflow: hidden;
+        }
+
+        .searchbar-input {
+            float: left;
+            font-size: 12px;
+            font-family: $font-family-monospace;
+            line-height: 20px;
+            height: 20px;
+            color: #fff;
+            padding: 0;
+            width: 198px;
+            transition: width 0.2s ease-in;
+            border: none;
+            background-color: transparent;
+
+            &.active {
+                width: 265px;
+            }
+
+            &::-webkit-input-placeholder {
+                font-family: $font-family-sans-serif;
+                color: #ddd;
+            }
+            &::-moz-placeholder {
+                font-family: $font-family-sans-serif;
+                color: #ddd;
+            }
+            &:-ms-input-placeholder {
+                font-family: $font-family-sans-serif;
+                color: #ddd;
+            }
+        }
+
+        .searchbar-submit {
+            float: right;
+            width: 30px;
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            background-color: transparent;
+            padding: 0;
+            border: none;
+
+            .glyphicon-search {
+                color: #fff;
+            }
+        }
+    }
+
+    .lang {
+        float: right;
+        line-height: 60px;
+    }
+
+    .lang-active {
+        display: inline-block;
+        line-height: 30px;
+        position: relative;
+
+        &.open > .dropdown-menu {
+            left: auto;
+            right: 0;
+            min-width: initial;
+            width: 7em;
+        }
+
+        & > a {
+            display: block;
+            line-height: 16px;
+            font-size: 14px;
+            color: #fff;
+            padding: 5px 10px;
+            background: #052748;
+            border-radius: 5px;
+
+            &:focus, &:hover {
+                text-decoration: none;
+            }
+        }
+
+        .dropdown-menu > li > a {
+            padding: 3px 22px;
+            text-align: right;
+        }
+    }
+
+}
+
+.appNav {
+    .btn {
+        height: 64px;
+        border: 0;
+        border-radius: 0;
+        font-weight: $semi-bold;
+        font-size: 16px;
+    }
+}

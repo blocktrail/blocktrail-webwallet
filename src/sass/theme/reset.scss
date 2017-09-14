@@ -20,7 +20,8 @@ body {
         overflow: hidden;
     }
 
-    &.state-app_setup {
+    &.state-app_setup,
+    &.state-app_bannedip {
         @extend .fill-height-or-more;
 
         padding-bottom: $big-footer-height * 2;
@@ -382,191 +383,6 @@ $appHeaderHeight: 80px;
     }
 }
 
-//--- navbar ---
-
-.navbar {
-    margin: 0px;
-    border-radius: 0px;
-    @include networkPrimaryBG('background-color');
-    border: 0px;
-    position: relative;
-    z-index: 10;
-    height: 60px;
-
-    .navbar-header {
-        padding: 16px 0px 0px 0px;
-
-        .navbar-brand {
-            margin: 0px 0px 0px 0px;
-            padding: 0px;
-            height: auto;
-
-            img {
-                border: 0px;
-                margin: 0px;
-                width: 160px;
-            }
-        }
-    }
-
-    .navbar-nav {
-        margin: 0px 0px 0px 80px;
-        padding-left: 40px;
-        height: 60px;
-
-        li {
-            height: 100%;
-
-            a {
-                padding: 10px 20px;
-                margin: 10px;
-                background: transparent;
-                color: $white;
-                font-size: 16px;
-                font-weight: $normal;
-                border-radius: 3px;
-
-                &:active, &:focus, &:hover {
-                    color: $white;
-                    background: none;
-                    background-color: transparent;
-                }
-            }
-
-            &.active {
-                a {
-                    @include networkPrimaryBGActive('background-color');
-
-                    &:active, &:focus, &:hover {
-                        @include networkPrimaryBGActive('background-color');
-                    }
-                }
-            }
-        }
-
-        &.navbar-right {
-            li {
-                a {
-                    padding:10px 0px;
-                }
-            }
-        }
-    }
-
-    .searchbar {
-        float: right;
-        font-size: 0;
-        margin-top: 13px;
-        margin-right: 20px;
-
-        .searchbar-inner {
-            font-size: $font-size-base;
-            display: inline-block;
-            padding: 6px;
-            background-color: #508ad3;
-            border-radius: 3px;
-        }
-
-        .searchbar-input-container {
-            overflow: hidden;
-        }
-
-        .searchbar-input {
-            float: left;
-            font-size: 12px;
-            font-family: $font-family-monospace;
-            line-height: 20px;
-            height: 20px;
-            color: #fff;
-            padding: 0;
-            width: 198px;
-            transition: width 0.2s ease-in;
-            border: none;
-            background-color: transparent;
-
-            &.active {
-                width: 265px;
-            }
-
-            &::-webkit-input-placeholder {
-                font-family: $font-family-sans-serif;
-                color: #ddd;
-            }
-            &::-moz-placeholder {
-                font-family: $font-family-sans-serif;
-                color: #ddd;
-            }
-            &:-ms-input-placeholder {
-                font-family: $font-family-sans-serif;
-                color: #ddd;
-            }
-        }
-
-        .searchbar-submit {
-            float: right;
-            width: 30px;
-            height: 20px;
-            line-height: 20px;
-            text-align: center;
-            background-color: transparent;
-            padding: 0;
-            border: none;
-
-            .glyphicon-search {
-                color: #fff;
-            }
-        }
-    }
-
-    .lang {
-        float: right;
-        line-height: 60px;
-    }
-
-    .lang-active {
-        display: inline-block;
-        line-height: 30px;
-        position: relative;
-
-        &.open > .dropdown-menu {
-            left: auto;
-            right: 0;
-            min-width: initial;
-            width: 7em;
-        }
-
-        & > a {
-            display: block;
-            line-height: 16px;
-            font-size: 14px;
-            color: #fff;
-            padding: 5px 10px;
-            background: #052748;
-            border-radius: 5px;
-
-            &:focus, &:hover {
-                text-decoration: none;
-            }
-        }
-
-        .dropdown-menu > li > a {
-            padding: 3px 22px;
-            text-align: right;
-        }
-    }
-
-}
-
-.appNav {
-    .btn {
-        height: 64px;
-        border: 0px;
-        border-radius: 0px;
-        font-weight: $semi-bold;
-        font-size: 16px;
-    }
-}
-
 //--- Scaffolding ---
 .opacity-50 {
     opacity: 0.5;
@@ -894,7 +710,7 @@ $display-token-size: 50px;
 .state-app_bannedip,
 .state-app_lostlock {
     &.state-app_setup_wallet,
-    &.state-app_setup_backup {
+    &.state-app_setup_backup{
         h1 {
             margin-top: 120px;
             font-weight: $normal;
@@ -1863,24 +1679,7 @@ $display-token-size: 50px;
     }
 }
 
-/*--- Modals ---*/
 
-/*
-.modal-max-height {
-    .modal-dialog {
-        height: calc(100% - 130px);
-
-        .modal-content {
-            height: 100%;
-            border-radius: 10px;
-        }
-        .modal-body {
-            height: calc(100% - 70px - 70px); // reduce height for header + footer
-        }
-
-    }
-}
-*/
 
 .modal-open {
     .content {

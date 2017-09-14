@@ -1,0 +1,109 @@
+@import "../../helpers/variables";
+
+body {
+    &.state-app_setup_login {
+        background-color: $lightgray-light;
+
+        .appWrapper {
+            padding: 0;
+        }
+    }
+}
+
+.login-block .login-icon {
+    max-width: 40px;
+    margin-bottom: 30px;
+}
+
+.login-block {
+    padding: 60px 0;
+
+    .block-content {
+        padding: 40px 0 0;
+    }
+
+    h1, h2 {
+        margin: 0 0 30px;
+        font-size: 38px;
+        font-weight: 400;
+        letter-spacing: 1px;
+    }
+
+    p {
+        font-size: 20px;
+        font-weight: 400;
+        margin: 0 0 20px;
+        letter-spacing: 1px;
+
+        > * {
+            letter-spacing: 0;
+        }
+    }
+}
+
+.login-btn-appstore {
+    background-color: $black-light;
+    color: $white;
+    text-align: left;
+    padding: 4px 22px 4px 8px;
+    margin: 5px 10px;
+
+    &:hover {
+        color: $mediumgray-dark;
+    }
+
+    .bticon {
+        font-size: 30px;
+        float: left;
+        margin-right: 4px;
+    }
+
+    .test  {
+        float: left;
+        line-height: 20px;
+
+        span {
+            display: block;
+            font-size: 12px;
+
+            &.brand {
+                font-size: 16px;
+            }
+        }
+    }
+}
+
+.login-block-description {
+    padding: 20px 0 0;
+    max-width: 450px;
+    margin: 0 auto;
+
+    .login-btn-appstore {
+        background-color: $mediumgray-dark;
+
+        &:hover {
+            color: $darkgray-light;
+        }
+    }
+}
+
+.login-block-highlighted {
+    padding: 100px 0;
+    background-color: $lightgray-dark;
+}
+
+.login-block-parallax {
+    height: 500px;
+    background: url("../img/btc-home-banner.png") no-repeat fixed center;
+    background-size: cover;
+
+    .block-content {
+        padding: 200px 0 0;
+    }
+
+    p {
+        font-size: 60px;
+        line-height: 70px;
+        color: $white;
+    }
+}

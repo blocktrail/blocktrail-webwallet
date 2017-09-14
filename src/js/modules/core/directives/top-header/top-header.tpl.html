@@ -1,0 +1,63 @@
+<header class="top-header">
+    <div class="container">
+        <div class="logo pull-left">
+            <a ng-href="{{ CONFIG.HOMEPAGE_URL }}" target="_self"><img src="{{ CONFIG.STATICSURL }}/img/logo-btc-reverse.png"/></a>
+        </div>
+
+        <div class="pull-right">
+            <ul class="nav navbar-nav" ng-if="mode == 'loggedout'">
+                <li ng-class="{'active':$state.is('app.setup.register')}">
+                    <a ui-sref="app.setup.register">{{ 'NAVBAR_SIGNUP' | translate }}</a>
+                </li>
+                <li ng-class="{'active':$state.is('app.setup.login')}">
+                    <a ui-sref="app.setup.login">{{ 'NAVBAR_LOGIN' | translate }}</a>
+                </li>
+            </ul>
+
+            <ul class="nav navbar-nav" ng-if="mode == 'loggedin'">
+                <li>
+                    <a ui-sref="app.logout">{{ 'LOGOUT' | translate }}</a>
+                </li>
+            </ul>
+
+            <div ng-if="mode == 'explorer'">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="/">{{ 'NAVBAR_HOME' | translate }}</a>
+                    </li>
+                    <li>
+                        <a href="/blocks">{{ 'NAVBAR_BLOCKS' | translate }}</a>
+                    </li>
+                    <li>
+                        <a href="/stats">{{ 'NAVBAR_STATS' | translate }}</a>
+                    </li>
+                    <li>
+                        <a href="/tools">{{ 'NAVBAR_TOOLS' | translate }}</a>
+                    </li>
+                    <li>
+                        <a href="/applications">{{ 'NAVBAR_APPLICATIONS' | translate }}</a>
+                    </li>
+                </ul>
+
+                <div class="searchbar"  ng-if="mode == 'explorer'">
+                    <div class="searchbar-inner">
+                        <form action="https://www.btc.com/search/" method="GET" class="searchbar-form clearfix" onsubmit="this.q.value = this.q.value.trim()">
+                            <button class="searchbar-submit" type="submit">
+                                <span class="glyphicon glyphicon-search"></span>
+                            </button>
+                            <div class="searchbar-input-container">
+                                <input type="search" class="searchbar-input" name="q"
+                                       placeholder="{{ 'NAVBAR_SEARCH_PLACEHOLDER' | translate }}"
+                                       autocomplete="off"
+                                       onfocus="$(this).addClass('active')"
+                                       onblur="this.value.length > 1 || $(this).removeClass('active')" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
