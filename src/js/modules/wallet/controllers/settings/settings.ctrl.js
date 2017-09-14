@@ -584,7 +584,7 @@
                                                                     bodyHtml: $sce.trustAsHtml($translate.instant('CHANGE_PASSWORD_BACKUP')),
                                                                     ok: $translate.instant('BACKUP_CREATE_PDF')
                                                                 }).result.then(function() {
-                                                                    var backup = new sdkService.BackupGenerator(
+                                                                    var backup = new blocktrailSDK.BackupGenerator(
                                                                         wallet.identifier,
                                                                         {
                                                                             encryptedSecret: newEncrypedWalletSecretMnemonic
