@@ -35,6 +35,7 @@
                     if(self._CONFIG.NETWORKS_ENABLED.indexOf(wallet.network) !== -1) {
                         // Add unique id
                         wallet.uniqueIdentifier = self._getWalletUniqueIdentifier(wallet.network, wallet.identifier);
+
                         self._walletsList.push(wallet)
                     }
                 });
@@ -74,11 +75,11 @@
         var uniqueIdentifier = self._getWalletUniqueIdentifier(networkType, identifier);
 
         if (!networkType) {
-            throw new Error("Blocktrail core module, wallets manager service. Network type should be defined.");
+            throw new TypeError("Blocktrail core module, wallets manager service. Network type should be defined.");
         }
 
         if (!identifier) {
-            throw new Error("Blocktrail core module, wallets manager service. Identifier should be defined.");
+            throw new TypeError("Blocktrail core module, wallets manager service. Identifier should be defined.");
         }
 
         if(!self._isExistingWalletByUniqueIdentifier(uniqueIdentifier)) {
@@ -88,7 +89,7 @@
                 identifier = wallets[0].identifier;
                 uniqueIdentifier = self._getWalletUniqueIdentifier(networkType, identifier);
             } else {
-                throw new Error("Blocktrail core module, wallets manager service. No wallets for " + networkType + " network type.");
+                throw new TypeError("Blocktrail core module, wallets manager service. No wallets for " + networkType + " network type.");
             }
         }
 
@@ -131,7 +132,6 @@
             if(self._activeWallet.getReadOnlyWalletData().uniqueIdentifier !== uniqueIdentifier) {
                 // Disable polling for active wallet and enable polling for new active wallet
                 self._activeWallet.disablePolling();
-
                 // Check the wallet in the buffer
                 if(self._wallets[uniqueIdentifier]) {
                     self._wallets[uniqueIdentifier].enablePolling();
@@ -147,9 +147,6 @@
                 promise = self._$q.when(self._activeWallet);
             }
         } else {
-
-
-
             // if active wallet is not exist have to initialize it
             promise = self._initWallet(networkType, identifier, uniqueIdentifier);
         }
@@ -190,7 +187,7 @@
 
         return !!self._walletsList.filter(function(item) {
             return item.uniqueIdentifier === uniqueIdentifier;
-        });
+        }).length;
     };
 
     /**
