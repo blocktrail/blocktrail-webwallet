@@ -1,6 +1,6 @@
 /**
  * @license Angulartics
- * (c) 2013 Luis Farzati http://luisfarzati.github.io/angulartics
+ * (c) 2013 Luis Farzati http://angulartics.github.io/
  * License: MIT
  */
 (function(angular, analytics) {
@@ -31,18 +31,25 @@ angular.module('angulartics', [])
 .config(['$provide', exceptionTrack]);
 
 function $analytics() {
+  var vm = this;
+
   var settings = {
     pageTracking: {
       autoTrackFirstPage: true,
       autoTrackVirtualPages: true,
       trackRelativePath: false,
+      trackRoutes: true,
+      trackStates: true,
       autoBasePath: false,
       basePath: '',
-      excludedRoutes: []
+      excludedRoutes: [],
+      queryKeysWhitelisted: [],
+      queryKeysBlacklisted: []
     },
     eventTracking: {},
     bufferFlushDelay: 1000, // Support only one configuration for buffer flush delay to simplify buffering
     trackExceptions: false,
+    optOut: false,
     developerMode: false // Prevent sending data in local/development environment
   };
 
@@ -51,6 +58,7 @@ function $analytics() {
     'pageTrack',
     'eventTrack',
     'exceptionTrack',
+    'transactionTrack',
     'setAlias',
     'setUsername',
     'setUserProperties',
@@ -58,7 +66,8 @@ function $analytics() {
     'setSuperProperties',
     'setSuperPropertiesOnce',
     'incrementProperty',
-    'userTimings'
+    'userTimings',
+    'clearCookies'
   ];
   // Cache and handler properties will match values in 'knownHandlers' as the buffering functons are installed.
   var cache = {};
@@ -83,21 +92,23 @@ function $analytics() {
     handlers[handlerName].push(fn);
     handlerOptions[fn] = options;
     return function(){
-      var handlerArgs = Array.prototype.slice.apply(arguments);
-      return this.$inject(['$q', angular.bind(this, function($q) {
-        return $q.all(handlers[handlerName].map(function(handlerFn) {
-          var options = handlerOptions[handlerFn] || {};
-          if (options.async) {
-            var deferred = $q.defer();
-            var currentArgs = angular.copy(handlerArgs);
-            currentArgs.unshift(deferred.resolve);
-            handlerFn.apply(this, currentArgs);
-            return deferred.promise;
-          } else{
-            return $q.when(handlerFn.apply(this, handlerArgs));
-          }
-        }, this));
-      })]);
+      if(!this.settings.optOut) {
+        var handlerArgs = Array.prototype.slice.apply(arguments);
+        return this.$inject(['$q', angular.bind(this, function($q) {
+          return $q.all(handlers[handlerName].map(function(handlerFn) {
+            var options = handlerOptions[handlerFn] || {};
+            if (options.async) {
+              var deferred = $q.defer();
+              var currentArgs = angular.copy(handlerArgs);
+              currentArgs.unshift(deferred.resolve);
+              handlerFn.apply(this, currentArgs);
+              return deferred.promise;
+            } else{
+              return $q.when(handlerFn.apply(this, handlerArgs));
+            }
+          }, this));
+        })]);
+      }
     };
   }
 
@@ -105,6 +116,17 @@ function $analytics() {
   var api = {
     settings: settings
   };
+
+  // Opt in and opt out functions
+  api.setOptOut = function(optOut) {
+    this.settings.optOut = optOut;
+    triggerRegister();
+  };
+
+  api.getOptOut = function() {
+    return this.settings.optOut;
+  };
+
 
   // Will run setTimeout if delay is > 0
   // Runs immediately if no delay to make sure cache/buffer is flushed before anything else.
@@ -124,7 +146,11 @@ function $analytics() {
     api: api,
     settings: settings,
     virtualPageviews: function (value) { this.settings.pageTracking.autoTrackVirtualPages = value; },
+    trackStates: function (value) { this.settings.pageTracking.trackStates = value; },
+    trackRoutes: function (value) { this.settings.pageTracking.trackRoutes = value; },
     excludeRoutes: function(routes) { this.settings.pageTracking.excludedRoutes = routes; },
+    queryKeysWhitelist: function(keys) { this.settings.pageTracking.queryKeysWhitelisted = keys; },
+    queryKeysBlacklist: function(keys) { this.settings.pageTracking.queryKeysBlacklisted = keys; },
     firstPageview: function (value) { this.settings.pageTracking.autoTrackFirstPage = value; },
     withBase: function (value) {
       this.settings.pageTracking.basePath = (value) ? angular.element(document).find('base').attr('href') : '';
@@ -171,14 +197,26 @@ function $analytics() {
     api[handlerName] = updateHandlers(handlerName, bufferedHandler(handlerName));
   }
 
-  // Set up register functions for each known handler
-  angular.forEach(knownHandlers, installHandlerRegisterFunction);
-  for (var key in provider) {
-    this[key] = provider[key];
+  function startRegistering(_provider, _knownHandlers, _installHandlerRegisterFunction) {
+    angular.forEach(_knownHandlers, _installHandlerRegisterFunction);
+
+    for (var key in _provider) {
+      vm[key] = _provider[key];
+    }
   }
+
+  // Allow $angulartics to trigger the register to update opt in/out
+  var triggerRegister = function() {
+    startRegistering(provider, knownHandlers, installHandlerRegisterFunction);
+  };
+
+  // Initial register
+  startRegistering(provider, knownHandlers, installHandlerRegisterFunction);
+
 }
 
 function $analyticsRun($rootScope, $window, $analytics, $injector) {
+
   function matchesExcludedRoute(url) {
     for (var i = 0; i < $analytics.settings.pageTracking.excludedRoutes.length; i++) {
       var excludedRoute = $analytics.settings.pageTracking.excludedRoutes[i];
@@ -189,8 +227,53 @@ function $analyticsRun($rootScope, $window, $analytics, $injector) {
     return false;
   }
 
+  function arrayDifference(a1, a2) {
+    var result = [];
+    for (var i = 0; i < a1.length; i++) {
+      if (a2.indexOf(a1[i]) === -1) {
+        result.push(a1[i]);
+      }
+    }
+    return result;
+  }
+
+  function filterQueryString(url, keysMatchArr, thisType){
+    if (/\?/.test(url) && keysMatchArr.length > 0) {
+      var urlArr = url.split('?');
+      var urlBase = urlArr[0];
+      var pairs = urlArr[1].split('&');
+      var matchedPairs = [];
+
+      for (var i = 0; i < keysMatchArr.length; i++) {
+        var listedKey = keysMatchArr[i];
+        for (var j = 0; j < pairs.length; j++) {
+          if ((listedKey instanceof RegExp && listedKey.test(pairs[j])) || pairs[j].indexOf(listedKey) > -1) matchedPairs.push(pairs[j]);
+        }
+      }
+
+      var matchedPairsArr = (thisType == 'white' ? matchedPairs : arrayDifference(pairs,matchedPairs));
+      if(matchedPairsArr.length > 0){
+        return urlBase + '?' + matchedPairsArr.join('&');
+      }else{
+        return urlBase;
+      }
+    } else {
+      return url;
+    }
+  }
+
+  function whitelistQueryString(url){
+    return filterQueryString(url, $analytics.settings.pageTracking.queryKeysWhitelisted, 'white');
+  }
+
+  function blacklistQueryString(url){
+    return filterQueryString(url, $analytics.settings.pageTracking.queryKeysBlacklisted, 'black');
+  }
+
   function pageTrack(url, $location) {
     if (!matchesExcludedRoute(url)) {
+      url = whitelistQueryString(url);
+      url = blacklistQueryString(url);
       $analytics.pageTrack(url, $location);
     }
   }
@@ -237,54 +320,61 @@ function $analyticsRun($rootScope, $window, $analytics, $injector) {
         $analytics.settings.pageTracking.basePath = $window.location.pathname + "#";
       }
       var noRoutesOrStates = true;
-      if ($injector.has('$route')) {
-        var $route = $injector.get('$route');
-        if ($route) {
-          for (var route in $route.routes) {
-            noRoutesOrStates = false;
-            break;
-          }
-        } else if ($route === null){
-          noRoutesOrStates = false;
-        }
-        $rootScope.$on('$routeChangeSuccess', function (event, current) {
-          if (current && (current.$$route||current).redirectTo) return;
-          var url = $analytics.settings.pageTracking.basePath + $location.url();
-          pageTrack(url, $location);
-        });
-      }
-      if ($injector.has('$state') && !$injector.has('$transitions')) {
-        noRoutesOrStates = false;
-        $rootScope.$on('$stateChangeSuccess', function (event, current) {
-          var url = $analytics.settings.pageTracking.basePath + $location.url();
-          pageTrack(url, $location);
-        });
-      }
-      if ($injector.has('$state') && $injector.has('$transitions')) {
-        noRoutesOrStates = false;
-        $injector.invoke(['$transitions', function($transitions) {
-          $transitions.onSuccess({}, ['$transition$', function($transition$) {
-            var transitionOptions = $transition$.options();
 
-            // only track for transitions that would have triggered $stateChangeSuccess
-            if (transitionOptions.notify) {
-              var url = $analytics.settings.pageTracking.basePath + $location.url();
-              pageTrack(url, $location);
+      if ($analytics.settings.pageTracking.trackRoutes) {
+        if ($injector.has('$route')) {
+          var $route = $injector.get('$route');
+          if ($route) {
+            for (var route in $route.routes) {
+              noRoutesOrStates = false;
+              break;
             }
-          }]);
-        }]);
-      }
-      if (noRoutesOrStates) {
-        $rootScope.$on('$locationChangeSuccess', function (event, current) {
-          if (current && (current.$$route || current).redirectTo) return;
-          if ($analytics.settings.pageTracking.trackRelativePath) {
+          } else if ($route === null){
+            noRoutesOrStates = false;
+          }
+          $rootScope.$on('$routeChangeSuccess', function (event, current) {
+            if (current && (current.$$route||current).redirectTo) return;
             var url = $analytics.settings.pageTracking.basePath + $location.url();
             pageTrack(url, $location);
-          } else {
-            pageTrack($location.absUrl(), $location);
-          }
-        });
+          });
+        }
       }
+
+      if ($analytics.settings.pageTracking.trackStates) {
+        if ($injector.has('$state') && !$injector.has('$transitions')) {
+          noRoutesOrStates = false;
+          $rootScope.$on('$stateChangeSuccess', function (event, current) {
+            var url = $analytics.settings.pageTracking.basePath + $location.url();
+            pageTrack(url, $location);
+          });
+        }
+        if ($injector.has('$state') && $injector.has('$transitions')) {
+          noRoutesOrStates = false;
+          $injector.invoke(['$transitions', function($transitions) {
+            $transitions.onSuccess({}, function($transition$) {
+              var transitionOptions = $transition$.options();
+
+              // only track for transitions that would have triggered $stateChangeSuccess
+              if (transitionOptions.notify) {
+                var url = $analytics.settings.pageTracking.basePath + $location.url();
+                pageTrack(url, $location);
+              }
+            });
+          }]);
+        }
+      }
+
+        if (noRoutesOrStates) {
+          $rootScope.$on('$locationChangeSuccess', function (event, current) {
+            if (current && (current.$$route || current).redirectTo) return;
+            if ($analytics.settings.pageTracking.trackRelativePath) {
+              var url = $analytics.settings.pageTracking.basePath + $location.url();
+              pageTrack(url, $location);
+            } else {
+              pageTrack($location.absUrl(), $location);
+            }
+          });
+        }
     }]);
   }
   if ($analytics.settings.developerMode) {
