@@ -220,6 +220,7 @@ angular.module('blocktrail.wallet').config(
 
         $analyticsProvider.firstPageview(false);
         $analyticsProvider.settings.ga.additionalAccountNames = ['globalGA'];
+        $analyticsProvider.queryKeysBlacklist(['token']);
 
         $sceDelegateProvider.resourceUrlWhitelist(urlWhitelist);
 
