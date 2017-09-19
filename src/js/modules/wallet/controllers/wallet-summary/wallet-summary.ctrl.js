@@ -196,8 +196,10 @@
                 controller: "WalletTransactionInfoModalCtrl",
                 templateUrl: "js/modules/wallet/controllers/wallet-transaction-info-modal/wallet-transaction-info-modal.tpl.html",
                 resolve: {
+
                     data: function() {
                         return {
+                            walletData: $scope.walletData,
                             transaction: angular.copy(transaction),
                             localCurrency: settings.localCurrency
                         }

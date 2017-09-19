@@ -5,6 +5,7 @@
         .controller("WalletTransactionInfoModalCtrl", WalletTransactionInfoModalCtrl);
 
     function WalletTransactionInfoModalCtrl($scope, $modalInstance, data) {
+        $scope.walletData = data.walletData;
         $scope.transaction = data.transaction;
         $scope.localCurrency = data.localCurrency;
 
