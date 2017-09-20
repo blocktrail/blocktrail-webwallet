@@ -4,6 +4,8 @@ angular.module('blocktrail.wallet')
 
         self.cache = storageService.db('currency-rates-cache');
 
+        self.mainCurrencies = ["EUR", "USD", "CNY"];
+
         // currencies that the app supports and their symbols
         //  this list shouldn't be used directly `self.currencies` contains the enabled currencies
         var _currencies = {
@@ -155,11 +157,27 @@ angular.module('blocktrail.wallet')
                 $rootScope.$broadcast("enabled_currency", code);
             }
 
+            // Sort currencies
+            var currencies = {};
+            //Main currencies on top
+            self.mainCurrencies.forEach(function (currency) {
+                if (self.currencies[currency]) {
+                    currencies[currency] = self.currencies[currency];
+                }
+            });
+            // Sort the rest fiats and add them as well
+            Object.keys(self.currencies).sort().forEach(function (key) {
+                if (self.mainCurrencies.indexOf(key) == -1) {
+                    currencies[key] = self.currencies[key];
+                }
+            });
+            self.currencies = currencies;
+
             return true;
         };
 
         // enable all currencies that are in the config
-        CONFIG.CURRENCIES.forEach(function(code) {
+        CONFIG.CURRENCIES.sort().forEach(function(code) {
             self.enableCurrency(code);
         });
     })
