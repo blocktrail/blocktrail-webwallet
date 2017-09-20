@@ -1,0 +1,145 @@
+<div class="appWrapper landing-page">
+    <div class="login-block">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-7">
+                    <div class="login-block-description text-center">
+                        <h1>{{ 'LANDING_POWERFUL' | translate }}</h1>
+                        <p>{{ 'LANDING_SEND_RECEIVE' | translate }}</p>
+                        <p>
+                            <a
+                                    class="btn login-btn-appstore"
+                                    href="https://play.google.com/store/apps/details?id=com.blocktrail.mywallet"
+                                    target="_blank"
+                            >
+                                <i class="bticon bticon-android"></i>
+                                <span class="test">
+                                    <span>{{ 'APP_DOWNLOAD_ON' | translate }}</span>
+                                    <span class="brand">Android</span>
+                                </span>
+                            </a>
+                            <a
+                                    class="btn login-btn-appstore"
+                                    href="https://itunes.apple.com/us/app/blocktrail-bitcoin-wallet/id1019614423"
+                                    target="_blank"
+                            >
+                                <i class="bticon bticon-apple"></i>
+                                <span class="test">
+                                    <span>{{ 'APP_DOWNLOAD_ON' | translate }}</span>
+                                    <span class="brand">IOS</span>
+                                </span>
+                            </a>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-5">
+                    <ng-transclude></ng-transclude>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-block login-block-highlighted">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6 col-xs-12">
+                    <img ng-src="{{ CONFIG.STATICSURL }}/img/btc-showcase-devices.png" class="img-responsive">
+                </div>
+                <div class="col-sm-6 col-xs-12">
+                    <div class="block-content">
+                        <h2>{{ 'LANDING_STAY_IN_CONTROL' | translate }}</h2>
+                        <p>{{ 'LANDING_EMPOWERS' | translate }}</p>
+                        <p>{{ 'LANDING_NEVER_ACCESS' | translate }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-block-parallax">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="block-content text-center">
+                        <p>{{ 'LANDING_YOUR_BTC' | translate }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-block">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-offset-2 col-sm-8">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="block-content text-center">
+                                <h2>{{ 'LANDING_ONE_WALLET' | translate }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row iit-15">
+                        <div class="col-sm-4 col-xs-12 text-center text-center">
+                            <img class="login-icon" ng-src="{{ CONFIG.STATICSURL }}/img/home-bitcoin-icon.png" />
+                            <p>{{ 'LANDING_SEND_RECEIVE_EASILY' | translate }}</p>
+                        </div>
+                        <div class="col-sm-4 col-xs-12 text-center text-center">
+                            <img class="login-icon" ng-src="{{ CONFIG.STATICSURL }}/img/home-key-icon.png" />
+                            <p>{{ 'LANDING_FULL_CONTROL' | translate }}</p>
+                        </div>
+                        <div class="col-sm-4 col-xs-12 text-center text-center">
+                            <img class="login-icon" ng-src="{{ CONFIG.STATICSURL }}/img/home-qr-icon.png" />
+                            <p>{{ 'LANDING_PAY_QR' | translate }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <img ng-src="{{ CONFIG.STATICSURL }}/img/btc-perspective-screen-transparent.png" class="img-responsive">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <a
+                            class="btn login-btn-appstore"
+                            href="https://play.google.com/store/apps/details?id=com.blocktrail.mywallet"
+                            target="_blank"
+                    >
+                        <i class="bticon bticon-android"></i>
+                        <span class="test">
+                            <span>{{ 'APP_DOWNLOAD_ON' | translate }}</span>
+                            <span class="brand">Android</span>
+                        </span>
+                    </a>
+                    <a
+                            class="btn login-btn-appstore"
+                            href="https://itunes.apple.com/us/app/blocktrail-bitcoin-wallet/id1019614423"
+                            target="_blank"
+                    >
+                        <i class="bticon bticon-apple"></i>
+                        <span class="test">
+                            <span>{{ 'APP_DOWNLOAD_ON' | translate }}</span>
+                            <span class="brand">IOS</span>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-block login-block-highlighted">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h2>{{ 'LANDING_CREATE_WALLET' | translate }}</h2>
+                    <p>
+                        <a ui-sref="app.setup.register" class="btn btn-primary btn-lg">{{ 'LAUNCH_NEW_ACCOUNT' | translate }}</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

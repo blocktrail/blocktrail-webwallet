@@ -432,7 +432,7 @@ angular.module('blocktrail.wallet').config(
         ;
 
         // if none of the above states are matched, use this as the fallback
-        $urlRouterProvider.otherwise('/setup/login');
+        $urlRouterProvider.otherwise('/setup/register');
     }
 );
 

@@ -1,227 +1,77 @@
-<div class="appWrapper">
-    <div class="login-block">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-7">
-                    <div class="login-block-description text-center">
-                        <h1>{{ 'LANDING_POWERFUL' | translate }}</h1>
-                        <p>{{ 'LANDING_SEND_RECEIVE' | translate }}</p>
-                        <p>
-                            <a
-                                class="btn login-btn-appstore"
-                                href="https://play.google.com/store/apps/details?id=com.blocktrail.mywallet"
-                                target="_blank"
-                            >
-                                <i class="bticon bticon-android"></i>
-                                <span class="test">
-                                    <span>{{ 'APP_DOWNLOAD_ON' | translate }}</span>
-                                    <span class="brand">Android</span>
-                                </span>
-                            </a>
-                            <a
-                                class="btn login-btn-appstore"
-                                href="https://itunes.apple.com/us/app/blocktrail-bitcoin-wallet/id1019614423"
-                                target="_blank"
-                            >
-                                <i class="bticon bticon-apple"></i>
-                                <span class="test">
-                                    <span>{{ 'APP_DOWNLOAD_ON' | translate }}</span>
-                                    <span class="brand">IOS</span>
-                                </span>
-                            </a>
-                        </p>
-                    </div>
-                </div>
+<app-wrapper title="'SETUP_LOGIN'">
+    <div class="formContainer">
+        <form
+            name="loginForm"
+            class="form page-blur"
+            ng-class="{'page-blur-active': isLoading}"
+            novalidate
+        >
 
-                <div class="col-md-5">
-                    <div class="formContainer">
-                        <form
-                            name="loginForm"
-                            class="form page-blur"
-                            ng-class="{'page-blur-active': isLoading}"
-                            novalidate
-                        >
-
-                            <div ng-if="error" class="alert alert-danger">
-                                {{ error | translate }}
-                                <div ng-if="errorDetailed">
-                                    {{ errorDetailed }}
-                                </div>
-                            </div>
-
-                            <!-- User name/email -->
-                            <div
-                                class="form-group form-group-lg"
-                                ng-class="{'has-error': loginForm.username.$dirty && loginForm.username.$invalid}"
-                            >
-
-                                <label class="control-label">{{ 'SETUP_LOGIN_PLACEHOLDER' | translate }}</label>
-
-                                <input class="form-control"
-                                       type="text"
-                                       placeholder="{{ 'SETUP_LOGIN_PLACEHOLDER' | translate }}"
-                                       name="username"
-                                       ng-model="form.username"
-                                       required
-                                />
-
-                                <div class="help-block" ng-if="loginForm.username.$dirty && loginForm.username.$invalid">
-                                    <div ng-if="loginForm.username.$error.required">{{ 'MSG_MISSING_LOGIN' | translate }}</div>
-                                </div>
-                            </div>
-
-                            <!-- Password -->
-                            <div class="form-group form-group-lg" ng-class="{'has-error': loginForm.password.$dirty && loginForm.password.$invalid}">
-                                <label class="control-label">{{ 'SETUP_PASSWORD_PLACEHOLDER' | translate }}</label>
-                                <input class="form-control" type="password" placeholder="{{ 'SETUP_PASSWORD_PLACEHOLDER' | translate }}"
-                                       name="password"
-                                       ng-model="form.password"
-                                       required="true"
-                                       required
-                                />
-                                <div class="help-block"
-                                     ng-if="loginForm.password.$dirty && loginForm.password.$invalid">
-                                    <div ng-if="loginForm.password.$error.required">{{ 'MSG_MISSING_PASSWORD' | translate }}</div>
-                                </div>
-                            </div>
-
-                            <!-- Debug mode -->
-                            <div ng-if="isDebugMode" class="form-group form-group-lg">
-                                <div class="checkbox">
-                                    <label>
-                                        <input
-                                            type="checkbox"
-                                            ng-model="form.forceNewWallet">
-                                        {{ 'SETUP_FORCE_NEW_WALLET' | translate }}
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="form-group form-group-lg form-group-buttons">
-                                <button class="form-control btn btn-primary" ng-click="onSubmitFormLogin(loginForm)">{{ 'SETUP_LOGIN' | translate }}</button>
-                            </div>
-
-                            <!-- Loader overlay -->
-                            <div
-                                class="page-loader"
-                                ng-class="{'active': isLoading}"
-                            >
-                                <loading-spinner></loading-spinner>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-xs-12 iit-15 text-center">
-                            <a class="sentence-case" ui-sref="app.setup.register">{{ 'LAUNCH_NEW_ACCOUNT' | translate }}</a> <br />
-                            <a ui-sref="app.setup.forgotPassword">{{ 'SETUP_FORGOT_PASSWORD_Q' | translate }}</a>
-                        </div>
-                    </div>
+            <div ng-if="error" class="alert alert-danger">
+                {{ error | translate }}
+                <div ng-if="errorDetailed">
+                    {{ errorDetailed }}
                 </div>
             </div>
-        </div>
+
+            <!-- User name/email -->
+            <div
+                class="form-group form-group-lg"
+                ng-class="{'has-error': loginForm.username.$dirty && loginForm.username.$invalid}"
+            >
+
+                <label class="control-label">{{ 'SETUP_LOGIN_PLACEHOLDER' | translate }}</label>
+
+                <input class="form-control"
+                       type="text"
+                       placeholder="{{ 'SETUP_LOGIN_PLACEHOLDER' | translate }}"
+                       name="username"
+                       ng-model="form.username"
+        <!-- Password -->
+            <div class="form-group form-group-lg" ng-class="{'has-error': loginForm.password.$dirty && loginForm.password.$invalid}">
+                <label class="control-label">{{ 'SETUP_PASSWORD_PLACEHOLDER' | translate }}</label>
+                <input class="form-control" type="password" placeholder="{{ 'SETUP_PASSWORD_PLACEHOLDER' | translate }}"
+                       name="password"
+                       ng-model="form.password"
+                       required="true"
+                       required
+                />
+                <div class="help-block"
+                     ng-if="loginForm.password.$dirty && loginForm.password.$invalid">
+                    <div ng-if="loginForm.password.$error.required">{{ 'MSG_MISSING_PASSWORD' | translate }}</div>
+                </div>
+            </div>
+
+            <!-- Debug mode -->
+            <div ng-if="isDebugMode" class="form-group form-group-lg">
+                <div class="checkbox">
+                    <label>
+                        <input
+                            type="checkbox"
+                            ng-model="form.forceNewWallet">
+                        {{ 'SETUP_FORCE_NEW_WALLET' | translate }}
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group form-group-lg form-group-buttons">
+                <button class="form-control btn btn-primary" ng-click="onSubmitFormLogin(loginForm)">{{ 'SETUP_LOGIN' | translate }}</button>
+            </div>
+
+            <!-- Loader overlay -->
+            <div
+                class="page-loader"
+                ng-class="{'active': isLoading}"
+            >
+                <loading-spinner></loading-spinner>
+            </div>
+        </form>
     </div>
 
-    <div class="login-block login-block-highlighted">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-6 col-xs-12">
-                    <img ng-src="{{ CONFIG.STATICSURL }}/img/btc-showcase-devices.png" class="img-responsive">
-                </div>
-                <div class="col-sm-6 col-xs-12">
-                    <div class="block-content">
-                        <h2>{{ 'LANDING_STAY_IN_CONTROL' | translate }}</h2>
-                        <p>{{ 'LANDING_EMPOWERS' | translate }}</p>
-                        <p>{{ 'LANDING_NEVER_ACCESS' | translate }}</p>
-                    </div>
-                </div>
-            </div>
+    <div class="row">
+        <div class="col-xs-12 iit-15 text-center">
+            <a class="sentence-case" ui-sref="app.setup.register">{{ 'LAUNCH_NEW_ACCOUNT' | translate }}</a> <br />
+            <a ui-sref="app.setup.forgotPassword">{{ 'SETUP_FORGOT_PASSWORD_Q' | translate }}</a>
         </div>
     </div>
-
-    <div class="login-block-parallax">
-        <div class="container">
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="block-content text-center">
-                        <p>{{ 'LANDING_YOUR_BTC' | translate }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="login-block">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-offset-2 col-sm-8">
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <div class="block-content text-center">
-                                <h2>{{ 'LANDING_ONE_WALLET' | translate }}</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row iit-15">
-                        <div class="col-sm-4 col-xs-12 text-center text-center">
-                            <img class="login-icon" ng-src="{{ CONFIG.STATICSURL }}/img/home-bitcoin-icon.png" />
-                            <p>{{ 'LANDING_SEND_RECEIVE_EASILY' | translate }}</p>
-                        </div>
-                        <div class="col-sm-4 col-xs-12 text-center text-center">
-                            <img class="login-icon" ng-src="{{ CONFIG.STATICSURL }}/img/home-key-icon.png" />
-                            <p>{{ 'LANDING_FULL_CONTROL' | translate }}</p>
-                        </div>
-                        <div class="col-sm-4 col-xs-12 text-center text-center">
-                            <img class="login-icon" ng-src="{{ CONFIG.STATICSURL }}/img/home-qr-icon.png" />
-                            <p>{{ 'LANDING_PAY_QR' | translate }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    <img ng-src="{{ CONFIG.STATICSURL }}/img/btc-perspective-screen-transparent.png" class="img-responsive">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-12 text-center">
-                    <a
-                        class="btn login-btn-appstore"
-                        href="https://play.google.com/store/apps/details?id=com.blocktrail.mywallet"
-                        target="_blank"
-                    >
-                        <i class="bticon bticon-android"></i>
-                        <span class="test">
-                            <span>{{ 'APP_DOWNLOAD_ON' | translate }}</span>
-                            <span class="brand">Android</span>
-                        </span>
-                    </a>
-                    <a
-                        class="btn login-btn-appstore"
-                        href="https://itunes.apple.com/us/app/blocktrail-bitcoin-wallet/id1019614423"
-                        target="_blank"
-                    >
-                        <i class="bticon bticon-apple"></i>
-                        <span class="test">
-                            <span>{{ 'APP_DOWNLOAD_ON' | translate }}</span>
-                            <span class="brand">IOS</span>
-                        </span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="login-block login-block-highlighted">
-        <div class="container">
-            <div class="row">
-                <div class="col-xs-12 text-center">
-                    <h2>{{ 'LANDING_CREATE_WALLET' | translate }}</h2>
-                    <p>
-                        <a ui-sref="app.setup.register" class="btn btn-primary btn-lg">{{ 'LAUNCH_NEW_ACCOUNT' | translate }}</a>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+</app-wrapper>
