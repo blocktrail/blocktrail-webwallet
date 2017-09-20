@@ -165,7 +165,7 @@ angular.module('blocktrail.wallet')
                     })
                     .catch(function(e) {
                         // when we get a fee error we use maxspendable fee
-                        if (e instanceof blocktrail.WalletFeeError) {
+                        if (e instanceof blocktrail.WalletFeeError || (e instanceof Error && e.message === "Wallet balance too low")) {
                             return maxSpendable().then(function(maxSpendable) {
                                 var fee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_LOW_PRIORITY].fee;
                                 $log.debug('lowPriority fee MAXSPENDABLE: ' + fee);
@@ -183,7 +183,7 @@ angular.module('blocktrail.wallet')
                     })
                     .catch(function(e) {
                         // when we get a fee error we use maxspendable fee
-                        if (e instanceof blocktrail.WalletFeeError) {
+                        if (e instanceof blocktrail.WalletFeeError || (e instanceof Error && e.message === "Wallet balance too low")) {
                             return maxSpendable().then(function(maxSpendable) {
                                 var fee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_OPTIMAL].fee;
                                 $log.debug('optiomal fee MAXSPENDABLE: ' + fee);
@@ -207,7 +207,7 @@ angular.module('blocktrail.wallet')
                     })
                     .catch(function(e) {
                         // when we get a fee error we use maxspendable fee
-                        if (e instanceof blocktrail.WalletFeeError) {
+                        if (e instanceof blocktrail.WalletFeeError || (e instanceof Error && e.message === "Wallet balance too low")) {
                             return maxSpendable().then(function(maxSpendable) {
                                 var fee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE].fee;
                                 $log.debug('minRelayFee fee MAXSPENDABLE: ' + fee);
@@ -282,7 +282,7 @@ angular.module('blocktrail.wallet')
                     sendAmount = $scope.altCurrency.amount;
                 }
 
-                if (parseInt(CurrencyConverter.toSatoshi(sendAmount, "BTC")) >= ($rootScope.balance + $rootScope.uncBalance)) {
+                if (parseInt(CurrencyConverter.toSatoshi(sendAmount, "BTC")) >= ($scope.walletData.balance + $scope.walletData.uncBalance)) {
                     $scope.errors.amount = 'MSG_INSUFFICIENT_FUNDS';
                     return;
                 }
