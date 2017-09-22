@@ -58,7 +58,15 @@ angular.module('blocktrail.wallet')
                 if (!window.fbq) {
                     console.error("`fbq` doesn't exist!")
                 } else {
+                    // (ab)use "Other" event for logins
                     fbq('track', 'Other');
+                }
+            } else if (event === EVENTS.ACTIVATED) {
+                if (!window.fbq) {
+                    console.error("`fbq` doesn't exist!")
+                } else {
+                    // (ab)use "Lead" event for activated
+                    fbq('track', 'Lead');
                 }
             } else if (event === EVENTS.SIGN_UP) {
                 if (CONFIG.FBTRACKING_ID) {
