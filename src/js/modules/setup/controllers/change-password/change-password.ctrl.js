@@ -223,14 +223,6 @@
                             var decrypt = passwordRecoveryService.decryptSecretMnemonicWithPassword(encryptedRecoverySecretMnemonic, recoverySecret, walletVersion);
                             secret = decrypt[0];
                             var decryptVersion = decrypt[1];
-
-                            if (decryptVersion === blocktrailSDK.Wallet.WALLET_VERSION_V2 && walletVersion !== blocktrailSDK.Wallet.WALLET_VERSION_V2) {
-                                $scope.working = false;
-                                return dialogService.alert(
-                                    $translate.instant("RECOVERY_ERROR"),
-                                    $translate.instant("MSG_RECOVERY_V2_UPGRADED")
-                                ).result;
-                            }
                         } catch (e) {
                             $log.error(e, e.message);
                             $scope.working = false;
