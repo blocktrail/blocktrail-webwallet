@@ -3,7 +3,7 @@ angular.module('blocktrail.wallet').factory(
     function(CONFIG, $log, $q, walletsManagerService, dialogService, $state, $rootScope, $translate, $http, _,
              $timeout, $interval, settingsService, launchService, sdkService, trackingService) {
 
-        var settings = settingsService.getReadOnlySettings();
+        var settings = settingsService.getReadOnlySettingsData();
         var clientId;
         var returnuri = CONFIG.WALLET_URL + "/#/wallet/buy/glidera/oaoth2/callback";
         var decryptedAccessToken = null;

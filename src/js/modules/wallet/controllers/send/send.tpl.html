@@ -1,18 +1,33 @@
-<div class="appPage">
-    <form class="form"  name="sendInputForm" novalidate>
+<div
+    class="appPage page-blur"
+    ng-class="{'page-blur-active': isLoading}"
+>
+    <form
+        class="form"
+        name="formSend"
+        novalidate
+    >
         <div class="row">
+            <!-- Recipient -->
             <div class="col-xs-12">
-                <div class="form-group form-group-lg" ng-class="{'has-error':errors.recipient}">
-                    <label class="control-label" for="recipient"><span class="sentence-case">{{ 'SEND_TO' | translate }}</span></label>
-                    <input id="recipient"
-                           type="text"
-                           ng-model="sendInput.recipientAddress"
-                           ng-change="onRecipientChange()"
-                           placeholder="{{ 'BITCOIN_ADDRESS' | translate : {network: CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG} }}"
-                           autocomplete="off"
-                           name="recipient"
-                           class="form-control"
-                           required />
+                <div
+                    class="form-group form-group-lg"
+                    ng-class="{'has-error': errors.recipient}"
+                >
+                    <label class="control-label" for="recipient">
+                        <span class="sentence-case">{{ 'SEND_TO' | translate }}</span>
+                    </label>
+                    <input
+                        id="recipient"
+                        name="recipient"
+                        class="form-control"
+                        type="text"
+                        placeholder="{{ 'BITCOIN_ADDRESS' | translate : {network: CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG} }}"
+                        autocomplete="off"
+                        required
+                        ng-model="sendInput.recipientAddress"
+                        ng-focus="resetError('recipient')"
+                    />
 
                     <span class="text-danger sentence-case" ng-if="errors.recipient">
                         {{ errors.recipient | translate }}
@@ -20,13 +35,28 @@
                 </div>
             </div>
         </div>
+
         <div class="row">
             <div class="col-xs-12">
+                <!-- Amount -->
                 <div class="form-group form-group-lg" ng-class="{'has-error':errors.amount}">
 
-                    <label class="control-label" for="recipient">{{ 'AMOUNT' | translate }}</label>
+                    <label class="control-label" for="amount">{{ 'AMOUNT' | translate }}</label>
+
                     <div class="input-group input-group-lg">
-                        <input ng-model="sendInput.amount" ng-change="setAltCurrency(); fetchFee();" type="text" class="form-control"  name="amount" placeholder="0.00000000" autocomplete="off" type="number" min="0" required />
+                        <input
+                            id="amount"
+                            name="amount"
+                            class="form-control"
+                            type="number"
+                            min="0"
+                            placeholder="0.00000000"
+                            autocomplete="off"
+                            required
+                            ng-model="sendInput.amount"
+                            ng-change="setAltCurrency(); fetchFee();"
+                            ng-focus="resetError('amount')"
+                        />
                         <span class="input-group-addon currency">
                             <span class="altCurrency">
                                 {{ altCurrency.code | toCurrencySymbol }} {{ altCurrency.amount }}
@@ -112,6 +142,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="custom-select-menu"
                              ng-show="showselect"
                              click-anywhere-but-here="showselect = false" is-active="showselect == true">
@@ -183,7 +214,7 @@
         <div class="row">
             <div class="col-xs-12">
                 <div class="form-group form-group-lg form-group-buttons">
-                    <button class="btn btn-lg btn-primary" ng-click="confirmSend()">
+                    <button class="btn btn-lg btn-primary" ng-click="onSubmitFormSend()">
                         <span>&nbsp;&nbsp; {{ 'SEND' | translate }} &nbsp;&nbsp;</span>
                     </button>
                 </div>
@@ -191,4 +222,11 @@
         </div>
     </form>
 
+    <!-- Loader overlay -->
+    <div
+        class="page-loader"
+        ng-class="{'active': isLoading}"
+    >
+        <loading-spinner></loading-spinner>
+    </div>
 </div>

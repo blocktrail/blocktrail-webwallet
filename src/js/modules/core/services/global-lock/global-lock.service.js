@@ -7,7 +7,6 @@
     function globalLockService($state, storageService, randomBytesJS) {
         var uuid = randomBytesJS(32).toString('hex');
         var db = storageService.db('LOCK');
-        var interval;
         var initialized = false;
 
         function lostLock() {

@@ -282,7 +282,7 @@
      * Get settings object return a link on _readonlyDoc
      * @returns _readonlyDoc { promise }
      */
-    Settings.prototype.getReadOnlySettings = function() {
+    Settings.prototype.getReadOnlySettingsData = function() {
         var self = this;
 
         return self._readonlyDoc;

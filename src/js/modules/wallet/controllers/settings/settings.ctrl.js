@@ -40,6 +40,7 @@
             receiveNewsletter: false,
             profilePic: "/" + CONFIG.STATICSURL + "/img/blank_profile.png"
         };
+
         $scope.errors = {
             email: false,
             name: false

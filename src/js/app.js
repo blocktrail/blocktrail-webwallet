@@ -337,7 +337,7 @@ angular.module('blocktrail.wallet').config(
                 cache: false,
                 views: {
                     "mainView@app.wallet": {
-                        templateUrl: "templates/send/send.input-screen.html",
+                        templateUrl: "js/modules/wallet/controllers/send/send.tpl.html",
                         controller: 'SendCtrl'
                     }
                 }
@@ -349,7 +349,7 @@ angular.module('blocktrail.wallet').config(
                 cache: false,
                 views: {
                     "mainView@app.wallet": {
-                        templateUrl: "templates/receive/receive.new-address.html",
+                        templateUrl: "js/modules/wallet/controllers/receive/receive.tpl.html",
                         controller: 'ReceiveCtrl'
                     }
                 }
@@ -360,7 +360,7 @@ angular.module('blocktrail.wallet').config(
                 cache: false,
                 views: {
                     "mainView@app.wallet": {
-                        templateUrl: "templates/receive/receive.address-lookup.html",
+                        templateUrl: "js/modules/wallet/controllers/address-lookup/address-lookup.tpl.html",
                         controller: 'AddressLookupCtrl'
                     }
                 }
@@ -384,6 +384,7 @@ angular.module('blocktrail.wallet').config(
                 abstract: true,
                 template: "<div ui-view></div>"
             })
+
             .state('app.wallet.buybtc.choose', {
                 url: "/choose",
                 views: {
@@ -393,6 +394,7 @@ angular.module('blocktrail.wallet').config(
                     }
                 }
             })
+
             .state('app.wallet.buybtc.glidera_bitid_callback', {
                 url: "/glidera/bitid/callback",
                 views: {
@@ -402,6 +404,7 @@ angular.module('blocktrail.wallet').config(
                     }
                 }
             })
+
             .state('app.wallet.buybtc.glidera_oauth2_callback', {
                 url: "/glidera/oaoth2/callback",
                 views: {
@@ -411,6 +414,7 @@ angular.module('blocktrail.wallet').config(
                     }
                 }
             })
+
             .state('app.wallet.buybtc.buy', {
                 url: "/broker/:broker",
                 views: {
