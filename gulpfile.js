@@ -371,7 +371,8 @@ gulp.task('watch', function() {
     gulp.watch(['./src/sass/**/*.scss'], ['sass:livereload']);
     gulp.watch(['./src/img/**/*', './src/font/**/*'], ['copystatics:livereload']);
     gulp.watch(['./src/js/**/*.js'], ['js:app:livereload']);
-    gulp.watch(['./src/lib/**/*.js'], ['js:libs:livereload', 'js:sdk:livereload']);
+    gulp.watch(['./src/lib/**/*.js', '!./src/lib/blocktrail-sdk/*.js'], ['js:libs:livereload']);
+    gulp.watch(['./src/lib/blocktrail-sdk/*.js'], ['js:sdk:livereload']);
     gulp.watch(['./src/templates/**/*.html', './src/js/**/*.html', './src/translations/translations/**/*', './src/index.html'], ['templates:livereload']);
     gulp.watch(['./appconfig.json', './appconfig.default.json'], ['default:livereload']);
 });
