@@ -93,9 +93,11 @@
             Raven
                 .config('<%= APPCONFIG.SENTRY_TRACKING_URL %>', {release: '<%= APPCONFIG.VERSION %>', dataCallback: function(data) {
                     data.request.url = data.request.url.replace(/([&?])token=.+?[&]/, "$1");
-                    data.stacktrace.frames.forEach(function(frame) {
-                        frame.filename = frame.filename.replace(/([&?])token=.+?[&]/, "$1");
-                    });
+                    if (data.stacktrace) {
+                        data.stacktrace.frames.forEach(function(frame) {
+                            frame.filename = frame.filename.replace(/([&?])token=.+?[&]/, "$1");
+                        });
+                    }
                     return data;
                 }})
                 .addPlugin(Raven.Plugins.Angular)
