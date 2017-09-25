@@ -128,6 +128,7 @@
     LoginFormService.prototype._errorHandler = function(response) {
         var error = {
             type: "MSG_BAD_NETWORK",
+            silentException: true,
             data: null
         };
 

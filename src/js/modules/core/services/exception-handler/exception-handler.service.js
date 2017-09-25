@@ -2,12 +2,12 @@
     "use strict";
 
     angular.module('blocktrail.core')
-        .factory('$exceptionHandler', function() {
+        .factory('$exceptionHandler', function($log) {
             return function(exception, cause) {
-                if (exception && cause) {
-                    $log.warn(exception, cause);
-                } else {
+                if(!!exception.silentException) {
                     return exception;
+                } else {
+                    $log.error.apply($log, arguments);
                 }
             };
         });
