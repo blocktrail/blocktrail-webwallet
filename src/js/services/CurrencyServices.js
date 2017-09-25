@@ -167,7 +167,7 @@ angular.module('blocktrail.wallet')
             });
             // Sort the rest fiats and add them as well
             Object.keys(self.currencies).sort().forEach(function (key) {
-                if (self.mainCurrencies.indexOf(key) == -1) {
+                if (self.mainCurrencies.indexOf(key) === -1) {
                     currencies[key] = self.currencies[key];
                 }
             });
@@ -177,7 +177,7 @@ angular.module('blocktrail.wallet')
         };
 
         // enable all currencies that are in the config
-        CONFIG.CURRENCIES.sort().forEach(function(code) {
+        CONFIG.CURRENCIES.forEach(function(code) {
             self.enableCurrency(code);
         });
     })
