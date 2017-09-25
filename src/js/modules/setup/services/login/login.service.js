@@ -156,6 +156,6 @@
             }
         }
 
-        throw error;
+        return this._$q.reject(error);
     };
 })();
