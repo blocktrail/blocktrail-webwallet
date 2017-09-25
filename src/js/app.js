@@ -349,7 +349,7 @@ angular.module('blocktrail.wallet').config(
                 cache: false,
                 views: {
                     "mainView@app.wallet": {
-                        templateUrl: "templates/receive/receive.new-address.html",
+                        templateUrl: "js/modules/wallet/controllers/receive/receive.html",
                         controller: 'ReceiveCtrl'
                     }
                 }

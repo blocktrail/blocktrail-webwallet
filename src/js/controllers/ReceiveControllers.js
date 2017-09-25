@@ -1,5 +1,5 @@
 angular.module('blocktrail.wallet')
-    .controller('ReceiveCtrl', function($scope, $rootScope, CONFIG, activeWallet, settingsService, CurrencyConverter,
+    /*.controller('ReceiveCtrl', function($scope, $rootScope, CONFIG, activeWallet, settingsService, CurrencyConverter,
                                         Currencies, $q, $timeout, $translate, trackingService) {
         // get current active wallets native currency
         var NATIVE_CURRENCY = CONFIG.NETWORKS[$scope.walletData.networkType].TICKER;
@@ -112,7 +112,7 @@ angular.module('blocktrail.wallet')
 
         //generate the first address
         $scope.newAddress();
-    })
+    })*/
 
     .controller('AddressLookupCtrl', function($scope, $rootScope, dialogService, $translate, activeWallet, $q, CONFIG, $cacheFactory, $timeout, $log) {
         $rootScope.pageTitle = 'ADDRESS_LOOKUP';

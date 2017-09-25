@@ -1,5 +1,8 @@
-<!--
-<div class="appPage">
+<div
+    class="appPage page-blur"
+    ng-class="{'page-blur-active': isLoading}"
+>
+
     <form class="form"  name="sendInputForm" novalidate ng-init="showQR=false">
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
@@ -41,6 +44,7 @@
                             </div>
                         </span>
                     </div>
+
                     <span class="help help-block text-danger">
                         <span class="sentence-case" ng-if="errors.amount">
                             {{ errors.amount | translate }}
@@ -54,7 +58,7 @@
                 <div class="qrcode-display-section">
                     <div ng-if="newRequest.bitcoinUri">
                         <a ng-href="{{ newRequest.bitcoinUri }}">
-                        <qr text="newRequest.bitcoinUri" type-number="qrSettings.typeNumber" correction-level="qrSettings.correctionLevel" size="qrSettings.SIZE" input-mode="qrSettings.inputMode" image="qrSettings.image"></qr>
+                            <qr text="newRequest.bitcoinUri" type-number="qrSettings.typeNumber" correction-level="qrSettings.correctionLevel" size="qrSettings.SIZE" input-mode="qrSettings.inputMode" image="qrSettings.image"></qr>
                         </a>
                         <loading-spinner loading-spinner-size="lg" ng-if="!newRequest.address"></loading-spinner>
                     </div>
@@ -62,6 +66,12 @@
             </div>
         </div>
     </form>
-</div>
 
--->
+    <!-- Loader overlay -->
+    <div
+        class="page-loader"
+        ng-class="{'active': isLoading}"
+    >
+        <loading-spinner></loading-spinner>
+    </div>
+</div>
