@@ -4,10 +4,10 @@
     angular.module("blocktrail.wallet")
         .controller("WalletSummaryCtrl", WalletSummaryCtrl);
 
-    function WalletSummaryCtrl($scope, $rootScope, $q, $timeout, activeWallet, CONFIG,
+    function WalletSummaryCtrl($scope, $rootScope, $q, $timeout, activeWallet,
                                launchService, settingsService, buyBTCService, $modal, CurrencyConverter) {
 
-        var settings = settingsService.getReadOnlySettings();
+        var settings = settingsService.getReadOnlySettingsData();
         var transactionsListLimitStep = 15;
         var lastDateHeader = 0; // used to keep track of the last date header added
         var timeoutPromise = null;

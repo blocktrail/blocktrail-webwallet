@@ -1221,9 +1221,14 @@ $display-token-size: 50px;
             padding: 15px 0 0;
         }
 
-        .qrcode-display-section {
+        .qr-code-display-section {
             background-color: $white;
             padding: 20px 0;
+        }
+        .qr-code-holder {
+            width: 227px;
+            height: 227px;
+            border: 1px solid $muted;
         }
         .receivePaymentStatus {
             float: right;

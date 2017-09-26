@@ -4,7 +4,7 @@ angular.module('blocktrail.wallet')
         // get current active wallets native currency
         var NATIVE_CURRENCY = CONFIG.NETWORKS[$scope.walletData.networkType].TICKER;
 
-        $scope.settings = settingsService.getReadOnlySettings();
+        $scope.settings = settingsService.getReadOnlySettingsData();
 
         //$scope.fiatFirst = false;
         $scope.OPTIMAL_FEE = 'optimal';

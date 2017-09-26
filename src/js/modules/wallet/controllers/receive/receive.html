@@ -2,8 +2,7 @@
     class="appPage page-blur"
     ng-class="{'page-blur-active': isLoading}"
 >
-
-    <form class="form"  name="sendInputForm" novalidate ng-init="showQR=false">
+    <form class="form" name="sendInputForm" novalidate ng-init="showQR=false">
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="form-group form-group-lg">
@@ -53,15 +52,16 @@
                 </div>
             </div>
 
-
             <div class="col-md-12 col-sm-12 col-xs-12">
-                <div class="qrcode-display-section">
-                    <div ng-if="newRequest.bitcoinUri">
-                        <a ng-href="{{ newRequest.bitcoinUri }}">
-                            <qr text="newRequest.bitcoinUri" type-number="qrSettings.typeNumber" correction-level="qrSettings.correctionLevel" size="qrSettings.SIZE" input-mode="qrSettings.inputMode" image="qrSettings.image"></qr>
-                        </a>
-                        <loading-spinner loading-spinner-size="lg" ng-if="!newRequest.address"></loading-spinner>
+                <div class="qr-code-display-section">
+                    <div class="qr-code-holder">
+                        <div ng-if="newRequest.bitcoinUri">
+                            <a ng-href="{{ newRequest.bitcoinUri }}">
+                                <qr text="newRequest.bitcoinUri" type-number="qrSettings.typeNumber" correction-level="qrSettings.correctionLevel" size="qrSettings.SIZE" input-mode="qrSettings.inputMode" image="qrSettings.image"></qr>
+                            </a>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>

@@ -360,7 +360,7 @@ angular.module('blocktrail.wallet').config(
                 cache: false,
                 views: {
                     "mainView@app.wallet": {
-                        templateUrl: "templates/receive/receive.address-lookup.html",
+                        templateUrl: "js/modules/wallet/controllers/address-lookup/address-lookup.html",
                         controller: 'AddressLookupCtrl'
                     }
                 }

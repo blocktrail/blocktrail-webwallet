@@ -1,7 +1,7 @@
 angular.module('blocktrail.wallet')
     .controller('BuyBTCChooseCtrl', function($q, $scope, $state, $rootScope, _, dialogService, settingsService,
                                              $translate, glideraService, buyBTCService, $log, $timeout, trackingService) {
-        var settings = settingsService.getReadOnlySettings();
+        var settings = settingsService.getReadOnlySettingsData();
 
         $scope.brokers = [];
 

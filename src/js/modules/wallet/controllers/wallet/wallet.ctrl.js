@@ -9,7 +9,7 @@
                         dialogService, $translate, Currencies, AppVersionService, Contacts, $filter, trackingService,
                         glideraService) {
 
-        $scope.settings = settingsService.getReadOnlySettings();
+        $scope.settings = settingsService.getReadOnlySettingsData();
         $scope.walletData = activeWallet.getReadOnlyWalletData();
 
         $scope.$watch('walletData.networkType', function() {
