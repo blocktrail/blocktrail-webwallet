@@ -81,18 +81,19 @@
 
         initData();
 
+        /**
+         * Init data
+         */
         function initData() {
             // set default BTC
             updateCurrentType(nativeCurrency);
 
+            $q.all([launchService.getAccountInfo(), getMaxSpendable()])
+                .then(function(data) {
+                    var accountInfo = data[0];
+                    var maxSpendable = data[1][blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE];
 
-            launchService.getAccountInfo().then(function(accountInfo) {
-                $scope.requires2FA = accountInfo.requires2FA;
-            });
-
-            getMaxSpendable()
-                .then(function(maxSpendable) {
-                    var maxSpendable = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE];
+                    $scope.requires2FA = accountInfo.requires2FA;
 
                     $scope.prioboost.credits = maxSpendable.prioboost_remaining;
                     $scope.prioboost.discountP = (1 - (maxSpendable.fees.min_relay_fee / maxSpendable.fees.optimal)) * 100;
@@ -101,6 +102,10 @@
                 });
         }
 
+        /**
+         * Update currency type
+         * @param currencyType
+         */
         function updateCurrentType(currencyType) {
             $scope.currencies = Currencies.getCurrencies();
 
@@ -119,6 +124,9 @@
             setAltCurrency();
         }
 
+        /**
+         * Set alt currency
+         */
         function setAltCurrency() {
             if ($scope.currencyType === nativeCurrency) {
                 $scope.altCurrency.code     = $scope.settings.localCurrency;
@@ -129,6 +137,10 @@
             }
         }
 
+        /**
+         * Get max spendable
+         * @return {*}
+         */
         function getMaxSpendable() {
             if (maxSpendable !== null) {
                 return $q.when(maxSpendable);
@@ -154,6 +166,9 @@
             }
         }
 
+        /**
+         * Fetch fee
+         */
         function fetchFee() {
             // reset state
             $scope.fees.lowPriority = null;
@@ -275,6 +290,9 @@
             });
         }
 
+        /**
+         * Update fee
+         */
         function updateFee() {
             if ($scope.sendInput.feeChoice === $scope.OPTIMAL_FEE) {
                 $scope.fee = $scope.fees.optimal;
@@ -287,6 +305,9 @@
             }
         }
 
+        /**
+         * On submit form send
+         */
         function onSubmitFormSend() {
             $scope.isLoading = true;
 
@@ -322,6 +343,9 @@
                     });
         }
 
+        /**
+         * Validate data
+         */
         function validateData() {
             var sendAmount = 0;
             var isValid = true;
@@ -385,11 +409,18 @@
             }
         }
 
+        /**
+         * Clear errors
+         */
         function clearErrors() {
             $scope.errors.amount = false;
             $scope.errors.recipient = false;
         }
 
+        /**
+         * Clear error
+         * @param type
+         */
         function resetError(type) {
             $scope.errors[type] = false;
         };
