@@ -594,54 +594,51 @@ $display-token-size: 50px;
             font-weight: $semi-bold;
             font-size: 16px;
         }
+
         .form-control {
             box-shadow: none;
             border-radius: 1px;
         }
+
         .input-group {
             position: relative;
 
-            .form-control {
-                border-right: 0px;
-            }
-
             .input-group-addon {
+
                 &.currency {
-                    border: 0px;
+                    border: 0;
                     border-top: 1px solid inherit;
                     border-bottom: 1px solid inherit;
                     background: transparent;
                     position: absolute;
-                    right: 70px;
+                    right: 90px;
                     width: auto;
                     text-align: right;
-                    top: 0px;
+                    top: 0;
                     z-index: 999;
-                    padding: 0px;
-                    margin: 0px;
+                    padding: 0;
+                    margin: 0;
                     line-height: 42px;
                 }
 
                 .altCurrency {
-                    margin: 0px;
+                    margin: 0;
                     font-weight: $normal;
                     font-size: 14px;
-                    padding-right: 20px;
                     text-align: right;
 
                     @include networkPrimaryBG('color');
                 }
             }
             .dropdown {
-                border-left: 1px solid $border-color;
+                border-left: none;
 
                 .btn-alt {
                     border: 1px solid $border-color;
                     border-left: 0;
                     border-radius: 0;
-                    background: none;
-                    padding: 0px 15px;
-                    background-color: transparent;
+                    padding: 0 15px;
+                    background: transparent;
                     color: $darkgray-dark;
                 }
             }
@@ -1230,6 +1227,7 @@ $display-token-size: 50px;
             height: 227px;
             border: 1px solid $muted;
         }
+
         .receivePaymentStatus {
             float: right;
             padding-top: 10px;
@@ -1238,6 +1236,7 @@ $display-token-size: 50px;
                 color: $green;
             }
         }
+
         .address {
             font-size: 16px;
             font-weight: $semi-bold;
@@ -1245,6 +1244,7 @@ $display-token-size: 50px;
             border: 1px solid $muted;
             padding: 10px;
         }
+
         .amount {
             //    font-size: 18px;
         }

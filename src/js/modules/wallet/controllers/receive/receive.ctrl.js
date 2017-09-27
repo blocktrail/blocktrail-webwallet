@@ -67,7 +67,7 @@
                     generateQR();
 
                     // Add watchers
-                    listenerGroupValues = $scope.$watchGroup(['newRequest.btcValue', 'newRequest.address', 'currencyType'], updateQR);
+                    listenerGroupValues = $scope.$watchGroup(['newRequest.btcValue', 'newRequest.address', 'currencyType'], updateQRAndSetAltCurrency);
 
                     $scope.isLoading = false;
                 });
@@ -159,8 +159,9 @@
          * @param newValue
          * @param oldValue
          */
-        function updateQR(newValue, oldValue) {
+        function updateQRAndSetAltCurrency(newValue, oldValue) {
             if (newValue !== oldValue) {
+                setAltCurrency();
                 // ignore call from scope initialisation
                 generateQR();
             }
