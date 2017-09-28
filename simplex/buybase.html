@@ -42,7 +42,7 @@
                                     <div class="col-sm-12">
                                         <label class="control-label">Bitcoin Amount</label>
                                         <div class="md-form input-group">
-                                            <input type="number" class="form-control" step="0.00000001" v-model.number="btc_amount" @input="onBTCAmountChange" required>
+                                            <input id="btcAmount" type="number" class="form-control" step="0.00000001" v-model.number="btc_amount" @input="onBTCAmountChange" required>
                                                 <span class="input-group-btn">
                                                     <button class="btn btn-primary btn-round form-control" type="button">BTC</button>
                                                 </span>
@@ -53,7 +53,7 @@
                                     <div class="col-sm-12">
                                         <label class="control-label">Fiat Amount</label>
                                         <div class="md-form input-group">
-                                            <input type="number" class="form-control" step="0.01"min="50" max="50000" v-model.number="fiat_amount" @input="onAmountChange" required>
+                                            <input id="fiatAmount" type="number" class="form-control" step="0.01"min="50" max="50000" v-model.number="fiat_amount" @input="onAmountChange" required>
                                             <span class="input-group-btn">
                                                 <div class="btn-group">
                                                     <button class="btn btn-primary btn-round form-control group-dropdown-fix" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ selectedFiatCurrency }}</button>
@@ -69,7 +69,7 @@
 
                                 <div class="row">
                                     <div class="col-sm-12">
-                                        <input class="form-control" type="text" v-model="btcaddress" placeholder="Bitcoin address" required/>
+                                        <input id="btcAddress" class="form-control" type="text" v-model="btcaddress" placeholder="Bitcoin address" required/>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -85,6 +85,12 @@
                                 </div>
 
                                 <div class="row">
+                                    <div class="col-sm-6">
+                                        <input id="tos" type="checkbox" style="vertical-align:middle;" onchange="document.getElementById('buttonSubmit').disabled = !this.checked">
+                                        <label for="tos">
+                                           I accept and comply with Simplex’s <a href="https://www.simplex.com/terms-of-use/">terms of use</a> and <a href="https://www.simplex.com/privacy-policy/">privacy policy</a>.
+                                        </label>
+                                    </div>
                                     <div class="col-sm-6 text-right">
                                         <div ref="rehead" :class="showRecaptchaError? 'recaptcha_box_error' : ''">
                                             <div :class="config.recaptcha_site_key? 'g-recaptcha' : ''" :data-sitekey="config.recaptcha_site_key" ></div>
@@ -94,7 +100,7 @@
 
                                 <div class="row">
                                     <div class="col-sm-12 text-sm-center text-center">
-                                        <button type="submit" class="btn btn-primary btn-lg">Buy</button>
+                                        <button type="submit" id="buttonSubmit" class="btn btn-primary btn-lg" disabled="disabled">Buy</button>
                                     </div>
                                 </div>
                             </form>
@@ -195,5 +201,22 @@
     <script type="text/javascript" src="./javascripts/currencyconvertor.js"></script>
     <!-- control JS end -->
 
+    <script>
+        $.getURLParam = function (param) {
+            var results = new RegExp('[\?&]' + param + '=([^&#]*)').exec(window.location.href);
+            if (results === null) return null;
+            else return decodeURI(results[1]) || 0;
+        };
+        // Prefill btc address
+        document.getElementById('btcAddress').value =
+            check_btc_address_base3($.getURLParam("btcAddress")) ? $.getURLParam("btcAddress") : '';
+        // Prefill fiat or btc, preference for btc
+        if ($.getURLParam("btcAddress") && $.getURLParam("fiatAddress")) {
+            document.getElementById('btcAmount').value = $.getURLParam("btcAmount");
+        } else {
+            document.getElementById('fiatAmount').value = $.getURLParam("fiatAmount");
+            document.getElementById('btcAmount').value = $.getURLParam("btcAmount");
+        }
+    </script>
 </body>
 </html>
