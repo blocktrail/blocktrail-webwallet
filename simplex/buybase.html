@@ -210,8 +210,9 @@
         // Prefill btc address
         document.getElementById('btcAddress').value =
             check_btc_address_base3($.getURLParam("btcAddress")) ? $.getURLParam("btcAddress") : '';
-        // Prefill fiat or btc, preference for btc
+        // Prefill fiat or btc
         if ($.getURLParam("btcAddress") && $.getURLParam("fiatAddress")) {
+            // Preference for btc if both are entered (as fiat/crypto ratio might not match)
             document.getElementById('btcAmount').value = $.getURLParam("btcAmount");
         } else {
             document.getElementById('fiatAmount').value = $.getURLParam("fiatAmount");
