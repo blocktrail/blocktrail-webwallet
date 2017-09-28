@@ -69,9 +69,6 @@
             updateCurrentType($scope.currencyType);
         });
 
-        // TODO check onRecipientChange
-
-
         // Methods
         $scope.updateCurrentType = updateCurrentType;
         $scope.setAltCurrency = setAltCurrency;

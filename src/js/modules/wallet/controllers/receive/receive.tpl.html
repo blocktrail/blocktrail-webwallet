@@ -23,8 +23,18 @@
                 <div class="form-group form-group-lg">
                     <label class="control-label" for="amount">{{ 'AMOUNT' | translate }}</label>
                     <div class="input-group input-group-lg">
-                        <input ng-model="newRequest.btcValue" ng-change="setAltCurrency()"
-                               class="form-control" id="amount" name="amount" placeholder="0.00000000" autocomplete="off" type="number" min="0" required />
+                        <input
+                            id="amount"
+                            name="amount"
+                            class="form-control"
+                            type="number"
+                            min="0"
+                            placeholder="0.00000000"
+                            autocomplete="off"
+                            required
+                            ng-model="newRequest.btcValue"
+                            ng-change="setAltCurrency()"
+                        />
 
                         <span class="input-group-addon currency">
                             <span class="altCurrency">

@@ -25,7 +25,7 @@
         $scope.newRequest   = {
             address: null,
             path: null,
-            btcValue: 0,
+            btcValue: "",
             fiatValue: 0,
             message: null,
             bitcoinUri: ""
@@ -45,6 +45,10 @@
         $scope.currencies   = null;
         $scope.currencyType = null;
         $scope.altCurrency  = {};
+
+        // Methods
+        $scope.updateCurrentType = updateCurrentType;
+        $scope.setAltCurrency = setAltCurrency;
 
         $scope.$on('enabled_currency', function() {
             updateCurrentType($scope.currencyType);
@@ -97,16 +101,14 @@
 
         /**
          * Set alt currency
-         * TODO Discuss with Ruben, may we need only one property instead of '$scope.newRequest.btcValue' & '$scope.altCurrency.amount'
-         * TODO Check function generateQR
          */
         function setAltCurrency() {
             if ($scope.currencyType === nativeCurrency) {
-                $scope.altCurrency.code     = settingsData.localCurrency;
-                $scope.altCurrency.amount   = parseFloat(CurrencyConverter.fromBTC($scope.newRequest.btcValue, settingsData.localCurrency, 2)) || 0;
+                $scope.altCurrency.code   = settingsData.localCurrency;
+                $scope.altCurrency.amount = parseFloat(CurrencyConverter.fromBTC($scope.newRequest.btcValue, settingsData.localCurrency, 2)) || 0;
             } else {
-                $scope.altCurrency.code     = nativeCurrency;
-                $scope.altCurrency.amount   = parseFloat(CurrencyConverter.toBTC($scope.newRequest.btcValue, $scope.currencyType, 6)) || 0;
+                $scope.altCurrency.code   = nativeCurrency;
+                $scope.altCurrency.amount = parseFloat(CurrencyConverter.toBTC($scope.newRequest.btcValue, $scope.currencyType, 6)) || 0;
             }
 
             if ($scope.altCurrency.amount > 0) {
