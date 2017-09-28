@@ -1,5 +1,7 @@
-<div class="appPage">
-
+<div
+    class="appPage page-blur"
+    ng-class="{'page-blur-active': isLoading}"
+>
     <div class="searchBox">
         <input type="text" ng-model="searchText" maxlength="100" placeholder="{{ 'ADDRESS_LOOKUP_SEARCH_PLACEHOLDER' | translate }}">
         <div>
@@ -12,13 +14,10 @@
         </div>
     </div>
 
-    <div style="position: relative;">
-        <div class="spinner" ng-if="isLoading">
-            <loading-spinner loading-spinner-size="lg"></loading-spinner>
-        </div>
-        <div class="loading-overlay" ng-if="isLoading">
-
-        </div>
+    <div
+        class="page-blur"
+        ng-class="{'page-blur-active': isPageLoading}"
+    >
         <table class="table table-striped table-condensed table-hover">
             <thead>
             <tr>
@@ -64,6 +63,14 @@
             </tr>
             </tbody>
         </table>
+
+        <!-- Loader overlay -->
+        <div
+            class="page-loader"
+            ng-class="{'active': isPageLoading}"
+        >
+            <loading-spinner></loading-spinner>
+        </div>
     </div>
 
     <div class="pagination-centered">
@@ -75,7 +82,14 @@
             rotate="true"
             next-text="&gt;" previous-text="&lt;" first-text="&lt;&lt;" last-text="&gt;&gt;"
             ng-model="currentPage"
-            ng-click="changePage()"></ul>
+            ></ul>
+    </div>
+
+    <!-- Loader overlay -->
+    <div
+        class="page-loader"
+        ng-class="{'active': isLoading}"
+    >
+        <loading-spinner></loading-spinner>
     </div>
 </div>
-
