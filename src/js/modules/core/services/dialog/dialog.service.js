@@ -6,7 +6,6 @@
             return new DialogsManager($modal, $rootScope);
         });
 
-
     function DialogsManager($modal, $rootScope) {
         var self = this;
 
@@ -17,31 +16,27 @@
         self.dialogId = 0;
     }
 
+    /**
+     * Is cancel
+     * @param err
+     * @return {boolean}
+     */
     DialogsManager.prototype.isCancel = function(err) {
         return (err === "CANCELED" || err === "dismiss" || err === "backdrop click");
     };
 
+    /**
+     * Alert
+     * @param title
+     * @param body
+     * @param ok
+     * @param cancel
+     */
     DialogsManager.prototype.alert = function(title, body, ok, cancel) {
         var self = this;
         var dialogId = ++self.dialogId;
         var message = self._getMessage(title, body, ok, cancel);
-
-        var defaultBackdrop = message.cancel === false || message.ok === false ? 'static' : true;
-
-        var modalInstance = self._$modal.open({
-            controller: 'DialogAlertCtrl',
-            templateUrl: 'templates/dialog/dialog.alert.html',
-            size: message.size || 'md',
-            backdrop: typeof message.backdrop !== "undefined" ? message.backdrop : defaultBackdrop,
-            resolve: {
-                message: function() {
-                    return message;
-                },
-                dialogId: function() {
-                    return dialogId;
-                }
-            }
-        });
+        var modalInstance = self._getModalInstanceByType("alert", message, dialogId);
 
         modalInstance.message = message;
 
@@ -54,6 +49,10 @@
         return modalInstance;
     };
 
+    /**
+     * Alert singleton
+     * @return {alert}
+     */
     DialogsManager.prototype.alertSingleton = function() {
         var self = this;
 
@@ -82,32 +81,23 @@
         return alert;
     };
 
+    /**
+     * Prompt
+     * @param title
+     * @param body
+     * @param ok
+     * @param cancel
+     */
     DialogsManager.prototype.prompt = function(title, body, ok, cancel) {
         var self = this;
         var dialogId = ++self.dialogId;
         var message = self._getMessage(title, body, ok, cancel);
 
-
         if (typeof message.prompt === "undefined") {
             message.prompt = true;
         }
 
-        var defaultBackdrop = message.cancel === false || message.ok === false ? 'static' : true;
-
-        var modalInstance = self._$modal.open({
-            controller: 'DialogPromptCtrl',
-            templateUrl: 'templates/dialog/dialog.prompt.html',
-            size: message.size || 'md',
-            backdrop: typeof message.backdrop !== "undefined" ? message.backdrop : defaultBackdrop,
-            resolve: {
-                message: function() {
-                    return message;
-                },
-                dialogId: function() {
-                    return dialogId
-                }
-            }
-        });
+        var modalInstance = self._getModalInstanceByType("prompt", message, dialogId);
 
         modalInstance.message = message;
 
@@ -120,6 +110,11 @@
         return modalInstance;
     };
 
+    /**
+     * Spinner
+     * @param title
+     * @param body
+     */
     DialogsManager.prototype.spinner = function(title, body) {
         var self = this;
         var dialogId = ++self.dialogId;
@@ -129,22 +124,7 @@
             message.title = 'LOADING';
         }
 
-        var defaultBackdrop = 'static';
-
-        var modalInstance = self._$modal.open({
-            controller: 'DialogSpinnerCtrl',
-            templateUrl: 'templates/dialog/dialog.spinner.html',
-            size: message.size || 'md',
-            backdrop: typeof message.backdrop !== "undefined" ? message.backdrop : defaultBackdrop,
-            resolve: {
-                message: function() {
-                    return message;
-                },
-                dialogId: function() {
-                    return dialogId
-                }
-            }
-        });
+        var modalInstance = self._getModalInstanceByType("spinner", message, dialogId);
 
         modalInstance.message = message;
 
@@ -157,6 +137,15 @@
         return modalInstance;
     };
 
+    /**
+     * Get message
+     * @param title
+     * @param body
+     * @param ok
+     * @param cancel
+     * @return {*}
+     * @private
+     */
     DialogsManager.prototype._getMessage = function(title, body, ok, cancel) {
         var message;
 
@@ -178,245 +167,50 @@
         return message;
     }
 
+    /**
+     * Get modal instance
+     * @param type
+     * @param message
+     * @param id
+     * @private
+     */
+    DialogsManager.prototype._getModalInstanceByType = function(type, message, id) {
+        var self = this;
+        var controllerName = "";
+        var templateUrl = "";
 
+        var defaultBackdrop = message.cancel === false || message.ok === false ? 'static' : true;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /*angular.module('blocktrail.wallet').factory(
-        'dialogService',
-        function($modal, $rootScope, CONFIG) {
-            var DialogService = function() {
-                var self = this;
-
-                self.dialogId = 0;
-            };
-
-            DialogService.prototype.isCancel = function(err) {
-                return (err === "CANCELED" || err === "dismiss" || err === "backdrop click");
-            };
-
-            DialogService.prototype.alert = function(title, body, ok, cancel) {
-                var self = this;
-                var dialogId = ++self.dialogId;
-
-                var message;
-                if (typeof title === "object") {
-                    message = title;
-
-                    if (typeof message.cancel === "undefined") {
-                        message.cancel = false;
-                    }
-                } else {
-                    message = {
-                        title: title,
-                        body: body,
-                        ok: ok,
-                        cancel: typeof cancel === "undefined" ? false : cancel
-                    }
-                }
-
-                var defaultBackdrop = message.cancel === false || message.ok === false ? 'static' : true;
-
-                var modalInstance = $modal.open({
-                    controller: 'DialogAlertCtrl',
-                    templateUrl: 'templates/dialog/dialog.alert.html',
-                    size: message.size || 'md',
-                    backdrop: typeof message.backdrop !== "undefined" ? message.backdrop : defaultBackdrop,
-                    resolve: {
-                        message: function() {
-                            return message;
-                        },
-                        dialogId: function() {
-                            return dialogId;
-                        }
-                    }
-                });
-
-                modalInstance.message = message;
-                modalInstance.update = function(title, body, ok, cancel) {
-                    var message;
-                    if (typeof title === "object") {
-                        message = title;
-
-                        if (typeof message.cancel === "undefined") {
-                            message.cancel = false;
-                        }
-                    } else {
-                        message = {
-                            title: title,
-                            body: body,
-                            ok: ok,
-                            cancel: typeof cancel === "undefined" ? false : cancel
-                        }
-                    }
-
-                    $rootScope.$broadcast('dialog:' + dialogId, message);
-                };
-
-                return modalInstance;
-            };
-
-            DialogService.prototype.alertSingleton = function() {
-                var self = this;
-
-                var alertt = function(title, body, ok, cancel) {
-                    if (!alertt.modalInstance) {
-                        alertt.modalInstance = self.alert(title, body, ok, cancel);
-                        alertt.modalInstance.result.then(
-                            function() { alertt.modalInstance = null; },
-                            function() { alertt.modalInstance = null; }
-                        );
-                    } else {
-                        alertt.modalInstance.update(title, body, ok, cancel);
-                    }
-
-                    return alertt.modalInstance;
-                };
-                alertt.modalInstance = null;
-
-                alertt.dismiss = function() {
-                    if (alertt.modalInstance) {
-                        alertt.modalInstance.dismiss();
-                    }
-                }
-
-                return alertt;
-            };
-
-            DialogService.prototype.prompt = function(title, body, ok, cancel) {
-                var self = this;
-                var dialogId = ++self.dialogId;
-
-                var message;
-                if (typeof title === "object") {
-                    message = title;
-                } else {
-                    message = {
-                        title: title,
-                        body: body,
-                        ok: ok,
-                        cancel: cancel
-                    }
-                }
-
-                if (typeof message.prompt === "undefined") {
-                    message.prompt = true;
-                }
-
-                var defaultBackdrop = message.cancel === false || message.ok === false ? 'static' : true;
-
-                var modalInstance = $modal.open({
-                    controller: 'DialogPromptCtrl',
-                    templateUrl: 'templates/dialog/dialog.prompt.html',
-                    size: message.size || 'md',
-                    backdrop: typeof message.backdrop !== "undefined" ? message.backdrop : defaultBackdrop,
-                    resolve: {
-                        message: function() {
-                            return message;
-                        },
-                        dialogId: function() {
-                            return dialogId
-                        }
-                    }
-                });
-
-                modalInstance.message = message;
-                modalInstance.update = function(title, body, ok) {
-                    var message;
-                    if (typeof title === "object") {
-                        message = title;
-                    } else {
-                        message = {
-                            title: title,
-                            body: body,
-                            ok: ok
-                        }
-                    }
-
-                    $rootScope.$broadcast('dialog:' + dialogId, message);
-                };
-
-                return modalInstance;
-            };
-
-            DialogService.prototype.spinner = function(title, body) {
-                var self = this;
-                var dialogId = ++self.dialogId;
-
-                var message;
-                if (typeof title === "object") {
-                    message = title;
-                } else {
-                    message = {
-                        title: title,
-                        body: body
-                    }
-                }
-
-                if (typeof message.title === "undefined") {
-                    message.title = 'LOADING';
-                }
-
-                var defaultBackdrop = 'static';
-
-                var modalInstance = $modal.open({
-                    controller: 'DialogSpinnerCtrl',
-                    templateUrl: 'templates/dialog/dialog.spinner.html',
-                    size: message.size || 'md',
-                    backdrop: typeof message.backdrop !== "undefined" ? message.backdrop : defaultBackdrop,
-                    resolve: {
-                        message: function() {
-                            return message;
-                        },
-                        dialogId: function() {
-                            return dialogId
-                        }
-                    }
-                });
-
-                modalInstance.message = message;
-                modalInstance.update = function(title, body) {
-                    var message;
-                    if (typeof title === "object") {
-                        message = title;
-                    } else {
-                        message = {
-                            title: title,
-                            body: body
-                        }
-                    }
-
-                    $rootScope.$broadcast('dialog:' + dialogId, message);
-                };
-
-                return modalInstance;
-            };
-
-            return new DialogService();
+        switch(type) {
+            case "alert":
+                controllerName = "DialogAlertModalCtrl";
+                templateUrl = "js/modules/core/controllers/dialog-alert-modal/dialog-alert-modal.tpl.html";
+                break;
+            case "prompt":
+                controllerName = "DialogPromptModalCtrl";
+                templateUrl = "js/modules/core/controllers/dialog-prompt-modal/dialog-prompt-modal.tpl.html";
+                break;
+            case "spinner":
+                controllerName = "DialogSpinnerModalCtrl";
+                templateUrl = "js/modules/core/controllers/dialog-spinner-modal/dialog-spinner-modal.tpl.html";
+                break;
+            default:
+                throw new Error("Modal type should be defined. Blocktrail core module, dialog service.");
         }
-    );*/
 
+        return self._$modal.open({
+            controller: controllerName,
+            templateUrl: templateUrl,
+            size: message.size || 'md',
+            backdrop: message.backdrop ? message.backdrop : defaultBackdrop,
+            resolve: {
+                message: function() {
+                    return message;
+                },
+                dialogId: function() {
+                    return id
+                }
+            }
+        });
+    }
 })();
