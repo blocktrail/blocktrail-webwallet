@@ -143,9 +143,7 @@
             $scope.newRequest.bitcoinUri = "bitcoin:" + $scope.newRequest.address;
             $scope.newRequest.qrValue = 0;
 
-            if ($scope.currencyType === "BTC") {
-                $scope.newRequest.qrValue = parseFloat($scope.newRequest.btcValue);
-            } else if ($scope.currencyType === "tBTC") {
+            if ($scope.currencyType === nativeCurrency) {
                 $scope.newRequest.qrValue = parseFloat($scope.newRequest.btcValue);
             } else {
                 $scope.newRequest.qrValue = parseFloat($scope.altCurrency.amount);
