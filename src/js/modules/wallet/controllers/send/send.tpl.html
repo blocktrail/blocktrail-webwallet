@@ -68,7 +68,8 @@
                                     {{ currencyType | toCurrencyTicker }} <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li ng-repeat="currency in currencies"><a ng-click="updateCurrentType(currency.code)">{{ currency.code }} ({{ currency.symbol }})</a></li>
+                                    <li ng-repeat="currency in currencies"><a
+                                        ng-click="updateCurrentType(currency.code)">{{ currency.code }} ({{ currency.symbol }})</a></li>
                                 </ul>
                             </div>
                         </span>
@@ -135,8 +136,10 @@
                                         </span>
                                     </div>
                                     <div class="col-xs-3">
-                                        <span class="custom-option-fee extra-top" ng-if="fees.minRelayFee && (prioboost.possible)">{{ fees.minRelayFee | satoshiToCoin : walletData.networkType }}</span>
-                                        <span class="error custom-option-fee extra-top" ng-if="prioboost.credits > 0 && (prioboost.tooLarge || prioboost.zeroConf)">{{ 'PRIOBOOST_NOT_POSSIBLE' | translate }}</span>
+                                        <span class="custom-option-fee extra-top"
+                                              ng-if="fees.minRelayFee && (prioboost.possible)">{{ fees.minRelayFee | satoshiToCoin : walletData.networkType }}</span>
+                                        <span class="error custom-option-fee extra-top"
+                                              ng-if="prioboost.credits > 0 && (prioboost.tooLarge || prioboost.zeroConf)">{{ 'PRIOBOOST_NOT_POSSIBLE' | translate }}</span>
                                         <span class="error custom-option-fee extra-top" ng-if="prioboost.credits <= 0">{{ 'PRIOBOOST_NO_CREDITS_SHORT' | translate }}</span>
                                     </div>
                                 </div>
@@ -163,7 +166,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <hr style="margin: 0px;" />
+                            <hr style="margin: 0px;"/>
                             <div class="custom-option"
                                  ng-class="{selected: sendInput.feeChoice == LOW_PRIORITY_FEE}"
                                  ng-click="sendInput.feeChoice = LOW_PRIORITY_FEE; showselect = false;">
@@ -181,7 +184,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <hr style="margin :0px;" />
+                            <hr style="margin :0px;"/>
                             <div class="custom-option"
                                  ng-if="CONFIG.NETWORKS[walletData.networkType].PRIOBOOST"
                                  ng-class="{selected: sendInput.feeChoice == PRIOBOOST, error: !prioboost.possible}"
@@ -199,8 +202,10 @@
                                         </span>
                                     </div>
                                     <div class="col-xs-3">
-                                        <span class="custom-option-fee extra-top" ng-if="fees.minRelayFee && (prioboost.possible)">{{ fees.minRelayFee | satoshiToCoin : walletData.networkType }}</span>
-                                        <span class="error custom-option-fee extra-top" ng-if="prioboost.credits > 0 && (prioboost.tooLarge || prioboost.zeroConf)">{{ 'PRIOBOOST_NOT_POSSIBLE' | translate }}</span>
+                                        <span class="custom-option-fee extra-top"
+                                              ng-if="fees.minRelayFee && (prioboost.possible)">{{ fees.minRelayFee | satoshiToCoin : walletData.networkType }}</span>
+                                        <span class="error custom-option-fee extra-top"
+                                              ng-if="prioboost.credits > 0 && (prioboost.tooLarge || prioboost.zeroConf)">{{ 'PRIOBOOST_NOT_POSSIBLE' | translate }}</span>
                                         <span class="error custom-option-fee extra-top" ng-if="prioboost.credits <= 0">{{ 'PRIOBOOST_NO_CREDITS_SHORT' | translate }}</span>
                                     </div>
                                 </div>

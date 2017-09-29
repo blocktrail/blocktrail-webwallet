@@ -1,9 +1,8 @@
-(function () {
+(function() {
     "use strict";
 
     angular.module("blocktrail.core")
         .controller("DialogSpinnerModalCtrl", DialogSpinnerModalCtrl);
-
 
     function DialogSpinnerModalCtrl($scope, $modalInstance, message, dialogId) {
         $scope.message = message;
@@ -12,7 +11,7 @@
             $modalInstance.dismiss("dismiss");
         };
 
-        $scope.$on('dialog:' + dialogId, function(event, message) {
+        $scope.$on("dialog:" + dialogId, function(event, message) {
             $scope.message = message;
         });
     }

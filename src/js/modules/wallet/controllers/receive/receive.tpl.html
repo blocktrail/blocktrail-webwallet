@@ -6,7 +6,8 @@
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="form-group form-group-lg">
-                    <label class="control-label">{{ 'BITCOIN_ADDRESS' | translate : {network: CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG} }}</label>
+                    <label class="control-label">{{ 'BITCOIN_ADDRESS' | translate : {network:
+                        CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG} }}</label>
 
                     <p class="address">{{ newRequest.address || '...' }}</p>
                     <span class="help-block">
@@ -48,7 +49,8 @@
                                     {{ currencyType | toCurrencyTicker }} <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li ng-repeat="currency in currencies"><a ng-click="updateCurrentType(currency.code)">{{ currency.code }} ({{ currency.symbol }})</a></li>
+                                    <li ng-repeat="currency in currencies"><a
+                                        ng-click="updateCurrentType(currency.code)">{{ currency.code }} ({{ currency.symbol }})</a></li>
                                 </ul>
                             </div>
                         </span>
@@ -67,7 +69,9 @@
                     <div class="qr-code-holder">
                         <div ng-if="newRequest.bitcoinUri">
                             <a ng-href="{{ newRequest.bitcoinUri }}">
-                                <qr text="newRequest.bitcoinUri" type-number="qrSettings.typeNumber" correction-level="qrSettings.correctionLevel" size="qrSettings.SIZE" input-mode="qrSettings.inputMode" image="qrSettings.image"></qr>
+                                <qr text="newRequest.bitcoinUri" type-number="qrSettings.typeNumber"
+                                    correction-level="qrSettings.correctionLevel" size="qrSettings.SIZE"
+                                    input-mode="qrSettings.inputMode" image="qrSettings.image"></qr>
                             </a>
                         </div>
                     </div>

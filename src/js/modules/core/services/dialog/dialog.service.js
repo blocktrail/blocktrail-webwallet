@@ -1,8 +1,8 @@
-(function () {
+(function() {
     "use strict";
 
-    angular.module('blocktrail.wallet')
-        .factory('dialogService', function($modal, $rootScope) {
+    angular.module("blocktrail.wallet")
+        .factory("dialogService", function($modal, $rootScope) {
             return new DialogsManager($modal, $rootScope);
         });
 
@@ -42,8 +42,8 @@
 
         modalInstance.update = function(title, body, ok, cancel) {
             var message = self._getMessage(title, body, ok, cancel);
-            
-            self._$rootScope.$broadcast('dialog:' + dialogId, message);
+
+            self._$rootScope.$broadcast("dialog:" + dialogId, message);
         };
 
         return modalInstance;
@@ -60,8 +60,12 @@
             if (!alert.modalInstance) {
                 alert.modalInstance = self.alert(title, body, ok, cancel);
                 alert.modalInstance.result.then(
-                    function() { alert.modalInstance = null; },
-                    function() { alert.modalInstance = null; }
+                    function() {
+                        alert.modalInstance = null;
+                    },
+                    function() {
+                        alert.modalInstance = null;
+                    }
                 );
             } else {
                 alert.modalInstance.update(title, body, ok, cancel);
@@ -104,7 +108,7 @@
         modalInstance.update = function(title, body, ok) {
             var message = self._getMessage(title, body, ok, cancel);
 
-            self._$rootScope.$broadcast('dialog:' + dialogId, message);
+            self._$rootScope.$broadcast("dialog:" + dialogId, message);
         };
 
         return modalInstance;
@@ -121,7 +125,7 @@
         var message = self._getMessage(title, body, false, false);
 
         if (typeof message.title === "undefined") {
-            message.title = 'LOADING';
+            message.title = "LOADING";
         }
 
         var modalInstance = self._getModalInstanceByType("spinner", message, dialogId);
@@ -131,7 +135,7 @@
         modalInstance.update = function(title, body) {
             var message = self._getMessage(title, body, false, false);
 
-            self._$rootScope.$broadcast('dialog:' + dialogId, message);
+            self._$rootScope.$broadcast("dialog:" + dialogId, message);
         };
 
         return modalInstance;
@@ -161,11 +165,11 @@
                 body: body,
                 ok: ok,
                 cancel: typeof cancel === "undefined" ? false : cancel
-            }
+            };
         }
 
         return message;
-    }
+    };
 
     /**
      * Get modal instance
@@ -179,9 +183,9 @@
         var controllerName = "";
         var templateUrl = "";
 
-        var defaultBackdrop = message.cancel === false || message.ok === false ? 'static' : true;
+        var defaultBackdrop = message.cancel === false || message.ok === false ? "static" : true;
 
-        switch(type) {
+        switch (type) {
             case "alert":
                 controllerName = "DialogAlertModalCtrl";
                 templateUrl = "js/modules/core/controllers/dialog-alert-modal/dialog-alert-modal.tpl.html";
@@ -201,16 +205,16 @@
         return self._$modal.open({
             controller: controllerName,
             templateUrl: templateUrl,
-            size: message.size || 'md',
+            size: message.size || "md",
             backdrop: message.backdrop ? message.backdrop : defaultBackdrop,
             resolve: {
                 message: function() {
                     return message;
                 },
                 dialogId: function() {
-                    return id
+                    return id;
                 }
             }
         });
-    }
+    };
 })();

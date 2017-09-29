@@ -22,19 +22,25 @@
             <label ng-if="message.label" class="control-label" for="prompt">{{ message.label | translate }}</label>
 
             <div ng-if="message.icon" class="input-group">
-                <input autocomplete="{{ message.autocomplete || 'off' }}" autofocus type="{{ message.input_type || 'text' }}" ng-model="form.prompt" id="prompt" class="form-control"/>
+                <input autocomplete="{{ message.autocomplete || 'off' }}" autofocus
+                       type="{{ message.input_type || 'text' }}" ng-model="form.prompt" id="prompt"
+                       class="form-control"/>
                 <span class="input-group-addon">
                     <i class="bticon bticon-{{ message.icon }}"></i>
                 </span>
             </div>
             <div ng-if="!message.icon">
-                <input autocomplete="{{ message.autocomplete || 'off' }}" autofocus type="{{ message.input_type || 'text' }}" ng-model="form.prompt" id="prompt" class="form-control"/>
+                <input autocomplete="{{ message.autocomplete || 'off' }}" autofocus
+                       type="{{ message.input_type || 'text' }}" ng-model="form.prompt" id="prompt"
+                       class="form-control"/>
             </div>
         </div>
     </div>
 
     <div class="modal-footer" ng-class="message.footer_class">
-        <a ng-if="message.cancel !== false" class="btn btn-alt btn-danger btn-lg" ng-click="dismiss()">{{ (message.cancel || 'CANCEL') | translate }}</a>
-        <input type="submit" ng-if="message.ok !== false" class="btn btn-alt btn-success btn-lg" value="{{ (message.ok || 'OK') | translate }}" />
+        <a ng-if="message.cancel !== false" class="btn btn-alt btn-danger btn-lg" ng-click="dismiss()">{{
+            (message.cancel || 'CANCEL') | translate }}</a>
+        <input type="submit" ng-if="message.ok !== false" class="btn btn-alt btn-success btn-lg"
+               value="{{ (message.ok || 'OK') | translate }}"/>
     </div>
 </form>

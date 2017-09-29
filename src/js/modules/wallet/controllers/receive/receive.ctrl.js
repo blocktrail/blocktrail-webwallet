@@ -1,10 +1,10 @@
-(function () {
+(function() {
     "use strict";
 
     angular.module("blocktrail.wallet")
         .controller("ReceiveCtrl", ReceiveCtrl);
 
-    function ReceiveCtrl($scope, $rootScope, $q, CONFIG, activeWallet, settingsService, CurrencyConverter, Currencies,  trackingService) {
+    function ReceiveCtrl($scope, $rootScope, $q, CONFIG, activeWallet, settingsService, CurrencyConverter, Currencies, trackingService) {
 
         var walletData = activeWallet.getReadOnlyWalletData();
         var settingsData = settingsService.getReadOnlySettingsData();
@@ -13,16 +13,16 @@
 
         var listenerGroupValues;
 
-        $rootScope.pageTitle = 'RECEIVE';
+        $rootScope.pageTitle = "RECEIVE";
 
         $scope.isLoading = true;
 
-        $scope.address      = null;
-        $scope.path         = null;
-        $scope.bitcoinUri   = null;
-        $scope.qrcode       = null;
+        $scope.address = null;
+        $scope.path = null;
+        $scope.bitcoinUri = null;
+        $scope.qrcode = null;
 
-        $scope.newRequest   = {
+        $scope.newRequest = {
             address: null,
             path: null,
             btcValue: "",
@@ -31,10 +31,10 @@
             bitcoinUri: ""
         };
 
-        $scope.qrSettings   = {
+        $scope.qrSettings = {
             correctionLevel: 7,
             SIZE: 225,
-            inputMode: 'M',
+            inputMode: "M",
             image: true
         };
 
@@ -42,19 +42,19 @@
             $scope.fiatFirst = !$scope.fiatFirst;
         };
 
-        $scope.currencies   = null;
+        $scope.currencies = null;
         $scope.currencyType = null;
-        $scope.altCurrency  = {};
+        $scope.altCurrency = {};
 
         // Methods
         $scope.updateCurrentType = updateCurrentType;
         $scope.setAltCurrency = setAltCurrency;
 
-        $scope.$on('enabled_currency', function() {
+        $scope.$on("enabled_currency", function() {
             updateCurrentType($scope.currencyType);
         });
 
-        $scope.$on('$destroy', onDestroy);
+        $scope.$on("$destroy", onDestroy);
 
         initData();
 
@@ -71,7 +71,7 @@
                     generateQR();
 
                     // Add watchers
-                    listenerGroupValues = $scope.$watchGroup(['newRequest.btcValue', 'newRequest.address', 'currencyType'], updateQRAndSetAltCurrency);
+                    listenerGroupValues = $scope.$watchGroup(["newRequest.btcValue", "newRequest.address", "currencyType"], updateQRAndSetAltCurrency);
 
                     $scope.isLoading = false;
                 });
@@ -104,10 +104,10 @@
          */
         function setAltCurrency() {
             if ($scope.currencyType === nativeCurrency) {
-                $scope.altCurrency.code   = settingsData.localCurrency;
+                $scope.altCurrency.code = settingsData.localCurrency;
                 $scope.altCurrency.amount = parseFloat(CurrencyConverter.fromBTC($scope.newRequest.btcValue, settingsData.localCurrency, 2)) || 0;
             } else {
-                $scope.altCurrency.code   = nativeCurrency;
+                $scope.altCurrency.code = nativeCurrency;
                 $scope.altCurrency.amount = parseFloat(CurrencyConverter.toBTC($scope.newRequest.btcValue, $scope.currencyType, 6)) || 0;
             }
 
@@ -143,15 +143,15 @@
             $scope.newRequest.bitcoinUri = "bitcoin:" + $scope.newRequest.address;
             $scope.newRequest.qrValue = 0;
 
-            if ($scope.currencyType === 'BTC') {
+            if ($scope.currencyType === "BTC") {
                 $scope.newRequest.qrValue = parseFloat($scope.newRequest.btcValue);
-            } else if ($scope.currencyType === 'tBTC') {
+            } else if ($scope.currencyType === "tBTC") {
                 $scope.newRequest.qrValue = parseFloat($scope.newRequest.btcValue);
             } else {
                 $scope.newRequest.qrValue = parseFloat($scope.altCurrency.amount);
             }
 
-            if (!isNaN($scope.newRequest.qrValue) && $scope.newRequest.qrValue.toFixed(8) !== '0.00000000') {
+            if (!isNaN($scope.newRequest.qrValue) && $scope.newRequest.qrValue.toFixed(8) !== "0.00000000") {
                 $scope.newRequest.bitcoinUri += "?amount=" + $scope.newRequest.qrValue.toFixed(8);
             }
         }
@@ -173,7 +173,7 @@
          * On destroy
          */
         function onDestroy() {
-            if(listenerGroupValues) {
+            if (listenerGroupValues) {
                 listenerGroupValues();
             }
         }
