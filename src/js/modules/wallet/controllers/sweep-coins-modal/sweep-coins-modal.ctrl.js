@@ -5,7 +5,7 @@
         .controller("SweepCoinsModalController", SweepCoinsModalController);
 
     function SweepCoinsModalController($scope, $modalInstance, sweeperService, sdkService, walletsManagerService, CONFIG, dialogService,
-                                        $translate, $log, $timeout, trackingService) {
+                                        $translate, $log, $timeout, trackingService, $q) {
 
         var activeWallet = walletsManagerService.getActiveWallet();
         $scope.walletData = activeWallet.getReadOnlyWalletData();
@@ -31,12 +31,19 @@
             inputWIF: null
         };
 
-        $scope.sweepData = {
-            rawTx: null,
-            txId: null,
-            feePaid: null,
-            inputCount: null,
-            totalValue: null
+        $scope.sweepData = [
+            {
+                rawTx: null,
+                txId: null,
+                feePaid: null,
+                inputCount: null,
+                totalValue: null
+            }
+        ];
+
+        $scope.displaySweepData = {
+            totalValue: null,
+            totalFeePaid: null
         };
 
         var options = {
@@ -90,15 +97,26 @@
         $scope.startSweepingBIP44 = function() {
             $scope.working = true;
             $scope.discovering = true;
-            sweeperService.bip44Sweep(($scope.form.mnemonic || "").trim().replace(/  +/g, ' '), options).then(function (result) {
+            sweeperService.bip44Sweep(($scope.form.mnemonic || "").trim().replace(/  +/g, ' '), options).then(function (results) {
                 $scope.working = false;
                 $scope.discovering = false;
 
                 sweeperService.submitDebugInfo();
 
-                if (result) {
+                // Some are positive balance transactions, some below dust value
+                var somePositiveBalances = results.some(function (result) {
+                    return !!result;
+                });
+
+                // Add to absolute value to display before sending
+                results.map(function (result) {
+                    $scope.displaySweepData.totalValue += result.totalValue;
+                    $scope.displaySweepData.totalFeePaid += result.feePaid;
+                });
+
+                if (results && results.length && somePositiveBalances) {
                     trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_BALANCE);
-                    $scope.sweepData = result;
+                    $scope.sweepData = results;
                     $scope.form.step = $scope.STEPS.SWEEP;
                 } else {
                     trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_NO_BALANCE);
@@ -127,15 +145,26 @@
 
             console.log(WIFs);
 
-            sweeperService.wifSweep(WIFs, options).then(function (result) {
+            sweeperService.wifSweep(WIFs, options).then(function (results) {
                 $scope.working = false;
                 $scope.discovering = false;
 
                 sweeperService.submitDebugInfo();
 
-                if (result) {
+                // Some are positive balance transactions, some below dust value
+                var somePositiveBalances = results.some(function (result) {
+                    return !!result;
+                });
+
+                // Add to absolute value to display before sending
+                results.map(function (result) {
+                    $scope.displaySweepData.totalValue += result.totalValue;
+                    $scope.displaySweepData.totalFeePaid += result.feePaid;
+                });
+
+                if (results && results.length && somePositiveBalances) {
                     trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_BALANCE);
-                    $scope.sweepData = result;
+                    $scope.sweepData = results;
                     $scope.form.step = $scope.STEPS.SWEEP;
                 } else {
                     trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_NO_BALANCE);
@@ -158,23 +187,47 @@
         $scope.publishRawTransaction = function () {
             var sdk = activeWallet.getSdkWallet().sdk;
 
-            sdk.sendRawTransaction($scope.sweepData.rawTx, function (err, result) {
-                $scope.working = false;
-
-                if(result.hash) {
-                    $timeout(function() {
-                        $scope.sweepData.txId = result.hash;
-                        $scope.form.step = $scope.STEPS.PUBLISH;
+            var transactions = $scope.sweepData.map(function (sweepTx) {
+                return sdk.sendRawTransaction(sweepTx.rawTx)
+                    .then(function (result) {
+                        sweepTx.txId = result.hash;
+                        return {
+                            status: true,
+                            sweep: sweepTx,
+                            txId: result.hash
+                        }
+                    }, function (err) {
+                        return {
+                            status: false,
+                            sweep: sweepTx,
+                            err: err
+                        }
                     });
-                    trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_SUCCESS);
-                } else {
-                    trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_FAIL);
-                    return dialogService.alert(
-                        $translate.instant("IMPORT_ERROR"),
-                        $translate.instant("TX_CANT_BE_PUSHED")
-                    ).result;
-                }
-            });
+                });
+
+                $q.all(transactions).then(function (results) {
+                    $scope.working = false;
+                    var failures = 0;
+                    results.map(function (result) {
+                        if(!result.status) {
+                            failures += 1;
+                        }
+                    });
+
+                    if (!failures) {
+                        $timeout(function () {
+                            // TODO: Display on PUBLISHED STATE MULTIPLE
+                            $scope.form.step = $scope.STEPS.PUBLISH;
+                        });
+                        trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_SUCCESS);
+                    } else {
+                        trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_FAIL);
+                        return dialogService.alert(
+                            $translate.instant("IMPORT_ERROR"),
+                            $translate.instant("TX_CANT_BE_PUSHED")
+                        ).result;
+                    }
+                })
         };
 
         $scope.done = function() {

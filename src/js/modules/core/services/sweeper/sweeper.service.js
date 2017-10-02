@@ -69,16 +69,15 @@
         }
 
         function signAndSweep(resultUTXOs, options) {
+
+            var addresses = Object.keys(resultUTXOs);
+
             // Create raw transaction
             var inputs = [];
-            var totalValue = 0;
-            var addresses = Object.keys(resultUTXOs);
-            var rawTransaction = new bitcoinJS.TransactionBuilder();
-            var hashType = bitcoinJS.Transaction.SIGHASH_ALL;
 
+            var hashType = bitcoinJS.Transaction.SIGHASH_ALL;
             // If Bitcoin Cash sweep
             if (options.network.toLowerCase() === 'bcc') {
-                rawTransaction.enableBitcoinCash(true);
                 hashType |= bitcoinJS.Transaction.SIGHASH_BITCOINCASHBIP143;
             }
 
@@ -87,10 +86,6 @@
                 var address = addresses[i];
 
                 angular.forEach(resultUTXOs[address], function(utxo) {
-                    // Add to totalValue
-                    totalValue += parseInt(utxo['value']);
-
-                    rawTransaction.addInput(utxo['hash'], utxo['index']);
                     inputs.push({
                         txid: utxo['hash'],
                         vout: utxo['index'],
@@ -102,30 +97,58 @@
             }
 
             return bitcoinDataClient.estimateFee().then(function (feePerKB) {
-                if (totalValue <= blocktrailSDK.DUST) {
-                    return false;
+
+                var txAfter = 600;
+
+                var chunks = [];
+                var index = 0;
+                var length = inputs.length;
+
+                while (index < length) {
+                    chunks.push(inputs.slice(index, index += txAfter + 1));
+                    // index += txAfter;
                 }
 
-                rawTransaction.addOutput(options.recipient, totalValue);
+                return chunks.map(function (chunkInputs) {
+                    var rawTransaction = new bitcoinJS.TransactionBuilder();
 
-                var fee = blocktrailSDK.Wallet.estimateIncompleteTxFee(rawTransaction.tx, feePerKB);
-                rawTransaction.tx.outs[0].value -= fee;
+                    var totalValue = 0;
+                    angular.forEach(chunkInputs, function (input, index) {
+                        totalValue += parseInt(input['value']);
+                        rawTransaction.addInput(input['txid'], input['vout']);
+                    });
 
-                if (rawTransaction.tx.outs[0].value <= blocktrailSDK.DUST) {
-                    return false;
-                }
+                    if (totalValue <= blocktrailSDK.DUST) {
+                        return false;
+                    }
 
-                angular.forEach(inputs, function (input, index) {
-                    var currentPrivKey = resultUTXOs[input.address].priv_key;
-                    rawTransaction.sign(index, currentPrivKey, null, hashType, input.value);
+                    rawTransaction.addOutput(options.recipient, totalValue);
+                    console.log("FeePerKb: ", feePerKB);
+
+                    var fee = blocktrailSDK.Wallet.estimateIncompleteTxFee(rawTransaction.tx, feePerKB);
+                    rawTransaction.tx.outs[0].value -= fee;
+
+                    if (rawTransaction.tx.outs[0].value <= blocktrailSDK.DUST) {
+                        return false;
+                    }
+
+                    // If Bitcoin Cash sweep
+                    if (options.network.toLowerCase() === 'bcc') {
+                        rawTransaction.enableBitcoinCash(true);
+                    }
+
+                    angular.forEach(chunkInputs, function (input, index) {
+                        var currentPrivKey = resultUTXOs[input.address].priv_key;
+                        rawTransaction.sign(index, currentPrivKey, null, hashType, input.value);
+                    });
+
+                    return {
+                        rawTx: rawTransaction.build().toHex(),
+                        feePaid: fee,
+                        inputCount: chunkInputs.length,
+                        totalValue: totalValue
+                    }
                 });
-
-                return {
-                    rawTx: rawTransaction.build().toHex(),
-                    feePaid: fee,
-                    inputCount: inputs.length,
-                    totalValue: totalValue
-                }
             });
         }
 
