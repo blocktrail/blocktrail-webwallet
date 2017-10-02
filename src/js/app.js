@@ -1,29 +1,29 @@
-var blocktrail = angular.module('blocktrail.wallet', [
-    'ui.router',
-    'ui.bootstrap',
-    'ui.bootstrap.dropdown',
-    'ui.bootstrap.pagination',
-    'toggle-switch',
-    'infinite-scroll',
-    'angularMoment',
-    'ja.qr',
-    'ngImgCrop',
-    window.Raven && 'ngRaven',
+var blocktrail = angular.module("blocktrail.wallet", [
+    "ui.router",
+    "ui.bootstrap",
+    "ui.bootstrap.dropdown",
+    "ui.bootstrap.pagination",
+    "toggle-switch",
+    "infinite-scroll",
+    "angularMoment",
+    "ja.qr",
+    "ngImgCrop",
+    window.Raven && "ngRaven",
 
-    'angulartics',
-    'angulartics.google.analytics',
+    "angulartics",
+    "angulartics.google.analytics",
 
-    'blocktrail.config',
-    'blocktrail.core',
-    'blocktrail.setup',
+    "blocktrail.config",
+    "blocktrail.core",
+    "blocktrail.setup",
 
-    'blocktrail.templates'
+    "blocktrail.templates"
 ].filter(function onlyNotNull(value) {
     return !!value;
 }));
 
 /*--- Blocktrail Error Classes ---*/
-angular.module('blocktrail.wallet').config(function() {
+angular.module("blocktrail.wallet").config(function() {
     //merge in sdk error classes
     Object.keys(blocktrailSDK).forEach(function(val) {
         if (blocktrailSDK[val].super_ == Error) {
@@ -38,28 +38,28 @@ angular.module('blocktrail.wallet').config(function() {
     blocktrail.WalletPollError = Error.extend("WalletPollError", 400);
 });
 
-angular.module('blocktrail.wallet').run(
+angular.module("blocktrail.wallet").run(
     function($rootScope, $state, $log, $interval, $timeout, $locale, $translate, CONFIG, amMoment, blocktrailLocalisation, sdkService) {
         var bodyStateClasses = [];
         var networkClassType = "";
 
         $rootScope.sdkReadOnlySdkData = sdkService.getReadOnlySdkData();
 
-        $rootScope.CONFIG       = CONFIG || {};
-        $rootScope.$state       = $state;
-        $rootScope.appVersion   = CONFIG.VERSION || CONFIG.VERSION_REV;
+        $rootScope.CONFIG = CONFIG || {};
+        $rootScope.$state = $state;
+        $rootScope.appVersion = CONFIG.VERSION || CONFIG.VERSION_REV;
 
         $rootScope.getBodyClasses = function() {
             return bodyStateClasses.concat([networkClassType]);
         };
 
         $rootScope.changeLanguage = function(language) {
-            language = language || blocktrailLocalisation.preferredAvailableLanguage() || CONFIG.FALLBACK_LANGUAGE || 'en';
+            language = language || blocktrailLocalisation.preferredAvailableLanguage() || CONFIG.FALLBACK_LANGUAGE || "en";
 
             var momentLocale = language;
 
-            if (momentLocale == 'cn') {
-                momentLocale = 'zh-cn';
+            if (momentLocale == "cn") {
+                momentLocale = "zh-cn";
             }
 
             amMoment.changeLocale(momentLocale);
@@ -73,18 +73,20 @@ angular.module('blocktrail.wallet').run(
                 network = network.substr(1);
             }
 
-            networkClassType = newValue ? ("network-" + network).toLowerCase(): "";
+            networkClassType = newValue ? ("network-" + network).toLowerCase() : "";
         });
 
         $rootScope.$on("$stateChangeError", function(event, toState, toParams, fromState, fromParams, error) {
             $log.error("Error transitioning to " + toState.name + " from  " + fromState.name, toState, fromState, error);
-            $state.go('app.error');
+            $state.go("app.error");
             event.preventDefault();
         });
 
         //--- Debugging info ---
         $rootScope.$on("$stateChangeStart", function(event, toState, toParams, fromState, fromParams) {
-            $log.debug("$stateChangeStart", toState.name, Object.keys(toParams).map(function(k) { return k + ":" + toParams[k]; }));
+            $log.debug("$stateChangeStart", toState.name, Object.keys(toParams).map(function(k) {
+                return k + ":" + toParams[k];
+            }));
 
             if (window.Raven) {
                 Raven.setTagsContext({
@@ -94,10 +96,12 @@ angular.module('blocktrail.wallet').run(
         });
 
         $rootScope.$on("$stateChangeSuccess", function(event, toState, toParams, fromState, fromParams) {
-            $log.debug("$stateChangeSuccess", toState.name, Object.keys(toParams).map(function(k) { return k + ":" + toParams[k]; }));
+            $log.debug("$stateChangeSuccess", toState.name, Object.keys(toParams).map(function(k) {
+                return k + ":" + toParams[k];
+            }));
             var name = [];
             bodyStateClasses = [];
-            
+
             if (window.Raven) {
                 Raven.setTagsContext({
                     state: toState && toState.name,
@@ -105,21 +109,23 @@ angular.module('blocktrail.wallet').run(
                 });
             }
 
-            toState.name.split('.').forEach(function(part) {
+            toState.name.split(".").forEach(function(part) {
                 name.push(part);
-               bodyStateClasses.push('state-' + name.join("_"));
+                bodyStateClasses.push("state-" + name.join("_"));
             });
         });
 
         $rootScope.$on("$stateChangeError", function(event, toState, toParams, fromState, fromParams) {
-            $log.debug("$stateChangeError", toState.name, Object.keys(toParams).map(function(k) { return k + ":" + toParams[k]; }));
+            $log.debug("$stateChangeError", toState.name, Object.keys(toParams).map(function(k) {
+                return k + ":" + toParams[k];
+            }));
         });
     }
 );
 
 /*--- Angular Moment Config ---*/
-angular.module('blocktrail.wallet')
-    .constant('angularMomentConfig', {
+angular.module("blocktrail.wallet")
+    .constant("angularMomentConfig", {
         //preprocess: 'unix', // optional
         //timezone: 'Europe/London' // optional
     })
@@ -129,109 +135,109 @@ angular.module('blocktrail.wallet')
                 throw new Error(language);
             }
 
-            return TRANSLATIONS[language][key] || (CONFIG.FALLBACK_LANGUAGE && TRANSLATIONS['english'][key]) || key;
+            return TRANSLATIONS[language][key] || (CONFIG.FALLBACK_LANGUAGE && TRANSLATIONS["english"][key]) || key;
         };
 
         var MMMMDoYYYYLocales = {
-            'en': 'english',
-            'en-US': 'english'
+            "en": "english",
+            "en-US": "english"
         };
         Object.keys(MMMMDoYYYYLocales).forEach(function(locale) {
             var translationsKey = MMMMDoYYYYLocales[locale];
 
             moment.locale(locale, {
                 calendar: {
-                    lastDay: '[' + translate('YESTERDAY', translationsKey).sentenceCase() + ']',
-                    sameDay: '[' + translate('TODAY', translationsKey).sentenceCase() + ']',
-                    nextDay: '[' + translate('TOMORROW', translationsKey).sentenceCase() + ']',
-                    lastWeek : 'MMMM D',
-                    nextWeek : 'MMMM Do YYYY',
-                    sameElse : 'MMMM Do YYYY'
+                    lastDay: "[" + translate("YESTERDAY", translationsKey).sentenceCase() + "]",
+                    sameDay: "[" + translate("TODAY", translationsKey).sentenceCase() + "]",
+                    nextDay: "[" + translate("TOMORROW", translationsKey).sentenceCase() + "]",
+                    lastWeek: "MMMM D",
+                    nextWeek: "MMMM Do YYYY",
+                    sameElse: "MMMM Do YYYY"
                 }
             });
         });
 
-        moment.locale('es', {
-            calendar : {
-                lastDay : '[' + translate('YESTERDAY', 'spanish').sentenceCase() + ']',
-                sameDay : '[' + translate('TODAY', 'spanish').sentenceCase() + ']',
-                nextDay : '[' + translate('TOMORROW', 'spanish').sentenceCase() + ']',
-                lastWeek : 'D [de] MMMM',
-                nextWeek : 'D [de] MMMM [de] YYYY',
-                sameElse : 'D [de] MMMM [de] YYYY'
+        moment.locale("es", {
+            calendar: {
+                lastDay: "[" + translate("YESTERDAY", "spanish").sentenceCase() + "]",
+                sameDay: "[" + translate("TODAY", "spanish").sentenceCase() + "]",
+                nextDay: "[" + translate("TOMORROW", "spanish").sentenceCase() + "]",
+                lastWeek: "D [de] MMMM",
+                nextWeek: "D [de] MMMM [de] YYYY",
+                sameElse: "D [de] MMMM [de] YYYY"
             }
         });
 
         var DMMMMYYYYLocales = {
-            'ru': 'russian',
-            'fr': 'french',
-            'nl': 'dutch',
-            'de': 'german',
-            'pt': 'portuguese'
+            "ru": "russian",
+            "fr": "french",
+            "nl": "dutch",
+            "de": "german",
+            "pt": "portuguese"
         };
         Object.keys(DMMMMYYYYLocales).forEach(function(locale) {
             var translationsKey = DMMMMYYYYLocales[locale];
 
             moment.locale(locale, {
                 calendar: {
-                    lastDay: '[' + translate('YESTERDAY', translationsKey).sentenceCase() + ']',
-                    sameDay: '[' + translate('TODAY', translationsKey).sentenceCase() + ']',
-                    nextDay: '[' + translate('TOMORROW', translationsKey).sentenceCase() + ']',
-                    lastWeek: 'YYYY-MM-DD',
-                    nextWeek: 'YYYY-MM-DD',
-                    sameElse: 'YYYY-MM-DD'
+                    lastDay: "[" + translate("YESTERDAY", translationsKey).sentenceCase() + "]",
+                    sameDay: "[" + translate("TODAY", translationsKey).sentenceCase() + "]",
+                    nextDay: "[" + translate("TOMORROW", translationsKey).sentenceCase() + "]",
+                    lastWeek: "YYYY-MM-DD",
+                    nextWeek: "YYYY-MM-DD",
+                    sameElse: "YYYY-MM-DD"
                 }
             });
         });
 
         var yyyymmddLocales = {
-            'zh-cn': 'chinese',
-            'sw': 'swahili',
-            'ar': 'arabic',
-            'hi': 'hindi',
-            'ko': 'korean',
-            'jp' : 'japanese'
+            "zh-cn": "chinese",
+            "sw": "swahili",
+            "ar": "arabic",
+            "hi": "hindi",
+            "ko": "korean",
+            "jp": "japanese"
         };
         Object.keys(yyyymmddLocales).forEach(function(locale) {
             var translationsKey = yyyymmddLocales[locale];
 
             moment.locale(locale, {
                 calendar: {
-                    lastDay: '[' + translate('YESTERDAY', translationsKey).sentenceCase() + ']',
-                    sameDay: '[' + translate('TODAY', translationsKey).sentenceCase() + ']',
-                    nextDay: '[' + translate('TOMORROW', translationsKey).sentenceCase() + ']',
-                    lastWeek: 'YYYY-MM-DD',
-                    nextWeek: 'YYYY-MM-DD',
-                    sameElse: 'YYYY-MM-DD'
+                    lastDay: "[" + translate("YESTERDAY", translationsKey).sentenceCase() + "]",
+                    sameDay: "[" + translate("TODAY", translationsKey).sentenceCase() + "]",
+                    nextDay: "[" + translate("TOMORROW", translationsKey).sentenceCase() + "]",
+                    lastWeek: "YYYY-MM-DD",
+                    nextWeek: "YYYY-MM-DD",
+                    sameElse: "YYYY-MM-DD"
                 }
             });
         });
     });
 
-angular.module('blocktrail.wallet').config(
+angular.module("blocktrail.wallet").config(
     function($compileProvider, $stateProvider, $urlRouterProvider, $logProvider, $analyticsProvider, $sceDelegateProvider, CONFIG) {
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|bitcoin):/);
         $logProvider.debugEnabled(CONFIG.DEBUG);
 
-        var urlWhitelist = ['self'];
+        var urlWhitelist = ["self"];
         if (CONFIG.CDN) {
             urlWhitelist.push(CONFIG.CDN + "**");
         }
 
         $analyticsProvider.firstPageview(false);
-        $analyticsProvider.settings.ga.additionalAccountNames = ['globalGA'];
-        $analyticsProvider.queryKeysBlacklist(['token']);
+        $analyticsProvider.settings.ga.additionalAccountNames = ["globalGA"];
+        $analyticsProvider.queryKeysBlacklist(["token"]);
 
         $sceDelegateProvider.resourceUrlWhitelist(urlWhitelist);
 
         $stateProvider
-            .state('app', {
+            .state("app", {
                 abstract: true,
                 templateUrl: "templates/common/base.html"
             })
 
             /*---Wallet Home---*/
-            .state('app.wallet', {
+            .state("app.wallet", {
                 abstract: true,
                 url: "/wallet",
                 controller: "WalletCtrl",
@@ -241,29 +247,29 @@ angular.module('blocktrail.wallet').config(
                         globalLockService.init();
                     },
                     handleSetupState: function($state, launchService) {
-                        return launchService.handleSetupState('app.wallet', $state);
+                        return launchService.handleSetupState("app.wallet", $state);
                     },
                     checkApiKeyStatus: function(launchService, dialogService, $filter, $translate, $state, storageService) {
                         return launchService.getWalletConfig()
                             .then(function(result) {
                                 var bannedIp = result.is_banned_ip;
                                 if (bannedIp) {
-                                    $state.go("app.bannedip", { bannedIp: bannedIp });
-                                } else if (result.api_key && (result.api_key !== 'ok')) {
+                                    $state.go("app.bannedip", {bannedIp: bannedIp});
+                                } else if (result.api_key && (result.api_key !== "ok")) {
                                     // alert user session is invalid
                                     dialogService.alert({
-                                        title: $translate.instant('INVALID_SESSION'),
-                                        bodyHtml: $filter('nl2br')($translate.instant('INVALID_SESSION_LOGOUT_NOW'))
+                                        title: $translate.instant("INVALID_SESSION"),
+                                        bodyHtml: $filter("nl2br")($translate.instant("INVALID_SESSION_LOGOUT_NOW"))
                                     })
                                         .result
                                         .finally(function() {
-                                            $state.go('app.logout');
+                                            $state.go("app.logout");
                                         });
 
                                     // force flushing the storage already
                                     storageService.resetAll();
                                 }
-                            })
+                            });
                     },
                     activeWallet: function($state, $q, launchService, sdkService, walletsManagerService) {
                         return $q.all([launchService.getAccountInfo(), launchService.getWalletInfo()])
@@ -272,7 +278,7 @@ angular.module('blocktrail.wallet').config(
                                 var walletInfo = data[1];
 
                                 if (!walletInfo.networkType || !walletInfo.identifier) {
-                                    $state.go('app.logout');
+                                    $state.go("app.logout");
                                     throw new Error("Missing networkType or identifier");
                                 }
 
@@ -284,7 +290,7 @@ angular.module('blocktrail.wallet').config(
                                         var activeWallet = walletsManagerService.getActiveWallet();
 
                                         // active wallet is null when we load first time
-                                        if(!activeWallet) {
+                                        if (!activeWallet) {
                                             activeWallet = walletsManagerService.setActiveWalletByNetworkTypeAndIdentifier(walletInfo.networkType, walletInfo.identifier);
                                         } else {
                                             sdkService.setNetworkType(activeWallet.getReadOnlyWalletData().networkType);
@@ -321,53 +327,53 @@ angular.module('blocktrail.wallet').config(
                 }
             })
 
-            .state('app.wallet.summary', {
+            .state("app.wallet.summary", {
                 url: "",
                 views: {
                     "mainView@app.wallet": {
                         templateUrl: "js/modules/wallet/controllers/wallet-summary/wallet-summary.tpl.html",
-                        controller: 'WalletSummaryCtrl'
+                        controller: "WalletSummaryCtrl"
                     }
                 }
             })
 
             /*--- Send ---*/
-            .state('app.wallet.send', {
+            .state("app.wallet.send", {
                 url: "/send",
                 cache: false,
                 views: {
                     "mainView@app.wallet": {
                         templateUrl: "js/modules/wallet/controllers/send/send.tpl.html",
-                        controller: 'SendCtrl'
+                        controller: "SendCtrl"
                     }
                 }
             })
 
             /*--- Receive ---*/
-            .state('app.wallet.receive', {
+            .state("app.wallet.receive", {
                 url: "/receive",
                 cache: false,
                 views: {
                     "mainView@app.wallet": {
                         templateUrl: "js/modules/wallet/controllers/receive/receive.tpl.html",
-                        controller: 'ReceiveCtrl'
+                        controller: "ReceiveCtrl"
                     }
                 }
             })
 
-            .state('app.wallet.receive.address-lookup', {
+            .state("app.wallet.receive.address-lookup", {
                 url: "/address-lookup",
                 cache: false,
                 views: {
                     "mainView@app.wallet": {
                         templateUrl: "js/modules/wallet/controllers/address-lookup/address-lookup.tpl.html",
-                        controller: 'AddressLookupCtrl'
+                        controller: "AddressLookupCtrl"
                     }
                 }
             })
 
             /*--- Settings ---*/
-            .state('app.wallet.settings', {
+            .state("app.wallet.settings", {
                 url: "/settings",
                 cache: true,
                 views: {
@@ -379,64 +385,64 @@ angular.module('blocktrail.wallet').config(
             })
 
             /*--- Buy BTC ---*/
-            .state('app.wallet.buybtc', {
+            .state("app.wallet.buybtc", {
                 url: "/buy",
                 abstract: true,
                 template: "<div ui-view></div>"
             })
 
-            .state('app.wallet.buybtc.choose', {
+            .state("app.wallet.buybtc.choose", {
                 url: "/choose",
                 views: {
                     "mainView@app.wallet": {
-                        templateUrl: "templates/buybtc/buybtc.choose.html",
-                        controller: 'BuyBTCChooseCtrl'
+                        templateUrl: "js/modules/wallet/controllers/buy-btc-choose/buy-btc-choose.tpl.html",
+                        controller: "BuyBTCChooseCtrl"
                     }
                 }
             })
 
-            .state('app.wallet.buybtc.glidera_bitid_callback', {
-                url: "/glidera/bitid/callback",
-                views: {
-                    "mainView@app.wallet": {
-                        templateUrl: "templates/buybtc/buybtc.glidera_callback.html",
-                        controller: 'BuyBTCGlideraBitIDCallbackCtrl'
-                    }
-                }
-            })
+            // TODO Discuss with Ruben
+            /*.state('app.wallet.buybtc.glidera_bitid_callback', {
+             url: "/glidera/bitid/callback",
+             views: {
+             "mainView@app.wallet": {
+             templateUrl: "js/modules/wallet/controllers/buy-btc-glidera-oauth-callback/buy-btc-glidera-oauth-callback.tpl.html",
+             controller: 'BuyBTCGlideraBitIDCallbackCtrl'
+             }
+             }
+             })*/
 
-            .state('app.wallet.buybtc.glidera_oauth2_callback', {
+            .state("app.wallet.buybtc.glidera-oauth2-callback", {
                 url: "/glidera/oaoth2/callback",
                 views: {
                     "mainView@app.wallet": {
-                        templateUrl: "templates/buybtc/buybtc.glidera_callback.html",
-                        controller: 'BuyBTCGlideraOauthCallbackCtrl'
+                        templateUrl: "js/modules/wallet/controllers/buy-btc-glidera-oauth-callback/buy-btc-glidera-oauth-callback.tpl.html",
+                        controller: "BuyBTCGlideraOauthCallbackCtrl"
                     }
                 }
             })
 
-            .state('app.wallet.buybtc.buy', {
+            .state("app.wallet.buybtc.buy", {
                 url: "/broker/:broker",
                 views: {
                     "mainView@app.wallet": {
-                        templateUrl: "templates/buybtc/buybtc.buy.html",
-                        controller: 'BuyBTCBrokerCtrl'
+                        templateUrl: "js/modules/wallet/controllers/buy-btc-broker/buy-btc-broker.tpl.html",
+                        controller: "BuyBTCBrokerCtrl"
                     }
                 }
             })
 
             /*--- Error ---*/
-            .state('app.error', {
+            .state("app.error", {
                 views: {
                     "mainView@app.wallet": {
                         template: "<h1 style='text-align: center; margin-top: 5rem'>Ooops!<br><small>Something went wrong</small></h1>"
                     }
                 }
-            })
-        ;
+            });
 
         // if none of the above states are matched, use this as the fallback
-        $urlRouterProvider.otherwise('/setup/register');
+        $urlRouterProvider.otherwise("/setup/register");
     }
 );
 
@@ -476,7 +482,7 @@ String.prototype.sentenceCase = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 };
 
-String.prototype.capitalize  = function() {
+String.prototype.capitalize = function() {
     return this.replace(/\w\S*/g, function(txt) {
         return txt.sentenceCase();
     });
@@ -545,17 +551,17 @@ function parseQuery(url) {
     }
     var qstr = url[1];
     var query = {};
-    var a = qstr.split('&');
+    var a = qstr.split("&");
     for (var i = 0; i < a.length; i++) {
-        var b = a[i].split('=');
-        query[decodeURIComponent(b[0])] = decodeURIComponent(b[1] || '');
+        var b = a[i].split("=");
+        query[decodeURIComponent(b[0])] = decodeURIComponent(b[1] || "");
     }
     return query;
 }
 
 function randNumber() {
     do {
-        var rand = parseInt(blocktrailSDK.randomBytes(1).toString('hex').substr(0, 1), 16);
+        var rand = parseInt(blocktrailSDK.randomBytes(1).toString("hex").substr(0, 1), 16);
     } while (rand > 9);
 
     return rand;
