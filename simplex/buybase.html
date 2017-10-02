@@ -18,43 +18,43 @@
 
 </head>
 <body class="network-btc" style="height: 100%;">
-    <!-- Add you website content here -->
+<!-- Add you website content here -->
 
-    <nav class="navbar">
-        <div class="container">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="https://wallet.btc.com" target="_self"><img src="/img/logo-btc-reverse.png"/></a>
-            </div>
+<nav class="navbar">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="https://wallet.btc.com" target="_self"><img src="/img/logo-btc-reverse.png"/></a>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <div >
-        <div class="row">
-            <div class="col-md-8 col-md-offset-4 col-sm-12 col-xs-12">
-                <div class="appWrapper">
-                    <div class="formContainer">
+<div >
+    <div class="row">
+        <div class="col-md-8 col-md-offset-4 col-sm-12 col-xs-12">
+            <div class="appWrapper">
+                <div class="formContainer">
 
-                        <!-- the control -->
-                        <div id="app">
-                            <form @submit="sendPaymentRequest" method="POST" >
+                    <!-- the control -->
+                    <div id="app">
+                        <form @submit="sendPaymentRequest" method="POST" >
 
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <label class="control-label">Bitcoin Amount</label>
-                                        <div class="md-form input-group">
-                                            <input id="btcAmount" type="number" class="form-control" step="0.00000001" v-model.number="btc_amount" @input="onBTCAmountChange" required>
-                                                <span class="input-group-btn">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <label class="control-label">Bitcoin Amount</label>
+                                    <div class="md-form input-group">
+                                        <input id="btcAmount" type="number" class="form-control" step="0.00000001" v-model.number="btc_amount" @input="onBTCAmountChange" required>
+                                        <span class="input-group-btn">
                                                     <button class="btn btn-primary btn-round form-control" type="button">BTC</button>
                                                 </span>
-                                           </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <label class="control-label">Fiat Amount</label>
-                                        <div class="md-form input-group">
-                                            <input id="fiatAmount" type="number" class="form-control" step="0.01"min="50" max="50000" v-model.number="fiat_amount" @input="onAmountChange" required>
-                                            <span class="input-group-btn">
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <label class="control-label">Fiat Amount</label>
+                                    <div class="md-form input-group">
+                                        <input id="fiatAmount" type="number" class="form-control" step="0.01"min="50" max="50000" v-model.number="fiat_amount" @input="onAmountChange" required>
+                                        <span class="input-group-btn">
                                                 <div class="btn-group">
                                                     <button class="btn btn-primary btn-round form-control group-dropdown-fix" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ selectedFiatCurrency }}</button>
 
@@ -63,124 +63,124 @@
                                                     </div>
                                                 </div>
                                             </span>
-                                        </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <input id="btcAddress" class="form-control" type="text" v-model="btcaddress" placeholder="Bitcoin address" required/>
-                                    </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <input id="btcAddress" class="form-control" type="text" v-model="btcaddress" placeholder="Bitcoin address" required/>
                                 </div>
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                        <span v-show="showAddressError" class="red-text">{{ getAddressError }}</span>
-                                    </div>
-                                    <div class="col-xs-6">
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <span v-show="showAddressError" class="red-text">{{ getAddressError }}</span>
+                                </div>
+                                <div class="col-xs-6">
                                     <div class="text-right">
                                     <a target="_blank" :href="config.walleturl">don't have one?</a>
                                     </div>
-                                    </div>
-
                                 </div>
 
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                        <input id="tos" type="checkbox" style="vertical-align:middle;" onchange="document.getElementById('buttonSubmit').disabled = !this.checked">
-                                        <label for="tos">
-                                           I accept and comply with Simplex’s <a href="https://www.simplex.com/terms-of-use/">terms of use</a> and <a href="https://www.simplex.com/privacy-policy/">privacy policy</a>.
-                                        </label>
-                                    </div>
-                                    <div class="col-sm-6 text-right">
-                                        <div ref="rehead" :class="showRecaptchaError? 'recaptcha_box_error' : ''">
-                                            <div :class="config.recaptcha_site_key? 'g-recaptcha' : ''" :data-sitekey="config.recaptcha_site_key" ></div>
-                                        </div>
-                                    </div>
-                                </div>
+                            </div>
 
-                                <div class="row">
-                                    <div class="col-sm-12 text-sm-center text-center">
-                                        <button type="submit" id="buttonSubmit" class="btn btn-primary btn-lg" disabled="disabled">Buy</button>
+                            <div class="row">
+                                <div class="col-sm-5">
+                                    <input id="tos" type="checkbox" style="vertical-align:middle;" onchange="document.getElementById('buttonSubmit').disabled = !this.checked">
+                                    <label for="tos">
+                                        I accept and comply with Simplex’s <a href="https://www.simplex.com/terms-of-use/">terms of use</a> and <a href="https://www.simplex.com/privacy-policy/">privacy policy</a>.
+                                    </label>
+                                </div>
+                                <div class="col-sm-6 text-right">
+                                    <div ref="rehead" :class="showRecaptchaError? 'recaptcha_box_error' : ''">
+                                        <div :class="config.recaptcha_site_key? 'g-recaptcha' : ''" :data-sitekey="config.recaptcha_site_key" ></div>
                                     </div>
                                 </div>
-                            </form>
-                            <div ref="formplaceholder"></div>
-                        </div>
-                        <!-- the control end -->
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-12 text-sm-center text-center">
+                                    <button type="submit" id="buttonSubmit" class="btn btn-primary btn-lg" disabled="disabled">Buy</button>
+                                </div>
+                            </div>
+                        </form>
+                        <div ref="formplaceholder"></div>
                     </div>
+                    <!-- the control end -->
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-xs-3" style="padding-left: 0;">
-                    <div class="copyright">
-                        <div class="copyright-logo"></div>
-                        <div class="copyright-text">&copy; Copyright BTC.COM 2017. All Rights Reserved.</div>
-                    </div>
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-3" style="padding-left: 0;">
+                <div class="copyright">
+                    <div class="copyright-logo"></div>
+                    <div class="copyright-text">&copy; Copyright BTC.COM 2017. All Rights Reserved.</div>
                 </div>
-                <div class="col-xs-9 links" style="padding-right: 0;">
-                    <div class="links-column">
-                        <div class="links-category">Products</div>
-                        <ul class="links-list">
-                            <li class="links-list-item"><a target="_blank" href="https://www.bitmain.com">Antminer</a></li>
-                            <li class="links-list-item"><a target="_blank" href="https://www.pool.btc.com">BTC.com Pool</a></li>
-                            <li class="links-list-item"><a target="_blank" href="https://www.btc.com">BTC.com Explorer</a></li>
-                            <li class="links-list-item"><a target="_blank" href="https://www.hashnest.com">Hashnest
-                    </div>
-                    <div class="links-column">
-                        <div class="links-category">Company</div>
-                        <ul class="links-list">
-                            <li class="links-list-item"><a target="_blank" href="https://www.bitmain.com/about">About us</a></li>
-                            <li class="links-list-item"><a target="_blank" href="https://www.bitmain.com/join_us">Join us</a></li>
-                            <li class="links-list-item"><a target="_blank" href="http://support.bitmain.com/hc/en-us/requests/new">Contact us</a></li>
-                            <li class="links-list-item"><a target="_blank" href="https://blog.btc.com/">Blog</a></li>
-                        </ul>
-                    </div>
-                    <div class="links-column">
-                        <div class="links-category">Media</div>
-                        <ul class="links-list">
-                            <li class="links-list-item"><a target="_blank" href="http://weibo.com/bitmain">Official Weibo</a></li>
-                            <li class="links-list-item"><a target="_blank" href="http://forum.bitmain.com/">Community</a></li>
-                            <li class="links-list-item"><a target="_blank" href="https://twitter.com/btccom_official">Twitter</a></li>
-                            <li class="links-list-item"><a target="_blank" href="https://www.facebook.com/btccom">Facebook</a></li>
-                        </ul>
-                    </div>
-                    <div class="links-column">
-                        <div class="links-category">Developers</div>
-                        <ul class="links-list">
-                            <li class="links-list-item"><a href="{{ route('api') }}">API</a></li>
-                        </ul>
-                        <ul class="links-list">
-                            <li class="links-list-item">
-                                <a target="_blank" href="https://bmfeedback.bitmain.com/feedback/app_feedback/?app=BTC.COM&imei=1236456456">
-                                    Feedback</a></li>
-                        </ul>
-                    </div>
+            </div>
+            <div class="col-xs-9 links" style="padding-right: 0;">
+                <div class="links-column">
+                    <div class="links-category">Products</div>
+                    <ul class="links-list">
+                        <li class="links-list-item"><a target="_blank" href="https://www.bitmain.com">Antminer</a></li>
+                        <li class="links-list-item"><a target="_blank" href="https://www.pool.btc.com">BTC.com Pool</a></li>
+                        <li class="links-list-item"><a target="_blank" href="https://www.btc.com">BTC.com Explorer</a></li>
+                        <li class="links-list-item"><a target="_blank" href="https://www.hashnest.com">Hashnest
+                </div>
+                <div class="links-column">
+                    <div class="links-category">Company</div>
+                    <ul class="links-list">
+                        <li class="links-list-item"><a target="_blank" href="https://www.bitmain.com/about">About us</a></li>
+                        <li class="links-list-item"><a target="_blank" href="https://www.bitmain.com/join_us">Join us</a></li>
+                        <li class="links-list-item"><a target="_blank" href="http://support.bitmain.com/hc/en-us/requests/new">Contact us</a></li>
+                        <li class="links-list-item"><a target="_blank" href="https://blog.btc.com/">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="links-column">
+                    <div class="links-category">Media</div>
+                    <ul class="links-list">
+                        <li class="links-list-item"><a target="_blank" href="http://weibo.com/bitmain">Official Weibo</a></li>
+                        <li class="links-list-item"><a target="_blank" href="http://forum.bitmain.com/">Community</a></li>
+                        <li class="links-list-item"><a target="_blank" href="https://twitter.com/btccom_official">Twitter</a></li>
+                        <li class="links-list-item"><a target="_blank" href="https://www.facebook.com/btccom">Facebook</a></li>
+                    </ul>
+                </div>
+                <div class="links-column">
+                    <div class="links-category">Developers</div>
+                    <ul class="links-list">
+                        <li class="links-list-item"><a href="{{ route('api') }}">API</a></li>
+                    </ul>
+                    <ul class="links-list">
+                        <li class="links-list-item">
+                            <a target="_blank" href="https://bmfeedback.bitmain.com/feedback/app_feedback/?app=BTC.COM&imei=1236456456">
+                                Feedback</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
-    </footer>
+    </div>
+</footer>
 
-    <!-- control JS -->
-    <script src='https://www.google.com/recaptcha/api.js'></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script src="https://unpkg.com/vue/dist/vue.js"></script>
-    <script src="./javascripts/sha256.js" ></script>
-    <script src="./javascripts/bigint.js" ></script>
-    <script src="./javascripts/btc_address_validator.js" ></script>
-    <!-- control JS end -->
-    
+<!-- control JS -->
+<script src='https://www.google.com/recaptcha/api.js'></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="./javascripts/sha256.js" ></script>
+<script src="./javascripts/bigint.js" ></script>
+<script src="./javascripts/btc_address_validator.js" ></script>
+<!-- control JS end -->
 
-    <!-- template js - can be removed -->
-    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="./javascripts/mdb.min.js"></script>
-    <!-- template js - can be removed End-->
 
-    <script>
+<!-- template js - can be removed -->
+<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="./javascripts/mdb.min.js"></script>
+<!-- template js - can be removed End-->
+
+<script>
     var i_lastQuote = {};
     i_lastQuote.user_id = 'quote.user_id ';
     i_lastQuote.quote_id = 'quote.quote_id';
@@ -197,27 +197,27 @@
     config.csrfToken = 'csrfTokenKey';
     config.recaptcha_site_key= '6LdCLyITAAAAAO7JocwJAmhDYRpKpQHyJqnnMsnT';
     config.walleturl= 'https://www.simplex.com';
-    </script>
-    <script type="text/javascript" src="./javascripts/currencyconvertor.js"></script>
-    <!-- control JS end -->
+</script>
+<script type="text/javascript" src="./javascripts/currencyconvertor.js"></script>
+<!-- control JS end -->
 
-    <script>
-        $.getURLParam = function (param) {
-            var results = new RegExp('[\?&]' + param + '=([^&#]*)').exec(window.location.href);
-            if (results === null) return null;
-            else return decodeURI(results[1]) || 0;
-        };
-        // Prefill btc address
-        document.getElementById('btcAddress').value =
-            check_btc_address_base3($.getURLParam("btcAddress")) ? $.getURLParam("btcAddress") : '';
-        // Prefill fiat or btc
-        if ($.getURLParam("btcAddress") && $.getURLParam("fiatAddress")) {
-            // Preference for btc if both are entered (as fiat/crypto ratio might not match)
-            document.getElementById('btcAmount').value = $.getURLParam("btcAmount");
-        } else {
-            document.getElementById('fiatAmount').value = $.getURLParam("fiatAmount");
-            document.getElementById('btcAmount').value = $.getURLParam("btcAmount");
-        }
-    </script>
+<script>
+    $.getURLParam = function (param) {
+        var results = new RegExp('[\?&]' + param + '=([^&#]*)').exec(window.location.href);
+        if (results === null) return null;
+        else return decodeURI(results[1]) || 0;
+    };
+    // Prefill btc address
+    document.getElementById('btcAddress').value =
+        check_btc_address_base3($.getURLParam("btcAddress")) ? $.getURLParam("btcAddress") : '';
+    // Prefill fiat or btc
+    if ($.getURLParam("btcAddress") && $.getURLParam("fiatAddress")) {
+        // Preference for btc if both are entered (as fiat/crypto ratio might not match)
+        document.getElementById('btcAmount').value = $.getURLParam("btcAmount");
+    } else {
+        document.getElementById('fiatAmount').value = $.getURLParam("fiatAmount");
+        document.getElementById('btcAmount').value = $.getURLParam("btcAmount");
+    }
+</script>
 </body>
 </html>
