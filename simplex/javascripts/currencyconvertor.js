@@ -13,7 +13,7 @@ var app = new Vue({
     data: {
         btc_amount: 0,
         fiat_amount:0,
-        btcaddress: '',
+        btcaddress: btcaddress,
         config: config,
         address_error: 'koko',
         address_validation_status: false,

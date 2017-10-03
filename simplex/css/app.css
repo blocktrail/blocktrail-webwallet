@@ -8451,6 +8451,10 @@ $dark:                            #444 !default;
 .btn-round {
   border-radius: 4px !important; }
 
+body {
+  height: 100%;
+  min-height: 900px; }
+
 .col-sm-12 {
   padding-top: 10px; }
 
@@ -8473,12 +8477,26 @@ $dark:                            #444 !default;
   line-height: 23.9333px;
   padding: 10px 16px; }
 
+.marginOnTop {
+  margin-top: 20px; }
+
 .formContainer {
   background-color: #FFFFFF;
   padding: 20px 20px 20px 20px;
-  margin: 75px 0px;
+  margin: 20px 0px;
   border: 1px solid #CCCCCC;
   font-size: 16px;
-  height: 100%;
-  width: 50%;
-  text-align: center; }
+  height: 100%; }
+  .formContainer h1 {
+    font-size: 28px;
+    margin-top: 0px;
+    padding-top: 0px; }
+  .formContainer .dropdown-menu {
+    padding: 0px;
+    min-width: 70px;
+    text-align: center; }
+  .formContainer .dropdown-item {
+    padding: 6px 6px;
+    cursor: pointer; }
+    .formContainer .dropdown-item:hover, .formContainer .dropdown-item:focus, .formContainer .dropdown-item:active {
+      background-color: #f7f7f7; }

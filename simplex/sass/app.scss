@@ -4,6 +4,11 @@
     border-radius: 4px !important;
 }
 
+body {
+    height: 100%;
+    min-height:900px;
+}
+
 .col-sm-12 {
     padding-top: 10px;
 }
@@ -28,13 +33,32 @@
     padding: 10px 16px;
 }
 
+.marginOnTop {
+    margin-top:20px;
+}
+
 .formContainer {
     background-color: $white;
     padding: 20px 20px 20px 20px;
-    margin: 75px 0px;
+    margin: 20px 0px;
     border: 1px solid $muted;
     font-size:16px;
     height: 100%;
-    width: 50%;
-    text-align: center;
+    h1 {
+        font-size:28px;
+        margin-top:0px;
+        padding-top:0px;
+    }
+    .dropdown-menu {
+        padding:0px;
+        min-width:70px;
+        text-align: center;
+    }
+    .dropdown-item {
+        padding:6px 6px;
+        cursor: pointer;
+        &:hover,&:focus,&:active {
+            background-color:#f7f7f7;
+        }
+    }
 }

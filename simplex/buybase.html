@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-    <title>BTC Wallet - putting you in control of your Bitcoin</title>
+    <title>BTC.com - Buy Bitcoin Within Minutes!</title>
 
     <!-- template design -->
     <link rel="stylesheet" href="./css/app.css" type="text/css" media="all">
@@ -17,7 +17,7 @@
     <![endif]-->
 
 </head>
-<body class="network-btc" style="height: 100%;">
+<body class="network-btc">
 <!-- Add you website content here -->
 
 <nav class="navbar">
@@ -28,35 +28,34 @@
     </div>
 </nav>
 
-<div >
+<div class="container">
     <div class="row">
-        <div class="col-md-8 col-md-offset-4 col-sm-12 col-xs-12">
+        <div class="col-md-6 col-md-offset-3 col-sm-12 col-xs-12">
             <div class="appWrapper">
                 <div class="formContainer">
-
+                    <h1>Buy Bitcoin</h1>
+                    <hr/>
                     <!-- the control -->
                     <div id="app">
                         <form @submit="sendPaymentRequest" method="POST" >
 
                             <div class="row">
-                                <div class="col-sm-12">
+                                <div class="col-md-6">
                                     <label class="control-label">Bitcoin Amount</label>
                                     <div class="md-form input-group">
                                         <input id="btcAmount" type="number" class="form-control" step="0.00000001" v-model.number="btc_amount" @input="onBTCAmountChange" required>
                                         <span class="input-group-btn">
-                                                    <button class="btn btn-primary btn-round form-control" type="button">BTC</button>
-                                                </span>
+                                            <button class="btn btn-default form-control" type="button">BTC</button>
+                                        </span>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <label class="control-label">Fiat Amount</label>
+                                <div class="col-md-6">
+                                    <label class="control-label">{{ selectedFiatCurrency }} Amount</label>
                                     <div class="md-form input-group">
-                                        <input id="fiatAmount" type="number" class="form-control" step="0.01"min="50" max="50000" v-model.number="fiat_amount" @input="onAmountChange" required>
+                                        <input id="fiatAmount" type="number" class="form-control" step="0.01" min="50" max="50000" v-model.number="fiat_amount" @input="onAmountChange" required>
                                         <span class="input-group-btn">
                                                 <div class="btn-group">
-                                                    <button class="btn btn-primary btn-round form-control group-dropdown-fix" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ selectedFiatCurrency }}</button>
+                                                    <button class="btn btn-default form-control group-dropdown-fix" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ selectedFiatCurrency }} <span class="caret"></span></button>
 
                                                     <div class="dropdown-menu">
                                                         <div v-for="currency in supported_currency" :class="selectedFiatCurrency == currency.name? 'dropdown-item disabled' : 'dropdown-item'"  @click="changeFiat(currency.name,currency.ratio )">{{ currency.name }}</div>
@@ -66,41 +65,46 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <input id="btcAddress" class="form-control" type="text" v-model="btcaddress" placeholder="Bitcoin address" required/>
+                            <div class="row marginOnTop">
+                                <div class="col-md-12">
+                                    <label class="control-label">Bitcoin Address</label>
+                                    <div class="md-form">
+                                        <input id="btcAddress" class="form-control" type="text" v-model="btcaddress" placeholder="Bitcoin address" required/>
+                                    </div>
                                 </div>
                             </div>
+
                             <div class="row">
                                 <div class="col-sm-6">
                                     <span v-show="showAddressError" class="red-text">{{ getAddressError }}</span>
                                 </div>
-                                <div class="col-xs-6">
+                                <div class="col-xs-12 col-md-12 col-lg-12">
                                     <div class="text-right">
-                                    <a target="_blank" :href="config.walleturl">don't have one?</a>
+                                    <a target="_blank" :href="config.walleturl">don't have an address?</a>
                                     </div>
                                 </div>
-
                             </div>
 
-                            <div class="row">
-                                <div class="col-sm-5">
-                                    <input id="tos" type="checkbox" style="vertical-align:middle;" onchange="document.getElementById('buttonSubmit').disabled = !this.checked">
-                                    <label for="tos">
-                                        I accept and comply with Simplex’s <a href="https://www.simplex.com/terms-of-use/">terms of use</a> and <a href="https://www.simplex.com/privacy-policy/">privacy policy</a>.
-                                    </label>
-                                </div>
-                                <div class="col-sm-6 text-right">
+                            <div class="row marginOnTop">
+                                <div class="col-md-8 col-md-offset-2 col-sm-6 col-sm-offset-3 col-xs-12 text-center">
                                     <div ref="rehead" :class="showRecaptchaError? 'recaptcha_box_error' : ''">
                                         <div :class="config.recaptcha_site_key? 'g-recaptcha' : ''" :data-sitekey="config.recaptcha_site_key" ></div>
                                     </div>
                                 </div>
                             </div>
+                            <div class="row marginOnTop">
+                                <div class="col-xs-12 text-center">
+                                    <input id="tos" type="checkbox" style="vertical-align:middle;" onchange="document.getElementById('buttonSubmit').disabled = !this.checked">
+                                    <span for="tos">
+                                        I accept the <a href="https://www.simplex.com/terms-of-use/">terms of use</a> and <a href="https://www.simplex.com/privacy-policy/">privacy policy</a>.
+                                    </span>
+                                </div>
+                            </div>
 
-                            <div class="row">
+
+                            <div class="row marginOnTop">
                                 <div class="col-sm-12 text-sm-center text-center">
-                                    <button type="submit" id="buttonSubmit" class="btn btn-primary btn-lg" disabled="disabled">Buy</button>
+                                    <button type="submit" id="buttonSubmit" class="btn btn-primary btn-lg" disabled="disabled">Buy Bitcoin</button>
                                 </div>
                             </div>
                         </form>
@@ -113,7 +117,7 @@
     </div>
 </div>
 
-<footer class="footer">
+<footer class="footer hidden-sm hidden-xs">
     <div class="container">
         <div class="row">
             <div class="col-xs-3" style="padding-left: 0;">
@@ -129,7 +133,8 @@
                         <li class="links-list-item"><a target="_blank" href="https://www.bitmain.com">Antminer</a></li>
                         <li class="links-list-item"><a target="_blank" href="https://www.pool.btc.com">BTC.com Pool</a></li>
                         <li class="links-list-item"><a target="_blank" href="https://www.btc.com">BTC.com Explorer</a></li>
-                        <li class="links-list-item"><a target="_blank" href="https://www.hashnest.com">Hashnest
+                        <li class="links-list-item"><a target="_blank" href="https://www.hashnest.com">Hashnest</a></li>
+                    </ul>
                 </div>
                 <div class="links-column">
                     <div class="links-category">Company</div>
@@ -152,12 +157,14 @@
                 <div class="links-column">
                     <div class="links-category">Developers</div>
                     <ul class="links-list">
-                        <li class="links-list-item"><a href="{{ route('api') }}">API</a></li>
+                        <li class="links-list-item"><a href="https://btc.com/api-doc">API</a></li>
                     </ul>
                     <ul class="links-list">
                         <li class="links-list-item">
                             <a target="_blank" href="https://bmfeedback.bitmain.com/feedback/app_feedback/?app=BTC.COM&imei=1236456456">
-                                Feedback</a></li>
+                                Feedback
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -180,6 +187,7 @@
 <script type="text/javascript" src="./javascripts/mdb.min.js"></script>
 <!-- template js - can be removed End-->
 
+<!-- control JS -->
 <script>
     var i_lastQuote = {};
     i_lastQuote.user_id = 'quote.user_id ';
@@ -197,27 +205,33 @@
     config.csrfToken = 'csrfTokenKey';
     config.recaptcha_site_key= '6LdCLyITAAAAAO7JocwJAmhDYRpKpQHyJqnnMsnT';
     config.walleturl= 'https://www.simplex.com';
+
+    var btcaddress = '';
 </script>
+
+<script>
+        $.getURLParam = function (param) {
+            var results = new RegExp('[\?&]' + param + '=([^&#]*)').exec(window.location.href);
+            if (results === null) return null;
+            else return decodeURI(results[1]) || 0;
+        };
+        // Prefill btc address
+        btcaddress =
+            check_btc_address_base3($.getURLParam("btcAddress")) ? $.getURLParam("btcAddress") : '';
+        // Prefill fiat or btc
+        if ($.getURLParam("btcAmount") && $.getURLParam("fiatAmount")) {
+            // Preference for btc if both are entered (as fiat/crypto ratio might not match)
+            document.getElementById('btcAmount').value = $.getURLParam("btcAmount");
+            i_lastQuote.digital_money.amount = $.getURLParam("btcAmount");
+        } else {
+            i_lastQuote.fiat_money.amount = $.getURLParam("fiatAmount");
+            i_lastQuote.digital_money.amount = $.getURLParam("btcAmount");
+        }
+        config.lastQuote = i_lastQuote;
+</script>
+
 <script type="text/javascript" src="./javascripts/currencyconvertor.js"></script>
 <!-- control JS end -->
 
-<script>
-    $.getURLParam = function (param) {
-        var results = new RegExp('[\?&]' + param + '=([^&#]*)').exec(window.location.href);
-        if (results === null) return null;
-        else return decodeURI(results[1]) || 0;
-    };
-    // Prefill btc address
-    document.getElementById('btcAddress').value =
-        check_btc_address_base3($.getURLParam("btcAddress")) ? $.getURLParam("btcAddress") : '';
-    // Prefill fiat or btc
-    if ($.getURLParam("btcAddress") && $.getURLParam("fiatAddress")) {
-        // Preference for btc if both are entered (as fiat/crypto ratio might not match)
-        document.getElementById('btcAmount').value = $.getURLParam("btcAmount");
-    } else {
-        document.getElementById('fiatAmount').value = $.getURLParam("fiatAmount");
-        document.getElementById('btcAmount').value = $.getURLParam("btcAmount");
-    }
-</script>
 </body>
 </html>
