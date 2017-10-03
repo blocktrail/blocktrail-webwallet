@@ -94,26 +94,29 @@
             }
         };
 
-        $scope.startSweepingBIP44 = function() {
-            $scope.working = true;
-            $scope.discovering = true;
-            sweeperService.bip44Sweep(($scope.form.mnemonic || "").trim().replace(/  +/g, ' '), options).then(function (results) {
-                $scope.working = false;
-                $scope.discovering = false;
+        var processSweepResults = function (results) {
+            $scope.working = false;
+            $scope.discovering = false;
 
-                sweeperService.submitDebugInfo();
+            sweeperService.submitDebugInfo();
 
-                // Some are positive balance transactions, some below dust value
-                var somePositiveBalances = results.some(function (result) {
-                    return !!result;
-                });
+            // Some are positive balance transactions, some below dust value
+            var somePositiveBalances = results.some(function (result) {
+                return !!result;
+            });
 
-                // Add to absolute value to display before sending
-                results.map(function (result) {
-                    $scope.displaySweepData.totalValue += result.totalValue;
-                    $scope.displaySweepData.totalFeePaid += result.feePaid;
-                });
+            // If some transactions failed, we need to notify the user
+            var someFailedTransactions = !results.every(function (result) {
+                return !!result;
+            });
 
+            // Add to absolute value to display before sending
+            results.map(function (result) {
+                $scope.displaySweepData.totalValue += result.totalValue;
+                $scope.displaySweepData.totalFeePaid += result.feePaid;
+            });
+
+            var goToSweepState = function () {
                 if (results && results.length && somePositiveBalances) {
                     trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_BALANCE);
                     $scope.sweepData = results;
@@ -125,6 +128,25 @@
                         $translate.instant("NO_BALANCES_FOUND")
                     ).result;
                 }
+            };
+
+            if(results && someFailedTransactions) {
+                return dialogService.alert(
+                    $translate.instant("IMPORT_ERROR"),
+                    $translate.instant("SOME_TRANSACTIONS_FAILED")
+                ).result.then(function () {
+                    goToSweepState();
+                })
+            } else {
+                goToSweepState();
+            }
+        };
+
+        $scope.startSweepingBIP44 = function() {
+            $scope.working = true;
+            $scope.discovering = true;
+            sweeperService.bip44Sweep(($scope.form.mnemonic || "").trim().replace(/  +/g, ' '), options).then(function (results) {
+                processSweepResults(results)
             }).catch(function (error) {
                 $scope.working = false;
                 $scope.discovering = false;
@@ -143,45 +165,19 @@
             var WIFs = ($scope.form.inputWIF || "").trim().replace(/  +/g, ' ').replace(/\r\n/g, ',').replace(/\n/g, ',').replace(/ /g, ',');
             WIFs = WIFs.split(',').filter(function(WIF) { return !!WIF.trim(); });
 
-            console.log(WIFs);
-
-            sweeperService.wifSweep(WIFs, options).then(function (results) {
-                $scope.working = false;
-                $scope.discovering = false;
-
-                sweeperService.submitDebugInfo();
-
-                // Some are positive balance transactions, some below dust value
-                var somePositiveBalances = results.some(function (result) {
-                    return !!result;
-                });
-
-                // Add to absolute value to display before sending
-                results.map(function (result) {
-                    $scope.displaySweepData.totalValue += result.totalValue;
-                    $scope.displaySweepData.totalFeePaid += result.feePaid;
-                });
-
-                if (results && results.length && somePositiveBalances) {
-                    trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_BALANCE);
-                    $scope.sweepData = results;
-                    $scope.form.step = $scope.STEPS.SWEEP;
-                } else {
-                    trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_NO_BALANCE);
+            sweeperService.wifSweep(WIFs, options)
+                .then(function (results) {
+                    processSweepResults(results)
+                })
+                .catch(function (error) {
+                    $scope.working = false;
+                    $scope.discovering = false;
+                    $log.error(error);
                     return dialogService.alert(
                         $translate.instant("IMPORT_ERROR"),
-                        $translate.instant("NO_BALANCES_FOUND")
+                        $translate.instant("INVALID_MNEMONIC")
                     ).result;
-                }
-            }).catch(function (error) {
-                $scope.working = false;
-                $scope.discovering = false;
-                $log.error(error);
-                return dialogService.alert(
-                    $translate.instant("IMPORT_ERROR"),
-                    $translate.instant("INVALID_MNEMONIC")
-                ).result;
-            });
+                });
         };
 
         $scope.publishRawTransaction = function () {
@@ -216,15 +212,21 @@
 
                     if (!failures) {
                         $timeout(function () {
-                            // TODO: Display on PUBLISHED STATE MULTIPLE
                             $scope.form.step = $scope.STEPS.PUBLISH;
                         });
                         trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_SUCCESS);
                     } else {
                         trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_FAIL);
+
+                        // Differentiate between one and more failing transactions
+                        var msg = 'TX_CANT_BE_PUSHED';
+                        if (failures > 1) {
+                            msg = 'TX_CANT_BE_PUSHED_MULTIPLE';
+                        }
+
                         return dialogService.alert(
                             $translate.instant("IMPORT_ERROR"),
-                            $translate.instant("TX_CANT_BE_PUSHED")
+                            $translate.instant(msg, { amount: failures })
                         ).result;
                     }
                 })

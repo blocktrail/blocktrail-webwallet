@@ -74,8 +74,8 @@
 
             // Create raw transaction
             var inputs = [];
-
             var hashType = bitcoinJS.Transaction.SIGHASH_ALL;
+
             // If Bitcoin Cash sweep
             if (options.network.toLowerCase() === 'bcc') {
                 hashType |= bitcoinJS.Transaction.SIGHASH_BITCOINCASHBIP143;
@@ -98,15 +98,19 @@
 
             return bitcoinDataClient.estimateFee().then(function (feePerKB) {
 
-                var txAfter = 600;
+                // 625 inputs max is based of: 625 * 148(inputsize) + 56(outputsize) which results in transactions
+                // in size just below the non-standard limit of 100KB.
+                var txAfter = 625;
 
-                var chunks = [];
                 var index = 0;
+                var chunks = [];
                 var length = inputs.length;
+                var numOfTransactions = Math.ceil(length / txAfter);
 
-                while (index < length) {
-                    chunks.push(inputs.slice(index, index += txAfter + 1));
-                    // index += txAfter;
+                for (var i = 0; i < numOfTransactions; i++) {
+                        index = (i * txAfter) + txAfter;
+                        var inputSlice = inputs.slice(i * txAfter, index);
+                        chunks.push(inputSlice);
                 }
 
                 return chunks.map(function (chunkInputs) {
@@ -123,7 +127,6 @@
                     }
 
                     rawTransaction.addOutput(options.recipient, totalValue);
-                    console.log("FeePerKb: ", feePerKB);
 
                     var fee = blocktrailSDK.Wallet.estimateIncompleteTxFee(rawTransaction.tx, feePerKB);
                     rawTransaction.tx.outs[0].value -= fee;
