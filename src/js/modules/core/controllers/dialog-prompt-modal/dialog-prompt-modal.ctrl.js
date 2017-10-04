@@ -7,7 +7,7 @@
     function DialogPromptModalCtrl($scope, $modalInstance, message, dialogId) {
         $scope.message = message;
         $scope.form = {
-            prompt: ""
+            prompt: message.prefill || ""
         };
 
         $scope.dismiss = function() {

@@ -133,7 +133,8 @@
                     title: $translate.instant('EDIT_LABEL'),
                     body: $translate.instant('ENTER_NEW_LABEL'),
                     input_type: 'text',
-                    icon: ''
+                    icon: '',
+                    prefill: $scope.items[addrNumber].label || ""
                 })
                 .result
                 .then(function(data) {
