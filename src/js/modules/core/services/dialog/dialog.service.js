@@ -95,7 +95,7 @@
     DialogsManager.prototype.prompt = function(title, body, ok, cancel) {
         var self = this;
         var dialogId = ++self.dialogId;
-        var message = self._getMessage(title, body, ok, cancel);
+        var message = self._getMessage(title, body, ok, cancel, true);
 
         if (typeof message.prompt === "undefined") {
             message.prompt = true;
@@ -106,7 +106,7 @@
         modalInstance.message = message;
 
         modalInstance.update = function(title, body, ok) {
-            var message = self._getMessage(title, body, ok, cancel);
+            var message = self._getMessage(title, body, ok, cancel, true);
 
             self._$rootScope.$broadcast("dialog:" + dialogId, message);
         };
@@ -147,24 +147,28 @@
      * @param body
      * @param ok
      * @param cancel
+     * @param cancelDefault   when cancel is undefined this value is used
      * @return {*}
      * @private
      */
-    DialogsManager.prototype._getMessage = function(title, body, ok, cancel) {
+    DialogsManager.prototype._getMessage = function(title, body, ok, cancel, cancelDefault) {
         var message;
 
         if (typeof title === "object") {
             message = title;
 
+            if (typeof message.ok === "undefined") {
+                message.ok = true;
+            }
             if (typeof message.cancel === "undefined") {
-                message.cancel = false;
+                message.cancel = cancelDefault;
             }
         } else {
             message = {
                 title: title,
                 body: body,
-                ok: ok,
-                cancel: typeof cancel === "undefined" ? false : cancel
+                ok: typeof ok === "undefined" ? true : ok,
+                cancel: typeof cancel === "undefined" ? cancelDefault : cancel
             };
         }
 
