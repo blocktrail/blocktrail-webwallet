@@ -154,6 +154,10 @@
     DialogsManager.prototype._getMessage = function(title, body, ok, cancel, cancelDefault) {
         var message;
 
+        if (typeof cancelDefault === "undefined") {
+            cancelDefault = false;
+        }
+
         if (typeof title === "object") {
             message = title;
 

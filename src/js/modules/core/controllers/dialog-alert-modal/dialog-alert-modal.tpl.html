@@ -24,9 +24,11 @@
     </div>
 
     <div class="modal-footer" ng-class="message.footer_class">
-        <a ng-if="message.cancel !== false" class="btn btn-alt btn-danger" ng-click="dismiss()">{{ (message.cancel ||
-            'CANCEL') | translate }}</a>
-        <a ng-if="message.ok !== false" class="btn btn-alt btn-success" ng-click="close()">{{ (message.ok || 'OK') |
-            translate }}</a>
+        <a ng-if="message.cancel" class="btn btn-alt btn-danger" ng-click="dismiss()">
+            {{ (message.cancel === true ? 'CANCEL' : message.cancel) | translate }}
+        </a>
+        <a ng-if="message.ok" class="btn btn-alt btn-success" ng-click="close()">
+            {{ (message.ok === true ? 'OK' : message.ok) | translate }}
+        </a>
     </div>
 </div>
