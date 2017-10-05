@@ -67,7 +67,7 @@
                             </div>
                             <div class="row marginOnTop">
                                 <div class="col-md-12">
-                                    <label class="control-label">Bitcoin Address</label>
+                                    <label class="control-label">Your Bitcoin Address</label>
                                     <div class="md-form">
                                         <input id="btcAddress" class="form-control" type="text" v-model="btcaddress" placeholder="Bitcoin address" required/>
                                     </div>
@@ -79,8 +79,8 @@
                                     <span v-show="showAddressError" class="red-text">{{ getAddressError }}</span>
                                 </div>
                                 <div class="col-xs-12 col-md-12 col-lg-12">
-                                    <div class="text-right">
-                                    <a target="_blank" :href="config.walleturl">don't have an address?</a>
+                                    <div class="text-right help-block">
+                                    Don't have one? <a target="_blank" :href="config.walleturl">Get the BTC.com wallet</a>
                                     </div>
                                 </div>
                             </div>
@@ -204,7 +204,7 @@
     config.lastQuote = i_lastQuote;
     config.csrfToken = 'csrfTokenKey';
     config.recaptcha_site_key= '6LdCLyITAAAAAO7JocwJAmhDYRpKpQHyJqnnMsnT';
-    config.walleturl= 'https://www.simplex.com';
+    config.walleturl= 'https://wallet.btc.com';
 
     var btcaddress = '';
 </script>
