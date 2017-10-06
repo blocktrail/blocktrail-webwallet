@@ -144,7 +144,13 @@
 
             $scope.isLoading = false;
 
-            $state.go('app.setup.wallet');
+            listenerFormPassword.then(function (result) {
+                return accountSecurityService.setInfo({
+                    passwordScore: result.score
+                });
+            }).then(function () {
+                $state.go('app.setup.wallet');
+            });
         }
 
         /**

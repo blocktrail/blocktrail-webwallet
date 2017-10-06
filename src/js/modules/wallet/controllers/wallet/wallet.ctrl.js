@@ -7,7 +7,7 @@
     function WalletCtrl($scope, $state, $rootScope, $interval, walletsManagerService, activeWallet, sdkService,
                         CONFIG, settingsService, setupService, $timeout, launchService, blocktrailLocalisation,
                         dialogService, $translate, Currencies, AppVersionService, Contacts, $filter, trackingService,
-                        glideraService) {
+                        glideraService, accountSecurityService) {
 
         $scope.settings = settingsService.getReadOnlySettingsData();
         $scope.walletData = activeWallet.getReadOnlyWalletData();
@@ -53,6 +53,22 @@
                 isHidden: false
             }
         ];
+
+        $scope.walletSecurityProgress = {
+            progressStates: ['danger', 'warning', 'info', 'success'],
+            progress: 0
+        };
+
+        $rootScope.$on("refreshSecurityScore", function(){
+            updateSecurityScore();
+        });
+
+        updateSecurityScore();
+        function updateSecurityScore() {
+            accountSecurityService.getSecurityScore().then(function (score) {
+                $scope.walletSecurityProgress.progress = score;
+            });
+        }
 
         $scope.isLoadingNewWallet = false;
 
@@ -127,6 +143,7 @@
 
         // add info from setup process to the settings
         setupService.getUserInfo().then(function(userInfo) {
+            // TODO: setup data missing on refresh
             if (userInfo.username || userInfo.displayName || userInfo.email) {
                 var updateSettings = {
                     username: userInfo.username || $scope.settings.username,

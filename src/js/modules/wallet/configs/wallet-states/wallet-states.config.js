@@ -20,6 +20,16 @@
                     loadingData: loadingData
                 }
             })
+            .state("app.wallet.verifyEmail", {
+                url: "/verify-email?token",
+                cache: false,
+                views: {
+                    "mainView@app.wallet": {
+                        templateUrl: "js/modules/wallet/controllers/verify-email/verify-email.tpl.html",
+                        controller: "VerifyEmailCtrl"
+                    }
+                }
+            })
             .state("app.wallet.summary", {
                 url: "",
                 views: {

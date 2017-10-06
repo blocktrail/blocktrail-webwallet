@@ -34,9 +34,10 @@
                 <div class="col-xs-12 col-md-6">
                     <div
                             class="form-group form-group-lg"
-                            ng-class="{'has-error': errors.email }"
+                            ng-class="{'has-error': errors.email, 'has-warning': hasEmailChanged }"
                     >
                         <label for="email" class="control-label">{{ 'SETTING_EMAIL' | translate }}</label>
+                        <span class="bticon-warning-empty" ng-if="hasEmailChanged" title="{{ 'MSG_EMAIL_VERIFY' | translate }}"></span>
                         <input
                                 ng-model="formSettings.email"
                                 ng-focus="onResetError('email')"

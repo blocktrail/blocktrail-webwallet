@@ -254,7 +254,8 @@ a:focus {
     .sidebar-nav {
         list-style: none;
         width: 100%;
-        height: 100%;
+        height: 30%;
+        min-height: 300px;
         padding: 0;
 
         li {
@@ -320,6 +321,17 @@ a:focus {
         left: 0px;
         width: 100%;
         padding: 0px 0px 25px 25px;
+        a {
+            color: $muted;
+            padding: 4px 6px;
+            display: block;
+            text-decoration: none;
+        }
+    }
+
+    .securityProgressBar {
+        margin: 20px 20px;
+        height: 30%;
         a {
             color: $muted;
             padding: 4px 6px;
@@ -667,11 +679,11 @@ $display-token-size: 50px;
 }
 
 .progress {
-    margin: 20px 0px;
+    margin: 10px 0px;
 
     .progress-bar {
-        background: none;
-        background-color: $sunflower-light;
+        //background: none;
+        //background-color: $sunflower-light;
     }
 }
 
