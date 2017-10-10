@@ -103,8 +103,9 @@
                     })
                     .then(function() {
                         $state.go('app.wallet.summary');
-                    })
-                ;
+                    }).catch(function () {
+                        $scope.working = false;
+                });
             }
         };
     }
