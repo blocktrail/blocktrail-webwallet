@@ -81,7 +81,7 @@
 
                     $analytics.eventTrack('pre-pay', {category: 'Events'});
 
-                    return $q.when(sdkWallet.pay($scope.pay, false, $scope.useZeroConf, false, $scope.feeStrategy, $scope.form.two_factor_token, {prioboost: $scope.sendData.feeChoice === 'prioboost'})).then(function(txHash) {
+                    return $q.when(sdkWallet.pay($scope.pay, false, $scope.useZeroConf, true, $scope.feeStrategy, $scope.form.two_factor_token, {prioboost: $scope.sendData.feeChoice === 'prioboost'})).then(function(txHash) {
                         sdkWallet.lock();
                         return $q.when(txHash);
                     }, function(err) {
