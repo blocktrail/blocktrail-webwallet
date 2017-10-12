@@ -839,6 +839,13 @@ APIClient.prototype.unsubscribeNewBlocks = function(identifier, cb) {
     return self.client.delete("/webhook/" + identifier + "/block", null, null, cb);
 };
 
+function getDefaultChainIndex(isBitcoinCash) {
+    if (isBitcoinCash) {
+        return Wallet.CHAIN_BCC_DEFAULT;
+    }
+    return Wallet.CHAIN_BTC_SEGWIT;
+}
+
 /**
  * initialize an existing wallet
  *
@@ -903,7 +910,7 @@ APIClient.prototype.initWallet = function(options, cb) {
             backupPublicKey,
             blocktrailPublicKeys,
             keyIndex,
-            result.chain || 0,
+            getDefaultChainIndex(this.bitcoinCash),
             self.testnet,
             result.checksum,
             result.upgrade_key_index,
@@ -1679,17 +1686,25 @@ APIClient.prototype.sendTransaction = function(identifier, txHex, paths, checkFe
         prioboost = false;
     }
 
+    var data = {
+        paths: paths,
+        two_factor_token: twoFactorToken
+    };
+    if (typeof txHex === "string") {
+        data.raw_transaction = txHex;
+    } else if (typeof txHex === "object") {
+        Object.keys(txHex).map(function(key) {
+            data[key] = txHex[key];
+        });
+    }
+
     return self.client.post(
         "/wallet/" + identifier + "/send",
         {
             check_fee: checkFee ? 1 : 0,
             prioboost: prioboost ? 1 : 0
         },
-        {
-            raw_transaction: txHex,
-            paths: paths,
-            two_factor_token: twoFactorToken
-        },
+        data,
         cb
     );
 };
