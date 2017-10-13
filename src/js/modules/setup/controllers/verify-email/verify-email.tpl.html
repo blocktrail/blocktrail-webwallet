@@ -1,0 +1,26 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3 col-sm-12 col-xs-12">
+            <div class="appWrapper">
+                <!--<h1 class="pageTitle">{{ 'SETUP_FORGOT_PASSWORD' | translate }}</h1>-->
+                <h1 class="pageTitle">Verify E-Mail Address</h1>
+                <div class="formContainer">
+                    <div class="center-block" ng-if="success">
+                        You have successfully verified your email address.
+                    </div>
+
+                    <div class="center-block" ng-if="error">
+                        An error occurred while verifying your email address, please try again.
+                    </div>
+
+                    <div ng-if="working">
+                    <loading-spinner></loading-spinner>
+                    {{ 'PLEASE_WAIT' | translate }}
+                    </div>
+
+                    <button class="form-control btn btn-alt btn-primary" ng-disabled="working" ng-click="continueToWallet()">{{ 'CONTINUE' | translate }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

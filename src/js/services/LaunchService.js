@@ -93,6 +93,7 @@ angular.module('blocktrail.wallet').factory(
                             //  however unless specifically navigated to app.setup.wallet we just go back to the login
                             return {
                                 allowed: [
+                                    'app.setup.verifyEmail',
                                     'app.setup.wallet',
                                     'app.setup.login',
                                     'app.setup.register',

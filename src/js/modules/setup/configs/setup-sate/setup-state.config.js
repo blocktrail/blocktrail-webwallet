@@ -106,6 +106,15 @@
                     backupInfo: backupInfo
                 }
             })
+            .state("app.setup.verifyEmail", {
+                url: "/verify-email?token",
+                cache: false,
+                controller: "VerifyEmailCtrl",
+                templateUrl: "js/modules/setup/controllers/verify-email/verify-email.tpl.html",
+                resolve: {
+                    handleSetupState: handleSetupState
+                }
+            })
             .state("app.setup.rebrand", {
                 url: "/rebrand?goto",
                 controller: "SetupRebrandCtrl",
