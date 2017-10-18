@@ -14,8 +14,8 @@
                     </div>
 
                     <div ng-if="working">
-                    <loading-spinner></loading-spinner>
-                    {{ 'PLEASE_WAIT' | translate }}
+                        <loading-spinner></loading-spinner>
+                        {{ 'PLEASE_WAIT' | translate }}
                     </div>
 
                     <button class="form-control btn btn-alt btn-primary" ng-disabled="working" ng-click="continueToWallet()">{{ 'CONTINUE' | translate }}</button>

@@ -121,11 +121,12 @@
 
         // add info from setup process to the settings
         setupService.getUserInfo().then(function(userInfo) {
-            if (userInfo.username || userInfo.displayName || userInfo.email) {
+            if (userInfo.username || userInfo.displayName || userInfo.email || userInfo.verified_email) {
                 var updateSettings = {
                     username: userInfo.username || $scope.settings.username,
                     displayName: userInfo.displayName || $scope.settings.displayName,
-                    email: userInfo.email || $scope.settings.email
+                    email: userInfo.email || $scope.settings.email,
+                    verified_email: userInfo.verified_email || $scope.settings.verified_email
                 };
 
                 setupService.clearUserInfo();

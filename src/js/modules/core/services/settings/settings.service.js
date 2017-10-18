@@ -16,6 +16,7 @@
             displayName:  null,
             username:  '',
             email:  null,
+            verified_email: null,
 
             // [UP] language stores the currently selected language
             language: null,

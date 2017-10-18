@@ -51,6 +51,15 @@
                     }
                 }
             })
+            .state("app.setup.verifyEmail", {
+                url: "/verify-email?token",
+                cache: false,
+                controller: "VerifyEmailCtrl",
+                templateUrl: "js/modules/setup/controllers/verify-email/verify-email.tpl.html",
+                resolve: {
+                    handleSetupState: handleSetupState
+                }
+            })
             .state("app.setup.login", {
                 url: "/login",
                 cache: false,
@@ -104,15 +113,6 @@
                 resolve: {
                     handleSetupState: handleSetupState,
                     backupInfo: backupInfo
-                }
-            })
-            .state("app.setup.verifyEmail", {
-                url: "/verify-email?token",
-                cache: false,
-                controller: "VerifyEmailCtrl",
-                templateUrl: "js/modules/setup/controllers/verify-email/verify-email.tpl.html",
-                resolve: {
-                    handleSetupState: handleSetupState
                 }
             })
             .state("app.setup.rebrand", {
@@ -172,8 +172,8 @@
      *
      * @returns bool
      */
-    function handleSetupState($state, launchService) {
-        return launchService.handleSetupState(this.toString(), $state);
+    function handleSetupState($state, $stateParams, launchService) {
+        return launchService.handleSetupState(this.toString(), $state, $stateParams);
     }
 
     /**
