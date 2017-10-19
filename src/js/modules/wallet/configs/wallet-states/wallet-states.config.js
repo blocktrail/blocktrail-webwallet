@@ -26,7 +26,7 @@
                 views: {
                     "mainView@app.wallet": {
                         templateUrl: "js/modules/wallet/controllers/verify-email/verify-email.tpl.html",
-                        controller: "VerifyWalletEmailCtrl"
+                        controller: "VerifyEmailCtrl"
                     }
                 }
             })

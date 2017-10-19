@@ -53,15 +53,16 @@ angular.module('blocktrail.wallet').factory(
 
                     $log.debug('handleSetupState ' + [currentState, isAllowed].join(";"));
 
+                    console.log(currentState, setupState._default);
 
                     if (currentState === 'app.setup.verifyEmail' && setupState._default === 'app.wallet.summary') {
-                        $state.go('app.wallet.verifyEmail', $stateParams.params)
+                        $state.go('app.wallet.verifyEmail', $stateParams);
+                        return true;
                     }
 
                     if (!isAllowed) {
                         $state.go(setupState._default);
                     }
-
                     return true;
                 }
             );
@@ -90,8 +91,7 @@ angular.module('blocktrail.wallet').factory(
                                     return {
                                         allowed: [
                                             'app.wallet',
-                                            'app.wallet.verifyEmail',
-                                            'app.setup.verifyEmail'
+                                            'app.wallet.verifyEmail'
                                         ],
                                         _default: 'app.wallet.summary'
                                     };

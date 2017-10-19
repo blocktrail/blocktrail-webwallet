@@ -1,7 +1,7 @@
 <div class="wallet-no-transactions">
     <i class="bticon bticon-ok" ng-class="success ? 'bticon-ok-circled' : 'bticon-cancel-circled'"></i>
     <h1>
-        {{ (success ? 'EMAIL_VERIFY_SUCCESS' : 'EMAIL_VERIFY_FAILURE') | translate }}
+        {{ (!!success ? 'EMAIL_VERIFY_SUCCESS' : 'EMAIL_VERIFY_FAILURE') | translate }}
     </h1>
     <h2 class="sentence-case">
         <a ui-sref="app.wallet.summary">

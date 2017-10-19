@@ -6,11 +6,7 @@
                 <h1 class="pageTitle">Verify E-Mail Address</h1>
                 <div class="formContainer">
                     <div class="center-block" ng-if="success">
-                        You have successfully verified your email address.
-                    </div>
-
-                    <div class="center-block" ng-if="error">
-                        An error occurred while verifying your email address, please try again.
+                        <wallet-email-verified success="success"></wallet-email-verified>
                     </div>
 
                     <div ng-if="working">

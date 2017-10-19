@@ -1,10 +1,10 @@
 (function () {
     "use strict";
 
-    angular.module("blocktrail.wallet")
-        .controller("VerifyWalletEmailCtrl", VerifyWalletEmailCtrl);
+    angular.module("blocktrail.core")
+        .controller("VerifyEmailCtrl", VerifyEmailCtrl);
 
-    function VerifyWalletEmailCtrl($scope, $stateParams, $location, accountSecurityService) {
+    function VerifyEmailCtrl($scope, $stateParams, $location, accountSecurityService) {
         $scope.working  = false;
         $scope.error    = null;
         $scope.success  = null;
@@ -20,15 +20,17 @@
                     console.log(result);
 
                     if(result && result['data'] && !result['data']['result']) {
+                        console.log('fail');
                         $scope.success = false;
                         $scope.error = true;
                     } else {
+                        console.log('success');
                         $scope.success = true;
                     }
                 })
                 .catch(function () {
-                    $scope.error = true;
                     $scope.success = false;
+                    $scope.error = true;
                     $scope.working = false;
                 });
         }

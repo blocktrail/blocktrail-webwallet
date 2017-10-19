@@ -8,8 +8,10 @@
         return {
             restrict: "E",
             replace: true,
-            scope: {},
-            templateUrl: "js/modules/wallet/directives/wallet-email-verified/wallet-email-verified.tpl.html"
+            scope: {
+                success: "="
+            },
+            templateUrl: "js/modules/core/directives/wallet-email-verified/wallet-email-verified.tpl.html"
         };
     }
 
