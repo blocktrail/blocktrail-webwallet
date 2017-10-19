@@ -6,7 +6,7 @@
 
     // TODO Review this part, decrease dependencies, create form settings service and move $http request to service
     function SettingsCtrl($scope, $http, $rootScope, $q, cryptoJS, sdkService, launchService, activeWallet,
-                            $translate, $timeout, $log, $sce, dialogService,
+                            $translate, $timeout, $log, $sce, dialogService, accountSecurityService,
                             CONFIG, $modal, formSettingsService) {
 
         var savedSettings = {
@@ -21,6 +21,9 @@
         var listenerFormSettings;
         var listenerEnabled2faToggle;
         var isEnabled2fa = false;
+
+        // TODO: Show information about email verification
+        $scope.hasEmailChanged = false;
 
         $rootScope.pageTitle = 'SETTINGS';
 
@@ -170,6 +173,14 @@
                     saveObj.receiveNewsletter = saveObj.receiveNewsletter ? 1 : 0;
                 }
 
+                // Check if email has been changed
+                if (savedSettings.email !== saveObj.email) {
+                    $scope.hasEmailChanged = true;
+                    // TODO: THIS needs to be called via sdkService, dies otherwise, missing creds
+                    accountSecurityService.changeEmail(saveObj.email);
+                }
+
+                // Check if email has been changed, trigger verify mail
                 formSettingsService.saveData(saveObj)
                     .then(saveDataSuccessHandler, saveDataErrorHandler);
             }
@@ -195,6 +206,7 @@
          */
         function saveDataErrorHandler(e) {
             $scope.isLoading = false;
+            $scope.hasEmailChanged = false;
 
             dialogService.alert({
                 title: $translate.instant('SETTINGS'),

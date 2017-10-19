@@ -2,19 +2,24 @@
     <div class="row">
         <div class="col-md-6 col-md-offset-3 col-sm-12 col-xs-12">
             <div class="appWrapper">
-                <!--<h1 class="pageTitle">{{ 'SETUP_FORGOT_PASSWORD' | translate }}</h1>-->
-                <h1 class="pageTitle">Verify E-Mail Address</h1>
                 <div class="formContainer">
                     <div class="center-block" ng-if="success">
-                        <wallet-email-verified success="success"></wallet-email-verified>
+                        <wallet-email-verified
+                                success="success"
+                                redirect_link="false"
+                        ></wallet-email-verified>
                     </div>
 
-                    <div ng-if="working">
-                        <loading-spinner></loading-spinner>
-                        {{ 'PLEASE_WAIT' | translate }}
+                    <div class="center-block" style="text-align: center">
+                        <div class="form-group form-group-lg form-group-buttons">
+                            <div ng-if="working">
+                                <loading-spinner></loading-spinner>
+                                {{ 'PLEASE_WAIT' | translate }}
+                            </div>
+                        </div>
                     </div>
 
-                    <button class="form-control btn btn-alt btn-primary" ng-disabled="working" ng-click="continueToWallet()">{{ 'CONTINUE' | translate }}</button>
+                    <!--<button class="form-control btn btn-alt btn-primary" ng-disabled="working" ng-click="continueToWallet()">{{ 'CONTINUE' | translate }}</button>-->
                 </div>
             </div>
         </div>

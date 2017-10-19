@@ -17,8 +17,15 @@
             );
         }
 
+        function changeEmail(newEmailAddress) {
+            return $http.post(CONFIG.API_URL + "/v1/" + CONFIG.API_NETWORK + "/security/change-email",
+                { new_email_address: newEmailAddress }
+            );
+        }
+
         return {
-            verifyEmail: verifyEmail
+            verifyEmail: verifyEmail,
+            changeEmail: changeEmail
         };
     }
 })();

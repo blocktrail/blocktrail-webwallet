@@ -20,11 +20,9 @@
                     console.log(result);
 
                     if(result && result['data'] && !result['data']['result']) {
-                        console.log('fail');
                         $scope.success = false;
                         $scope.error = true;
                     } else {
-                        console.log('success');
                         $scope.success = true;
                     }
                 })
