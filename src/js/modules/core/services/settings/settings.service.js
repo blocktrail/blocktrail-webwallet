@@ -45,7 +45,13 @@
             glideraActivationNoticePending: null,
             hideBCCSweepWarning: false,
 
-            buyBTCRegion: null
+            buyBTCRegion: null,
+
+            registerURIHandlerExecuted: false,
+            registerURIHandlerNotifyCounter: 0,
+            registerURIHandlerNotifyCounterMax : 3,
+            registerURIHandlerNotifyTimestamp : null,
+            registerURIHandlerNotifyTimestampDelta : 86400 * 7, // One week in seconds
         };
 
         // Mapping for object dependencies
