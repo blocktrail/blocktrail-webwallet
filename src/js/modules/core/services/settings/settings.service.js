@@ -45,7 +45,13 @@
             glideraActivationNoticePending: null,
             hideBCCSweepWarning: false,
 
-            buyBTCRegion: null
+            buyBTCRegion: null,
+
+            registerURIHandlerExecuted: false,
+            registerURIHandlerNotifyCounter: 0,
+            registerURIHandlerNotifyCounterMax : 3,
+            registerURIHandlerNotifyTimestamp : null,
+            registerURIHandlerNotifyTimestampDelta : 86400 * 7, // One week in seconds
         };
 
         // Mapping for object dependencies
@@ -120,6 +126,8 @@
                 },
                 // https://github.com/angular/angular.js/issues/8573
                 // Fixes getter and setter properties not copied by deep object copy
+                // Enumerable, so angular.copy() copies the properties as well
+                // https://github.com/angular/angular.js/issues/8573
                 enumerable: true
             });
         });
@@ -529,11 +537,18 @@
                 .catch(function() {
                 }) // suppress document not exists error
                 .then(function(doc) {
+<<<<<<< HEAD
                     // Manually update rev id of document
                     if(doc && doc._rev !== self._doc._rev) {
                         self._doc._rev = doc._rev;
                     }
 
+=======
+                    // Update the rev id manually
+                    try {
+                        self._doc._rev = doc._rev;
+                    } catch (e) { /* Can't do much if this fails */ }
+>>>>>>> 26e846a... bitcoin payment URI handling
                     return self._storage.put(angular.copy(self._doc))
                         .catch(function(e) {
                             // Supress error, worst case it wasn't stored locally...

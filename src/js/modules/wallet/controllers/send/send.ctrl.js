@@ -4,8 +4,8 @@
     angular.module("blocktrail.wallet")
         .controller("SendCtrl", SendCtrl);
 
-    function SendCtrl($scope, $rootScope, $translate, $log, $modal, bitcoinJS, CurrencyConverter, Currencies, activeWallet, $timeout, dialogService,
-                      $q, launchService, CONFIG, settingsService) {
+    function SendCtrl($scope, $rootScope, $translate, $log, $modal, bitcoinJS, CurrencyConverter, Currencies, activeWallet,
+                      $timeout, dialogService, $q, launchService, CONFIG, settingsService, $stateParams) {
 
         var walletData = activeWallet.getReadOnlyWalletData();
         var settingsData = settingsService.getReadOnlySettingsData();
@@ -97,6 +97,73 @@
 
                     $scope.isLoading = false;
                 });
+        }
+
+        // Fetch state parameters if provided
+        fetchBitcoinURLParams();
+        function fetchBitcoinURLParams() {
+
+            if ($stateParams.address) {
+                var address = $stateParams.address;
+
+                activeWallet.validateAddress(address)
+                    .then(function (address) {
+                        if (address) {
+                            $scope.sendInput.recipientAddress = address;
+                        }
+                    });
+            }
+
+            if ($stateParams.amount) {
+                var amount = parseFloat($stateParams.amount);
+
+                if (amount) {
+                    $scope.sendInput.amount = amount;
+                }
+            }
+        }
+
+        checkBitcoinURLHandlerSet();
+        function checkBitcoinURLHandlerSet() {
+
+            var currTimestamp = ((new Date()).getTime() / 1000).toFixed(0);
+            var currNotifyCounter = settingsData.registerURIHandlerNotifyCounter;
+            var currLastNotifyTimestamp = settingsData.registerURIHandlerNotifyTimestamp;
+
+            if (currNotifyCounter < settingsData.registerURIHandlerNotifyCounterMax &&
+                currTimestamp - currLastNotifyTimestamp > settingsData.registerURIHandlerNotifyTimestampDelta) {
+                // Bump notify counter AND timestamp of notify
+                settingsService.updateSettingsUp({
+                    registerURIHandlerNotifyCounter: currNotifyCounter + 1,
+                    registerURIHandlerNotifyTimestamp: currTimestamp
+                }).then(function() {
+                    return dialogService.alert(
+                        "Make BTC.com your default wallet",
+                        "You can make your BTC.com wallet your default wallet for payments in your browser.\n" +
+                        "Do you want to enable this feature?\n" +
+                        "You can also set this up later in the Settings.",
+                        $translate.instant("YES"),
+                        $translate.instant("NO")
+                        // If ok has been clicked
+                    ).result.then(function() {
+
+                        settingsService.updateSettingsUp({
+                            registerURIHandlerExecuted: true
+                        }).then(function () {
+                            try {
+                                $log.debug('Trying to register bitcoin URI scheme');
+                                navigator.registerProtocolHandler(
+                                    'bitcoin',
+                                    CONFIG.WALLET_URL + '/#/wallet/handleURI/%s',
+                                    'BTC.com Bitcoin Wallet'
+                                );
+                            } catch (e) {
+                                $log.error('Couldn\'t register bitcoin: URL scheme', e, e.message);
+                            }
+                        });
+                    });
+                });
+            }
         }
 
         /**

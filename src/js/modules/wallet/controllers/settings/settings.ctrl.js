@@ -664,6 +664,27 @@
             });
         };
 
+        $scope.addProtocolHandler = function() {
+            try {
+                $log.debug('Trying to register bitcoin URI scheme');
+                navigator.registerProtocolHandler(
+                    'bitcoin',
+                    CONFIG.WALLET_URL + '/#/wallet/handleURI/%s',
+                    'BTC.com Bitcoin Wallet'
+                );
+            } catch (e) {
+                $log.error('Couldn\'t register bitcoin: URL scheme', e, e.message);
+
+                if (e.name === "SecurityError") {
+                    dialogService.alert(
+                        $translate.instant('ERROR_TITLE_2'),
+                        $translate.instant('BROWSER_SECURITY_ERROR'),
+                        $translate.instant('OK')
+                    ).result;
+                }
+            }
+        };
+
         $scope.$on('$destroy', function() {
             // Remove existing listeners
             if(listenerFormSettings) {

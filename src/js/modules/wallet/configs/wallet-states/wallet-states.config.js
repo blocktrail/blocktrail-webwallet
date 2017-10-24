@@ -33,10 +33,25 @@
             .state("app.wallet.send", {
                 url: "/send",
                 cache: false,
+                params: {
+                    address: null,
+                    amount: null
+                },
                 views: {
                     "mainView@app.wallet": {
                         templateUrl: "js/modules/wallet/controllers/send/send.tpl.html",
                         controller: "SendCtrl"
+                    }
+                }
+            })
+            /*--- Send ---*/
+            .state("app.wallet.handleURI", {
+                url: "/handleURI/:scheme",
+                cache: false,
+                views: {
+                    "mainView@app.wallet": {
+                        templateUrl: "js/modules/wallet/controllers/payment-uri/payment-uri.tpl.html",
+                        controller: "PaymentURICtrl"
                     }
                 }
             })
