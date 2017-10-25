@@ -34,8 +34,9 @@
                 url: "/send",
                 cache: false,
                 params: {
+                    protocol: null,
                     address: null,
-                    amount: null
+                    amount: null,
                 },
                 views: {
                     "mainView@app.wallet": {

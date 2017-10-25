@@ -17,8 +17,9 @@
 
             if (qs.amount || address) {
                 $state.go('app.wallet.send', {
+                    protocol: elm.protocol.slice(0, -1),
                     amount: qs.amount,
-                    address: address
+                    address: address,
                 });
             }
         }

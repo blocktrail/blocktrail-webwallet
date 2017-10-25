@@ -4,8 +4,8 @@
     angular.module("blocktrail.wallet")
         .controller("SendCtrl", SendCtrl);
 
-    function SendCtrl($scope, $rootScope, $translate, $log, $modal, bitcoinJS, CurrencyConverter, Currencies, activeWallet,
-                      $timeout, dialogService, $q, launchService, CONFIG, settingsService, $stateParams) {
+    function SendCtrl($scope, $state, $rootScope, $translate, $log, $modal, bitcoinJS, CurrencyConverter, Currencies, activeWallet,
+                      $timeout, dialogService, $q, launchService, CONFIG, settingsService, $stateParams, walletsManagerService) {
 
         var walletData = activeWallet.getReadOnlyWalletData();
         var settingsData = settingsService.getReadOnlySettingsData();
@@ -100,26 +100,58 @@
         }
 
         // Fetch state parameters if provided
-        fetchBitcoinURLParams();
-        function fetchBitcoinURLParams() {
+        handleBitcoinPaymentScheme();
+        function handleBitcoinPaymentScheme() {
 
-            if ($stateParams.address) {
-                var address = $stateParams.address;
+            // Protocol sanity check
+            if ($stateParams.protocol === "bitcoin" || $stateParams.protocol === "bitcoincash") {
+                $timeout(function () {
+                    // Correct wallet for protocol check
+                    if ($stateParams.protocol === "bitcoin" && walletData.networkType === "BCC") {
+                        $scope.isLoading = true;
+                        return walletsManagerService.setActiveWalletByNetworkTypeAndIdentifier("BTC", walletData.identifier)
+                            .then(function () {
+                                $state.reload();
+                                $scope.isLoading = false;
+                            });
+                    } else if ($stateParams.protocol === "bitcoincash" && walletData.networkType === "BTC") {
 
-                activeWallet.validateAddress(address)
-                    .then(function (address) {
-                        if (address) {
-                            $scope.sendInput.recipientAddress = address;
+                        $scope.isLoading = true;
+                        return walletsManagerService.setActiveWalletByNetworkTypeAndIdentifier("BCC", walletData.identifier)
+                            .then(function () {
+                                $state.reload();
+                                $scope.isLoading = false;
+                            });
+                    } else {
+                        fetchBitcoinURLParams();
+                    }
+
+                    function fetchBitcoinURLParams() {
+                        if ($stateParams.address) {
+                            var address = $stateParams.address;
+
+                            activeWallet.validateAddress(address)
+                                .then(function (address) {
+                                    if (address) {
+                                        $scope.sendInput.recipientAddress = address;
+                                    }
+                                });
                         }
-                    });
-            }
 
-            if ($stateParams.amount) {
-                var amount = parseFloat($stateParams.amount);
+                        if ($stateParams.amount) {
+                            var amount = parseFloat($stateParams.amount);
 
-                if (amount) {
-                    $scope.sendInput.amount = amount;
-                }
+                            if (amount) {
+                                $scope.sendInput.amount = amount;
+                            }
+                        }
+                    }
+                });
+            } else if ($stateParams.protocol === null) {
+                // If it is not set, do not need to complain
+                return;
+            } else {
+                throw new Error("Unknown protocol type for payment URL");
             }
         }
 
