@@ -5,7 +5,8 @@
         .controller("SendCtrl", SendCtrl);
 
     function SendCtrl($scope, $state, $rootScope, $translate, $log, $modal, bitcoinJS, CurrencyConverter, Currencies, activeWallet,
-                      $timeout, dialogService, $q, launchService, CONFIG, settingsService, $stateParams, walletsManagerService) {
+                      $timeout, dialogService, $q, launchService, CONFIG, settingsService, $stateParams, walletsManagerService,
+                      NotificationsService) {
 
         var walletData = activeWallet.getReadOnlyWalletData();
         var settingsData = settingsService.getReadOnlySettingsData();
@@ -101,6 +102,9 @@
 
         // Fetch state parameters if provided
         handleBitcoinPaymentScheme();
+        /**
+         * Handle state parameters about bitcoin payment information, if present
+         */
         function handleBitcoinPaymentScheme() {
 
             // Protocol sanity check
@@ -108,95 +112,65 @@
                 $timeout(function () {
                     // Correct wallet for protocol check
                     if ($stateParams.protocol === "bitcoin" && walletData.networkType === "BCC") {
-                        $scope.isLoading = true;
-                        return walletsManagerService.setActiveWalletByNetworkTypeAndIdentifier("BTC", walletData.identifier)
-                            .then(function () {
-                                $state.reload();
-                                $scope.isLoading = false;
-                            });
+                        return switchWalletByNetworkTypeAndIdentifier('BTC', walletData.identifier);
                     } else if ($stateParams.protocol === "bitcoincash" && walletData.networkType === "BTC") {
-
-                        $scope.isLoading = true;
-                        return walletsManagerService.setActiveWalletByNetworkTypeAndIdentifier("BCC", walletData.identifier)
-                            .then(function () {
-                                $state.reload();
-                                $scope.isLoading = false;
-                            });
+                        /*
+                         * This is only added here for completions sake - there is no way to register 'bitcoincash:'
+                         * URI handlers yet in the majority of browsers
+                         */
+                        return switchWalletByNetworkTypeAndIdentifier('BCC', walletData.identifier);
                     } else {
-                        fetchBitcoinURLParams();
-                    }
-
-                    function fetchBitcoinURLParams() {
-                        if ($stateParams.address) {
-                            var address = $stateParams.address;
-
-                            activeWallet.validateAddress(address)
-                                .then(function (address) {
-                                    if (address) {
-                                        $scope.sendInput.recipientAddress = address;
-                                    }
-                                });
-                        }
-
-                        if ($stateParams.amount) {
-                            var amount = parseFloat($stateParams.amount);
-
-                            if (amount) {
-                                $scope.sendInput.amount = amount;
-                            }
-                        }
+                        applyBitcoinURIParams($stateParams.address, $stateParams.amount);
                     }
                 });
             } else if ($stateParams.protocol === null) {
                 // If it is not set, do not need to complain
-                return;
             } else {
                 throw new Error("Unknown protocol type for payment URL");
             }
         }
 
-        checkBitcoinURLHandlerSet();
-        function checkBitcoinURLHandlerSet() {
-
-            var currTimestamp = ((new Date()).getTime() / 1000).toFixed(0);
-            var currNotifyCounter = settingsData.registerURIHandlerNotifyCounter;
-            var currLastNotifyTimestamp = settingsData.registerURIHandlerNotifyTimestamp;
-
-            if (currNotifyCounter < settingsData.registerURIHandlerNotifyCounterMax &&
-                currTimestamp - currLastNotifyTimestamp > settingsData.registerURIHandlerNotifyTimestampDelta) {
-                // Bump notify counter AND timestamp of notify
-                settingsService.updateSettingsUp({
-                    registerURIHandlerNotifyCounter: currNotifyCounter + 1,
-                    registerURIHandlerNotifyTimestamp: currTimestamp
-                }).then(function() {
-                    return dialogService.alert(
-                        "Make BTC.com your default wallet",
-                        "You can make your BTC.com wallet your default wallet for payments in your browser.\n" +
-                        "Do you want to enable this feature?\n" +
-                        "You can also set this up later in the Settings.",
-                        $translate.instant("YES"),
-                        $translate.instant("NO")
-                        // If ok has been clicked
-                    ).result.then(function() {
-
-                        settingsService.updateSettingsUp({
-                            registerURIHandlerExecuted: true
-                        }).then(function () {
-                            try {
-                                $log.debug('Trying to register bitcoin URI scheme');
-                                navigator.registerProtocolHandler(
-                                    'bitcoin',
-                                    CONFIG.WALLET_URL + '/#/wallet/handleURI/%s',
-                                    'BTC.com Bitcoin Wallet'
-                                );
-                            } catch (e) {
-                                $log.error('Couldn\'t register bitcoin: URL scheme', e, e.message);
-                            }
-                        });
-                    });
+        /**
+         * Switches the wallet interface based on the network type and identifier
+         * @param networkType Network type
+         * @param identifier Wallet identifier
+         */
+        function switchWalletByNetworkTypeAndIdentifier(networkType, identifier) {
+            $scope.isLoading = true;
+            return walletsManagerService.setActiveWalletByNetworkTypeAndIdentifier(networkType, identifier)
+                .then(function () {
+                    $state.reload();
+                    $scope.isLoading = false;
                 });
+        }
+
+        /**
+         * Applies the amount and address to the input fields for sending coins
+         * @param address
+         * @param amount
+         */
+        function applyBitcoinURIParams(address, amount) {
+            if (address) {
+                activeWallet.validateAddress(address)
+                    .then(function (address) {
+                        if (address) {
+                            $scope.sendInput.recipientAddress = address;
+                        }
+                    });
+            }
+
+            if (amount) {
+                amount = parseFloat($stateParams.amount);
+
+                if (amount) {
+                    $scope.sendInput.amount = amount;
+                }
+                // Update fiat price
+                setAltCurrency();
             }
         }
+
+        NotificationsService.checkAndPromptBitcoinURIHandler();
 
         /**
          * Update currency type

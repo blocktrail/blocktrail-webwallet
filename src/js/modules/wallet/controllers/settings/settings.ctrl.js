@@ -6,8 +6,8 @@
 
     // TODO Review this part, decrease dependencies, create form settings service and move $http request to service
     function SettingsCtrl($scope, $http, $rootScope, $q, cryptoJS, sdkService, launchService, activeWallet,
-                            $translate, $timeout, $log, $sce, dialogService,
-                            CONFIG, $modal, formSettingsService) {
+                          $translate, $timeout, $log, $sce, dialogService, CONFIG, $modal, formSettingsService,
+                          NotificationsService) {
 
         var savedSettings = {
             username: "",
@@ -23,6 +23,8 @@
         var isEnabled2fa = false;
 
         $rootScope.pageTitle = 'SETTINGS';
+
+        $scope.network = activeWallet.getReadOnlyWalletData().networkType;
 
         // this automatically updates an already open modal instead of popping a new one open
         // TODO remove it after moving modals change password, enable/disable 2FA
@@ -665,24 +667,27 @@
         };
 
         $scope.addProtocolHandler = function() {
-            try {
-                $log.debug('Trying to register bitcoin URI scheme');
-                navigator.registerProtocolHandler(
-                    'bitcoin',
-                    CONFIG.WALLET_URL + '/#/wallet/handleURI/%s',
-                    'BTC.com Bitcoin Wallet'
-                );
-            } catch (e) {
-                $log.error('Couldn\'t register bitcoin: URL scheme', e, e.message);
+            // Prompt user about this feature
+            return NotificationsService.promptBitcoinURIHandler().result.then(function() {
+                try {
+                    $log.debug('Trying to register bitcoin URI scheme');
+                    navigator.registerProtocolHandler(
+                        'bitcoin',
+                        CONFIG.WALLET_URL + '/#/wallet/handleURI/%s',
+                        'BTC.com Bitcoin Wallet'
+                    );
+                } catch (e) {
+                    $log.error('Couldn\'t register bitcoin: URL scheme', e, e.message);
 
-                if (e.name === "SecurityError") {
-                    dialogService.alert(
-                        $translate.instant('ERROR_TITLE_2'),
-                        $translate.instant('BROWSER_SECURITY_ERROR'),
-                        $translate.instant('OK')
-                    ).result;
+                    if (e.name === "SecurityError") {
+                        return dialogService.alert(
+                            $translate.instant('ERROR_TITLE_2'),
+                            $translate.instant('BROWSER_SECURITY_ERROR'),
+                            $translate.instant('OK')
+                        ).result;
+                    }
                 }
-            }
+            });
         };
 
         $scope.$on('$destroy', function() {
