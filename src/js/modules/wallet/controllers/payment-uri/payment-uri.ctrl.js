@@ -21,6 +21,8 @@
                     amount: qs.amount,
                     address: address,
                 });
+            } else {
+                $state.go('app.wallet.summary');
             }
         }
     }
