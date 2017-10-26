@@ -58,14 +58,14 @@
                     <div class="wallets-list" dropdown>
                         <button type="button" class="btn btn-default btn-block" dropdown-toggle>
                             <span class="text">
-                                {{ walletData.networkType }} ({{ walletData.balance | satoshiToCoin : 'BTC' : 4 }}) {{ walletData.identifier }}
+                                {{ walletData.networkType }} ({{ walletData.balance | satoshiToCoin : walletData.networkType : 4 }}) {{ walletData.identifier }}
                             </span>
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
                             <li ng-repeat="option in walletsListOptions">
                                 <a class="pointer" ng-click="onClickSetActiveWallet(option.value)">
-                                    {{ option.wallet.network }} ({{ option.wallet.balance | satoshiToCoin : 'BTC' : 4 }}) {{ option.wallet.identifier }}
+                                    {{ option.wallet.network }} ({{ option.wallet.balance | satoshiToCoin : option.wallet.network : 4 }}) {{ option.wallet.identifier }}
                                 </a>
                             </li>
                         </ul>
