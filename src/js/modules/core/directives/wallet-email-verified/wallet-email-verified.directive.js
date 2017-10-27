@@ -9,7 +9,8 @@
             restrict: "E",
             replace: true,
             scope: {
-                success: "="
+                success: "=",
+                verified: "="
             },
             templateUrl: "js/modules/core/directives/wallet-email-verified/wallet-email-verified.tpl.html"
         };

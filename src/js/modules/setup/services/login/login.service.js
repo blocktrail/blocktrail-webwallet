@@ -112,8 +112,7 @@
                 return self._setupService.setUserInfo({
                     username:       data.responseData.username,
                     displayName:    data.responseData.username,
-                    email:          data.responseData.email,
-                    verified_email: data.responseData.verified_email
+                    email:          data.responseData.email
                 });
             })
             .then(function() {

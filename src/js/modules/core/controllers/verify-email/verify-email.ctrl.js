@@ -4,10 +4,20 @@
     angular.module("blocktrail.core")
         .controller("VerifyEmailCtrl", VerifyEmailCtrl);
 
-    function VerifyEmailCtrl($scope, $stateParams, $location, accountSecurityService) {
+    function VerifyEmailCtrl($scope, $stateParams, $location, accountSecurityService, settingsService) {
         $scope.working  = false;
         $scope.error    = null;
         $scope.success  = null;
+
+        // If logged in, this is available
+        $scope.verified = (function () {
+            try {
+                var settings = settingsService.getReadOnlySettingsData();
+                return settings.verifiedEmail;
+            } catch(e) {
+                return false;
+            }
+        })();
 
         // Get state parameter
         var token = $stateParams.token;
@@ -24,6 +34,11 @@
                         $scope.error = true;
                     } else {
                         $scope.success = true;
+                        $scope.verified = true;
+                        return settingsService.updateSettingsUp({
+                            verifiedEmail: true,
+                            pendingEmailVerification: false
+                        });
                     }
                 })
                 .catch(function () {

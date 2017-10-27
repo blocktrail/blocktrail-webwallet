@@ -43,7 +43,8 @@
                     settings: {
                         username: settings.username || "",
                         email: settings.email,
-                        verified_email: settings.verified_email,
+                        verifiedEmail: settings.verifiedEmail,
+                        passwordScore: settings.passwordScore,
                         localCurrency: settings.localCurrency,
                         language: self._$translate.use(),
                         receiveNewsletter: settings.receiveNewsletter,

@@ -176,8 +176,12 @@
                 // Check if email has been changed
                 if (savedSettings.email !== saveObj.email) {
                     $scope.hasEmailChanged = true;
-                    // TODO: THIS needs to be called via sdkService, dies otherwise, missing creds
-                    accountSecurityService.changeEmail(saveObj.email);
+
+                    // Do not return, as saveData() would not be called then
+                    dialogService.alert(
+                        $translate.instant("EMAIL_VERIFY"),
+                        $translate.instant("MSG_EMAIL_VERIFY")
+                    ).result;
                 }
 
                 // Check if email has been changed, trigger verify mail
@@ -192,6 +196,12 @@
         function saveDataSuccessHandler() {
             $scope.isLoading = false;
             $scope.isSubmitFormSettingsBtnDisabled = true;
+
+            if ($scope.hasEmailChanged) {
+                settingsService.updateSettingsUp({
+                    pendingEmailVerification: true
+                });
+            }
 
             // Update language if it was changed
             if ($scope.formSettings.language !== savedSettings.language) {

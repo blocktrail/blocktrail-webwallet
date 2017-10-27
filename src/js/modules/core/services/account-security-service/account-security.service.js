@@ -4,7 +4,7 @@
     angular.module('blocktrail.core')
         .factory('accountSecurityService', AccountSecurityService);
 
-    function AccountSecurityService(CONFIG, settingsService, $http) {
+    function AccountSecurityService(CONFIG, settingsService, $http, sdkService) {
 
 
         function verifyEmail(token) {
@@ -17,15 +17,8 @@
             );
         }
 
-        function changeEmail(newEmailAddress) {
-            return $http.post(CONFIG.API_URL + "/v1/" + CONFIG.API_NETWORK + "/security/change-email",
-                { new_email_address: newEmailAddress }
-            );
-        }
-
         return {
-            verifyEmail: verifyEmail,
-            changeEmail: changeEmail
+            verifyEmail: verifyEmail
         };
     }
 })();

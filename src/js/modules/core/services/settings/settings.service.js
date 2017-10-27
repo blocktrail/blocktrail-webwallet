@@ -16,7 +16,10 @@
             displayName:  null,
             username:  '',
             email:  null,
-            verified_email: null,
+
+            passwordScore: null,
+            verifiedEmail: null,
+            pendingEmailVerification: null,
 
             // [UP] language stores the currently selected language
             language: null,
@@ -82,6 +85,8 @@
 
         // Pending property list for settings
         self._pendingSettingsPropertyList = [
+            "verifiedEmail",
+            "passwordScore",
             "localCurrency",
             "language",
             "receiveNewsletter",
@@ -430,6 +435,8 @@
         self._doc.hideBCCSweepWarning = sdkSettings.hideBCCSweepWarning;
         self._doc.walletActivated = sdkSettings.walletActivated;
         self._doc.knownLanguages = sdkSettings.knownLanguages;
+        self._doc.passwordScore = sdkSettings.passwordScore;
+        self._doc.verifiedEmail = sdkSettings.verifiedEmail;
 
         return self._doc;
     };
