@@ -123,7 +123,10 @@
                 },
                 get: function() {
                     return settings[key];
-                }
+                },
+                // https://github.com/angular/angular.js/issues/8573
+                // Fixes getter and setter properties not copied by deep object copy
+                enumerable: true
             });
         });
 
@@ -531,7 +534,12 @@
             self.$_updateLocalStorage = self._$q.when(this._storage.get(self._id)
                 .catch(function() {
                 }) // suppress document not exists error
-                .then(function() {
+                .then(function(doc) {
+                    // Manually update rev id of document
+                    if(doc && doc._rev !== self._doc._rev) {
+                        self._doc._rev = doc._rev;
+                    }
+
                     return self._storage.put(angular.copy(self._doc))
                         .catch(function(e) {
                             // Supress error, worst case it wasn't stored locally...
