@@ -35,8 +35,7 @@
                     if(self._CONFIG.NETWORKS_ENABLED.indexOf(wallet.network) !== -1) {
                         // Add unique id
                         wallet.uniqueIdentifier = self._getWalletUniqueIdentifier(wallet.network, wallet.identifier);
-
-                        self._walletsList.push(wallet)
+                        self._walletsList.push(wallet);
                     }
                 });
 
