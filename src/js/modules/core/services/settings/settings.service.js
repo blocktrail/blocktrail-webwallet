@@ -35,6 +35,8 @@
             useTestnet: false,      // dev setting - enables testnet for SDK
             walletActivated: false,
 
+            showArchived: false,
+
             glideraRequest: null,
             glideraAccessToken: null,
             glideraTransactions: [],
@@ -93,7 +95,8 @@
             "email",
             "hideBCCSweepWarning",
             "walletActivated",
-            "knownLanguages"
+            "knownLanguages",
+            "showArchived"
         ];
 
         // Pending property list for portfolio
@@ -429,6 +432,7 @@
         self._doc.hideBCCSweepWarning = sdkSettings.hideBCCSweepWarning;
         self._doc.walletActivated = sdkSettings.walletActivated;
         self._doc.knownLanguages = sdkSettings.knownLanguages;
+        self._doc.showArchived = sdkSettings.showArchived;
 
         return self._doc;
     };
@@ -566,7 +570,8 @@
                     email: self._doc.email,
                     hideBCCSweepWarning: self._doc.hideBCCSweepWarning,
                     walletActivated: self._doc.walletActivated,
-                    knownLanguages: self._doc.knownLanguages
+                    knownLanguages: self._doc.knownLanguages,
+                    showArchived: self._doc.showArchived
                 };
 
                 return sdk.syncSettings(settingsData);
