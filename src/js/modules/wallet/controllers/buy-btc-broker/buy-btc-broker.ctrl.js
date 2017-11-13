@@ -5,7 +5,7 @@
         .controller("BuyBTCBrokerCtrl", BuyBTCBrokerCtrl);
 
     // TODO Needs refactoring
-    function BuyBTCBrokerCtrl($scope, $state, dialogService, glideraService, bitonicService,
+    function BuyBTCBrokerCtrl($scope, $state, dialogService, glideraService,
                               $stateParams, $q, $timeout, $interval, $translate, $filter, trackingService) {
 
         $scope.broker = $stateParams.broker;
@@ -39,11 +39,6 @@
                 $scope.buyInput.currencyType = "USD";
                 $scope.buyInput.fiatCurrency = "USD";
                 break;
-            case "bitonic":
-                trackingService.trackEvent(trackingService.EVENTS.BUYBTC.BITONIC_OPEN);
-                $scope.buyInput.currencyType = "EUR";
-                $scope.buyInput.fiatCurrency = "EUR";
-                break;
             default:
                 return null;
                 break;
@@ -53,9 +48,6 @@
             switch ($scope.broker) {
                 case "glidera":
                     return glideraService;
-                    break;
-                case "bitonic":
-                    return bitonicService;
                     break;
                 default:
                     return null;
@@ -69,32 +61,9 @@
                     $scope.currencies = [{code: "USD", symbol: "USD"}];
                     return true;
                     break;
-                case "bitonic":
-                    $scope.currencies = [{code: "EUR", symbol: "EUR"}];
-                    return true;
-                    break;
                 default:
                     return false;
                     break;
-            }
-        };
-
-        var evaluateResponseErrors = function(result) {
-            // These are Bitonic-specific - 'success' key in result object
-            if ("success" in result) {
-                if (!result.success && result.error.indexOf("Invalid value") !== -1) {
-                    return dialogService.prompt({
-                        body: $translate.instant("MSG_BUYBTC_ERROR_INVALID_AMOUNT"),
-                        title: $translate.instant("MSG_INVALID_AMOUNT"),
-                        prompt: false
-                    });
-                } else if (!result.success) {
-                    return dialogService.prompt({
-                        body: $translate.instant("MSG_BUYBTC_ERROR_TRY_AGAIN_LATER"),
-                        title: $translate.instant("ERROR_TITLE_3"),
-                        prompt: false
-                    });
-                }
             }
         };
 
@@ -258,10 +227,6 @@
             var btcValue = $scope.buyInput.btcValue;
             var fiatValue = $scope.buyInput.fiatValue;
 
-            if (lastPriceResponse.error) {
-                return evaluateResponseErrors(lastPriceResponse);
-            }
-
             if (fiatValue + btcValue <= 0) {
                 return dialogService.prompt({
                     body: $translate.instant("MSG_BUYBTC_ZERO_AMOUNT"),
@@ -329,29 +294,7 @@
                             }
                         });
                     break;
-                case "bitonic":
-                    return bitonicService.buyPrices(btcValue, fiatValue).then(function(result) {
-                        return dialogService.prompt({
-                            body: $translate.instant("MSG_BUYBTC_CONFIRM_BODY", {
-                                qty: $filter("number")(result.qty, 6),
-                                price: $filter("number")(result.total, 2),
-                                fee: $filter("number")(result.fees, 2),
-                                currencySymbol: $filter("toCurrencySymbol")($scope.buyInput.fiatCurrency)
-                            }),
-                            title: $translate.instant("MSG_BUYBTC_CONFIRM_TITLE"),
-                            prompt: false
-                        }).result.then(function() {
-                            if ($scope.fiatFirst) {
-                                console.log("fiat first");
-                                bitonicService.buy(null, result.total);
-                            } else {
-                                bitonicService.buy(result.qty, null);
-                            }
-                            trackingService.trackEvent(trackingService.EVENTS.BUYBTC.BITONIC_BUY_CONFIRM);
-                        });
-                    });
-                    break;
-            }// switch
+            }
         };
 
         $scope.$watch("broker", function() {

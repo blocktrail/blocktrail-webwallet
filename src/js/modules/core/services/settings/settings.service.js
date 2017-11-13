@@ -41,12 +41,6 @@
             glideraAccessToken: null,
             glideraTransactions: [],
 
-            // TODO Remove bitonicRequest, bitonicAccessToken, bitonicTransactions
-            bitonicRequest: null,
-            bitonicAccessToken: null,
-            // TODO Move it to Wallet model
-            bitonicTransactions: [],
-
             latestVersionWeb: null,
             glideraActivationNoticePending: null,
             hideBCCSweepWarning: false,
