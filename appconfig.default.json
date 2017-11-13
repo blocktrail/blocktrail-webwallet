@@ -20,7 +20,7 @@
             "TICKER_LONG": "Bitcoin",
             "TX_FILTER_MIN_BLOCK_HEIGHT": null,
             "BUYBTC": true,
-            "PRIOBOOST": true,
+            "PRIOBOOST": false,
             "EXPLORER_ADDRESS_URL": "https://btc.com",
             "EXPLORER_TX_URL": "https://btc.com"
         },
