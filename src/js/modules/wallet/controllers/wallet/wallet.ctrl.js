@@ -54,10 +54,7 @@
             }
         ];
 
-        $scope.walletSecurityProgress = {
-            progressStates: ['danger', 'warning', 'info', 'success'],
-            progress: 0
-        };
+        $scope.walletSecurityProgress = 0;
 
         $rootScope.$on("refreshSecurityScore", function(){
             updateSecurityScore();
@@ -66,7 +63,7 @@
         updateSecurityScore();
         function updateSecurityScore() {
             accountSecurityService.getSecurityScore().then(function (score) {
-                $scope.walletSecurityProgress.progress = score;
+                $scope.walletSecurityProgress = score.score;
             });
         }
 

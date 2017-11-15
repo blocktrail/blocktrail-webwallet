@@ -4,7 +4,7 @@
     angular.module("blocktrail.core")
         .controller("VerifyEmailCtrl", VerifyEmailCtrl);
 
-    function VerifyEmailCtrl($scope, $stateParams, $location, accountSecurityService, settingsService) {
+    function VerifyEmailCtrl($scope, $stateParams, $location, accountSecurityService, settingsService, $q) {
         $scope.working  = false;
         $scope.error    = null;
         $scope.success  = null;
@@ -35,9 +35,14 @@
                     } else {
                         $scope.success = true;
                         $scope.verified = true;
-                        return settingsService.updateSettingsUp({
+
+                        $q.when(settingsService.updateSettingsUp({
                             verifiedEmail: true,
                             pendingEmailVerification: false
+                        })).then(function (result) {
+                            return result;
+                        }).catch(function () {
+                            console.log("failed updating settings");
                         });
                     }
                 })

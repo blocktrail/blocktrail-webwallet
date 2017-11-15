@@ -57,7 +57,9 @@
             }).then(function (result) {
 
                 return self._accountSecurityService.setInfo({
-                    passwordScore: result.score
+                    metrics: {
+                        passwordScore: result.score
+                    }
                 }).then(function () {
                     var url = self._CONFIG.API_URL + "/v1/" + data.networkType + "/mywallet/enable";
 

@@ -146,7 +146,9 @@
 
             listenerFormPassword.then(function (result) {
                 return accountSecurityService.setInfo({
-                    passwordScore: result.score
+                    metrics: {
+                        passwordScore: result.score
+                    }
                 });
             }).then(function () {
                 $state.go('app.setup.wallet');

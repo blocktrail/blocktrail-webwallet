@@ -24,6 +24,7 @@
 
         // TODO: Show information about email verification
         $scope.hasEmailChanged = false;
+        $scope.securityInfo = accountSecurityService.getInfo();
 
         $rootScope.pageTitle = 'SETTINGS';
 

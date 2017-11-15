@@ -21,7 +21,7 @@
                         return true;
                     });
                 });
-        };
+        }
 
         function getInfo() {
             return $q.when(storage.get('account-security'))
@@ -34,28 +34,30 @@
 
             return getInfo().then(function(info) {
 
-                var score = 0.35 * settings.verifiedEmail + 0.35 * (info.passwordScore / 4);
+                var score = 0.35 * settings.verifiedEmail + 0.35 * (info.metrics.passwordScore / 4);
 
                 return launchService.getAccountInfo().then(function (accountInfo) {
                     if (accountInfo.requires2FA) {
                         score += 0.3 * accountInfo.requires2FA
                     }
 
-                    console.log('SCORE', score, {
-                        pwscore: info.passwordScore,
-                        requ2fa: accountInfo.requires2FA,
-                        emailver: settings.verifiedEmail
-                    });
+                    var result = {
+                        score: score * 100,
+                        metrics: {
+                            twoFA: accountInfo.requires2FA,
+                            passwordScore: info.metrics.passwordScore,
+                            emailVerified: settings.verifiedEmail
+                        }
+                    };
 
-                    return score * 100;
+                    return setInfo(result).then(function () {
+                        return result;
+                    });
                 });
             });
         }
 
         function verifyEmail(token) {
-            var settings = settingsService.getReadOnlySettingsData();
-            console.log(settings);
-
             return $http.post(CONFIG.API_URL + "/v1/" + CONFIG.API_NETWORK + "/security/verify-email",
                 { verify_token: token }
             );
