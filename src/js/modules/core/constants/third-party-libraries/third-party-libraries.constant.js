@@ -3,6 +3,7 @@
 
     angular.module("blocktrail.core")
         .constant('blocktrailSDK',  window.blocktrailSDK)
+        .constant('bip70',          window.bip70)
         .constant('bip39EN',        window.blocktrailSDK.bip39wordlist)
         .constant("_",              window.blocktrailSDK.lodash)
         .constant("cryptoJS",       window.blocktrailSDK.CryptoJS)
