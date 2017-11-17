@@ -275,6 +275,12 @@
       "css": "lock-outline",
       "code": 59436,
       "src": "linecons"
+    },
+    {
+      "uid": "b429436ec5a518c78479d44ef18dbd60",
+      "css": "paste",
+      "code": 61674,
+      "src": "fontawesome"
     }
   ]
 }

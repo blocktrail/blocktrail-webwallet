@@ -117,6 +117,7 @@ gulp.task('js:libs', ['appconfig'], function() {
     return appConfig.then(function(APPCONFIG) {
         return streamAsPromise(gulp.src([
             "./src/lib/q/q.js",
+            "./src/lib/bip70-js/build/bip70.js",
             "./src/lib/angular/angular.js",
             './src/lib/angulartics/src/angulartics.js',
             './src/lib/angulartics-google-analytics/lib/angulartics-ga.js',

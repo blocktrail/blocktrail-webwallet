@@ -17,17 +17,23 @@
                     <label class="control-label" for="recipient">
                         <span class="sentence-case">{{ 'SEND_TO' | translate }}</span>
                     </label>
-                    <input
-                        id="recipient"
-                        name="recipient"
-                        class="form-control"
-                        type="text"
-                        placeholder="{{ 'BITCOIN_ADDRESS' | translate : {network: CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG} }}"
-                        autocomplete="off"
-                        required
-                        ng-model="sendInput.recipientAddress"
-                        ng-focus="resetError('recipient')"
-                    />
+
+                    <div class="input-group input-group-lg">
+                        <input
+                            id="recipient"
+                            name="recipient"
+                            class="form-control"
+                            type="text"
+                            placeholder="{{ 'BITCOIN_ADDRESS' | translate : {network: CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG} }}"
+                            autocomplete="off"
+                            required
+                            ng-model="sendInput.recipientAddress"
+                            ng-focus="resetError('recipient')"
+                        />
+                        <span title="Paste bitcoin link" class="btn btn-secondary btn-xs input-group-addon" ng-click="openModalBitcoinLink()">
+                            <i class="bticon bticon-paste"></i>
+                        </span>
+                    </div>
 
                     <span class="text-danger sentence-case" ng-if="errors.recipient">
                         {{ errors.recipient | translate }}
