@@ -45,8 +45,10 @@
                 cache: false,
                 params: {
                     protocol: null,
+                    uri: null,
+                    paymentUrl: null,
                     address: null,
-                    amount: null,
+                    amount: null
                 },
                 views: {
                     "mainView@app.wallet": {
@@ -57,7 +59,7 @@
             })
             /*--- Send ---*/
             .state("app.wallet.handleURI", {
-                url: "/handleURI/:scheme",
+                url: "/handleURI/{scheme:any}",
                 cache: false,
                 views: {
                     "mainView@app.wallet": {

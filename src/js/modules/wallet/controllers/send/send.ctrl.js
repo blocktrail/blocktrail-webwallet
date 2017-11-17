@@ -6,7 +6,7 @@
 
     function SendCtrl($scope, $state, $rootScope, $translate, $log, $modal, bitcoinJS, CurrencyConverter, Currencies, activeWallet,
                       $timeout, dialogService, $q, launchService, CONFIG, settingsService, $stateParams, walletsManagerService,
-                      NotificationsService) {
+                      NotificationsService, bitcoinLinkService) {
 
         var walletData = activeWallet.getReadOnlyWalletData();
         var settingsData = settingsService.getReadOnlySettingsData();
@@ -103,30 +103,81 @@
             });
         }
 
+        $scope.openModalBitcoinLink = function () {
+            dialogService.prompt({
+                body: $translate.instant("BIP70_PASTE_TEXT", { network: CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG }),
+                title: $translate.instant("BIP70_PASTE_TITLE", { network: CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG })
+            })
+                .result
+                .then(function(result) {
+                    var scheme = bitcoinLinkService.decodeBitcoin(result);
+
+                    scheme = {
+                        protocol: scheme.protocol,
+                        uri: result,
+                        paymentUrl: scheme.options.r ? scheme.options.r : null
+                    };
+                    handleBitcoinPaymentScheme(scheme)
+                });
+        };
+
         // Fetch state parameters if provided
         handleBitcoinPaymentScheme();
         /**
          * Handle state parameters about bitcoin payment information, if present
          */
-        function handleBitcoinPaymentScheme() {
+        function handleBitcoinPaymentScheme(optionalScheme) {
+            var scheme = null;
+            if (optionalScheme) {
+                scheme = optionalScheme
+            } else {
+                scheme = $stateParams;
+            }
+
+            console.log("handle uri scheme");
+            console.log(scheme.protocol);
+            console.log(scheme);
 
             // Protocol sanity check
-            if ($stateParams.protocol === "bitcoin" || $stateParams.protocol === "bitcoincash") {
+            if (scheme.protocol === "bitcoin" || scheme.protocol === "bitcoincash") {
                 $timeout(function () {
                     // Correct wallet for protocol check
-                    if ($stateParams.protocol === "bitcoin" && walletData.networkType === "BCC") {
+                    if (scheme.protocol === "bitcoin" && walletData.networkType === "BCC") {
                         return switchWalletByNetworkTypeAndIdentifier('BTC', walletData.identifier);
-                    } else if ($stateParams.protocol === "bitcoincash" && walletData.networkType === "BTC") {
+                    } else if (scheme.protocol === "bitcoincash" && walletData.networkType === "BTC") {
                         /*
                          * This is only added here for completions sake - there is no way to register 'bitcoincash:'
                          * URI handlers yet in the majority of browsers
                          */
                         return switchWalletByNetworkTypeAndIdentifier('BCC', walletData.identifier);
                     } else {
-                        applyBitcoinURIParams($stateParams.address, $stateParams.amount);
+                        if (scheme.paymentUrl) {
+                            var validation = new bip70.X509.RequestValidator({
+                                trustStore: bip70.X509.TrustStore
+                            });
+
+                            var client = new bip70.HttpClient();
+                            client.getRequest(scheme.paymentUrl, validation)
+                                .then(function(request) {
+                                    var details = bip70.ProtoBuf.PaymentDetails.decode(request.serializedPaymentDetails);
+                                    if (details.outputs.length > 1) {
+                                        throw new Error("Multiple output payment requests are not supported");
+                                    }
+
+                                    var output = details.outputs[0];
+                                    var address = bitcoinJS.address.fromOutputScript(output.script, activeWallet.getSdkWallet().sdk.network);
+                                    applyBitcoinURIParams(address, blocktrailSDK.toBTC(output.amount));
+                                }, function(err) {
+                                    console.log("err - abort request");
+                                    console.log(err.message);
+                                    $state.go('app.wallet.summary');
+                                });
+                        } else {
+                            applyBitcoinURIParams(scheme.address, scheme.amount);
+                        }
                     }
                 });
-            } else if ($stateParams.protocol === null) {
+            } else if (scheme.protocol === null) {
                 // If it is not set, do not need to complain
             } else {
                 throw new Error("Unknown protocol type for payment URL");
@@ -163,7 +214,7 @@
             }
 
             if (amount) {
-                amount = parseFloat($stateParams.amount);
+                amount = parseFloat(amount);
 
                 if (amount) {
                     $scope.sendInput.amount = amount;

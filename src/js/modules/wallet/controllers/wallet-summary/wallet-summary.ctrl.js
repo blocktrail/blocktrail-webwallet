@@ -5,7 +5,7 @@
         .controller("WalletSummaryCtrl", WalletSummaryCtrl);
 
     function WalletSummaryCtrl($scope, $rootScope, $q, $timeout, activeWallet, $log, CONFIG,
-                               launchService, settingsService, buyBTCService, $modal, CurrencyConverter) {
+                               launchService, settingsService, buyBTCService, $modal, CurrencyConverter, bip70) {
 
         var settings = settingsService.getReadOnlySettingsData();
         var transactionsListLimitStep = 15;
