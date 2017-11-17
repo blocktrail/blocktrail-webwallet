@@ -44,7 +44,7 @@
                     var result = {
                         score: score * 100,
                         metrics: {
-                            twoFA: accountInfo.requires2FA,
+                            twoFA: !!accountInfo.requires2FA,
                             passwordScore: info.metrics.passwordScore,
                             emailVerified: settings.verifiedEmail
                         }

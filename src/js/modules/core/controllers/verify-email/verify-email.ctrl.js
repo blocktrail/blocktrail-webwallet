@@ -40,6 +40,7 @@
                             verifiedEmail: true,
                             pendingEmailVerification: false
                         })).then(function (result) {
+                            $rootScope.$emit("refreshSecurityScore", {});
                             return result;
                         }).catch(function () {
                             console.log("failed updating settings");

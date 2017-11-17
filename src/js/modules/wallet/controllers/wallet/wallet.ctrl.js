@@ -46,8 +46,8 @@
                 isHidden: !CONFIG.NETWORKS[$scope.walletData.networkType].BUYBTC
             },
             {
-                stateHref: $state.href("app.wallet.settings"),
-                activeStateName: "app.wallet.settings",
+                stateHref: $state.href("app.wallet.settings.profile"),
+                activeStateName: "app.wallet.settings.profile",
                 linkText: "SETTINGS",
                 linkIcon: "bticon-cog",
                 isHidden: false
