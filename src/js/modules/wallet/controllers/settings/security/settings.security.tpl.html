@@ -15,15 +15,15 @@
         </div>
         <div class="row margin-t">
             <div class="col-md-4 text-center">
-                {{ securityInfo.metrics.emailVerified == 1 ? 'Email verified' : 'EMail not verified'}}
+                {{ securityInfo.metrics.emailVerified == 1 ? 'Your e-mail is verified' : 'Your e-mail is not verified'}}
             </div>
 
             <div class="col-md-4 text-center">
-                {{ securityInfo.metrics.passwordScore == 4 ? 'Password protected' : 'Improve your password!' }}
+                {{ securityInfo.metrics.passwordScore == 4 ? '' : 'Improve your password!' }}
             </div>
 
             <div class="col-md-4 text-center">
-                {{ securityInfo.metrics.twoFA ? '2FA enabled' : 'Enable 2FA!' }}
+                {{ securityInfo.metrics.twoFA ? '2FA is enabled' : '2FA is not enabled yet!' }}
             </div>
         </div>
         <div class="row margin-t">

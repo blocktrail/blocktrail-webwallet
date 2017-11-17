@@ -1,18 +1,12 @@
-<div class="securityProgressBar">
+<div class="securityProgressBar" ng-show="status <= 80">
     <!-- TODO Remove hr add separator calss -->
     <hr style="margin-bottom: 10px; border-top: 1px solid #999;" />
 
     <a class="btn-appstore"
        ui-sref="app.wallet.settings"
-       ng-show="status !== 100">
+    >
         <i class="bticon bticon-key"></i>
         <span class="sentence-case"><b>Improve your wallet security</b></span>
-    </a>
-
-    <a class="btn-appstore"
-       ui-sref="app.wallet.settings"
-       ng-show="status === 100">
-        <span class="sentence-case"><b>Wallet security: high</b></span>
     </a>
 
     <div class="progress">

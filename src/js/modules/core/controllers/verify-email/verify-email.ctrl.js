@@ -12,8 +12,10 @@
         // If logged in, this is available
         $scope.verified = (function () {
             try {
-                var settings = settingsService.getReadOnlySettingsData();
-                return settings.verifiedEmail;
+                return settingsService._syncSettingsAndProfileDown().then(function () {
+                    var settings = settingsService.getReadOnlySettingsData();
+                    return settings.verifiedEmail;
+                })
             } catch(e) {
                 return false;
             }

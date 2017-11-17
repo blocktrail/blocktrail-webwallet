@@ -12,6 +12,8 @@ function SettingsProfileCtrl($scope, $rootScope, $translate, dialogService, CONF
         profilePic: null
     };
 
+    var settings = settingsService.getReadOnlySettingsData();
+
     var listenerFormSettings;
 
     $scope.hasEmailChanged = false;
@@ -59,13 +61,12 @@ function SettingsProfileCtrl($scope, $rootScope, $translate, dialogService, CONF
      * @param data
      */
     function initData(data) {
-
-        console.log('data printed in profile ctrl', data);
-
         $scope.currencies = data.currencies;
         $scope.languages = data.languages;
 
         $scope.formSettings = angular.copy(data.settings);
+
+        $scope.hasEmailChanged = settings.pendingEmailVerification;
 
         savedSettings = angular.copy(data.settings);
 
@@ -163,7 +164,7 @@ function SettingsProfileCtrl($scope, $rootScope, $translate, dialogService, CONF
             }
 
             // Check if email has been changed
-            if (savedSettings.email !== saveObj.email) {
+            if (savedSettings.email !== saveObj.email && saveObj.email !== null) {
                 $scope.hasEmailChanged = true;
             }
 
