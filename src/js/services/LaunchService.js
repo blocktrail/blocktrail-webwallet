@@ -42,7 +42,7 @@ angular.module('blocktrail.wallet').factory(
             return self._walletConfig;
         };
 
-        LaunchService.prototype.handleSetupState = function(currentState, $state) {
+        LaunchService.prototype.handleSetupState = function(currentState, $state, $stateParams) {
             var self = this;
 
             return self.determineSetupState().then(
@@ -52,17 +52,24 @@ angular.module('blocktrail.wallet').factory(
                     });
 
                     $log.debug('handleSetupState ' + [currentState, isAllowed].join(";"));
-                    if (!isAllowed) {
-                        $state.go(setupState._default);
-                        return;
+
+                    console.log(currentState, setupState._default);
+
+                    if (currentState === 'app.setup.verifyEmail' && setupState._default === 'app.wallet.summary') {
+                        $state.go('app.wallet.verifyEmail', $stateParams);
+                        return true;
                     }
 
+                    if (!isAllowed) {
+                        $state.go(setupState._default);
+                    }
                     return true;
                 }
             );
         };
 
         LaunchService.prototype.determineSetupState = function() {
+
             var self = this;
 
             return self.getAccountInfo(true).then(
@@ -82,7 +89,10 @@ angular.module('blocktrail.wallet').factory(
                                 function() {
                                     // no backupInfo found, means it has already been saved
                                     return {
-                                        allowed: ['app.wallet'],
+                                        allowed: [
+                                            'app.wallet',
+                                            'app.wallet.verifyEmail'
+                                        ],
                                         _default: 'app.wallet.summary'
                                     };
                                 }
@@ -90,9 +100,10 @@ angular.module('blocktrail.wallet').factory(
                         },
                         function() {
                             // no walletInfo found, means wallet needs to be created
-                            //  however unless specifically navigated to app.setup.wallet we just go back to the login
+                            // however unless specifically navigated to app.setup.wallet we just go back to the login
                             return {
                                 allowed: [
+                                    'app.setup.verifyEmail',
                                     'app.setup.wallet',
                                     'app.setup.login',
                                     'app.setup.register',
@@ -109,7 +120,7 @@ angular.module('blocktrail.wallet').factory(
                 // fallback, but should only really happen when accountInfo is not set yet
                 .catch(function() {
                     return {
-                        allowed: ['app.setup.login', 'app.setup.register', 'app.setup.loggedout'],
+                        allowed: ['app.setup.login', 'app.setup.register', 'app.setup.loggedout', 'app.core.verifyEmail'],
                         _default: 'app.setup.login'
                     };
 

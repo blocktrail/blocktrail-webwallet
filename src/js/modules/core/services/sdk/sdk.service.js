@@ -171,6 +171,12 @@
             return self.client.post("/mywallet/settings", null, data);
         };
 
+        blocktrailSDK.prototype.requestVerificationEmail = function (data) {
+            var self = this;
+
+            return self.client.post("/security/send-verify-email", null, data);
+        };
+
         blocktrailSDK.prototype.requestContactAddress = function (phoneHash, cb) {
             var self = this;
 

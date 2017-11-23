@@ -3,6 +3,7 @@ var blocktrail = angular.module("blocktrail.wallet", [
     "ui.bootstrap",
     "ui.bootstrap.dropdown",
     "ui.bootstrap.pagination",
+    "ui.bootstrap.tabs",
     "toggle-switch",
     "infinite-scroll",
     "angularMoment",

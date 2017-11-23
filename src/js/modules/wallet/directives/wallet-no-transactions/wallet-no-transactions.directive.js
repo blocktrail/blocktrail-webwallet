@@ -8,7 +8,9 @@
         return {
             restrict: "E",
             replace: true,
-            scope: {},
+            scope: {
+                success: "="
+            },
             templateUrl: "js/modules/wallet/directives/wallet-no-transactions/wallet-no-transactions.tpl.html"
         };
     }

@@ -1,0 +1,25 @@
+<div class="securityProgressBar" ng-show="status <= 80">
+    <!-- TODO Remove hr add separator calss -->
+    <hr style="margin-bottom: 10px; border-top: 1px solid #999;" />
+
+    <a class="btn-appstore"
+       ui-sref="app.wallet.settings"
+    >
+        <i class="bticon bticon-key"></i>
+        <span class="sentence-case"><b>Improve your wallet security</b></span>
+    </a>
+
+    <div class="progress">
+        <div class="progress-bar"
+             ng-class="{
+                'progress-bar-danger': status <= 15,
+                'progress-bar-warning': status <= 50,
+                'progress-bar-success': status == 100
+             }"
+             role="progressbar"
+             aria-valuemin="0"
+             aria-valuemax="100"
+             ng-style="{ 'width': status + '%' }">
+        </div>
+    </div>
+</div>

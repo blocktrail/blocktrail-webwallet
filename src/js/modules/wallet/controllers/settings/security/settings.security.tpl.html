@@ -1,0 +1,52 @@
+<div class="row" style="margin-top: 50px">
+    <div class="col-xs-12 col-md-12">
+        <div class="row margin-t">
+            <div class="col-md-4 text-center">
+                <i class="bticon bticon-mail-outline" style="font-size: 3vw"></i>
+            </div>
+
+            <div class="col-md-4 text-center">
+                <i class="bticon bticon-key-outline" style="font-size: 3vw"></i>
+            </div>
+
+            <div class="col-md-4 text-center">
+                <i class="bticon bticon-lock-outline" style="font-size: 3vw"></i>
+            </div>
+        </div>
+        <div class="row margin-t">
+            <div class="col-md-4 text-center">
+                {{ securityInfo.metrics.emailVerified == 1 ? 'Your e-mail is verified' : 'Your e-mail is not verified'}}
+            </div>
+
+            <div class="col-md-4 text-center">
+                {{ securityInfo.metrics.passwordScore == 4 ? '' : 'Improve your password!' }}
+            </div>
+
+            <div class="col-md-4 text-center">
+                {{ securityInfo.metrics.twoFA ? '2FA is enabled' : '2FA is not enabled yet!' }}
+            </div>
+        </div>
+        <div class="row margin-t">
+            <div class="col-md-4 text-center">
+                <div ng-if="!securityInfo.metrics.emailVerified">
+                    <button class="btn btn btn-primary" ng-click="verifyEmail()">Verify email</button>
+                </div>
+            </div>
+
+            <div class="col-md-4 text-center">
+                <button class="btn btn-primary" ng-click="onChangePassword()">
+                    {{ 'SETTINGS_CHANGE_PASSWORD' | translate }}
+                </button>
+            </div>
+
+            <div class="col-md-4 text-center">
+                <div class="form-group">
+                    <toggle-switch
+                            ng-model="securityInfo.metrics.twoFA"
+                            class="switch-success"
+                    ></toggle-switch>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
