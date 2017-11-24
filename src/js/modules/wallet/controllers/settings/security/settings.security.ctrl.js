@@ -6,6 +6,8 @@ function SettingsSecurityCtrl($scope, $http, $rootScope, $q, cryptoJS, sdkServic
                             $translate, $timeout, $log, $sce, dialogService, accountSecurityService,
                             CONFIG, $modal, formSettingsService, passwordStrengthService, settingsService) {
 
+    var settings = settingsService.getReadOnlySettingsData();
+
     var listenerEnabled2faToggle;
     var isEnabled2fa = false;
 
@@ -153,7 +155,7 @@ function SettingsSecurityCtrl($scope, $http, $rootScope, $q, cryptoJS, sdkServic
 
                                             var passwordChange = function() {
 
-                                                return passwordStrengthService.checkPassword(newPassword, [savedSettings.username, savedSettings.email, "BTC.com", "wallet"])
+                                                return passwordStrengthService.checkPassword(newPassword, [settings.username, settings.email, "BTC.com", "wallet"])
                                                     .then(function(result) {
                                                         return result;
                                                     })
