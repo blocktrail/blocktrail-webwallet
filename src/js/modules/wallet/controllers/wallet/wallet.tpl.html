@@ -76,8 +76,8 @@
                 <wallet-side-nav list="sideNavList"></wallet-side-nav>
 
                 <wallet-sec-progress-bar
-                        ng-if="walletSecurityProgress"
-                        status="walletSecurityProgress"
+                    ng-if="accountSecurityInfo"
+                    score="accountSecurityInfo.score"
                 ></wallet-sec-progress-bar>
 
                 <!-- App store buttons -->

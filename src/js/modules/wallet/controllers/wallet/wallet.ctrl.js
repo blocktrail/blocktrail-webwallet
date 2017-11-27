@@ -54,18 +54,9 @@
             }
         ];
 
-        $scope.walletSecurityProgress = 0;
-
-        $rootScope.$on("refreshSecurityScore", function(){
-            updateSecurityScore();
+        accountSecurityService.updateSecurityScore().then(function () {
+            $scope.accountSecurityInfo = accountSecurityService.getSecurityScore();
         });
-
-        updateSecurityScore();
-        function updateSecurityScore() {
-            accountSecurityService.getSecurityScore().then(function (score) {
-                $scope.walletSecurityProgress = score.score;
-            });
-        }
 
         $scope.isLoadingNewWallet = false;
 

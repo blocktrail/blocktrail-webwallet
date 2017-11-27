@@ -9,7 +9,7 @@
             restrict: "E",
             replace: true,
             scope: {
-                status: '='
+                score: '='
             },
             templateUrl: "js/modules/wallet/directives/wallet-security-progress-bar/wallet-security-progress-bar.tpl.html"
         };

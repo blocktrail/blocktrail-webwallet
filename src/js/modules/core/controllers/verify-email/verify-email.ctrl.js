@@ -4,7 +4,7 @@
     angular.module("blocktrail.core")
         .controller("VerifyEmailCtrl", VerifyEmailCtrl);
 
-    function VerifyEmailCtrl($scope, $stateParams, $location, accountSecurityService, settingsService, $q) {
+    function VerifyEmailCtrl($rootScope, $scope, $stateParams, $location, accountSecurityService, settingsService, $q) {
         $scope.working  = false;
         $scope.error    = null;
         $scope.success  = null;
@@ -29,7 +29,6 @@
             accountSecurityService.verifyEmail(token)
                 .then(function (result) {
                     $scope.working = false;
-                    console.log(result);
 
                     if(result && result['data'] && !result['data']['result']) {
                         $scope.success = false;
@@ -42,10 +41,10 @@
                             verifiedEmail: true,
                             pendingEmailVerification: false
                         })).then(function (result) {
-                            $rootScope.$emit("refreshSecurityScore", {});
+                            accountSecurityService.updateSecurityScore();
                             return result;
                         }).catch(function () {
-                            console.log("failed updating settings");
+                            console.log("failed updating settings, not logged in?");
                         });
                     }
                 })

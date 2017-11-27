@@ -15,20 +15,20 @@
         </div>
         <div class="row margin-t">
             <div class="col-md-4 text-center">
-                {{ securityInfo.metrics.emailVerified == 1 ? 'Your e-mail is verified' : 'Your e-mail is not verified'}}
+                {{ accountSecurityInfo.verifiedEmail == 1 ? 'Your e-mail is verified' : 'Your e-mail is not verified'}}
             </div>
 
             <div class="col-md-4 text-center">
-                {{ securityInfo.metrics.passwordScore == 4 ? '' : 'Improve your password!' }}
+                {{ accountSecurityInfo.passwordScore == 4 ? '' : 'Improve your password!' }}
             </div>
 
             <div class="col-md-4 text-center">
-                {{ securityInfo.metrics.twoFA ? '2FA is enabled' : '2FA is not enabled yet!' }}
+                {{ accountSecurityInfo.twoFA ? '2FA is enabled' : '2FA is not enabled yet!' }}
             </div>
         </div>
         <div class="row margin-t">
             <div class="col-md-4 text-center">
-                <div ng-if="!securityInfo.metrics.emailVerified">
+                <div ng-if="!accountSecurityInfo.verifiedEmail">
                     <button class="btn btn btn-primary" ng-click="verifyEmail()">Verify email</button>
                 </div>
             </div>
@@ -42,7 +42,7 @@
             <div class="col-md-4 text-center">
                 <div class="form-group">
                     <toggle-switch
-                            ng-model="securityInfo.metrics.twoFA"
+                            ng-model="isEnabled2fa"
                             class="switch-success"
                     ></toggle-switch>
                 </div>

@@ -4,70 +4,66 @@
     angular.module('blocktrail.core')
         .factory('accountSecurityService', AccountSecurityService);
 
-    function AccountSecurityService(CONFIG, settingsService, $http, storageService, launchService, $q) {
+    function AccountSecurityService(CONFIG, settingsService, $http, launchService, $q) {
 
-        var dataStoreId = 'account-security';
-        var storage = storageService.db('account-security');
+        var self = this;
 
-        function setInfo(newData) {
-            return $q.when(storage.get('account-security'))
-                .then(function(doc) { return doc; }, function() { return {_id: dataStoreId}; })
-                .then(function(doc) {
-                    angular.forEach(newData, function(value, key) {
-                        doc[key] = newData[key];
-                    });
+        self._accountSecurityInfo = {
+            score: 0,
+            twoFA: false,
+            passwordScore: 0,
+            verifiedEmail: ""
+        };
 
-                    return storage.put(doc).then(function() {
-                        return true;
-                    });
-                });
-        }
+        // Read only account info data object
+        // this object would be shared
+        self._readonlyAccountSecurityInfo = {
+            readonly: true
+        };
 
-        function getInfo() {
-            return $q.when(storage.get('account-security'))
-                .then(function(doc) { return doc; }, function() { return {_id: dataStoreId}; });
+        angular.forEach(self._accountSecurityInfo, function(value, key) {
+            Object.defineProperty(self._readonlyAccountSecurityInfo, key, {
+                set: function() {
+                    throw new Error("Read only object. Blocktrail core module, account security service.");
+                },
+                get: function() {
+                    return self._accountSecurityInfo[key];
+                }
+            });
+        });
+
+        function updateSecurityScore() {
+            var settings = settingsService.getReadOnlySettingsData();
+            var score = 0.35 * settings.verifiedEmail + 0.35 * (settings.passwordScore / 4);
+
+            return launchService.getAccountInfo().then(function (accountInfo) {
+                if (accountInfo.requires2FA) {
+                    score += 0.3 * accountInfo.requires2FA
+                }
+
+                self._accountSecurityInfo.score = score * 100;
+                self._accountSecurityInfo.twoFA = !!accountInfo.requires2FA;
+                self._accountSecurityInfo.passwordScore = settings.passwordScore;
+                self._accountSecurityInfo.verifiedEmail = settings.verifiedEmail;
+
+                return true;
+            });
         }
 
         function getSecurityScore() {
-
-            var settings = settingsService.getReadOnlySettingsData();
-
-            return getInfo().then(function(info) {
-
-                var score = 0.35 * settings.verifiedEmail + 0.35 * (info.metrics.passwordScore / 4);
-
-                return launchService.getAccountInfo().then(function (accountInfo) {
-                    if (accountInfo.requires2FA) {
-                        score += 0.3 * accountInfo.requires2FA
-                    }
-
-                    var result = {
-                        score: score * 100,
-                        metrics: {
-                            twoFA: !!accountInfo.requires2FA,
-                            passwordScore: info.metrics.passwordScore,
-                            emailVerified: settings.verifiedEmail
-                        }
-                    };
-
-                    return setInfo(result).then(function () {
-                        return result;
-                    });
-                });
-            });
+            return self._readonlyAccountSecurityInfo;
         }
 
         function verifyEmail(token) {
             return $http.post(CONFIG.API_URL + "/v1/" + CONFIG.API_NETWORK + "/security/verify-email",
-                { verify_token: token }
+                {verify_token: token}
             );
         }
 
         return {
-            setInfo: setInfo,
-            getInfo: getInfo,
             verifyEmail: verifyEmail,
-            getSecurityScore: getSecurityScore
+            getSecurityScore: getSecurityScore,
+            updateSecurityScore: updateSecurityScore
         };
     }
 })();

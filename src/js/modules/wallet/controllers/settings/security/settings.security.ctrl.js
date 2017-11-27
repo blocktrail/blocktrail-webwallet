@@ -9,11 +9,17 @@ function SettingsSecurityCtrl($scope, $http, $rootScope, $q, cryptoJS, sdkServic
     var settings = settingsService.getReadOnlySettingsData();
 
     var listenerEnabled2faToggle;
+    // Final 2fa true/false
     var isEnabled2fa = false;
+    // Toggle for enable in scope
+    $scope.isEnabled2fa = false;
 
     // TODO: Show information about email verification
     $scope.hasEmailChanged = false;
-    $scope.securityInfo = {};
+
+    accountSecurityService.updateSecurityScore().then(function () {
+        $scope.accountSecurityInfo = accountSecurityService.getSecurityScore();
+    });
 
     $rootScope.pageTitle = 'SETTINGS';
 
@@ -33,22 +39,19 @@ function SettingsSecurityCtrl($scope, $http, $rootScope, $q, cryptoJS, sdkServic
 
     formSettingsService.fetchData()
         .then(initData);
-    
+
     /**
      * Init data
      *
      * @param data
      */
     function initData(data) {
-        accountSecurityService.getInfo().then(function (info) {
-            $scope.securityInfo = info;
-        });
 
-        //$scope.isEnabled2faToggle = data.isEnabled2faToggle;
         isEnabled2fa = data.isEnabled2faToggle;
+        $scope.isEnabled2fa = isEnabled2fa;
 
         // Add watchers
-        listenerEnabled2faToggle = $scope.$watch('securityInfo.metrics.twoFA', open2faModal);
+        listenerEnabled2faToggle = $scope.$watch('isEnabled2fa', open2faModal);
 
         $scope.isLoading = false;
     }
@@ -159,13 +162,6 @@ function SettingsSecurityCtrl($scope, $http, $rootScope, $q, cryptoJS, sdkServic
                                                     .then(function(result) {
                                                         return result;
                                                     })
-                                                    .then(function (result) {
-                                                        return accountSecurityService.setInfo({
-                                                            metrics : {
-                                                                passwordScore: result.score
-                                                            }
-                                                        });
-                                                    })
                                                     .then(function () {
                                                         return sdkService.getSdkByActiveNetwork().passwordChange(
                                                             cryptoJS.SHA512(currentPassword).toString(),
@@ -179,14 +175,14 @@ function SettingsSecurityCtrl($scope, $http, $rootScope, $q, cryptoJS, sdkServic
                                                         )
                                                             .then(
                                                                 function() {
-                                                                    $rootScope.$emit("refreshSecurityScore", {});
-
                                                                     wallet.encryptedSecret = newEncryptedWalletSecret;
                                                                     wallet.lock();
 
                                                                     launchService.storeBackupInfo({
                                                                         encryptedSecret: newEncryptedWalletSecret
                                                                     });
+
+                                                                    accountSecurityService.updateSecurityScore();
 
                                                                     return $scope.alert({
                                                                         title: $translate.instant('CHANGE_PASSWORD'),
@@ -350,24 +346,23 @@ function SettingsSecurityCtrl($scope, $http, $rootScope, $q, cryptoJS, sdkServic
                                                             ok: false
                                                         });
 
-                                                        return formSettingsService.updateLaunchService2FA($scope.securityInfo.metrics.twoFA)
+                                                        return formSettingsService.updateLaunchService2FA($scope.isEnabled2fa)
                                                             .then(function () {
-                                                                isEnabled2fa = $scope.isEnabled2faToggle;
+                                                                isEnabled2fa = $scope.isEnabled2fa;
 
                                                                 launchService.updateAccountInfo({
                                                                     requires2FA: true
                                                                 }).then(function () {
-                                                                    $rootScope.$emit("refreshSecurityScore", {});
 
-                                                                    $timeout(function() {
-                                                                        pleaseWaitDialog.dismiss();
-                                                                    }, 1000);
+                                                                    accountSecurityService.updateSecurityScore();
+                                                                    pleaseWaitDialog.dismiss();
+
                                                                 });
                                                             });
 
                                                     }, function (e) {
                                                         // Error handler for wrong two factor token
-                                                        $scope.securityInfo.metrics.twoFA = isEnabled2fa;
+                                                        $scope.isEnabled2fa = isEnabled2fa;
 
                                                         if (pleaseWaitDialog) {
                                                             pleaseWaitDialog.dismiss();
@@ -382,11 +377,13 @@ function SettingsSecurityCtrl($scope, $http, $rootScope, $q, cryptoJS, sdkServic
                                             });
                                     }, function () {
                                         // Reset for enter QR code
-                                        $scope.securityInfo.metrics.twoFA = isEnabled2fa;
+                                        $scope.isEnabled2fa = isEnabled2fa;
+                                    }).catch(function () {
+                                        $scope.isEnabled2fa = isEnabled2fa;
                                     });
                             }, function (e) {
                                 // Error handler for wrong password
-                                $scope.securityInfo.metrics.twoFA = isEnabled2fa;
+                                $scope.isEnabled2fa = isEnabled2fa;
 
                                 if (pleaseWaitDialog) {
                                     pleaseWaitDialog.dismiss();
@@ -401,7 +398,7 @@ function SettingsSecurityCtrl($scope, $http, $rootScope, $q, cryptoJS, sdkServic
 
                     }, function () {
                         // Reset for enter password
-                        $scope.securityInfo.metrics.twoFA = isEnabled2fa;
+                        $scope.isEnabled2fa = isEnabled2fa;
                     });
             });
     }
@@ -438,15 +435,14 @@ function SettingsSecurityCtrl($scope, $http, $rootScope, $q, cryptoJS, sdkServic
                                     ok: false
                                 });
 
-                                return formSettingsService.updateLaunchService2FA($scope.securityInfo.metrics.twoFA)
+                                return formSettingsService.updateLaunchService2FA($scope.isEnabled2fa)
                                     .then(function () {
-                                        isEnabled2fa = $scope.securityInfo.metrics.twoFA;
+                                        isEnabled2fa = $scope.isEnabled2fa;
 
                                         launchService.updateAccountInfo({
                                             requires2FA: false
                                         }).then(function () {
-                                            $rootScope.$emit("refreshSecurityScore", {});
-
+                                            accountSecurityService.updateSecurityScore();
                                             $timeout(function() {
                                                 pleaseWaitDialog.dismiss();
                                             }, 1500);
@@ -454,7 +450,7 @@ function SettingsSecurityCtrl($scope, $http, $rootScope, $q, cryptoJS, sdkServic
                                     });
                             }, function (e) {
                                 // Error handler for wrong two factor token
-                                $scope.securityInfo.metrics.twoFA = isEnabled2fa;
+                                $scope.isEnabled2fa = isEnabled2fa;
 
                                 if (pleaseWaitDialog) {
                                     pleaseWaitDialog.dismiss();
@@ -467,7 +463,7 @@ function SettingsSecurityCtrl($scope, $http, $rootScope, $q, cryptoJS, sdkServic
                             });
                     }, function() {
                         // Reset for enter two factor token
-                        $scope.securityInfo.metrics.twoFA = isEnabled2fa;
+                        $scope.isEnabled2fa = isEnabled2fa;
                     });
             });
     }
