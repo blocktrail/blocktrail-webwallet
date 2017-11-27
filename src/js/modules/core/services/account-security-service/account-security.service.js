@@ -4,7 +4,7 @@
     angular.module('blocktrail.core')
         .factory('accountSecurityService', AccountSecurityService);
 
-    function AccountSecurityService(CONFIG, settingsService, $http, launchService, $q) {
+    function AccountSecurityService(CONFIG, settingsService, $http, launchService) {
 
         var self = this;
 

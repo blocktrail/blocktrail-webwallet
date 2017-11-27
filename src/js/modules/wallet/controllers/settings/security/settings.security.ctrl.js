@@ -189,8 +189,8 @@ function SettingsSecurityCtrl($scope, $http, $rootScope, $q, cryptoJS, sdkServic
                                                                 encryptedSecret: newEncryptedWalletSecret
                                                             });
 
-                                                            accountSecurityService.updateSecurityScore();
-                                                            settingsService.updateSettingsUp({ 'passwordScore': newScore });
+                                                            settingsService.updateSettingsUp({ 'passwordScore': newScore })
+                                                                .then(accountSecurityService.updateSecurityScore);
 
                                                             return $scope.alert({
                                                                 title: $translate.instant('CHANGE_PASSWORD'),
