@@ -51,37 +51,25 @@
             browser_fingerprint: null
         };
 
-        return self._passwordStrengthService.checkPassword(data.password, [postData.username, postData.login, "BTC.com", "wallet"])
-            .then(function(result) {
-                return result;
-            }).then(function (result) {
+        var url = self._CONFIG.API_URL + "/v1/" + data.networkType + "/mywallet/enable";
 
-                return self._accountSecurityService.setInfo({
-                    metrics: {
-                        passwordScore: result.score
-                    }
-                }).then(function () {
-                    var url = self._CONFIG.API_URL + "/v1/" + data.networkType + "/mywallet/enable";
-
-                    return self._$q.when(postData)
-                        .then(function(postData) {
-                            return self._trackingService.getBrowserFingerprint()
-                                .then(function(fingerprint) {
-                                    postData.browser_fingerprint = fingerprint.hash;
-                                    return postData;
-                                }, function() {
-                                    // if fingerprint fails we just leave it NULL
-                                    return postData;
-                                })
-                        })
-                        .then(function(postData) {
-                            return self._$http.post(url, postData)
-                                .then(self._decryptSecret.bind(self, data.password))
-                                .then(self._storeAccountInfo.bind(self));
-                        })
-                        .catch(self._errorHandler.bind(self));
-                });
-            });
+        return self._$q.when(postData)
+            .then(function(postData) {
+                return self._trackingService.getBrowserFingerprint()
+                    .then(function(fingerprint) {
+                        postData.browser_fingerprint = fingerprint.hash;
+                        return postData;
+                    }, function() {
+                        // if fingerprint fails we just leave it NULL
+                        return postData;
+                    })
+            })
+            .then(function(postData) {
+                return self._$http.post(url, postData)
+                    .then(self._decryptSecret.bind(self, data.password))
+                    .then(self._storeAccountInfo.bind(self));
+            })
+            .catch(self._errorHandler.bind(self));
     };
 
     /**

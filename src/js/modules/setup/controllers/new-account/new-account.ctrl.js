@@ -141,16 +141,8 @@
          */
         function registerFormSuccessHandler() {
             $scope.setupInfo.password = $scope.form.password;
-
             $scope.isLoading = false;
-
-            return accountSecurityService.setInfo({
-                metrics: {
-                    passwordScore: $scope.form.passwordCheck.score
-                }
-            }).then(function () {
-                $state.go('app.setup.wallet');
-            });
+            $state.go('app.setup.wallet');
         }
 
         /**

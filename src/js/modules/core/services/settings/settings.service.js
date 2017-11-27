@@ -575,13 +575,14 @@
                     glideraTransactions: self._doc.glideraTransactions || [],
                     latestVersionWeb: self._doc.latestVersionWeb,
                     glideraActivationNoticePending: self._doc.glideraActivationNoticePending,
+                    passwordScore: self._doc.passwordScore,
                     buyBTCRegion: self._doc.buyBTCRegion,
                     username: self._doc.username,
                     email: self._doc.email,
                     hideBCCSweepWarning: self._doc.hideBCCSweepWarning,
                     walletActivated: self._doc.walletActivated,
                     knownLanguages: self._doc.knownLanguages,
-                    showArchived: self._doc.showArchived
+                    showArchived: self._doc.showArchived,
                 };
 
                 return sdk.syncSettings(settingsData);
