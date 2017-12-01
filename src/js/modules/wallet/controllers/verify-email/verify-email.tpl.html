@@ -1,0 +1,21 @@
+<div
+        class="appPage page-blur"
+        ng-class="{'page-blur-active': working}"
+>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div ng-if="!working">
+                    <wallet-email-verified success="success" verified="verified"></wallet-email-verified>
+                </div>
+            </div>
+        </div>
+
+    <!-- Loader overlay -->
+    <div
+            class="page-loader"
+            ng-class="{'active': working}"
+    >
+        <loading-spinner></loading-spinner>
+    </div>
+</div>

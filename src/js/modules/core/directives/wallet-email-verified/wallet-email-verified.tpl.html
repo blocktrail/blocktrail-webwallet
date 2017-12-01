@@ -1,0 +1,11 @@
+<div class="wallet-no-transactions">
+    <i class="bticon bticon-ok" ng-class="success || verified ? 'bticon-ok-circled' : 'bticon-cancel-circled'"></i>
+    <h1>
+        {{ ( success || verified ? 'EMAIL_VERIFY_SUCCESS' : 'EMAIL_VERIFY_FAILURE') | translate }}
+    </h1>
+    <h2 class="sentence-case">
+        <a ui-sref="app.wallet.summary">
+            {{ 'SETUP_COMPLETE' | translate }}
+        </a>
+    </h2>
+</div>

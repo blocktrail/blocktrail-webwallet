@@ -257,6 +257,24 @@
       "css": "emo-sunglasses",
       "code": 59432,
       "src": "fontelico"
+    },
+    {
+      "uid": "75347b319511175da51af3955919dbac",
+      "css": "key-outline",
+      "code": 59435,
+      "src": "linecons"
+    },
+    {
+      "uid": "91bac16b22827347e9ee20477f0b44d2",
+      "css": "mail-outline",
+      "code": 59433,
+      "src": "linecons"
+    },
+    {
+      "uid": "47e9e56d2b5abe839bcf1e014d643dea",
+      "css": "lock-outline",
+      "code": 59436,
+      "src": "linecons"
     }
   ]
 }

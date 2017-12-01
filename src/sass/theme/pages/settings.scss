@@ -8,3 +8,43 @@
     margin: 20px 0 26px;
   }
 }
+
+.security-bar-text {
+  width: 85%;
+  text-align: center;
+  position: absolute;
+  top: -3px;
+  bottom: 0;
+  left: 0;
+  text-shadow: 1px 1px $gray-dark;
+}
+
+.icon-framed {
+  border-radius: 12px;
+  padding: 10px;
+  text-align: center;
+}
+
+.icon-framed-btccom {
+  border: 2px dotted $btccom;
+  color: $btccom;
+  text-shadow: 1px 1px 1px darken($btccom, 10%);
+}
+
+.icon-framed-enabled {
+  border: 3px outset $dark-green;
+  color: $dark-green;
+  text-shadow: 1px 1px 1px darken($dark-green, 10%);
+}
+
+.icon-framed-disabled {
+  border: 2px dashed $bittersweet-dark;
+  color: $bittersweet-dark;
+  text-shadow: 1px 1px 1px darken($bittersweet-dark, 10%);
+}
+
+.icon-framed-neutral {
+  border: 2px dashed $grey;
+  color: $grey;
+  text-shadow: 1px 1px 1px darken($grey, 10%);
+}

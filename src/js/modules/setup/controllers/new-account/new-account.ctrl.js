@@ -4,7 +4,7 @@
     angular.module("blocktrail.setup")
         .controller("SetupNewAccountCtrl", SetupNewAccountCtrl);
 
-    function SetupNewAccountCtrl($scope, $state, $q, CONFIG, dialogService, $translate, FormHelper, passwordStrengthService, $filter, newAccountFormService, powtchaService, sdkService) {
+    function SetupNewAccountCtrl($scope, $state, $q, CONFIG, dialogService, $translate, FormHelper, passwordStrengthService, $filter, newAccountFormService, powtchaService, sdkService, accountSecurityService) {
         var powtchaPromise;
         var listenerForm;
         var listenerFormPassword;
@@ -141,9 +141,7 @@
          */
         function registerFormSuccessHandler() {
             $scope.setupInfo.password = $scope.form.password;
-
             $scope.isLoading = false;
-
             $state.go('app.setup.wallet');
         }
 

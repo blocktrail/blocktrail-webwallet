@@ -1,0 +1,23 @@
+<div class="securityProgressBar" ng-show="score <= 82.5">
+    <div style="position: relative">
+        <a class="security-bar-text"
+           ui-sref="app.wallet.settings.security">
+            <b>{{ "WALLET_SECURITY_SCORE" | translate }}: {{ score | number:0 }}%</b>
+        </a>
+
+        <div class="progress security-bar">
+            <div class="progress-bar"
+                ng-class="{
+                    'progress-bar-danger': score <= 15,
+                    'progress-bar-warning': score <= 50,
+                    'progress-bar-success': score == 100
+                }"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                ng-style="{ 'width': score + '%' }"
+            >
+            </div>
+        </div>
+    </div>
+</div>

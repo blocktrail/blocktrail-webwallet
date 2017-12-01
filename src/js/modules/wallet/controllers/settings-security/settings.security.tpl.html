@@ -1,0 +1,58 @@
+<div class="row" style="margin-top: 50px">
+    <div class="col-xs-12 col-md-12">
+        <div class="row margin-t" style="font-size: 3vw">
+            <div class="col-md-4 text-center">
+                <i class="bticon bticon-mail-outline icon-framed"
+                   ng-class="accountSecurityInfo.verifiedEmail == 1 ? 'icon-framed-enabled' : 'icon-framed-disabled'"
+                ></i>
+            </div>
+
+            <div class="col-md-4 text-center">
+                <i class="bticon bticon-key-outline icon-framed"
+                   ng-class="accountSecurityInfo.passwordScore == 4 ? 'icon-framed-enabled' :'icon-framed-neutral'"
+                ></i>
+            </div>
+
+            <div class="col-md-4 text-center">
+                <i class="bticon bticon-lock-outline icon-framed"
+                   ng-class="accountSecurityInfo.twoFA ? 'icon-framed-enabled' :'icon-framed-disabled'"
+                ></i>
+            </div>
+        </div>
+        <div class="row margin-t padding-t-big" style="font-size: 16px;">
+            <div class="col-md-4 text-center">
+                {{ accountSecurityInfo.verifiedEmail == 1 ? ("EMAIL_VERIFIED" | translate) : ("EMAIL_NOT_VERIFIED" | translate) }}
+            </div>
+
+            <div class="col-md-4 text-center">
+                {{ accountSecurityInfo.passwordScore == 4 ? '' : ("IMPROVE_PASSWORD" | translate) }}
+            </div>
+
+            <div class="col-md-4 text-center">
+                {{ accountSecurityInfo.twoFA ? ("2FA_ENABLED" | translate) : ("2FA_NOT_ENABLED" | translate) }}
+            </div>
+        </div>
+        <div class="row padding-t-big">
+            <div class="col-md-4 text-center">
+                <div ng-if="!accountSecurityInfo.verifiedEmail">
+                    <button class="btn btn btn-primary" ng-click="verifyEmail()">Verify email</button>
+                </div>
+            </div>
+
+            <div class="col-md-4 text-center">
+                <button class="btn btn-primary" ng-click="onChangePassword()">
+                    {{ 'SETTINGS_CHANGE_PASSWORD' | translate }}
+                </button>
+            </div>
+
+            <div class="col-md-4 text-center">
+                <div class="form-group">
+                    <toggle-switch
+                            ng-model="isEnabled2fa"
+                            class="switch-success"
+                    ></toggle-switch>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
