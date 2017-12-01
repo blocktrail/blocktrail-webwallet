@@ -86,6 +86,22 @@
                 src="<%= STATICSURL %>/js/libs.js"></script>
 
         <script crossorigin="anonymous"
+            <% if (SRI) { %>integrity="sha256-<%= SRI['js/asmcrypto.js'] %>"<% } %>
+        src="<%= STATICSURL %>/js/asmcrypto.js"></script>
+        <script>
+            function onLoadWorkerLoadAsmCrypto(worker) {
+                worker.postMessage({
+                    method: 'importScripts',
+                    <% if (!APPCONFIG.CDN) { %>
+                    script: document.location.protocol + '//' + document.location.host + '/' + "<%= STATICSURL %>/js/asmcrypto.js"
+                    <% } else { %>
+                    script: "<%= STATICSURL %>/js/asmcrypto.js"
+                    <% } %>
+                });
+            }
+        </script>
+
+        <script crossorigin="anonymous"
                 <% if (SRI) { %>integrity="sha256-<%= SRI['js/sdk.js'] %>"<% } %>
                 src="<%= STATICSURL %>/js/sdk.js"></script>
 

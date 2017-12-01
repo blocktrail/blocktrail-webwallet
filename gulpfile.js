@@ -79,6 +79,7 @@ gulp.task('templates:index', ['appconfig', 'js', 'sass'], function() {
             "./www/" + APPCONFIG.STATICSDIR + "/js/zxcvbn.js",
             "./www/" + APPCONFIG.STATICSDIR + "/js/config.js",
             "./www/" + APPCONFIG.STATICSDIR + "/js/translations.js",
+            "./www/" + APPCONFIG.STATICSDIR + "/js/asmcrypto.js",
             "./www/" + APPCONFIG.STATICSDIR + "/css/app.css"
         ], "./www/" + APPCONFIG.STATICSDIR + "/").then(function(SRI) {
             return streamAsPromise(gulp.src("./src/index.html")
@@ -197,17 +198,29 @@ gulp.task('js:sdk', ['appconfig'], function() {
 
     return appConfig.then(function(APPCONFIG) {
         return streamAsPromise(gulp.src([
-            "./src/lib/blocktrail-sdk/build/blocktrail-sdk-full.js"
-        ])
-            .pipe(concat('sdk.js'))
-            .pipe(sourcemaps.init({largeFile: true}))
-            .pipe(gulpif(APPCONFIG.MINIFY, uglify({
-                mangle: {
-                    except: DONT_MANGLE
-                }
-            })))
-            .pipe(sourcemaps.write('./'))
-            .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
+                "./src/lib/blocktrail-sdk/build/blocktrail-sdk-full.js"
+            ])
+                .pipe(concat('sdk.js'))
+                .pipe(sourcemaps.init({largeFile: true}))
+                .pipe(gulpif(APPCONFIG.MINIFY, uglify({
+                    mangle: {
+                        except: DONT_MANGLE
+                    }
+                })))
+                .pipe(sourcemaps.write('./'))
+                .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
+        );
+    });
+});
+
+gulp.task('js:sdk:asmcrypto', ['appconfig'], function() {
+
+    return appConfig.then(function(APPCONFIG) {
+        return streamAsPromise(gulp.src([
+                "./src/lib/blocktrail-sdk/build/asmcrypto.js"
+            ])
+                .pipe(concat('asmcrypto.js'))
+                .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
         );
     });
 });
@@ -417,7 +430,7 @@ gulp.task('js:libs:livereload', _.merge(['js:libs'], doSRI ? ['templates:index']
     livereload.reload();
 });
 
-gulp.task('js:sdk:livereload', _.merge(['js:sdk'], doSRI ? ['templates:index'] : []), function() {
+gulp.task('js:sdk:livereload', _.merge(['js:sdk', 'js:sdk:asmcrypto'], doSRI ? ['templates:index'] : []), function() {
     livereload.reload();
 });
 
@@ -433,6 +446,6 @@ gulp.task('copystatics:livereload', ['copystatics'], function() {
     livereload.reload();
 });
 
-gulp.task('js', ['js:libs', 'js:app', 'js:sdk', 'js:zxcvbn', 'js:config']);
+gulp.task('js', ['js:libs', 'js:app', 'js:sdk', 'js:sdk:asmcrypto', 'js:zxcvbn', 'js:config']);
 gulp.task('templates', ['templates:index', 'templates:rest']);
 gulp.task('default', ['copystatics', 'sass', 'templates', 'js']);
