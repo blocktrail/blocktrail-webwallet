@@ -1,3 +1,5 @@
+/* globals onLoadWorkerLoadAsmCrypto */
+
 var _ = require('lodash'),
     q = require('q'),
     bitcoin = require('bitcoinjs-lib'),
@@ -146,14 +148,14 @@ var produceEncryptedDataV2 = function(options, notify) {
 };
 
 APIClient.prototype.promisedEncrypt = function(pt, pw, iter) {
-    if (useWebWorker) {
+    if (useWebWorker && typeof onLoadWorkerLoadAsmCrypto === "function") {
         // generate randomness outside of webworker because many browsers don't have crypto.getRandomValues inside webworkers
         var saltBuf = Encryption.generateSalt();
         var iv = Encryption.generateIV();
 
-        return webworkifier.workify(APIClient.prototype.promisedEncrypt, function() {
+        return webworkifier.workify(APIClient.prototype.promisedEncrypt, function factory() {
             return require('./webworker');
-        }, {
+        }, onLoadWorkerLoadAsmCrypto, {
             method: 'Encryption.encryptWithSaltAndIV',
             pt: pt,
             pw: pw,
@@ -174,10 +176,10 @@ APIClient.prototype.promisedEncrypt = function(pt, pw, iter) {
 };
 
 APIClient.prototype.promisedDecrypt = function(ct, pw) {
-    if (useWebWorker) {
+    if (useWebWorker && typeof onLoadWorkerLoadAsmCrypto === "function") {
         return webworkifier.workify(APIClient.prototype.promisedDecrypt, function() {
             return require('./webworker');
-        }, {
+        }, onLoadWorkerLoadAsmCrypto, {
             method: 'Encryption.decrypt',
             ct: ct,
             pw: pw
