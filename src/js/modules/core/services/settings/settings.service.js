@@ -17,6 +17,10 @@
             username:  '',
             email:  null,
 
+            passwordScore: null,
+            verifiedEmail: null,
+            pendingEmailVerification: null,
+
             // [UP] language stores the currently selected language
             language: null,
             // [LOCAL] extraLanguages is the list of languages we can enable, cached locally
@@ -83,6 +87,8 @@
 
         // Pending property list for settings
         self._pendingSettingsPropertyList = [
+            "verifiedEmail",
+            "passwordScore",
             "localCurrency",
             "language",
             "receiveNewsletter",
@@ -435,6 +441,8 @@
         self._doc.hideBCCSweepWarning = sdkSettings.hideBCCSweepWarning;
         self._doc.walletActivated = sdkSettings.walletActivated;
         self._doc.knownLanguages = sdkSettings.knownLanguages;
+        self._doc.passwordScore = sdkSettings.passwordScore;
+        self._doc.verifiedEmail = sdkSettings.verifiedEmail;
         self._doc.showArchived = sdkSettings.showArchived;
 
         return self._doc;
@@ -573,6 +581,7 @@
                     glideraTransactions: self._doc.glideraTransactions || [],
                     latestVersionWeb: self._doc.latestVersionWeb,
                     glideraActivationNoticePending: self._doc.glideraActivationNoticePending,
+                    passwordScore: self._doc.passwordScore,
                     buyBTCRegion: self._doc.buyBTCRegion,
                     username: self._doc.username,
                     email: self._doc.email,

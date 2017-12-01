@@ -74,7 +74,17 @@
 
         <div ng-if="working && !complete">
             <div class="progress">
-                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: {{progressWidth}}%;"></div>
+                <div class="progress-bar progress-bar-striped active"
+                     ng-class="{
+                         'progress-bar-warning': walletData.networkType == 'BTC',
+                         'progress-bar-success': walletData.networkType != 'BTC'
+                      }"
+                     role="progressbar"
+                     aria-valuenow="0"
+                     aria-valuemin="0"
+                     aria-valuemax="100"
+                     style="width: {{progressWidth}}%;">
+                </div>
             </div>
             <h4 class="text-center">{{ 'MSG_SENDING' | translate }}</h4>
         </div>

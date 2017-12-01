@@ -254,7 +254,8 @@ a:focus {
     .sidebar-nav {
         list-style: none;
         width: 100%;
-        height: 100%;
+        height: 30%;
+        min-height: 300px;
         padding: 0;
 
         li {
@@ -319,7 +320,22 @@ a:focus {
         bottom: 0px;
         left: 0px;
         width: 100%;
-        padding: 0px 0px 25px 25px;
+        margin: 20px 20px;
+        a {
+            color: $muted;
+            padding: 4px 6px;
+            display: block;
+            text-decoration: none;
+        }
+    }
+
+    .securityProgressBar {
+        position: absolute;
+        bottom: 70px;
+        left: 0px;
+        width: 100%;
+
+        margin: 20px 20px;
         a {
             color: $muted;
             padding: 4px 6px;
@@ -403,6 +419,10 @@ $appHeaderHeight: 80px;
 
 .padding-t {
     padding-top: 0.5rem;
+}
+
+.padding-t-big {
+    padding-top: 2rem;
 }
 
 .padding-b {
@@ -667,12 +687,7 @@ $display-token-size: 50px;
 }
 
 .progress {
-    margin: 20px 0px;
-
-    .progress-bar {
-        background: none;
-        background-color: $sunflower-light;
-    }
+    margin: 10px 0px;
 }
 
 .password-input {

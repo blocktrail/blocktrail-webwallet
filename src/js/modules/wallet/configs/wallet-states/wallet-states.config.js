@@ -20,6 +20,16 @@
                     loadingData: loadingData
                 }
             })
+            .state("app.wallet.verifyEmail", {
+                url: "/verify-email?token",
+                cache: false,
+                views: {
+                    "mainView@app.wallet": {
+                        templateUrl: "js/modules/wallet/controllers/verify-email/verify-email.tpl.html",
+                        controller: "VerifyEmailCtrl"
+                    }
+                }
+            })
             .state("app.wallet.summary", {
                 url: "",
                 views: {
@@ -79,12 +89,42 @@
             })
             /*--- Settings ---*/
             .state("app.wallet.settings", {
+                abstract: true,
                 url: "/settings",
                 cache: true,
                 views: {
                     "mainView@app.wallet": {
                         templateUrl: "js/modules/wallet/controllers/settings/settings.tpl.html",
-                        controller: "SettingsCtrl"
+                    }
+                }
+            })
+            .state("app.wallet.settings.profile", {
+                url: "/profile",
+                cache: true,
+                views: {
+                    "settingsView@app.wallet.settings": {
+                        templateUrl: "js/modules/wallet/controllers/settings-profile/settings.profile.tpl.html",
+                        controller: "SettingsProfileCtrl"
+                    }
+                }
+            })
+            .state("app.wallet.settings.security", {
+                url: "/security",
+                cache: true,
+                views: {
+                    "settingsView@app.wallet.settings": {
+                        templateUrl: "js/modules/wallet/controllers/settings-security/settings.security.tpl.html",
+                        controller: "SettingsSecurityCtrl"
+                    }
+                }
+            })
+            .state("app.wallet.settings.tools", {
+                url: "/tools",
+                cache: true,
+                views: {
+                    "settingsView@app.wallet.settings": {
+                        templateUrl: "js/modules/wallet/controllers/settings-tools/settings.tools.tpl.html",
+                        controller: "SettingsToolsCtrl"
                     }
                 }
             })

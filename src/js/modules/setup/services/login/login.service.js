@@ -2,9 +2,11 @@
     "use strict";
 
     angular.module('blocktrail.setup')
-        .factory('loginFormService', function($http, $q, _, cryptoJS, navigator, CONFIG, launchService, setupService, sdkService, trackingService) {
+        .factory('loginFormService', function($http, $q, _, cryptoJS, navigator, CONFIG, launchService, setupService, sdkService,
+                                              trackingService) {
 
-            return new LoginFormService($http, $q, _, cryptoJS, navigator, CONFIG, launchService, setupService, sdkService, trackingService);
+            return new LoginFormService($http, $q, _, cryptoJS, navigator, CONFIG, launchService, setupService, sdkService,
+                trackingService);
         }
     );
 
@@ -12,7 +14,8 @@
      * TODO here
      * @constructor
      */
-    function LoginFormService($http, $q, _, cryptoJS, navigator, CONFIG, launchService, setupService, sdkService, trackingService) {
+    function LoginFormService($http, $q, _, cryptoJS, navigator, CONFIG, launchService, setupService, sdkService,
+                              trackingService) {
         var self = this;
 
         self._$http = $http;
