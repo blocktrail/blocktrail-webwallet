@@ -2401,7 +2401,7 @@ module.exports = {
 }).call(this,require("buffer").Buffer)
 },{"buffer":105}],7:[function(require,module,exports){
 module.exports = exports = {
-    VERSION: '3.6.0'
+    VERSION: '3.6.1'
 };
 
 },{}],8:[function(require,module,exports){
