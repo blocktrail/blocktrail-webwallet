@@ -105,6 +105,10 @@
     NewAccountFormService.prototype._errorHandler = function(response) {
         var error;
 
+        if (!response.data.msg) {
+            return this._$q.reject("MSG_FAILED_UNKNOWN");
+        }
+
         if (response.data.msg.toLowerCase().match(/username exists/)) {
             error = "MSG_USERNAME_TAKEN";
         } else if (response.data.msg.toLowerCase().match(/already in use/)) {
