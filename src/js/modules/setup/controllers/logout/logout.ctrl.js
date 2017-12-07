@@ -4,7 +4,7 @@
     angular.module("blocktrail.setup")
         .controller("LogoutCtrl", LogoutCtrl);
 
-    function LogoutCtrl($window, $stateParams, storageService, walletsManagerService) {
+    function LogoutCtrl($window, $stateParams, $timeout, storageService, walletsManagerService) {
         if ($stateParams.continue) {
             $window.location.replace("/#/loggedout");
         } else {
@@ -17,7 +17,10 @@
                 .resetAll()
                 .then(function() {
                         $window.location.replace("/#/logout?continue=1");
-                        $window.location.reload();
+                        // short timeout to avoid redirect loop
+                        $timeout(function() {
+                            $window.location.reload();
+                        }, 100);
                     }
                 );
         }
