@@ -51,26 +51,29 @@ angular.module('blocktrail.wallet')
             $analytics.eventTrack(event, ANALYTICS_META[event] || { category: 'Events' });
 
             if (event === EVENTS.LOGIN) {
-                if (!window.fbq) {
-                    console.error("`fbq` doesn't exist!")
-                } else {
+                if (window.fbq) {
                     // (ab)use "Other" event for logins
                     fbq('track', 'Other');
                 }
+                if (window.qp) {
+                    qp('track', 'Login');
+                }
             } else if (event === EVENTS.ACTIVATED) {
-                if (!window.fbq) {
-                    console.error("`fbq` doesn't exist!")
-                } else {
+                if (window.fbq) {
                     // (ab)use "Lead" event for activated
                     fbq('track', 'Lead');
                 }
+                if (window.qp) {
+                    qp('track', 'Activated');
+                }
             } else if (event === EVENTS.SIGN_UP) {
                 if (CONFIG.FBTRACKING_ID) {
-                    if (!window.fbq) {
-                        console.error("`fbq` doesn't exist!")
-                    } else {
+                    if (window.fbq) {
                         fbq('track', 'CompleteRegistration');
                     }
+                }
+                if (window.qp) {
+                    qp('track', 'Registration');
                 }
 
                 if (CONFIG.GOOGLEADWORDS_ID && CONFIG.GOOGLEADWORDS_LABEL) {
