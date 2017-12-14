@@ -89,7 +89,7 @@
             return launchService.getAccountInfo().then(function (accountInfo) {
                 $scope.requires2FA = accountInfo.requires2FA;
                 return getMaxSpendable().then(function (data) {
-                    var maxSpendable = data[1][blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE];
+                    var maxSpendable = data[blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE];
 
                     $scope.prioboost.credits = maxSpendable.prioboost_remaining;
                     $scope.prioboost.discountP = (1 - (maxSpendable.fees.min_relay_fee / maxSpendable.fees.optimal)) * 100;
