@@ -36,17 +36,21 @@
 
         AccountSecurityService.prototype.updateSecurityScore = function () {
             var settings = settingsService.getReadOnlySettingsData();
-            var score = 0.35 * settings.verifiedEmail + 0.35 * (settings.passwordScore / 4);
 
             return launchService.getAccountInfo().then(function (accountInfo) {
-                if (accountInfo.requires2FA) {
+                // collect security info
+                self._accountSecurityInfo.twoFA = !!accountInfo.requires2FA;
+                self._accountSecurityInfo.passwordScore = settings.passwordScore === null ? 4 : settings.passwordScore;
+                self._accountSecurityInfo.verifiedEmail = settings.verifiedEmail;
+
+                // determine score
+                var score = 0.35 * self._accountSecurityInfo.verifiedEmail + 0.35 * (self._accountSecurityInfo.passwordScore / 4);
+                if (self._accountSecurityInfo.twoFA) {
                     score += 0.3
                 }
 
+                // store score as percentage
                 self._accountSecurityInfo.score = score * 100;
-                self._accountSecurityInfo.twoFA = !!accountInfo.requires2FA;
-                self._accountSecurityInfo.passwordScore = settings.passwordScore;
-                self._accountSecurityInfo.verifiedEmail = settings.verifiedEmail;
 
                 return true;
             });
