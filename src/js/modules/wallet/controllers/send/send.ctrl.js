@@ -23,6 +23,7 @@
         $scope.settings = settingsData;
 
         //$scope.fiatFirst = false;
+        $scope.HIGH_PRIORITY_FEE = "high_priority";
         $scope.OPTIMAL_FEE = "optimal";
         $scope.LOW_PRIORITY_FEE = "low_priority";
         $scope.PRIOBOOST = "prioboost";
@@ -46,6 +47,7 @@
         };
 
         $scope.fees = {
+            highPriority: null,
             optimal: null,
             lowPriority: null,
             minRelayFee: null
@@ -219,15 +221,17 @@
                 return maxSpendablePromise;
             } else {
                 maxSpendablePromise = $q.all([
+                    activeWallet.getSdkWallet().maxSpendable($scope.useZeroConf, blocktrailSDK.Wallet.FEE_STRATEGY_HIGH_PRIORITY),
                     activeWallet.getSdkWallet().maxSpendable($scope.useZeroConf, blocktrailSDK.Wallet.FEE_STRATEGY_OPTIMAL),
                     activeWallet.getSdkWallet().maxSpendable($scope.useZeroConf, blocktrailSDK.Wallet.FEE_STRATEGY_LOW_PRIORITY),
                     activeWallet.getSdkWallet().maxSpendable($scope.useZeroConf, blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE)
                 ]).then(function(results) {
                     // set the local stored value
                     maxSpendable = {};
-                    maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_OPTIMAL] = results[0];
-                    maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_LOW_PRIORITY] = results[1];
-                    maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE] = results[2];
+                    maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_HIGH_PRIORITY] = results[0];
+                    maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_OPTIMAL] = results[1];
+                    maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_LOW_PRIORITY] = results[2];
+                    maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE] = results[3];
 
                     maxSpendablePromise = null; // unset promise, it's done
                     return maxSpendable;
@@ -242,8 +246,9 @@
          */
         function fetchFee() {
             // reset state
-            $scope.fees.lowPriority = null;
+            $scope.fees.highPriority = null;
             $scope.fees.optimal = null;
+            $scope.fees.lowPriority = null;
             $scope.fees.minRelayFee = null;
             $scope.displayFee = false;
             $scope.prioboost.possible = null;
@@ -319,6 +324,27 @@
                     }),
                 activeWallet
                     .getSdkWallet()
+                    .coinSelection(localPay, false, $scope.useZeroConf, blocktrailSDK.Wallet.FEE_STRATEGY_HIGH_PRIORITY)
+                    .spread(function(utxos, fee, change, res) {
+                        $log.debug("high priority fee: " + fee);
+
+                        return fee;
+                    })
+                    .catch(function(e) {
+                        // when we get a fee error we use maxspendable fee
+                        if (e instanceof blocktrail.WalletFeeError || (e instanceof Error && e.message === "Wallet balance too low")) {
+                            return getMaxSpendable()
+                                .then(function(maxSpendable) {
+                                    var fee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_HIGH_PRIORITY].fee;
+                                    $log.debug("optiomal fee MAXSPENDABLE: " + fee);
+                                    return fee;
+                                });
+                        } else {
+                            throw e;
+                        }
+                    }),
+                activeWallet
+                    .getSdkWallet()
                     .coinSelection(localPay, false, $scope.useZeroConf, blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE)
                     .spread(function(utxos, fee, change, res) {
                         $log.debug("minRelayFee fee: " + fee);
@@ -348,10 +374,12 @@
                 .then(function(res) {
                     var lowPriorityFee = res[0];
                     var optimalFee = res[1];
-                    var minRelayFee = res[2];
+                    var highPriorityFee = res[2];
+                    var minRelayFee = res[3];
 
                     $scope.fees.lowPriority = lowPriorityFee;
                     $scope.fees.optimal = optimalFee;
+                    $scope.fees.highPriority = highPriorityFee;
                     $scope.fees.minRelayFee = minRelayFee;
                     $scope.displayFee = true;
 
@@ -365,7 +393,9 @@
          * Update fee
          */
         function updateFee() {
-            if ($scope.sendInput.feeChoice === $scope.OPTIMAL_FEE) {
+            if ($scope.sendInput.feeChoice === $scope.HIGH_PRIORITY_FEE) {
+                $scope.fee = $scope.fees.optimal;
+            } else if ($scope.sendInput.feeChoice === $scope.OPTIMAL_FEE) {
                 $scope.fee = $scope.fees.optimal;
             } else if ($scope.sendInput.feeChoice === $scope.LOW_PRIORITY_FEE) {
                 $scope.fee = $scope.fees.lowPriority;

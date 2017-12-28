@@ -92,6 +92,21 @@
                             <span class="custom-select-arrow">
                                 <i class="bticon bticon-down-open" ng-click=""></i>
                             </span>
+                            <div class="custom-option" ng-show="sendInput.feeChoice == HIGH_PRIORITY_FEE">
+                                <div class="row">
+                                    <div class="col-xs-9">
+                                        <span class="custom-option-title">
+                                            {{ 'HIGH_PRIORITY_FEE' | translate }}
+                                        </span>
+                                        <span class="help help-block custom-option-subtitle">
+                                            {{ 'HIGH_PRIORITY_FEE_NOTICE' | translate }}
+                                        </span>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <span class="custom-option-fee" ng-if="fees.highPriority">{{ fees.highPriority | satoshiToCoin : walletData.networkType }}</span>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="custom-option" ng-show="sendInput.feeChoice == OPTIMAL_FEE">
                                 <div class="row">
                                     <div class="col-xs-9">
@@ -149,6 +164,24 @@
                         <div class="custom-select-menu"
                              ng-show="showselect"
                              click-anywhere-but-here="showselect = false" is-active="showselect == true">
+                            <div class="custom-option"
+                                 ng-class="{selected: sendInput.feeChoice == HIGH_PRIORITY_FEE}"
+                                 ng-click="sendInput.feeChoice = HIGH_PRIORITY_FEE; showselect = false;">
+                                <div class="row">
+                                    <div class="col-xs-9">
+                                        <span class="custom-option-title sentence-case">
+                                            {{ 'HIGH_PRIORITY_FEE' | translate }}
+                                        </span>
+                                        <span class="help help-block custom-option-subtitle">
+                                            {{ 'HIGH_PRIORITY_FEE_NOTICE' | translate }}
+                                        </span>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <span class="custom-option-fee" ng-if="fees.highPriority">{{ fees.highPriority | satoshiToCoin : walletData.networkType }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr style="margin: 0px;"/>
                             <div class="custom-option"
                                  ng-class="{selected: sendInput.feeChoice == OPTIMAL_FEE}"
                                  ng-click="sendInput.feeChoice = OPTIMAL_FEE; showselect = false;">
