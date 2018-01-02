@@ -141,6 +141,7 @@ Wallet.CHAIN_BCC_DEFAULT = 1;
 
 Wallet.FEE_STRATEGY_FORCE_FEE = blocktrail.FEE_STRATEGY_FORCE_FEE;
 Wallet.FEE_STRATEGY_BASE_FEE = blocktrail.FEE_STRATEGY_BASE_FEE;
+Wallet.FEE_STRATEGY_HIGH_PRIORITY = blocktrail.FEE_STRATEGY_HIGH_PRIORITY;
 Wallet.FEE_STRATEGY_OPTIMAL = blocktrail.FEE_STRATEGY_OPTIMAL;
 Wallet.FEE_STRATEGY_LOW_PRIORITY = blocktrail.FEE_STRATEGY_LOW_PRIORITY;
 Wallet.FEE_STRATEGY_MIN_RELAY_FEE = blocktrail.FEE_STRATEGY_MIN_RELAY_FEE;
@@ -694,13 +695,21 @@ Wallet.prototype.getNewAddress = function(chainIdx, cb) {
         cb = chainIdx;
         chainIdx = null;
     }
-    // default chainIdx to self.chain
-    if (typeof chainIdx === "undefined" || chainIdx === null) {
-        chainIdx = self.chain;
-    }
 
     var deferred = q.defer();
     deferred.promise.spreadNodeify(cb);
+
+    // Only enter if it's not an integer
+    if (chainIdx !== parseInt(chainIdx, 10)) {
+        // deal with undefined or null, assume defaults
+        if (typeof chainIdx === "undefined" || chainIdx === null) {
+            chainIdx = self.chain;
+        } else {
+            // was a variable but not integer
+            deferred.reject(new Error("Invalid chain index"));
+            return deferred.promise;
+        }
+    }
 
     deferred.resolve(
         self.sdk.getNewDerivation(self.identifier, "M/" + self.keyIndex + "'/" + chainIdx)
@@ -1311,7 +1320,9 @@ Wallet.prototype.buildTransaction = function(pay, changeAddress, allowZeroConf, 
                                         }
                                     break;
 
+                                    case Wallet.FEE_STRATEGY_HIGH_PRIORITY:
                                     case Wallet.FEE_STRATEGY_OPTIMAL:
+                                    case Wallet.FEE_STRATEGY_LOW_PRIORITY:
                                         if (fee > estimatedFee * self.feeSanityCheckBaseFeeMultiplier) {
                                             return cb(new blocktrail.WalletFeeError("the fee suggested by the coin selection (" + fee + ") " +
                                                 "seems awefully high (" + estimatedFee + ") for FEE_STRATEGY_OPTIMAL"));
