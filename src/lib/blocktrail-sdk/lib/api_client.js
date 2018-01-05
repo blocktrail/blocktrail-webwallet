@@ -38,7 +38,6 @@ var APIClient = function(options) {
         return new APIClient(options);
     }
     self.bitcoinCash = options.network && options.network === "BCC";
-
     self.testnet = options.testnet = options.testnet || false;
     if (self.bitcoinCash) {
         if (self.testnet) {
@@ -676,6 +675,30 @@ APIClient.prototype.setupWebhook = function(url, identifier, cb) {
     return self.client.post("/webhook", null, {url: url, identifier: identifier}, cb);
 };
 
+APIClient.prototype.getLegacyBitcoinCashAddress = function(input) {
+    if (this.network === bitcoin.networks.bitcoincash || this.network === bitcoin.networks.bitcoincashtestnet) {
+        var address;
+        try {
+            bitcoin.address.fromBase58Check(input, this.network);
+            return input;
+        } catch (e) {}
+
+        address = bitcoin.address.fromCashAddress(input, this.network);
+        var prefix;
+        if (address.version === bitcoin.script.types.P2PKH) {
+            prefix = this.network.pubKeyHash;
+        } else if (address.version === bitcoin.script.types.P2SH) {
+            prefix = this.network.scriptHash;
+        } else {
+            throw new Error("Unsupported address type");
+        }
+
+        return bitcoin.address.toBase58Check(address.hash, prefix);
+    }
+
+    throw new Error("Legacy addresses only work on bitcoin cash");
+};
+
 /**
  * get an existing webhook by it's identifier
  *
@@ -928,6 +951,7 @@ APIClient.prototype.initWallet = function(options, cb) {
             self.testnet,
             result.checksum,
             result.upgrade_key_index,
+            options.useCashAddress,
             options.bypassNewAddressCheck
         );
 
@@ -1074,7 +1098,8 @@ APIClient.prototype._createNewWalletV1 = function(options) {
                         deferred.notify(APIClient.CREATE_WALLET_PROGRESS_SUBMIT);
 
                         // create a checksum of our private key which we'll later use to verify we used the right password
-                        var checksum = options.primaryPrivateKey.getAddress();
+                        var pubKeyHash = bitcoin.crypto.hash160(options.primaryPrivateKey.getPublicKeyBuffer());
+                        var checksum = bitcoin.address.toBase58Check(pubKeyHash, self.network.pubKeyHash);
                         var keyIndex = options.keyIndex;
 
                         var primaryPublicKey = options.primaryPrivateKey.deriveHardened(keyIndex).neutered();
@@ -1112,6 +1137,7 @@ APIClient.prototype._createNewWalletV1 = function(options) {
                                     self.testnet,
                                     checksum,
                                     result.upgrade_key_index,
+                                    options.useCashAddress,
                                     options.bypassNewAddressCheck
                                 );
 
@@ -1181,7 +1207,8 @@ APIClient.prototype._createNewWalletV2 = function(options) {
         })
         .then(function(options) {
             // create a checksum of our private key which we'll later use to verify we used the right password
-            var checksum = options.primaryPrivateKey.getAddress();
+            var pubKeyHash = bitcoin.crypto.hash160(options.primaryPrivateKey.getPublicKeyBuffer());
+            var checksum = bitcoin.address.toBase58Check(pubKeyHash, self.network.pubKeyHash);
             var keyIndex = options.keyIndex;
 
             // send the public keys and encrypted data to server
@@ -1220,6 +1247,7 @@ APIClient.prototype._createNewWalletV2 = function(options) {
                         self.testnet,
                         checksum,
                         result.upgrade_key_index,
+                        options.useCashAddress,
                         options.bypassNewAddressCheck
                     );
 
@@ -1288,7 +1316,8 @@ APIClient.prototype._createNewWalletV3 = function(options) {
         })
         .then(function(options) {
             // create a checksum of our private key which we'll later use to verify we used the right password
-            var checksum = options.primaryPrivateKey.getAddress();
+            var pubKeyHash = bitcoin.crypto.hash160(options.primaryPrivateKey.getPublicKeyBuffer());
+            var checksum = bitcoin.address.toBase58Check(pubKeyHash, self.network.pubKeyHash);
             var keyIndex = options.keyIndex;
 
             // send the public keys and encrypted data to server
@@ -1328,6 +1357,7 @@ APIClient.prototype._createNewWalletV3 = function(options) {
                             self.testnet,
                             checksum,
                             result.upgrade_key_index,
+                            options.useCashAddress,
                             options.bypassNewAddressCheck
                         );
 
