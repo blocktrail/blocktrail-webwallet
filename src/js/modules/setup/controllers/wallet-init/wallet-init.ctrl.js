@@ -130,6 +130,7 @@
                             identifier: $scope.setupInfo.identifier,
                             password: $scope.setupInfo.password,
                             support_secret: supportSecret,
+                            useCashAddress: CONFIG.CASHADDRESS,
                             keyIndex: CONFIG.DEVKEYINDEX || 0
                         })
                             .progress(function(progress) {

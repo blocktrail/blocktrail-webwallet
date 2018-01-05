@@ -30,10 +30,13 @@
     };
 
     WalletService.prototype._sdkInitWallet = function(identifier, sdk) {
+        var self = this;
+
         return sdk.initWallet({
             identifier: identifier,
             readOnly: true,
-            bypassNewAddressCheck: true
+            bypassNewAddressCheck: true,
+            useCashAddress: self._CONFIG.CASHADDRESS
         });
     };
 
