@@ -4,7 +4,7 @@
     angular.module("blocktrail.wallet")
         .controller("AddressLookupCtrl", AddressLookupCtrl);
 
-    function AddressLookupCtrl($scope, $rootScope, dialogService, $translate, activeWallet, $q, $cacheFactory) {
+    function AddressLookupCtrl($scope, $rootScope, dialogService, $translate, bitcoinJS, activeWallet, $q, $cacheFactory) {
         var cache = $cacheFactory.get('address-lookup') || $cacheFactory('address-lookup', { capacity: 10 });
 
         var listenerGroupValues;
@@ -92,6 +92,23 @@
                         return activeWallet.getSdkWallet()
                             .addresses(options)
                             .then(function (addrs) {
+                                
+                                addrs.data.map(function (info) {
+                                    info.uiAddress = info.address;
+                                    var sdkWallet = activeWallet.getSdkWallet();
+                                    var network = sdkWallet.network;
+                                    if (network === bitcoinJS.networks.bitcoincash || network === bitcoinJS.networks.bitcoincashtestnet) {
+                                        var address = sdkWallet.decodeAddress(info.address);
+                                        if (address.type === "base58" && sdkWallet.useNewCashAddr) {
+                                            if (address.decoded.version === network.pubKeyHash) {
+                                                info.uiAddress = bitcoinJS.address.toCashAddress(address.decoded.hash, bitcoinJS.script.types.P2PKH, network.cashAddrPrefix);
+                                            } else if (address.decoded.version === network.scriptHash) {
+                                                info.uiAddress = bitcoinJS.address.toCashAddress(address.decoded.hash, bitcoinJS.script.types.P2SH, network.cashAddrPrefix);
+                                            }
+                                        }
+                                    }
+                                });
+
                                 cache.put(cacheKey, addrs);
                                 return addrs;
                             });

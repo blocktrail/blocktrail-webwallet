@@ -36,7 +36,7 @@
                     <a title="{{ 'CHECKOUT_AT_BTCCOM' | translate }}"
                        href="{{ CONFIG.NETWORKS[walletData.networkType].EXPLORER_ADDRESS_URL + '/' + item.address }}"
                        target="_blank">
-                        {{ item.address }}
+                        {{ item.uiAddress }}
                     </a>
                 </td>
                 <td class="colCurrLabel">{{ item.label ? item.label : "" }}</td>
