@@ -677,6 +677,11 @@ APIClient.prototype.setupWebhook = function(url, identifier, cb) {
     return self.client.post("/webhook", null, {url: url, identifier: identifier}, cb);
 };
 
+/**
+ * Converts a cash address to the legacy (base58) format
+ * @param {string} input
+ * @returns {string}
+ */
 APIClient.prototype.getLegacyBitcoinCashAddress = function(input) {
     if (this.network === bitcoin.networks.bitcoincash || this.network === bitcoin.networks.bitcoincashtestnet) {
         var address;
@@ -699,6 +704,35 @@ APIClient.prototype.getLegacyBitcoinCashAddress = function(input) {
     }
 
     throw new Error("Legacy addresses only work on bitcoin cash");
+};
+
+/**
+ * Converts a legacy bitcoin to the new cashaddr format
+ * @param {string} input
+ * @returns {string}
+ */
+APIClient.prototype.getCashAddressFromLegacyAddress = function(input) {
+    if (this.network === bitcoin.networks.bitcoincash || this.network === bitcoin.networks.bitcoincashtestnet) {
+        var address;
+        try {
+            bitcoin.address.fromCashAddress(input, this.network);
+            return input;
+        } catch (e) {}
+
+        address = bitcoin.address.fromBase58Check(input, this.network);
+        var scriptType;
+        if (address.version === this.network.pubKeyHash) {
+            scriptType = bitcoin.script.types.P2PKH;
+        } else if (address.version === this.network.scriptHash) {
+            scriptType = bitcoin.script.types.P2SH;
+        } else {
+            throw new Error("Unsupported address type");
+        }
+
+        return bitcoin.address.toCashAddress(address.hash, scriptType, this.network.cashAddrPrefix);
+    }
+
+    throw new Error("Cash addresses only work on bitcoin cash");
 };
 
 /**
@@ -2432,7 +2466,7 @@ module.exports = {
 }).call(this,require("buffer").Buffer)
 },{"buffer":125}],7:[function(require,module,exports){
 module.exports = exports = {
-    VERSION: '3.6.5'
+    VERSION: '3.6.6'
 };
 
 },{}],8:[function(require,module,exports){
