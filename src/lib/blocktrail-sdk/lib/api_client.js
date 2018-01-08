@@ -701,7 +701,7 @@ APIClient.prototype.getLegacyBitcoinCashAddress = function(input) {
         return bitcoin.address.toBase58Check(address.hash, prefix);
     }
 
-    throw new Error("Legacy addresses only work on bitcoin cash");
+    throw new Error("Cash addresses only work on bitcoin cash");
 };
 
 /**
