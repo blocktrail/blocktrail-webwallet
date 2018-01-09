@@ -15,7 +15,7 @@
         this._sdkService = sdkService;
         $rootScope.pageTitle = 'ADDRESS_LOOKUP';
 
-        $scope.useCashAddress = CONFIG.NETWORKS[walletData.networkType].CASHADDRESS;
+        $scope.useCashAddress = !CONFIG.NETWORKS[walletData.networkType].CASHADDRESS;
 
         $scope.items = [];
         $scope.totalItems = null;
