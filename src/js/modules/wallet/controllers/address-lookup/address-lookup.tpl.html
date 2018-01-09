@@ -2,6 +2,32 @@
     class="appPage page-blur"
     ng-class="{'page-blur-active': isLoading}"
 >
+    <div class="cashaddr-notice alert alert-warning"
+         ng-show="CONFIG.NETWORKS[walletData.networkType].CASHADDRESS">
+        <div class="row">
+            <div class="col-xs-12 col-md-8">
+                <h3 style="margin-top: 0px;">Bitcoin Cash New Address Format</h3>
+            </div>
+            <div class="col-xs-12 col-md-4">
+                <div style="text-align: right;">
+                    <toggle-switch
+                            ng-model="useCashAddress"
+                            class="switch-success"
+                    ></toggle-switch>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <p>
+                    Bitcoin Cash has a new address format to avoid confusion with Bitcoin addresses. <br />
+                    If you're trying to use one of these new addresses and the recipient is saying it is invalid,
+                    then you can still switch back to the old legacy format.
+                </p>
+            </div>
+        </div>
+    </div>
+
     <div class="searchBox">
         <input type="text" ng-model="searchText" maxlength="100" placeholder="{{ 'ADDRESS_LOOKUP_SEARCH_PLACEHOLDER' | translate }}">
         <div>
@@ -36,7 +62,7 @@
                     <a title="{{ 'CHECKOUT_AT_BTCCOM' | translate }}"
                        href="{{ CONFIG.NETWORKS[walletData.networkType].EXPLORER_ADDRESS_URL + '/' + item.address }}"
                        target="_blank">
-                        {{ item.uiAddress }}
+                        {{ item.address | displayAddr: useCashAddress }}
                     </a>
                 </td>
                 <td class="colCurrLabel">{{ item.label ? item.label : "" }}</td>

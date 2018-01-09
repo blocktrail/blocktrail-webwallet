@@ -4,13 +4,18 @@
     angular.module("blocktrail.wallet")
         .controller("AddressLookupCtrl", AddressLookupCtrl);
 
-    function AddressLookupCtrl($scope, $rootScope, dialogService, $translate, sdkService, bitcoinJS, activeWallet, $q, $cacheFactory) {
+    function AddressLookupCtrl($scope, $rootScope, dialogService, $translate, sdkService, bitcoinJS, activeWallet,
+                               $q, $cacheFactory, CONFIG) {
+        var walletData = activeWallet.getReadOnlyWalletData();
+
         var cache = $cacheFactory.get('address-lookup') || $cacheFactory('address-lookup', { capacity: 10 });
 
         var listenerGroupValues;
 
         this._sdkService = sdkService;
         $rootScope.pageTitle = 'ADDRESS_LOOKUP';
+
+        $scope.useCashAddress = CONFIG.NETWORKS[walletData.networkType].CASHADDRESS;
 
         $scope.items = [];
         $scope.totalItems = null;
@@ -93,20 +98,6 @@
                         return activeWallet.getSdkWallet()
                             .addresses(options)
                             .then(function (addrs) {
-                                var sdk = sdkService.getSdkByActiveNetwork();
-                                var sdkWallet = activeWallet.getSdkWallet();
-                                var network = sdkWallet.network;
-
-                                addrs.data.map(function (info) {
-                                    if ((network === bitcoinJS.networks.bitcoincash || network === bitcoinJS.networks.bitcoincashtestnet) &&
-                                        sdkWallet.useNewCashAddr
-                                    ) {
-                                        info.uiAddress = sdk.getCashAddressFromLegacyAddress(info.address)
-                                    } else {
-                                        info.uiAddress = info.address;
-                                    }
-                                });
-
                                 cache.put(cacheKey, addrs);
                                 return addrs;
                             });
