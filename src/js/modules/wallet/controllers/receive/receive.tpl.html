@@ -1,31 +1,9 @@
-<div
-    class="appPage page-blur"
-    ng-class="{'page-blur-active': isLoading}"
->
+<div class="appPage page-blur" ng-class="{'page-blur-active': isLoading}">
+
     <div class="cashaddr-notice alert alert-warning"
-         ng-show="CONFIG.NETWORKS[walletData.networkType].CASHADDRESS">
-        <div class="row">
-            <div class="col-xs-12 col-md-8">
-                <h3 style="margin-top: 0px;">Bitcoin Cash New Address Format</h3>
-            </div>
-            <div class="col-xs-12 col-md-4">
-                <div style="text-align: right;">
-                    <toggle-switch
-                            ng-model="useCashAddress"
-                            class="switch-success"
-                    ></toggle-switch>
-                </div>
-            </div>
-        </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    <p>
-                        Bitcoin Cash has a new address format to avoid confusion with Bitcoin addresses. <br />
-                        If you're trying to use one of these new addresses and the recipient is saying it is invalid,
-                        then you can still switch back to the old legacy format.
-                    </p>
-            </div>
-        </div>
+        ng-show="CONFIG.NETWORKS[walletData.networkType].CASHADDRESS" style="margin-top:10px;">
+            <h4 style="margin-top: 0px;">{{ 'BITCOIN_CASH_NEW_ADDRESS_FORMAT_ALERT_TITLE' | translate }}</h4>
+            {{ 'BITCOIN_CASH_NEW_ADDRESS_FORMAT_ALERT_BODY' | translate }}
     </div>
 
     <form class="form" name="sendInputForm" novalidate ng-init="showQR=false">
@@ -38,6 +16,20 @@
                     <p class="address">{{ newRequest.address || '...' }}</p>
                     <span class="help-block">
                         {{ 'BITCOIN_ADDRESS_RECEIVE_HELP' | translate : {network: CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG} }}
+                        <br />
+                        {{ 'BITCOIN_CASH_ADDRESS_FORMAT_HELP_1' | translate }}
+
+                        <span ng-show="useCashAddress">
+                            <a ng-href="#" ng-click="useCashAddress=false" >
+                                {{ 'BITCOIN_CASH_ADDRESS_FORMAT_HELP_LINK_OLD' | translate }}
+                            </a>
+                        </span>
+
+                        <span ng-show="!useCashAddress">
+                            <a ng-href="#" ng-click="useCashAddress=true" >
+                                {{ 'BITCOIN_CASH_ADDRESS_FORMAT_HELP_LINK_NEW' | translate }}
+                            </a>
+                        </span>
 
                         <button class="btn btn-primary ng-binding btn-address-lookup" ui-sref=".address-lookup">
                             {{ 'MY_ADDRESSES' | translate }}

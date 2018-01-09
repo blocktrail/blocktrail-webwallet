@@ -65,9 +65,13 @@
                 .then(function(sdk) {
                     $scope.sdk = sdk;
                     $scope.sdkReadOnlyObject = sdkService.getReadOnlySdkData();
-
+                    var useCashAddress = CONFIG.NETWORKS[sdkService.getNetworkType()]
                     $log.debug("initialising wallet: " + $scope.setupInfo.identifier, $scope.sdk);
-                    return $scope.sdk.initWallet({identifier: $scope.setupInfo.identifier, password: $scope.setupInfo.password});
+                    return $scope.sdk.initWallet({
+                        identifier: $scope.setupInfo.identifier,
+                        password: $scope.setupInfo.password,
+                        useCashAddress: useCashAddress
+                    });
                 })
                 .then(function(wallet) {
                     $analytics.eventTrack("initWallet", {category: "Events"});
@@ -125,12 +129,13 @@
                         // generate support secret, 6 random digits
                         var supportSecret = randDigits(6);
 
+                        var useCashAddress = CONFIG.NETWORKS[sdkService.getNetworkType()].CASHADDRESS;
                         return $scope.sdk.createNewWallet({
                             walletVersion: CONFIG.DEFAULT_WALLET_VERSION,
                             identifier: $scope.setupInfo.identifier,
                             password: $scope.setupInfo.password,
                             support_secret: supportSecret,
-                            useCashAddress: CONFIG.CASHADDRESS,
+                            useCashAddress: useCashAddress,
                             keyIndex: CONFIG.DEVKEYINDEX || 0
                         })
                             .progress(function(progress) {

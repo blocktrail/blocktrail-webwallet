@@ -32,11 +32,12 @@
     WalletService.prototype._sdkInitWallet = function(identifier, sdk) {
         var self = this;
 
+        var useCashAddress = self._CONFIG.NETWORKS[self._sdkService.getNetworkType()].CASHADDRESS;
         return sdk.initWallet({
             identifier: identifier,
             readOnly: true,
             bypassNewAddressCheck: true,
-            useCashAddress: self._CONFIG.CASHADDRESS
+            useCashAddress: useCashAddress
         });
     };
 
