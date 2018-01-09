@@ -4,7 +4,8 @@
     angular.module("blocktrail.wallet")
         .controller("ReceiveCtrl", ReceiveCtrl);
 
-    function ReceiveCtrl($scope, $rootScope, $q, CONFIG, activeWallet, settingsService, CurrencyConverter, Currencies, trackingService) {
+    function ReceiveCtrl($scope, $rootScope, $q, CONFIG, activeWallet, settingsService, CurrencyConverter, Currencies,
+                         trackingService) {
 
         var walletData = activeWallet.getReadOnlyWalletData();
         var settingsData = settingsService.getReadOnlySettingsData();
@@ -17,14 +18,10 @@
 
         $scope.isLoading = true;
 
-        $scope.address = null;
-        $scope.path = null;
-        $scope.bitcoinUri = null;
-        $scope.qrcode = null;
+        $scope.useCashAddress = CONFIG.NETWORKS[walletData.networkType].CASHADDRESS;
 
         $scope.newRequest = {
             address: null,
-            path: null,
             btcValue: "",
             fiatValue: 0,
             message: null,
@@ -52,6 +49,15 @@
 
         $scope.$on("enabled_currency", function() {
             updateCurrentType($scope.currencyType);
+        });
+        $scope.$watch("useCashAddress", function(newValue, oldValue) {
+            if (newValue !== oldValue && $scope.newRequest.address) {
+                if (newValue) {
+                    $scope.newRequest.address = activeWallet.getSdkWallet().sdk.getCashAddressFromLegacyAddress($scope.newRequest.address);
+                } else {
+                    $scope.newRequest.address = activeWallet.getSdkWallet().sdk.getLegacyBitcoinCashAddress($scope.newRequest.address);
+                }
+            }
         });
 
         $scope.$on("$destroy", onDestroy);
@@ -140,7 +146,12 @@
                 return false;
             }
 
-            $scope.newRequest.bitcoinUri = "bitcoin:" + $scope.newRequest.address;
+            var prefix = "";
+            if (!(CONFIG.NETWORKS[walletData.networkType].CASHADDRESS && $scope.useCashAddress)) {
+                prefix = CONFIG.NETWORKS[walletData.networkType].URIPREFIX;
+            }
+
+            $scope.newRequest.bitcoinUri = prefix + $scope.newRequest.address;
             $scope.newRequest.qrValue = 0;
 
             if ($scope.currencyType === nativeCurrency) {
