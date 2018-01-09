@@ -65,7 +65,7 @@
                 .then(function(sdk) {
                     $scope.sdk = sdk;
                     $scope.sdkReadOnlyObject = sdkService.getReadOnlySdkData();
-                    var useCashAddress = CONFIG.NETWORKS[sdkService.getNetworkType()]
+                    var useCashAddress = CONFIG.NETWORKS[sdkService.getNetworkType()].CASHADDRESS;
                     $log.debug("initialising wallet: " + $scope.setupInfo.identifier, $scope.sdk);
                     return $scope.sdk.initWallet({
                         identifier: $scope.setupInfo.identifier,
