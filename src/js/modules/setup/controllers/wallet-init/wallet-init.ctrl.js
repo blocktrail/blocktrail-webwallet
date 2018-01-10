@@ -67,6 +67,7 @@
                     $scope.sdkReadOnlyObject = sdkService.getReadOnlySdkData();
                     var useCashAddress = CONFIG.NETWORKS[sdkService.getNetworkType()].CASHADDRESS;
                     $log.debug("initialising wallet: " + $scope.setupInfo.identifier, $scope.sdk);
+
                     return $scope.sdk.initWallet({
                         identifier: $scope.setupInfo.identifier,
                         password: $scope.setupInfo.password,
@@ -294,7 +295,13 @@
 
                         //try the new password
                         $log.debug("re-initialising wallet with new password: " + $scope.setupInfo.identifier);
-                        return $scope.sdk.initWallet({identifier: $scope.setupInfo.identifier, password: $scope.setupInfo.password})
+                        var useCashAddress = CONFIG.NETWORKS[sdkService.getNetworkType()].CASHADDRESS;
+
+                        return $scope.sdk.initWallet({
+                            identifier: $scope.setupInfo.identifier,
+                            password: $scope.setupInfo.password,
+                            useCashAddress: useCashAddress
+                        })
                             .then(function(wallet) {
                                 //success, password is correct. We can continue
                                 return $q.when(wallet);
