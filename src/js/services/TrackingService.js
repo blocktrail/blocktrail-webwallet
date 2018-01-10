@@ -65,6 +65,9 @@ angular.module('blocktrail.wallet')
                     if (window.fbq) {
                         fbq('track', 'CompleteRegistration');
                     }
+                    if (window.fbq) {
+                        qp('track', 'Registration');
+                    }
                 }
 
                 if (CONFIG.GOOGLEADWORDS_ID && CONFIG.GOOGLEADWORDS_LABEL) {
