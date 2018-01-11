@@ -103,7 +103,7 @@
                                         </span>
                                     </div>
                                     <div class="col-xs-3">
-                                        <span class="custom-option-fee" ng-if="fees.highPriority">{{ fees.highPriority | satoshiToCoin : walletData.networkType }}</span>
+                                        <span class="custom-option-fee" ng-if="fees.highPriority && displayFee">{{ fees.highPriority | satoshiToCoin : walletData.networkType }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -118,7 +118,7 @@
                                         </span>
                                     </div>
                                     <div class="col-xs-3">
-                                        <span class="custom-option-fee" ng-if="fees.optimal">{{ fees.optimal | satoshiToCoin : walletData.networkType }}</span>
+                                        <span class="custom-option-fee" ng-if="fees.optimal && displayFee">{{ fees.optimal | satoshiToCoin : walletData.networkType }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -133,7 +133,7 @@
                                         </span>
                                     </div>
                                     <div class="col-xs-3">
-                                        <span class="custom-option-fee" ng-if="fees.lowPriority">{{ fees.lowPriority | satoshiToCoin : walletData.networkType }}</span>
+                                        <span class="custom-option-fee" ng-if="fees.lowPriority && displayFee">{{ fees.lowPriority | satoshiToCoin : walletData.networkType }}</span>
                                     </div>
                                 </div>
                             </div>
