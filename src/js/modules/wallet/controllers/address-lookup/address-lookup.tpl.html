@@ -13,7 +13,7 @@
                 <input id="checkOnlyLabeled" class="searchCheckbox" type="checkbox" ng-model="checkOnlyLabeled"> {{ 'ADDRESS_LOOKUP_CHECKONLY_LABELED' | translate }}
             </label>
 
-            <label for="encodeLegacy">
+            <label for="encodeLegacy" ng-show="CONFIG.NETWORKS[walletData.networkType].CASHADDRESS">
                 <input id="encodeLegacy" class="searchCheckbox" type="checkbox" ng-model="useOldAddress"> {{ 'ADDRESS_LOOKUP_FORMAT_BITCOIN_CASH' | translate }}
             </label>
 
