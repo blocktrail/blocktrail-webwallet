@@ -16,19 +16,21 @@
                     <p class="address">{{ newRequest.address || '...' }}</p>
                     <span class="help-block">
                         {{ 'BITCOIN_ADDRESS_RECEIVE_HELP' | translate : {network: CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG} }}
-                        <br />
-                        {{ 'BITCOIN_CASH_ADDRESS_FORMAT_HELP_1' | translate }}
 
-                        <span ng-show="useCashAddress">
-                            <a ng-href="#" ng-click="useCashAddress=false" >
-                                {{ 'BITCOIN_CASH_ADDRESS_FORMAT_HELP_LINK_OLD' | translate }}
-                            </a>
-                        </span>
+                        <span ng-show="CONFIG.NETWORKS[walletData.networkType].CASHADDRESS">
+                            <br />
+                            {{ 'BITCOIN_CASH_ADDRESS_FORMAT_HELP_1' | translate }}
+                            <span ng-show="useCashAddress">
+                                <a ng-href="#" ng-click="useCashAddress=false" >
+                                    {{ 'BITCOIN_CASH_ADDRESS_FORMAT_HELP_LINK_OLD' | translate }}
+                                </a>
+                            </span>
 
-                        <span ng-show="!useCashAddress">
-                            <a ng-href="#" ng-click="useCashAddress=true" >
-                                {{ 'BITCOIN_CASH_ADDRESS_FORMAT_HELP_LINK_NEW' | translate }}
-                            </a>
+                            <span ng-show="!useCashAddress">
+                                <a ng-href="#" ng-click="useCashAddress=true" >
+                                    {{ 'BITCOIN_CASH_ADDRESS_FORMAT_HELP_LINK_NEW' | translate }}
+                                </a>
+                            </span>
                         </span>
 
                         <button class="btn btn-primary ng-binding btn-address-lookup" ui-sref=".address-lookup">
