@@ -11,7 +11,8 @@
         var walletData = activeWallet.getReadOnlyWalletData();
 
         $scope.brokers = [];
-        $scope.network = CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG;
+        $scope.network = CONFIG.NETWORKS[walletData.networkType].TICKER;
+        $scope.networkLong = CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG;
         $scope.simplexEnabled = false;
         $scope.glideraEnabled = false;
 
@@ -26,7 +27,7 @@
             });
         });
 
-        $rootScope.pageTitle = $translate.instant("BUYBTC_NETWORK", { network: $scope.network });
+        $rootScope.pageTitle = $translate.instant("BUYBTC_NETWORK", { network: $scope.networkLong });
 
         $scope.goBuyBTCState = function(broker) {
             $state.go("app.wallet.buybtc.buy", {broker: broker});
