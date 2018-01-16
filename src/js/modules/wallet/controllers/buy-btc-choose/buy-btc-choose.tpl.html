@@ -11,7 +11,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-5" ng-show="glideraEnabled">
+        <div class="col-sm-5" ng-show="glideraEnabled && network == 'BTC'">
             <h2 class="header-inline">{{ 'BUYBTC_BANK_WIRE' | translate }}</h2> <span style="color: gray">(USA)</span>
             <div class="buybtc-list list-group">
                 <div class="partner-btn btn btn-lg btn-default" ng-click="goGlideraBrowser()" style="height: 50px; width: 200px">
