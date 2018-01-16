@@ -5,11 +5,13 @@
         .controller("BuyBTCChooseCtrl", BuyBTCChooseCtrl);
 
     // TODO Needs refactoring
-    function BuyBTCChooseCtrl($rootScope, $q, $scope, $state, _, dialogService, settingsService,
+    function BuyBTCChooseCtrl($rootScope, $q, $scope, $state, _, dialogService, settingsService, activeWallet,
                               $translate, glideraService, buyBTCService, $log, trackingService, $timeout, CONFIG) {
         var settings = settingsService.getReadOnlySettingsData();
+        var walletData = activeWallet.getReadOnlyWalletData();
 
         $scope.brokers = [];
+        $scope.network = CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG;
         $scope.simplexEnabled = false;
         $scope.glideraEnabled = false;
 
@@ -24,7 +26,7 @@
             });
         });
 
-        $rootScope.pageTitle = "BUYBTC";
+        $rootScope.pageTitle = $translate.instant("BUYBTC_NETWORK", { network: $scope.network });
 
         $scope.goBuyBTCState = function(broker) {
             $state.go("app.wallet.buybtc.buy", {broker: broker});
