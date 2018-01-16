@@ -8,6 +8,19 @@
 
         var settingsData = settingsService.getReadOnlySettingsData();
 
+        function checkAndPromptSimplex() {
+            var currTimestamp = ((new Date()).getTime() / 1000).toFixed(0);
+            var simplexLastForward = settingsData.simplexLastForward;
+
+            if (currTimestamp - simplexLastForward < settingsData.simplexLastForwardDelta) {
+                return dialogService.alert(
+                    $translate.instant('IMPORTANT'),
+                    'You\'ve been back here quite fast, are you sure you completed the whole checkout?', // $translate.instant('BROWSER_SECURITY_ERROR'),
+                    $translate.instant('OK')
+                ).result;
+            }
+        }
+
         function checkAndPromptBitcoinURIHandler() {
 
             var currTimestamp = ((new Date()).getTime() / 1000).toFixed(0);
@@ -68,6 +81,7 @@
         }
 
         return {
+            checkAndPromptSimplex: checkAndPromptSimplex,
             checkAndPromptBitcoinURIHandler: checkAndPromptBitcoinURIHandler,
             promptBitcoinURIHandler: promptBitcoinURIHandler
         };
