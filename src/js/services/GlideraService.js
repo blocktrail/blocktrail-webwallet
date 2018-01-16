@@ -346,7 +346,7 @@ angular.module('blocktrail.wallet').factory(
                 });
         };
 
-        var buyPrices = function(qty, fiat) {
+        var buyPrices = function(qty, fiat, nullArg1 , nullArg2 /* null arguments needed in SimplexService */) {
             var activeWallet = walletsManagerService.getActiveWallet();
             var sdk = activeWallet.getSdkWallet().sdk;
 

@@ -83,6 +83,14 @@ a:focus {
     height: 100%;
 }
 
+.min-width-zero {
+    min-width: 0;
+}
+
+.header-inline {
+    display: inline-block;
+}
+
 .flex-container {
     @include display-flex();
 }

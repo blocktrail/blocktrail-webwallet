@@ -49,7 +49,8 @@
             glideraActivationNoticePending: null,
             hideBCCSweepWarning: false,
 
-            buyBTCRegion: null,
+            simplexLastForward: null,
+            simplexLastForwardDelta: 30, // 30 seconds
 
             registerURIHandlerExecuted: false,
             registerURIHandlerNotifyCounter: 0,
@@ -96,7 +97,6 @@
             "glideraTransactions",
             "latestVersionWeb",
             "glideraActivationNoticePending",
-            "buyBTCRegion",
             "username",
             "email",
             "hideBCCSweepWarning",
@@ -435,7 +435,6 @@
         self._doc.glideraTransactions = sdkSettings.glideraTransactions || [];
         self._doc.username = sdkSettings.username;
         self._doc.email = sdkSettings.email;
-        self._doc.buyBTCRegion = sdkSettings.buyBTCRegion;
         self._doc.latestVersionWeb = sdkSettings.latestVersionWeb;
         self._doc.glideraActivationNoticePending = sdkSettings.glideraActivationNoticePending;
         self._doc.hideBCCSweepWarning = sdkSettings.hideBCCSweepWarning;
