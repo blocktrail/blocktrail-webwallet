@@ -213,6 +213,18 @@
             return self.client.get("/mywallet/glidera/prices/buy", {qty: qty, fiat: fiat, platform: 'web'});
         };
 
+        blocktrailSDK.prototype.simplexBuyPrices = function (data) {
+            var self = this;
+
+            return self.client.post("/mywallet/simplex/prices/quote", null, data);
+        };
+
+        blocktrailSDK.prototype.simplexPaymentRequest = function (data) {
+            var self = this;
+
+            return self.client.post("/mywallet/simplex/payment/request", null, data);
+        };
+
         blocktrailSDK.prototype.passwordChange = function (oldPassword, newPassword, encryptedSecret, twoFactorToken, walletsData) {
             var self = this;
 

@@ -1,7 +1,7 @@
 (function() {
     "use strict";
 
-    angular.module("blocktrail.core")
+    angular.module("blocktrail.wallet")
         .controller("BuyBTCGlideraOauthCallbackCtrl", BuyBTCGlideraOauthCallbackCtrl);
 
     // TODO Needs refactoring

@@ -1,59 +1,30 @@
 (function() {
     "use strict";
 
-    angular.module("blocktrail.core")
+    angular.module("blocktrail.wallet")
         .controller("BuyBTCChooseCtrl", BuyBTCChooseCtrl);
 
     // TODO Needs refactoring
-    function BuyBTCChooseCtrl($q, $scope, $state, _, dialogService, settingsService,
-                              $translate, glideraService, buyBTCService, $log, trackingService) {
+    function BuyBTCChooseCtrl($rootScope, $q, $scope, $state, _, dialogService, settingsService,
+                              $translate, glideraService, buyBTCService, $log, trackingService, $timeout, CONFIG) {
         var settings = settingsService.getReadOnlySettingsData();
 
         $scope.brokers = [];
-        // load chooseRegion from settingsService
-        $scope.chooseRegion = null;
+        $scope.simplexEnabled = false;
+        $scope.glideraEnabled = false;
 
-        $q.all([,
-            buyBTCService.regions().then(function(regions) {
-                $scope.regions = regions;
-            }),
-            buyBTCService.usStates().then(function(usStates) {
-                $scope.usStates = usStates;
-            })
-        ]).then(function() {
-            $scope.chooseRegion = _.defaults({}, settings.buyBTCRegion, {
-                code: null,
-                name: null
-            });
+        $scope.$watch('brokers', function() {
+            $scope.simplexEnabled = CONFIG.FORCE_SIMPLEX_ENABLED || $scope.brokers.indexOf('simplex') !== -1;
+            $scope.glideraEnabled = CONFIG.FORCE_GLIDERA_ENABLED || $scope.brokers.indexOf('glidera') !== -1;
+        });
 
-            return buyBTCService.regionBrokers($scope.chooseRegion.code).then(function(brokers) {
+        buyBTCService.brokers().then(function(brokers) {
+            $timeout(function() {
                 $scope.brokers = brokers;
-                $scope.chooseRegion.regionOk = $scope.brokers.length;
             });
         });
 
-        $scope.selectRegion = function(region, name) {
-            $log.debug("selectRegion: " + region + " (" + name + ")");
-            $scope.chooseRegion.code = region;
-            $scope.chooseRegion.name = name;
-
-            buyBTCService.regionBrokers($scope.chooseRegion.code).then(function(brokers) {
-                $scope.brokers = brokers;
-                $scope.chooseRegion.regionOk = $scope.brokers.length;
-
-                if ($scope.chooseRegion.regionOk) {
-                    trackingService.trackEvent(trackingService.EVENTS.BUYBTC.REGION_OK);
-                } else {
-                    trackingService.trackEvent(trackingService.EVENTS.BUYBTC.REGION_NOTOK);
-                }
-
-                var updateSettings = {
-                    buyBTCRegion: _.defaults({}, $scope.chooseRegion)
-                };
-
-                return settingsService.updateSettingsUp(updateSettings);
-            });
-        };
+        $rootScope.pageTitle = "BUYBTC";
 
         $scope.goBuyBTCState = function(broker) {
             $state.go("app.wallet.buybtc.buy", {broker: broker});
@@ -125,7 +96,6 @@
                 .then(function() {
                     var updateSettings = {
                         glideraAccessToken: null,
-                        buyBTCRegion: null,
                         glideraTransactions: []
                     };
 

@@ -5,6 +5,8 @@
     "API_HOST": "api.blocktrail.com",
     "API_HTTPS": true,
 
+    "FORCE_GLIDERA_ENABLED": false,
+    "FORCE_SIMPLEX_ENABLED": false,
 
     // @deprecated
     // until we have a cleaner solution for the API endpoints, should either by BTC or tBTC
