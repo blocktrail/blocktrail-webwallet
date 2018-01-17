@@ -164,7 +164,11 @@
 
                                 // simplex error handling
                                 if (result["error"]) {
-                                    $scope.errorMsg = result["error"];
+                                    // if it is not JSON
+                                    try { JSON.parse(data); }
+                                    catch(e) {
+                                        $scope.errorMsg = result["error"];
+                                    }
                                 }
                             });
                     });
@@ -202,7 +206,11 @@
 
                                 // simplex error handling
                                 if (result["error"]) {
-                                    $scope.errorMsg = result["error"];
+                                    // if it is not JSON
+                                    try { JSON.parse(data); }
+                                    catch(e) {
+                                        $scope.errorMsg = result["error"];
+                                    }
                                 }
                             });
                     });
