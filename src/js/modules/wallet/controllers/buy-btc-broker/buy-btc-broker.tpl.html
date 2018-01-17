@@ -15,25 +15,32 @@
                      ng-src="{{ CONFIG.STATICSURL }}/img/glidera-bright.png" alt="Glidera" title="Glidera" />
             </h2>
 
-            <section class="buybtc-currentprice">
+            <div class="row">
                 <div class="row">
-                    <div class="col-xs-6">
-                        <div class="currentprice-label">
-                            {{ 'CURRENT_PRICE' | translate }}
-                        </div>
-                    </div>
-                    <div class="col-xs-6">
-                        <div ng-if="fetchingMainPrice">
-                            <loading-spinner></loading-spinner>
-                        </div>
-                        <div ng-if="!fetchingMainPrice" class="currentprice-value">
-                            <b>{{ buyInput.fiatCurrency | toCurrencySymbol }}{{ priceBTC | number:2 }}</b>
-                        </div>
+                    <div class="col-xs-8 col-xs-offset-2">
+                        <section class="buybtc-currentprice">
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <div class="currentprice-label">
+                                        {{ 'CURRENT_PRICE' | translate }}
+                                    </div>
+                                </div>
+                                <div class="col-xs-6">
+                                    <div ng-if="fetchingMainPrice">
+                                        <loading-spinner></loading-spinner>
+                                    </div>
+                                    <div ng-if="!fetchingMainPrice" class="currentprice-value">
+                                        <b>{{ buyInput.fiatCurrency | toCurrencySymbol }}{{ priceBTC | number:2 }}</b>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
                     </div>
                 </div>
-            </section>
+            </div>
+
             <div class="row buy-amount-input">
-                <div class="col-xs-10 col-xs-offset-1">
+                <div class="col-xs-8 col-xs-offset-2">
                     <div class="form-group form-group-lg">
                         <label class="control-label" for="amount">{{ 'AMOUNT' | translate }}</label>
                         <div class="input-group input-group-lg">
@@ -61,27 +68,18 @@
 
             <!-- Error message display -->
             <div class="row">
-                <div class="col-xs-10 col-xs-offset-1">
+                <div class="col-xs-8 col-xs-offset-2">
                     <div class="help-block" ng-if="errorMsg">
                         {{ errorMsg }}
                     </div>
                 </div>
             </div>
 
-            <!-- Display order id -->
-            <!--<div class="row">-->
-                <!--<div class="col-xs-12">-->
-                    <!--<div class="help-block text-right" ng-if="last_simplex_data.quote_id">-->
-                        <!--{{ 'ORDER_ID' | translate }}: {{ last_simplex_data.order_id }}-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
-
             <div ng-if="CONFIG.DEBUG && (buyInput.btcValue || buyInput.fiatValue) && !errorMsg">
                 <span class="text-center" ng-show="fetchingInputPrice">
                     <loading-spinner></loading-spinner>
                 </span>
-                <div class="col-xs-10 col-xs-offset-1 buy-fee-information" ng-show="!fetchingInputPrice">
+                <div class="col-xs-8 col-xs-offset-2 buy-fee-information" ng-show="!fetchingInputPrice">
                     {{ includingFee ? 'BUYBTC_INCL_FEE': 'TX_INFO_FEE' | translate }}
                     ({{ buyInput.feePercentage | number:1 }}%): {{ buyInput.fiatCurrency | toCurrencySymbol }}{{ buyInput.feeValue | number: 2 }}
                 </div>

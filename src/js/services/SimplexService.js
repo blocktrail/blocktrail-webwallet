@@ -96,9 +96,10 @@
                 qty: simplexData.digital_money.amount,
                 fiat: simplexData.fiat_money.total_amount,
                 fiat_type: simplexData.fiat_money.currency,
+                coin_type: activeWallet.getReadOnlyWalletData().networkType.replace('BCC', 'BCH').replace('t', ''), // replace testnet
                 quote_id: simplexData.quote_id,
                 payment_id: simplexData.payment_id,
-                coin_type: activeWallet.getReadOnlyWalletData().networkType.replace('BCC', 'BCH').replace('t', ''), // replace testnet
+                order_id: simplexData.order_id,
                 api_key: accountInfo.api_key,
                 platform: 'web'
             };
@@ -109,7 +110,6 @@
                 })
                 .join('&');
 
-            // TODO: This can be network agnostic, as BUY BTC is only for BTC anyways
             window.open('http://' + self._CONFIG.API_HOST + '/v1/' + networkType + '/mywallet/simplex/payment/forward?' + queryString, '_self')
         });
     };
