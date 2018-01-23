@@ -108,7 +108,7 @@
                 return null;
             }
 
-            return fetchBrokerService().buyPrices(1, null, $scope.buyInput.fiatCurrency, false).then(function(result) {
+            return fetchBrokerService().buyPrices(1, null, $scope.buyInput.fiatCurrency, false, true).then(function(result) {
                 $scope.priceBTC = result.total;
                 $scope.fetchingMainPrice = false;
             }).catch(function (e) {
