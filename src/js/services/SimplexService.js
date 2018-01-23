@@ -20,7 +20,7 @@
         return id.slice(0, 8) + '-' + id.slice(8, 12) + '-' + id.slice(12, 16) + '-' + id.slice(16, 20)  + '-' + id.slice(20, 32);
     };
 
-    SimplexService.prototype.buyPrices = function(qty, fiat, fiatType, fiatFirst) {
+    SimplexService.prototype.buyPrices = function(qty, fiat, fiatType, fiatFirst, ignoreMinMaxCheck) {
         var self = this;
 
         var activeWallet = self._walletsManagerService.getActiveWallet();
@@ -37,7 +37,8 @@
             fiat_type: fiatType,
             fiat_first: fiatFirst,
             coin_type: activeWallet.getReadOnlyWalletData().networkType.replace('BCC', 'BCH').replace('t', ''), // replace testnet
-            platform: 'web'
+            platform: 'web',
+            ignore_min_max: !!ignoreMinMaxCheck
         };
 
         return sdk.simplexBuyPrices(postData)
@@ -47,7 +48,7 @@
                 }
 
                 // Check if result is for the correct coin
-                var coinType = activeWallet.getReadOnlyWalletData().networkType.replace('BCC', 'BCH').replace('t', '') // replace testnet
+                var coinType = activeWallet.getReadOnlyWalletData().networkType.replace('BCC', 'BCH').replace('t', ''); // replace testnet
                 if (response.supported_digital_currencies) {
                     if (response.supported_digital_currencies.indexOf(coinType) == -1) {
                         throw new Exception('trying to buy different blockchain coin from wallet');
