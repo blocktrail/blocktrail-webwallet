@@ -379,6 +379,11 @@
                     simplexData.identifier = walletData.identifier;
 
                     return activeWallet.getNewAddress().then(function (address) {
+                        // Convert to legacy address format if Bitcoin Cash address
+                        if (walletData.networkType === 'BCC' || walletData.networkType === 'tBCC') {
+                            address = activeWallet.getSdkWallet().sdk.getLegacyBitcoinCashAddress(address);
+                        }
+
                         // Set address and generate an order id
                         simplexData.address = address;
                         simplexData.order_id = simplexService.generateUUID();
