@@ -18,7 +18,8 @@ angular.module('blocktrail.wallet')
                 GLIDERA_BUY_ERR: "glidera_buy_error",
                 GLIDERA_BUY_DONE: "glidera_buy_done",
 
-                SIMPLEX_OPEN: "simplex_open"
+                SIMPLEX_OPEN: "simplex_open",
+                SIMPLEX_REDIRECT: "simplex_redirect"
             },
             SWEEP: {
                 SWEEP_START: "sweep_start",

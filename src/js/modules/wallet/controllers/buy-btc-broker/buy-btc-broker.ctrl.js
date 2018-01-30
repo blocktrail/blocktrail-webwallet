@@ -409,7 +409,10 @@
                                     settingsService.updateSettingsUp({
                                         'simplexLastForward': ((new Date()).getTime() / 1000).toFixed(0)
                                     })
-                                        .then(simplexService.initRedirect(simplexData))
+                                        .then(function() {
+                                            trackingService.trackEvent(trackingService.EVENTS.BUYBTC.SIMPLEX_REDIRECT);
+                                            simplexService.initRedirect(simplexData);
+                                        })
                                         .then(function () {
                                             spinner.close();
                                         });
