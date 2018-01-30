@@ -36,7 +36,7 @@
         $scope.includingFee = true;
 
         $scope.errorMsg = null;
-        var last_simplex_data = null;
+        var lastSimplexData = null;
         // Check if the user returned within seconds
         NotificationsService.checkAndPromptSimplex();
 
@@ -160,7 +160,7 @@
                                 };
 
                                 if ($scope.broker === 'simplex') {
-                                    last_simplex_data = result;
+                                    lastSimplexData = result;
                                 }
 
                                 $scope.fetchingInputPrice = false;
@@ -202,7 +202,7 @@
                                 };
 
                                 if ($scope.broker === 'simplex') {
-                                    last_simplex_data = result;
+                                    lastSimplexData = result;
                                 }
 
                                 $scope.fetchingInputPrice = false;
@@ -369,14 +369,16 @@
                         });
                     break;
                 case 'simplex':
+                    if (!lastSimplexData) {
+                        return;
+                    }
+
                     spinner = dialogService.spinner({
                         title: $translate.instant('BUYBTC_BUYING', {network: CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG})
                     });
 
-                    // Generate local simplex data object
-                    var simplexData = {};
                     // Make a snapshot of the current simplex data
-                    simplexData = angular.copy(last_simplex_data);
+                    var simplexData = angular.copy(lastSimplexData);
                     // Set payment id and identifier
                     simplexData.payment_id = simplexService.generateUUID();
                     simplexData.identifier = walletData.identifier;
