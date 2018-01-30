@@ -12,7 +12,7 @@
 
         $scope.brokers = [];
         $scope.network = CONFIG.NETWORKS[walletData.networkType].TICKER;
-        $scope.networkLong = CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG;
+        $scope.networkLong = CONFIG.NETWORKS[walletData.networkType.replace("t", "")].NETWORK_LONG;
         $scope.simplexEnabled = false;
         $scope.glideraEnabled = false;
 
