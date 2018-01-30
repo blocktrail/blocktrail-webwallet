@@ -8,7 +8,8 @@
                                         $translate, $log, $timeout, trackingService, $q) {
 
         var activeWallet = walletsManagerService.getActiveWallet();
-        $scope.walletData = activeWallet.getReadOnlyWalletData();
+        var walletData = activeWallet.getReadOnlyWalletData();
+        $scope.networkType = walletData.networkType;
 
         trackingService.trackEvent(trackingService.EVENTS.SWEEP.SWEEP_START);
 
@@ -49,7 +50,7 @@
         var options = {
             batchSize: 50,
             accountBatchSize: 5,
-            network: $scope.walletData.networkType,
+            network: walletData.networkType,
             testnet: false
         };
 
@@ -59,6 +60,11 @@
         }
 
         activeWallet.getNewAddress().then(function (address) {
+            // Convert to legacy address format if Bitcoin Cash address
+            if (walletData.networkType === 'BCC' || walletData.networkType === 'tBCC') {
+                address = activeWallet.getSdkWallet().sdk.getLegacyBitcoinCashAddress(address);
+            }
+
             options.recipient = address;
             $scope.working = false;
         });

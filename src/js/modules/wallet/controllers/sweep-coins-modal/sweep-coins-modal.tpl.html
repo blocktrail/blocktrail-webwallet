@@ -8,7 +8,7 @@
             <h2>{{ 'SWEEP_TITLE' | translate }}</h2>
             <div ng-if="form.step === STEPS.WELCOME">
                 <p>
-                    {{ 'SWEEP_INFO' | translate : { network: CONFIG.NETWORKS[walletData.networkType].NETWORK } }}
+                    {{ 'SWEEP_INFO' | translate : { network: CONFIG.NETWORKS[networkType].NETWORK } }}
                 </p>
                 <div class="row">
                     <div class="col-xs-6">
@@ -37,7 +37,7 @@
             </div>
             <div ng-if="form.step === STEPS.BIP44">
                 <p>
-                    {{ 'SWEEP_INFO' | translate : { network: CONFIG.NETWORKS[walletData.networkType].NETWORK } }}
+                    {{ 'SWEEP_INFO' | translate : { network: CONFIG.NETWORKS[networkType].NETWORK } }}
                 </p>
                 <p class="help-block">
                     {{ 'SWEEP_SUPPORTED' | translate }}: Blockchain.info, Mycelium, Jaxx
@@ -76,7 +76,7 @@
 
             <div ng-if="form.step === STEPS.WIF">
                 <p>
-                    {{ 'SWEEP_INFO' | translate : { network: CONFIG.NETWORKS[walletData.networkType].NETWORK } }}
+                    {{ 'SWEEP_INFO' | translate : { network: CONFIG.NETWORKS[networkType].NETWORK } }}
                 </p>
                 <form class="form">
                     <div class="row">
@@ -112,9 +112,9 @@
             <div ng-if="form.step === STEPS.SWEEP">
 
                  <span translate="SWEEPING_CONFIRM_MSG"
-                       translate-value-amount="{{ displaySweepData.totalValue | satoshiToCoin : walletData.networkType : 8 : false : 'hide' }}"
-                       translate-value-fee="{{ displaySweepData.totalFeePaid | satoshiToCoin : walletData.networkType : 8 : false : 'hide' }}"
-                       translate-value-network="{{ CONFIG.NETWORKS[walletData.networkType].NETWORK }}">
+                       translate-value-amount="{{ displaySweepData.totalValue | satoshiToCoin : networkType : 8 : false : 'hide' }}"
+                       translate-value-fee="{{ displaySweepData.totalFeePaid | satoshiToCoin : networkType : 8 : false : 'hide' }}"
+                       translate-value-network="{{ CONFIG.NETWORKS[networkType].NETWORK }}">
                 </span>
 
                 <form class="form">
@@ -131,10 +131,10 @@
             <div ng-if="form.step === STEPS.PUBLISH">
                 <h4>{{ 'DONE' | translate }}!</h4>
                 <p>
-                    {{ 'SWEEP_COMPLETED' | translate : { ticker: CONFIG.NETWORKS[walletData.networkType].TICKER_LONG } }}
+                    {{ 'SWEEP_COMPLETED' | translate : { ticker: CONFIG.NETWORKS[networkType].TICKER_LONG } }}
                 </p>
                 <p class="help-block">
-                    <a href="{{ CONFIG.NETWORKS[walletData.networkType].EXPLORER_TX_URL }}/{{ sweepData.txId }}" target="_blank">{{ 'TX_INFO_MORE_LINK' | translate }}</a>
+                    <a href="{{ CONFIG.NETWORKS[networkType].EXPLORER_TX_URL }}/{{ sweepData.txId }}" target="_blank">{{ 'TX_INFO_MORE_LINK' | translate }}</a>
                 </p>
 
                 <form class="form">
