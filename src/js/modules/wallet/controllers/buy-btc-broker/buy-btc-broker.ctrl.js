@@ -5,9 +5,12 @@
         .controller("BuyBTCBrokerCtrl", BuyBTCBrokerCtrl);
 
     // TODO Needs refactoring
-    function BuyBTCBrokerCtrl($scope, $state, dialogService, glideraService, simplexService, activeWallet, settingsService, CONFIG,
+    function BuyBTCBrokerCtrl($rootScope, $scope, $state, dialogService, glideraService, simplexService, activeWallet, settingsService, CONFIG,
                               $stateParams, $q, $timeout, $interval, $translate, $filter, trackingService, NotificationsService) {
         var walletData = activeWallet.getReadOnlyWalletData();
+
+        $scope.networkLong = CONFIG.NETWORKS[walletData.networkType.replace("t", "")].NETWORK_LONG;
+        $rootScope.pageTitle = $translate.instant("BUYBTC_NETWORK", { network: $scope.networkLong });
 
         $scope.broker = $stateParams.broker;
         $scope.brokerNotExistent = false;
@@ -390,7 +393,7 @@
 
                         return simplexService.issuePaymentRequest(simplexData).then(function (response) {
                             return dialogService.alert({
-                                title: $translate.instant('BUYBTC_BUYING', { network: CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG}),
+                                title: $translate.instant('BUYBTC_BUYING', { network: CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG }),
                                 body: $translate.instant('MSG_SIMPLEX_REDIRECT', {'orderId' : simplexData.order_id}),
                                 ok: $translate.instant('OK'),
                                 cancel: $translate.instant('CANCEL')
