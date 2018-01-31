@@ -21,6 +21,10 @@ angular.module('blocktrail.wallet')
                 SIMPLEX_OPEN: "simplex_open",
                 SIMPLEX_REDIRECT: "simplex_redirect"
             },
+            BUYBCH: {
+                SIMPLEX_OPEN: "simplex_open",
+                SIMPLEX_REDIRECT: "simplex_redirect"
+            },
             SWEEP: {
                 SWEEP_START: "sweep_start",
                 SWEEP_NO_BALANCE: "sweep_no_balance",
