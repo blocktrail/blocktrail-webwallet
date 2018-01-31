@@ -42,6 +42,7 @@
 
         var doneTypingInterval = 500;
         var typingTimer = null;
+        var openEventTriggered = false;
 
         var coinTicker = CONFIG.NETWORKS[walletData.networkType].TICKER;
 
@@ -49,15 +50,22 @@
             switch ($scope.broker) {
                 case "glidera":
                     $scope.includingFee = true;
-                    trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_OPEN);
                     $scope.buyInput.currencyType = "USD";
                     $scope.buyInput.fiatCurrency = "USD";
+
+                    if (!openEventTriggered) {
+                        trackingService.trackEvent(trackingService.EVENTS.BUYBTC.GLIDERA_OPEN);
+                        openEventTriggered = true;
+                    }
                     return glideraService;
                     break;
                 case 'simplex':
                     $scope.includingFee = false;
 
-                    trackingService.trackEvent(trackingService.EVENTS.BUYBTC.SIMPLEX_OPEN);
+                    if (!openEventTriggered) {
+                        trackingService.trackEvent(trackingService.EVENTS.BUYBTC.SIMPLEX_OPEN);
+                        openEventTriggered = true;
+                    }
                     return simplexService;
                     break;
                 default:
