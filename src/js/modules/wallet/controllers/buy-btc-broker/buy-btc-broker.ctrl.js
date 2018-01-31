@@ -63,7 +63,14 @@
                     $scope.includingFee = false;
 
                     if (!openEventTriggered) {
-                        trackingService.trackEvent(trackingService.EVENTS.BUYBTC.SIMPLEX_OPEN);
+                        switch (coinTicker) {
+                            case "BTC":
+                                trackingService.trackEvent(trackingService.EVENTS.BUYBTC.SIMPLEX_OPEN);
+                                break;
+                            case "BCH":
+                                trackingService.trackEvent(trackingService.EVENTS.BUYBCH.SIMPLEX_OPEN);
+                                break;
+                        }
                         openEventTriggered = true;
                     }
                     return simplexService;
@@ -420,7 +427,14 @@
                                         'simplexLastForward': ((new Date()).getTime() / 1000).toFixed(0)
                                     })
                                         .then(function() {
-                                            trackingService.trackEvent(trackingService.EVENTS.BUYBTC.SIMPLEX_REDIRECT);
+                                            switch (coinTicker) {
+                                                case "BTC":
+                                                    trackingService.trackEvent(trackingService.EVENTS.BUYBTC.SIMPLEX_REDIRECT);
+                                                    break;
+                                                case "BCH":
+                                                    trackingService.trackEvent(trackingService.EVENTS.BUYBCH.SIMPLEX_REDIRECT);
+                                                    break;
+                                            }
                                             simplexService.initRedirect(simplexData);
                                         })
                                         .then(function () {
