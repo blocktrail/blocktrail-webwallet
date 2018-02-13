@@ -27,7 +27,7 @@
         var self = this;
 
         return self._sdkService.getSdkByActiveNetwork()
-            .getAllWallets({mywallet: 1, limit: 200})
+            .getAllWallets(!!self._CONFIG.DEBUG)
             .then(function(resp) {
                 self._walletsList = [];
 

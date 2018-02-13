@@ -135,10 +135,15 @@
             return self.client.post("/metadata", null, data, cb);
         };
 
-        blocktrailSDK.prototype.getAllWallets = function () {
+        blocktrailSDK.prototype.getAllWallets = function (withbalances) {
             var self = this;
 
-            return self.client.get("/mywallet/wallets");
+            var params = {};
+            if (withbalances) {
+                params.withbalances = 1;
+            }
+
+            return self.client.get("/mywallet/wallets", params);
         };
 
         blocktrailSDK.prototype.syncContacts = function (data, cb) {
