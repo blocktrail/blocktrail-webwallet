@@ -4,6 +4,7 @@
             class="form page-blur"
             name="registerForm"
             ng-class="{'page-blur-active': isLoading}"
+            autocomplete="off"
             novalidate
         >
             <div ng-if="errMsg" class="alert alert-danger">{{ errMsg | translate }}</div>
