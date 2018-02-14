@@ -7,9 +7,9 @@
             autocomplete="off"
             novalidate
         >
+            <!-- Hidden field for avoiding autocomplete from lastpath -->
+            <div style="display: none;"><input type="password" /></div>
             <div ng-if="errMsg" class="alert alert-danger">{{ errMsg | translate }}</div>
-
-            <!--<pre>registerForm.email = {{ registerForm.email | json }}</pre>-->
 
             <div
                 class="form-group form-group-lg"
