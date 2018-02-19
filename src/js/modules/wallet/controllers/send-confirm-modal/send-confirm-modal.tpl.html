@@ -96,7 +96,7 @@
             <div>
                 <h4 class="text-center text-success"> {{ 'TRANSACTION_SEND_SUCCESS' | translate }}.</h4>
                 <p class="text-center text-success">{{ 'TX_INFO_HASH' | translate }}:
-                    <a href="https://www.btc.com/{{txHash}}" target="_blank" class="text-ellipsis">{{ txHash | characters:8 }}
+                    <a href="{{ CONFIG.NETWORKS[walletData.networkType].EXPLORER_TX_URL }}/{{ txHash }}" target="_blank" class="text-ellipsis">{{ txHash | characters:8 }}
                     </a>
                 </p>
             </div>
