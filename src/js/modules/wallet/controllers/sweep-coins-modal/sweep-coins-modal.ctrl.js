@@ -57,6 +57,9 @@
         if (options.network.substr(0, 1) === "t") {
             options.network = options.network.substr(1);
             options.testnet = true;
+        } else if (options.network.substr(0, 1) === "r") {
+            options.network = options.network.substr(1);
+            options.regtest = true;
         }
 
         activeWallet.getNewAddress().then(function (address) {
