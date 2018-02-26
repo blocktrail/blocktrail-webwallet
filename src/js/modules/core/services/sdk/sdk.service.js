@@ -110,6 +110,7 @@
 
         self._CONFIG.NETWORKS_ENABLED.forEach(function(networkType) {
             var isTestNet = (networkType.substr(0, 1) === 't');
+            var isRegtest = (networkType.substr(0, 1) === 'r');
             var sdkNetwork = self._CONFIG.NETWORKS[networkType].NETWORK;
             if (isTestNet) {
                 sdkNetwork = sdkNetwork.substr(1);
@@ -119,6 +120,7 @@
                 apiKey: self._accountInfo ? self._accountInfo.api_key : null,
                 apiSecret: self._accountInfo ? self._accountInfo.api_secret : null,
                 testnet: isTestNet,
+                regtest: isRegtest,
                 host: self._CONFIG.API_HOST || null,
                 network: sdkNetwork,
                 https: typeof self._CONFIG.API_HTTPS !== "undefined" ? self._CONFIG.API_HTTPS : true

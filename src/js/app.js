@@ -69,7 +69,7 @@ angular.module("blocktrail.wallet").run(
 
         $rootScope.$watch("sdkReadOnlySdkData.networkType", function(newValue) {
             var network = CONFIG.NETWORKS[newValue].NETWORK;
-            if (network.substr(0, 1) === "t") {
+            if (network.substr(0, 1) === "t" || network.substr(0, 1) === "r") {
                 network = network.substr(1);
             }
 
