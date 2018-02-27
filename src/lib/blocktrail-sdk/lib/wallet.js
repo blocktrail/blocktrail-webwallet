@@ -30,6 +30,7 @@ var SignMode = {
  * @param keyIndex              int             key index to use
  * @param segwit                int             segwit toggle from server
  * @param testnet               bool            testnet
+ * @param regtest               bool            regtest
  * @param checksum              string
  * @param upgradeToKeyIndex     int
  * @param useNewCashAddr        bool            flag to opt in to bitcoin cash cashaddr's
@@ -50,6 +51,7 @@ var Wallet = function(
     keyIndex,
     segwit,
     testnet,
+    regtest,
     checksum,
     upgradeToKeyIndex,
     useNewCashAddr,
@@ -69,14 +71,19 @@ var Wallet = function(
     assert(!self.segwit || !self.bitcoinCash);
 
     self.testnet = testnet;
+    self.regtest = regtest;
     if (self.bitcoinCash) {
-        if (self.testnet) {
+        if (self.regtest) {
+            self.network = bitcoin.networks.bitcoincashregtest;
+        } else if (self.testnet) {
             self.network = bitcoin.networks.bitcoincashtestnet;
         } else {
             self.network = bitcoin.networks.bitcoincash;
         }
     } else {
-        if (self.testnet) {
+        if (self.regtest) {
+            self.network = bitcoin.networks.regtest;
+        } else if (self.testnet) {
             self.network = bitcoin.networks.testnet;
         } else {
             self.network = bitcoin.networks.bitcoin;
@@ -826,34 +833,6 @@ Wallet.prototype.getInfo = function(cb) {
 };
 
 /**
- * do wallet discovery (slow)
- *
- * @param [gap] int             gap limit
- * @param [cb]  function        callback(err, confirmed, unconfirmed)
- * @returns {q.Promise}
- */
-Wallet.prototype.doDiscovery = function(gap, cb) {
-    var self = this;
-
-    if (typeof gap === "function") {
-        cb = gap;
-        gap = null;
-    }
-
-    var deferred = q.defer();
-    deferred.promise.spreadNodeify(cb);
-
-    deferred.resolve(
-        self.sdk.doWalletDiscovery(self.identifier, gap)
-            .then(function(result) {
-                return [result.confirmed, result.unconfirmed];
-            })
-    );
-
-    return deferred.promise;
-};
-
-/**
  *
  * @param [force]   bool            ignore warnings (such as non-zero balance)
  * @param [cb]      function        callback(err, success)
@@ -1065,7 +1044,10 @@ Wallet.getAddressAndType = function(address, network, allowCashAddress) {
         }
     }
 
-    if (network === bitcoin.networks.bitcoin || network === bitcoin.networks.testnet) {
+    if (network === bitcoin.networks.bitcoin ||
+        network === bitcoin.networks.testnet ||
+        network === bitcoin.networks.regtest
+    ) {
         readAddress(readBech32Address, "bech32");
     }
 
