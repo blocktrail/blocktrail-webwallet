@@ -101,7 +101,9 @@
                     $scope.complete = true;
                     $scope.working = false;
                     $scope.txHash = txHash;
-                    activeWallet.forcePolling();
+                    $timeout(function() {
+                        activeWallet.forcePolling();
+                    });
                 })
                 .catch(function(err) {
                     $scope.error = null;
