@@ -22,6 +22,16 @@
         $scope.lastDateHeader = lastDateHeader;
         $scope.buybtcPendingOrders = []; // Glidera transactions
         $scope.transactionsListLimit = transactionsListLimitStep;
+        $scope.isForcePolling = false;
+        $scope.forcePolling = function() {
+            $scope.isForcePolling = true;
+            activeWallet.forcePolling()
+                .then(function() {
+                    $scope.isForcePolling = false;
+                }, function() {
+                    $scope.isForcePolling = false;
+                });
+        };
 
         // Methods
         $scope.isHeader = isHeader;
