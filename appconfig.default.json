@@ -116,6 +116,8 @@
     "BITONIC_URL": "https://bitonic.nl",
 
     "DEFAULT_IDENTIFIER": "mywallet",
+
+    "FORCE_POLLING_BUTTON": false,
     
     "NULL": null // just here so we can have a trailing , on every line
 }

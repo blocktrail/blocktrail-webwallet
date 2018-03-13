@@ -2,7 +2,12 @@
         class="tx-list page-blur"
         ng-class="{'page-blur-active': isLoading}"
 >
-
+    <div ng-show="CONFIG.FORCE_POLLING_BUTTON"
+         ng-click="forcePolling()"
+         id="forcePolling"
+         style="position: absolute; top: 0px; right: 0px; z-index: 101; cursor: pointer;">
+        <i ng-class="{'animate-spin': isForcePolling}" class="bticon bticon-progress"></i>
+    </div>
     <div class="wallet-alerts">
         <app-two-factor-warning ng-show="isTwoFactorWarning"></app-two-factor-warning>
         <app-bcc-sweep-warning ng-show="showBCCSweepWarning"></app-bcc-sweep-warning>
