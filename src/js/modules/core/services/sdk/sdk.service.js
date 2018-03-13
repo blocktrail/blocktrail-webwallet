@@ -112,7 +112,7 @@
             var isTestNet = (networkType.substr(0, 1) === 't');
             var isRegtest = (networkType.substr(0, 1) === 'r');
             var sdkNetwork = self._CONFIG.NETWORKS[networkType].NETWORK;
-            if (isTestNet) {
+            if (isTestNet || isRegtest) {
                 sdkNetwork = sdkNetwork.substr(1);
             }
 
