@@ -2,6 +2,7 @@
   padding: 20px 40px;
   border-bottom: 1px solid $muted;
   height: $appHeaderHeight;
+  overflow-y: hidden;
 
   h1 {
     margin: 0;
