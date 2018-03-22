@@ -19,7 +19,7 @@
 
         $scope.setupInfo = {
             // force uniqueness of the identifier to make it easier to force a
-            identifier: CONFIG.DEFAULT_IDENTIFIER + "-" + randomBytesJS(8).toString("hex"),
+            identifier: CONFIG.FORCE_IDENTIFIER || (CONFIG.DEFAULT_IDENTIFIER + "-" + randomBytesJS(8).toString("hex")),
             password: "",
             primaryMnemonic: "",
             backupMnemonic: "",
