@@ -116,6 +116,7 @@
     "BITONIC_URL": "https://bitonic.nl",
 
     "DEFAULT_IDENTIFIER": "mywallet",
+    "FORCE_IDENTIFIER": null,
 
     "FORCE_POLLING_BUTTON": false,
     
