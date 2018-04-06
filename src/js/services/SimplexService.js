@@ -36,7 +36,7 @@
             fiat: fiat,
             fiat_type: fiatType,
             fiat_first: fiatFirst,
-            coin_type: activeWallet.getReadOnlyWalletData().networkType.replace('BCC', 'BCH').replace('t', ''), // replace testnet
+            coin_type: activeWallet.getReadOnlyWalletData().networkType.replace('BCC', 'BCH').replace(/[rt]/g, ''), // replace testnet
             platform: 'web',
             ignore_min_max: !!ignoreMinMaxCheck
         };
@@ -48,7 +48,7 @@
                 }
 
                 // Check if result is for the correct coin
-                var coinType = activeWallet.getReadOnlyWalletData().networkType.replace('BCC', 'BCH').replace('t', ''); // replace testnet
+                var coinType = activeWallet.getReadOnlyWalletData().networkType.replace('BCC', 'BCH').replace(/[rt]/g, ''); // replace testnet
                 if (response.supported_digital_currencies) {
                     if (response.supported_digital_currencies.indexOf(coinType) == -1) {
                         throw new Exception('trying to buy different blockchain coin from wallet');
@@ -77,7 +77,7 @@
             quote_id: simplexData.quote_id,
             order_id: simplexData.order_id,
             payment_id: simplexData.payment_id,
-            coin_type: activeWallet.getReadOnlyWalletData().networkType.replace('BCC', 'BCH').replace('t', ''), // replace testnet
+            coin_type: activeWallet.getReadOnlyWalletData().networkType.replace('BCC', 'BCH').replace(/[rt]/g, ''), // replace testnet
             platform: 'web'
         };
 
@@ -97,7 +97,7 @@
                 qty: simplexData.digital_money.amount,
                 fiat: simplexData.fiat_money.total_amount,
                 fiat_type: simplexData.fiat_money.currency,
-                coin_type: activeWallet.getReadOnlyWalletData().networkType.replace('BCC', 'BCH').replace('t', ''), // replace testnet
+                coin_type: activeWallet.getReadOnlyWalletData().networkType.replace('BCC', 'BCH').replace(/[rt]/g, ''), // replace testnet
                 quote_id: simplexData.quote_id,
                 payment_id: simplexData.payment_id,
                 order_id: simplexData.order_id,
