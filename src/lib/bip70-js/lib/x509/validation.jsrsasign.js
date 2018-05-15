@@ -10,7 +10,7 @@ var X509Certificates = ProtoBuf.X509Certificates;
  * @returns {boolean}
  */
 function hasEqualSerialNumber(certA, certB) {
-    return certA.getSerialNumberHex() === certB.getSerialNumberHex()
+    return certA.getSerialNumberHex() === certB.getSerialNumberHex();
 }
 
 /**
@@ -20,7 +20,7 @@ function hasEqualSerialNumber(certA, certB) {
  * @returns {boolean}
  */
 function hasEqualSubject(certA, certB) {
-    return certA.getSubjectHex() === certB.getSubjectHex()
+    return certA.getSubjectHex() === certB.getSubjectHex();
 }
 
 /**
@@ -30,7 +30,7 @@ function hasEqualSubject(certA, certB) {
  * @returns {boolean}
  */
 function hasEqualPublicKey(certA, certB) {
-    return certA.getPublicKeyHex() === certB.getPublicKeyHex()
+    return certA.getPublicKeyHex() === certB.getPublicKeyHex();
 }
 
 /**
@@ -40,9 +40,9 @@ function hasEqualPublicKey(certA, certB) {
  * @returns {boolean}
  */
 function checkCertsEqual(certA, certB) {
-    return hasEqualSerialNumber(certA, certB)
-        && hasEqualSubject(certA, certB)
-        && hasEqualPublicKey(certA, certB);
+    return hasEqualSerialNumber(certA, certB) &&
+        hasEqualSubject(certA, certB) &&
+        hasEqualPublicKey(certA, certB);
 }
 
 /**
@@ -86,7 +86,7 @@ function findIssuers(target, bundle) {
             return bundle
                 .filter(makeFilterBySubjectKey(authorityKeyIdentifier.kid))
                 .filter(function(issuerCert) {
-                    return issuerName === issuerCert.getSubjectString()
+                    return issuerName === issuerCert.getSubjectString();
                 });
         }
     } catch (e) { }
@@ -277,18 +277,17 @@ ChainPathValidator.prototype.validate = function() {
         var cert = this._certificates[i];
         processCertificate(state, cert);
         if (!state.isFinal()) {
-
-            state.updateState(cert)
+            state.updateState(cert);
         }
     }
 };
 
 var RequestValidator = function(opts) {
-    var trustStore = [];
-    if (opts) {
-        trustStore = opts.trustStore ? opts.trustStore : [];
+    if (typeof opts === "undefined") {
+        opts = {};
     }
-    this.trustStore = trustStore;
+    opts.trustStore = opts.trustStore ? opts.trustStore : [];
+    this.opts = opts;
 };
 
 RequestValidator.prototype.verifyX509Details = function(paymentRequest) {
@@ -302,22 +301,39 @@ RequestValidator.prototype.verifyX509Details = function(paymentRequest) {
 
     var entityCert = certFromDER(x509.certificate[0]);
     var intermediates = x509.certificate.slice(1).map(certFromDER);
-
-    this.validateCertificateChain(entityCert, intermediates);
+    var path = this.validateCertificateChain(entityCert, intermediates);
 
     if (!this.validateSignature(paymentRequest, entityCert)) {
         throw new Error("Invalid signature on request");
     }
+
+    return path;
 };
 
 RequestValidator.prototype.validateCertificateChain = function(entityCert, intermediates) {
-    var builder = new ChainPathBuilder(this.trustStore);
+    var builder = new ChainPathBuilder(this.opts.trustStore);
     var path = builder.shortestPathToTarget(entityCert, intermediates);
-    var validator = new ChainPathValidator({}, path);
+    var validator = new ChainPathValidator(this.opts, path);
     validator.validate();
+    return path;
 };
 
 RequestValidator.prototype.validateSignature = function(request, entityCert) {
+    var sig = new jsrsasign.Signature({alg: getSignatureAlgorithm(entityCert, request.pkiType)});
+    sig.init(entityCert.getPublicKey());
+    sig.updateHex(getDataToSign(request).toString('hex'));
+    return sig.verify(Buffer.from(request.signature).toString('hex'));
+};
+
+function getDataToSign(request) {
+    var tmp = request.signature;
+    request.signature = '';
+    var encoded = new Buffer(ProtoBuf.PaymentRequest.encode(request).finish());
+    request.signature = tmp;
+    return encoded;
+}
+
+function getSignatureAlgorithm(entityCert, pkiType) {
     var publicKey = entityCert.getPublicKey();
 
     var keyType;
@@ -330,35 +346,20 @@ RequestValidator.prototype.validateSignature = function(request, entityCert) {
     }
 
     var hashAlg;
-    if (request.pkiType === PKIType.X509_SHA1) {
+    if (pkiType === PKIType.X509_SHA1) {
         hashAlg = "SHA1";
-    } else if (request.pkiType === PKIType.X509_SHA256) {
+    } else if (pkiType === PKIType.X509_SHA256) {
         hashAlg = "SHA256";
+    } else {
+        throw new Error("Unknown PKI type or no signature algorithm specified.");
     }
 
-    var dataSigned = getDataToSign(request).toString('hex');
-    var dataSignature = Buffer.from(request.signature).toString('hex');
-    var sigAlg = hashAlg + "with" + keyType;
-    var sig = new jsrsasign.Signature({alg: sigAlg});
-    sig.init(publicKey);
-    sig.updateHex(dataSigned);
-    return sig.verify(dataSignature);
-};
-
-function getDataToSign(request) {
-    if (request.signature) {
-        var tmp = request.signature;
-        request.signature = '';
-        var encoded = new Buffer(ProtoBuf.PaymentRequest.encode(request).finish());
-        request.signature = tmp;
-        return encoded;
-    }
-
-    return new Buffer(ProtoBuf.PaymentRequest.encode(request).finish());
+    return hashAlg + "with" + keyType;
 }
 
 module.exports = {
     ChainPathBuilder: ChainPathBuilder,
     ChainPathValidator: ChainPathValidator,
-    RequestValidator: RequestValidator
+    RequestValidator: RequestValidator,
+    GetSignatureAlgorithm: getSignatureAlgorithm
 };

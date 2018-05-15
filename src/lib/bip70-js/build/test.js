@@ -3,20 +3,19 @@
 var RequestBuilder = require('./request_builder');
 var ProtoBuf = require('./protobuf');
 var X509 = require('./x509');
-var MIMEType = require('./mimetype');
+var NetworkConfig = require('./config');
 
 exports = module.exports = {
     RequestBuilder: RequestBuilder,
     HttpClient: require('./client'),
     ProtoBuf: ProtoBuf,
     X509: X509,
-    MIMEType: MIMEType
+    NetworkConfig: NetworkConfig
 };
 
-},{"./client":2,"./mimetype":3,"./protobuf":4,"./request_builder":6,"./x509":8}],2:[function(require,module,exports){
+},{"./client":2,"./config":3,"./protobuf":4,"./request_builder":6,"./x509":8}],2:[function(require,module,exports){
 (function (Buffer){
 var axios = require('axios');
-var MIMEType = require('./mimetype');
 var PKIType = require('./x509/pkitype');
 var ProtoBuf = require('./protobuf');
 var PaymentRequest = ProtoBuf.PaymentRequest;
@@ -41,28 +40,30 @@ var HttpClient = function() {
  *
  * @param {string} url
  * @param {Validator} validator
+ * @param {NetworkConfig} networkConfig
  * @return Promise of PaymentRequest
  */
-HttpClient.prototype.getRequest = function(url, validator) {
+HttpClient.prototype.getRequest = function(url, validator, networkConfig) {
     return axios({
         method: 'get',
         headers: {
-            "Accept": MIMEType.PAYMENT_REQUEST
+            "Accept": networkConfig.getMimeTypes().PAYMENT_REQUEST
         },
         url: url,
         responseType: 'arraybuffer'
     })
         .then(function(response) {
-            checkContentType(response, MIMEType.PAYMENT_REQUEST);
+            checkContentType(response, networkConfig.getMimeTypes().PAYMENT_REQUEST);
 
             var buf = Buffer.from(response.data);
             var paymentRequest = PaymentRequest.decode(buf);
 
+            var path = null;
             if (paymentRequest.pkiType !== PKIType.NONE) {
-                validator.verifyX509Details(paymentRequest);
+                path = validator.verifyX509Details(paymentRequest);
             }
 
-            return paymentRequest;
+            return [paymentRequest, path];
         });
 };
 
@@ -107,24 +108,25 @@ HttpClient.prototype.preparePayment = function(details, txs, memo) {
  * @param {ProtoBuf.PaymentDetails} details
  * @param {string[]} txs
  * @param {string|null} memo
+ * @param {NetworkConfig} networkConfig
  * @returns Promise of PaymentACK
  */
-HttpClient.prototype.sendPayment = function(details, txs, memo) {
+HttpClient.prototype.sendPayment = function(details, txs, memo, networkConfig) {
     var payment = this.preparePayment(details, txs, memo);
     var paymentData = ProtoBuf.Payment.encode(payment).final();
 
     return axios({
         method: 'post',
         headers: {
-            "Accept": MIMEType.PAYMENT_ACK,
-            "Content-Type": MIMEType.PAYMENT
+            "Accept": networkConfig.getMimeTypes().PAYMENT_ACK,
+            "Content-Type": networkConfig.getMimeTypes().PAYMENT
         },
         url: details.paymentUrl,
         data: paymentData,
         responseType: 'arraybuffer'
     })
         .then(function(response) {
-            checkContentType(response, MIMEType.PAYMENT_ACK);
+            checkContentType(response, networkConfig.getMimeTypes().PAYMENT_ACK);
             var buf = Buffer.from(response.data);
             return ProtoBuf.PaymentACK.decode(buf);
         });
@@ -133,14 +135,31 @@ HttpClient.prototype.sendPayment = function(details, txs, memo) {
 module.exports = HttpClient;
 
 }).call(this,require("buffer").Buffer)
-},{"./mimetype":3,"./protobuf":4,"./x509/pkitype":9,"axios":24,"buffer":50}],3:[function(require,module,exports){
+},{"./protobuf":4,"./x509/pkitype":9,"axios":24,"buffer":50}],3:[function(require,module,exports){
 
-var MIMEType = {};
-MIMEType.PAYMENT_REQUEST = "application/bitcoin-paymentrequest";
-MIMEType.PAYMENT = "application/bitcoin-payment";
-MIMEType.PAYMENT_ACK = "application/bitcoin-paymentack";
+function NetworkConfig(mimeTypes) {
+    if (!['PAYMENT_REQUEST', 'PAYMENT', 'PAYMENT_ACK'].every(function(key) {
+        return key in mimeTypes;
+    })) {
+        throw new Error("Missing MIME types");
+    }
 
-module.exports = MIMEType;
+    this.mimeTypes = mimeTypes;
+}
+
+NetworkConfig.prototype.getMimeTypes = function() {
+    return this.mimeTypes;
+};
+
+NetworkConfig.Bitcoin = function() {
+    return new NetworkConfig({
+        PAYMENT_REQUEST: "application/bitcoin-paymentrequest",
+        PAYMENT: "application/bitcoin-payment",
+        PAYMENT_ACK: "application/bitcoin-paymentack"
+    });
+};
+
+module.exports = NetworkConfig;
 
 },{}],4:[function(require,module,exports){
 var protobuf = require("protobufjs");
@@ -565,7 +584,7 @@ var validation = require('./validation.jsrsasign');
 module.exports = {
     PKIType: require('./pkitype'),
     TrustStore: require('./truststore'),
-    Validation: validation,
+    GetSignatureAlgorithm: validation.GetSignatureAlgorithm,
     ChainPathBuilder: validation.ChainPathBuilder,
     ChainPathValidator: validation.ChainPathValidator,
     RequestValidator: validation.RequestValidator
@@ -585,9 +604,8 @@ module.exports = PKIType;
 var jsrsasign = require('jsrsasign');
 
 function parseCertFrom(string, encoding) {
-    var hex = Buffer.from(string, encoding).toString('hex');
     var cert = new jsrsasign.X509();
-    cert.readCertHex(hex);
+    cert.readCertHex(Buffer.from(string, encoding).toString('hex'));
     return cert;
 }
 
@@ -618,7 +636,7 @@ var X509Certificates = ProtoBuf.X509Certificates;
  * @returns {boolean}
  */
 function hasEqualSerialNumber(certA, certB) {
-    return certA.getSerialNumberHex() === certB.getSerialNumberHex()
+    return certA.getSerialNumberHex() === certB.getSerialNumberHex();
 }
 
 /**
@@ -628,7 +646,7 @@ function hasEqualSerialNumber(certA, certB) {
  * @returns {boolean}
  */
 function hasEqualSubject(certA, certB) {
-    return certA.getSubjectHex() === certB.getSubjectHex()
+    return certA.getSubjectHex() === certB.getSubjectHex();
 }
 
 /**
@@ -638,7 +656,7 @@ function hasEqualSubject(certA, certB) {
  * @returns {boolean}
  */
 function hasEqualPublicKey(certA, certB) {
-    return certA.getPublicKeyHex() === certB.getPublicKeyHex()
+    return certA.getPublicKeyHex() === certB.getPublicKeyHex();
 }
 
 /**
@@ -648,9 +666,9 @@ function hasEqualPublicKey(certA, certB) {
  * @returns {boolean}
  */
 function checkCertsEqual(certA, certB) {
-    return hasEqualSerialNumber(certA, certB)
-        && hasEqualSubject(certA, certB)
-        && hasEqualPublicKey(certA, certB);
+    return hasEqualSerialNumber(certA, certB) &&
+        hasEqualSubject(certA, certB) &&
+        hasEqualPublicKey(certA, certB);
 }
 
 /**
@@ -694,7 +712,7 @@ function findIssuers(target, bundle) {
             return bundle
                 .filter(makeFilterBySubjectKey(authorityKeyIdentifier.kid))
                 .filter(function(issuerCert) {
-                    return issuerName === issuerCert.getSubjectString()
+                    return issuerName === issuerCert.getSubjectString();
                 });
         }
     } catch (e) { }
@@ -885,18 +903,17 @@ ChainPathValidator.prototype.validate = function() {
         var cert = this._certificates[i];
         processCertificate(state, cert);
         if (!state.isFinal()) {
-
-            state.updateState(cert)
+            state.updateState(cert);
         }
     }
 };
 
 var RequestValidator = function(opts) {
-    var trustStore = [];
-    if (opts) {
-        trustStore = opts.trustStore ? opts.trustStore : [];
+    if (typeof opts === "undefined") {
+        opts = {};
     }
-    this.trustStore = trustStore;
+    opts.trustStore = opts.trustStore ? opts.trustStore : [];
+    this.opts = opts;
 };
 
 RequestValidator.prototype.verifyX509Details = function(paymentRequest) {
@@ -910,22 +927,39 @@ RequestValidator.prototype.verifyX509Details = function(paymentRequest) {
 
     var entityCert = certFromDER(x509.certificate[0]);
     var intermediates = x509.certificate.slice(1).map(certFromDER);
-
-    this.validateCertificateChain(entityCert, intermediates);
+    var path = this.validateCertificateChain(entityCert, intermediates);
 
     if (!this.validateSignature(paymentRequest, entityCert)) {
         throw new Error("Invalid signature on request");
     }
+
+    return path;
 };
 
 RequestValidator.prototype.validateCertificateChain = function(entityCert, intermediates) {
-    var builder = new ChainPathBuilder(this.trustStore);
+    var builder = new ChainPathBuilder(this.opts.trustStore);
     var path = builder.shortestPathToTarget(entityCert, intermediates);
-    var validator = new ChainPathValidator({}, path);
+    var validator = new ChainPathValidator(this.opts, path);
     validator.validate();
+    return path;
 };
 
 RequestValidator.prototype.validateSignature = function(request, entityCert) {
+    var sig = new jsrsasign.Signature({alg: getSignatureAlgorithm(entityCert, request.pkiType)});
+    sig.init(entityCert.getPublicKey());
+    sig.updateHex(getDataToSign(request).toString('hex'));
+    return sig.verify(Buffer.from(request.signature).toString('hex'));
+};
+
+function getDataToSign(request) {
+    var tmp = request.signature;
+    request.signature = '';
+    var encoded = new Buffer(ProtoBuf.PaymentRequest.encode(request).finish());
+    request.signature = tmp;
+    return encoded;
+}
+
+function getSignatureAlgorithm(entityCert, pkiType) {
     var publicKey = entityCert.getPublicKey();
 
     var keyType;
@@ -938,37 +972,22 @@ RequestValidator.prototype.validateSignature = function(request, entityCert) {
     }
 
     var hashAlg;
-    if (request.pkiType === PKIType.X509_SHA1) {
+    if (pkiType === PKIType.X509_SHA1) {
         hashAlg = "SHA1";
-    } else if (request.pkiType === PKIType.X509_SHA256) {
+    } else if (pkiType === PKIType.X509_SHA256) {
         hashAlg = "SHA256";
+    } else {
+        throw new Error("Unknown PKI type or no signature algorithm specified.");
     }
 
-    var dataSigned = getDataToSign(request).toString('hex');
-    var dataSignature = Buffer.from(request.signature).toString('hex');
-    var sigAlg = hashAlg + "with" + keyType;
-    var sig = new jsrsasign.Signature({alg: sigAlg});
-    sig.init(publicKey);
-    sig.updateHex(dataSigned);
-    return sig.verify(dataSignature);
-};
-
-function getDataToSign(request) {
-    if (request.signature) {
-        var tmp = request.signature;
-        request.signature = '';
-        var encoded = new Buffer(ProtoBuf.PaymentRequest.encode(request).finish());
-        request.signature = tmp;
-        return encoded;
-    }
-
-    return new Buffer(ProtoBuf.PaymentRequest.encode(request).finish());
+    return hashAlg + "with" + keyType;
 }
 
 module.exports = {
     ChainPathBuilder: ChainPathBuilder,
     ChainPathValidator: ChainPathValidator,
-    RequestValidator: RequestValidator
+    RequestValidator: RequestValidator,
+    GetSignatureAlgorithm: getSignatureAlgorithm
 };
 
 }).call(this,require("buffer").Buffer)
@@ -14399,21 +14418,47 @@ exports = module.exports = {
     bip70: require('./'),
     requestBuilderTest: require('./test/request_builder.test'),
     protobufTest: require('./test/protobuf.test'),
-    validationTest: require('./test/x509/validation.test'),
+    validationTest: require('./test/validation.test'),
     clientTest: require('./test/client.test')
 };
 
-},{"./":12,"./test/client.test":93,"./test/protobuf.test":94,"./test/request_builder.test":95,"./test/x509/validation.test":97}],93:[function(require,module,exports){
+},{"./":12,"./test/client.test":94,"./test/protobuf.test":95,"./test/request_builder.test":96,"./test/validation.test":97}],93:[function(require,module,exports){
+module.exports={
+  "test_cert": {
+    "chainValidTime": 1510764712,
+    "entityCertificate": "MIIFLTCCBBWgAwIBAgISA/0ST5vsJ4DW51WCJkDCT/vSMA0GCSqGSIb3DQEBCwUAMEoxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MSMwIQYDVQQDExpMZXQncyBFbmNyeXB0IEF1dGhvcml0eSBYMzAeFw0xNzEwMjIxNzE3NDZaFw0xODAxMjAxNzE3NDZaMDAxLjAsBgNVBAMTJXRlc3RuZXQtY2VydC1vbmx5LW5vdC12YWxpZC5iaXA3MC5vcmcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCysse3OtBIXZ/pwhvPVPwlQ5dSiK9DV9ZF1TUyIOSjJqmJyGEHwtj4phRAmHvt9K70l8yJxmBmCr1JFECxlBpn+Cs1ezhUOokTopkshM0aoMIcKFwb3xfejH5rOiLPwdpQ1bf2i5MvWO11AA3SU4db7vnOPxjtIPKj22xBzyZCQ4EZ2FtYPY/0RTFeR1I7xiOLeJi4y8/7oEAGyLm6qVTvHaWRJqW8xPGxU36MLWqgbehaWkbSCt52VSbi+uUlejIkP4oSXQWbmwI4CdIOT3/yL6CCV99Jon/1Fh98HwxqyTRaK8CLwmXtclNP/j8VKjR12QC9FQPNceFKYTP+aMvnAgMBAAGjggIlMIICITAOBgNVHQ8BAf8EBAMCBaAwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMAwGA1UdEwEB/wQCMAAwHQYDVR0OBBYEFE5+6CvvC65MDSEdmUsRB1nIhzXeMB8GA1UdIwQYMBaAFKhKamMEfd265tE5t6ZFZe/zqOyhMG8GCCsGAQUFBwEBBGMwYTAuBggrBgEFBQcwAYYiaHR0cDovL29jc3AuaW50LXgzLmxldHNlbmNyeXB0Lm9yZzAvBggrBgEFBQcwAoYjaHR0cDovL2NlcnQuaW50LXgzLmxldHNlbmNyeXB0Lm9yZy8wMAYDVR0RBCkwJ4IldGVzdG5ldC1jZXJ0LW9ubHktbm90LXZhbGlkLmJpcDcwLm9yZzCB/gYDVR0gBIH2MIHzMAgGBmeBDAECATCB5gYLKwYBBAGC3xMBAQEwgdYwJgYIKwYBBQUHAgEWGmh0dHA6Ly9jcHMubGV0c2VuY3J5cHQub3JnMIGrBggrBgEFBQcCAjCBngyBm1RoaXMgQ2VydGlmaWNhdGUgbWF5IG9ubHkgYmUgcmVsaWVkIHVwb24gYnkgUmVseWluZyBQYXJ0aWVzIGFuZCBvbmx5IGluIGFjY29yZGFuY2Ugd2l0aCB0aGUgQ2VydGlmaWNhdGUgUG9saWN5IGZvdW5kIGF0IGh0dHBzOi8vbGV0c2VuY3J5cHQub3JnL3JlcG9zaXRvcnkvMA0GCSqGSIb3DQEBCwUAA4IBAQCVCp2bfZdrUvsygry0dUwkmj3uHa7psVm8lkvsUuZIgUQExO/n5D8Iu+flY4vYSrW09AcuuR6cieh0sxxSswgTnqUKGrhuMAadRVXHEl9pkqHUQCoBjBppmiHwTTumuV6WuUuV/EUNd/b9kmpYrNQR/vZb7t4xcePqc+sFVqlD7d8zhq5scCE8A9sKmgt+XcmzpDNafUXz4zXP30HYHgkEHPEcvDTzmVNyQmCquXSTYnWWVKnNC7Jn9yJecdIM0xW8hMZ0R/+fPDlgZlmKWnbzoWYTdg+K2dReM5JQ94sX2ZdpfwNzaQPmwxtj75siVmaFhQS0rJJ3ZBoRI32w43Ug",
+    "intermediates": [
+      "MIIEkjCCA3qgAwIBAgIQCgFBQgAAAVOFc2oLheynCDANBgkqhkiG9w0BAQsFADA/MSQwIgYDVQQKExtEaWdpdGFsIFNpZ25hdHVyZSBUcnVzdCBDby4xFzAVBgNVBAMTDkRTVCBSb290IENBIFgzMB4XDTE2MDMxNzE2NDA0NloXDTIxMDMxNzE2NDA0NlowSjELMAkGA1UEBhMCVVMxFjAUBgNVBAoTDUxldCdzIEVuY3J5cHQxIzAhBgNVBAMTGkxldCdzIEVuY3J5cHQgQXV0aG9yaXR5IFgzMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnNMM8FrlLke3cl03g7NoYzDq1zUmGSXhvb418XCSL7e4S0EFq6meNQhY7LEqxGiHC6PjdeTm86dicbp5gWAf15Gan/PQeGdxyGkOlZHP/uaZ6WA8SMx+yk13EiSdRxta67nsHjcAHJyse6cF6s5K671B5TaYucv9bTyWaN8jKkKQDIZ0Z8h/pZq4UmEUEz9l6YKHy9v6Dlb2honzhT+Xhq+w3Brvaw2VFn3EK6BlspkENnWAa6xK8xuQSXgvopZPKiAlKQTGdMDQMc2PMTiVFrqoM7hD8bEfwzB/onkxEz0tNvjj/PIzark5McWvxI0NHWQWM6r6hCm21AvA2H3DkwIDAQABo4IBfTCCAXkwEgYDVR0TAQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAYYwfwYIKwYBBQUHAQEEczBxMDIGCCsGAQUFBzABhiZodHRwOi8vaXNyZy50cnVzdGlkLm9jc3AuaWRlbnRydXN0LmNvbTA7BggrBgEFBQcwAoYvaHR0cDovL2FwcHMuaWRlbnRydXN0LmNvbS9yb290cy9kc3Ryb290Y2F4My5wN2MwHwYDVR0jBBgwFoAUxKexpHsscfrb4UuQdf/EFWCFiRAwVAYDVR0gBE0wSzAIBgZngQwBAgEwPwYLKwYBBAGC3xMBAQEwMDAuBggrBgEFBQcCARYiaHR0cDovL2Nwcy5yb290LXgxLmxldHNlbmNyeXB0Lm9yZzA8BgNVHR8ENTAzMDGgL6AthitodHRwOi8vY3JsLmlkZW50cnVzdC5jb20vRFNUUk9PVENBWDNDUkwuY3JsMB0GA1UdDgQWBBSoSmpjBH3duubRObemRWXv86jsoTANBgkqhkiG9w0BAQsFAAOCAQEA3TPXEfNjWDjdGBX7CVW+dla5cEilaUcne8IkCJLxWh9KEik3JHRRHGJouM2VcGfl96S8TihRzZvoroed6ti6WqEBmtzw3Wodatg+VyOeph4EYpr/1wXKtx8/wApIvJSwtmVi4MFU5aMqrSDE6ea73Mj2tcMyo5jMd6jmeWUHK8so/joWUoHOUgwuX4Po1QYz+3dszkDqMp4fklxBwXRsW10KXzPMTZ+sOPAveyxindmjkW8lGy+QsRlGPfZ+G6Z6h7mjem0Y+iWlkYcV4PIWL1iwBi8saCbGS5jN2p8M+X+Q7UNKEkROb3N6KOqkqm57TH2H3eDJAkSnh6/DNFu0Qg=="
+    ],
+    "rootCertificate": "MIIDSjCCAjKgAwIBAgIQRK+wgNajJ7qJMDmGLvhAazANBgkqhkiG9w0BAQUFADA/MSQwIgYDVQQKExtEaWdpdGFsIFNpZ25hdHVyZSBUcnVzdCBDby4xFzAVBgNVBAMTDkRTVCBSb290IENBIFgzMB4XDTAwMDkzMDIxMTIxOVoXDTIxMDkzMDE0MDExNVowPzEkMCIGA1UEChMbRGlnaXRhbCBTaWduYXR1cmUgVHJ1c3QgQ28uMRcwFQYDVQQDEw5EU1QgUm9vdCBDQSBYMzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAN+v6ZdQCINXtMxiZfaQguzH0yxrMMpb7NnDfcdAwRgUi+DoM3ZJKuM/IUmTrE4Orz5Iy2Xu/NMhD2XSKtkyj4zl93ewEnu1lcCJo6m67XMuegwGMoOifooUMM0RoOEqOLl5CjH9UL2AZd+3UWODyOKIYepLYYHsUmu5ouJLGiifSKOeDNoJjj4XLh7dIN9bxiqKqy69cK3FCxolkHRyxXtqqzTWMIn/5WgTe1QLyNau7Fqckh49ZLOMxt+/yUFw7BZy1SbsOFU5Q9D8/RhcQPGX69Wam40dutolucbY38EVAjqr2m7xPi71XAicPNaDaeQQmxkqtilX4+U9m5/wAl0CAwEAAaNCMEAwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMCAQYwHQYDVR0OBBYEFMSnsaR7LHH62+FLkHX/xBVghYkQMA0GCSqGSIb3DQEBBQUAA4IBAQCjGiybFwBcqR7uKGY3Or+Dxz9LwwmglSBd49lZRNI+DT69ikugdB/OEIKcdBodfpga3csTS7MgROSR6cz8faXbauX+5v3gTt23ADq1cEmv8uXrAvHRAosZy5Q6XkjEGB5YGV8eAlrwDPGxrancWYaLbumR9YbK+rlmM6pZW87ipxZzR8srzJmwN0jP41ZL9c8PDHIyh8bwRLtTcm1D9SZImlJnt1ir/md2cXjbDaJWFBM5JDGFoqgCWjBH4d1QB7wCCZAA62RjYJsWvIjJEubSfZGL+T0yjWW06XyxV3bqxbYoOb8VZRzI9neWagqNdwvYkQsEjgfbKbYK7p2CNTUQ",
+    "requests": [
+      {
+        "time": 1513548430,
+        "request": "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"
+      }
+    ]
+  },
+  "pkijs": {
+    "entityCertificate": "MIIDkTCCAnmgAwIBAgIBEzANBgkqhkiG9w0BAQsFADBFMQswCQYDVQQGEwJVUzEfMB0GA1UEChMWVGVzdCBDZXJ0aWZpY2F0ZXMgMjAxMTEVMBMGA1UEAxMMVHJ1c3QgQW5jaG9yMB4XDTEwMDEwMTA4MzAwMFoXDTMwMTIzMTA4MzAwMFowVTELMAkGA1UEBhMCVVMxHzAdBgNVBAoTFlRlc3QgQ2VydGlmaWNhdGVzIDIwMTExJTAjBgNVBAMTHEJhc2ljIFNlbGYtSXNzdWVkIE5ldyBLZXkgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC5XNHuGz6iZWNrbQQ+XdMzbP1SPooVGGXGj+rqjwsBJMBdapOl0bPLVFAikdp9fDHrH35OtKliNJDYMF8bHIDNAslp4XzXSL5c375aKBwBh45EqqMf5Ny3Hx4rD6T8bGgusQfLpkByPW3vXvJdvMVOxBebK86wjlRzqtkJmR8sUFZb1LvX2lqPV+kAEMRET7EpvYYsEtWK2v4JxwM3AXn4BO6/q4CZnOkdscQ0s0l6wE81TWepi1DQ2gXQdCsRYMT38MhKfUnOC2E3N7YKgR7lvs19p15Zbjzo7yhC+jNvbDdu/IpQFYp7Zx5FXN7VVoYnUL9LtVlDRx8lekzidFo7AgMBAAGjfDB6MB8GA1UdIwQYMBaAFOR9X9FclYYILAWuvnW2ZafZXahmMB0GA1UdDgQWBBSg/MAs61XukgZsqR7pX1+in2IjlTAOBgNVHQ8BAf8EBAMCAQYwFwYDVR0gBBAwDjAMBgpghkgBZQMCATABMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAEVk+zdazhBmjrFGk8gFU/zIFK2usFkMJEJKlrNib05uBQZOb2CImrFQyPnxtBb8ejZRk9d1zlTXQs4G6O4k9Z24Pd9zbTq/rponVyu7VmW1vAkNJg+716lTeH1VtuqTuqX63mBkISHRY7TbO/KpL7cla8EfoH/I8iITinQR6c2jbqtUhuiEPsgvLXJg1MRuLY4fjJavcH156FZER3ctID4Ww0uesZfVsV6sIBkw8S/EbCmGxs0aSph4qPIzSa/ay+HWN+gXR3PucFoLK8Ryx/7FB2JHAUu52idJF2liIhrEeA0Mneiu+RY1RPUel3t/YIVFtqcFJvVz143UM6elH8b=",
+    "intermediates": [
+      "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"
+    ],
+    "rootCertificate": "MIIDRzCCAi+gAwIBAgIBATANBgkqhkiG9w0BAQsFADBFMQswCQYDVQQGEwJVUzEfMB0GA1UEChMWVGVzdCBDZXJ0aWZpY2F0ZXMgMjAxMTEVMBMGA1UEAxMMVHJ1c3QgQW5jaG9yMB4XDTEwMDEwMTA4MzAwMFoXDTMwMTIzMTA4MzAwMFowRTELMAkGA1UEBhMCVVMxHzAdBgNVBAoTFlRlc3QgQ2VydGlmaWNhdGVzIDIwMTExFTATBgNVBAMTDFRydXN0IEFuY2hvcjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALmZUYkRR+DNRbmEJ4ITAhbNRDmqrNsJw97iLE7bpFeflDUoNcJrZPZbC208bG+g5M0ATzV0vOqg88Ds1/FjFDK1oPItqsiDImJIq0xb/et5w72WNPxHVrcsr7Ap6DHfdwLpNMncqtzX92hU/iGVHLE/w/OCWwAIIbTHaxdrGMUG7DkJJ6iI7mzqpcyPvyAAo9O3SHjJr+uw5vSrHRretnV2un0bohvGslN64MY/UIiRnPFwd2gD76byDzoM1ioyLRCllfBJ5sRDz9xrUHNigTAUdlblb6yrnNtNJmkrROYvkh6sLETUh9EYh0Ar+94fZVXfGVi57Sw7x1jyANTlA40CAwEAAaNCMEAwHQYDVR0OBBYEFOR9X9FclYYILAWuvnW2ZafZXahmMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQCYoa9uR55KJTkpwyPihIgXHq7/Z8dx3qZlCJQwE5qQBZXIsf5eC8Va/QjnTHOC4Gt4MwpnqqmoDqyqSW8pBVQgAUFAXqO91nLCQb4+/yfjiiNjzprpxQlcqIZYjJSVtckH1IDWFLFeuGW+OgPPEFgN4hjU5YFIsE2r1i4+ixkeuorxxsK1D/jYbVwQMXLqn1pjJttOPJwuA8+ho1f2c8FrKlqjHgOwxuHhsiGN6MKgs1baalpR/lnNFCIpq+/+3cnhufDjvxMy5lg+cwgMCiGzCxn4n4dBMw41C+4KhNF7ZtKuKSZ1eczztXD9NUkGUGw3LzpLDJazz3JhlZ/9pXzF",
+    "requests": []
+  }
+}
+
+},{}],94:[function(require,module,exports){
 var HttpClient = require('../lib/client');
 
-describe('HttpClient', function () {
+describe('HttpClient', function() {
     it('makes HTTP request', function(cb) {
-        console.log("DONE");
-        cb()
+        cb();
     });
 });
 
-},{"../lib/client":2}],94:[function(require,module,exports){
+},{"../lib/client":2}],95:[function(require,module,exports){
 (function (Buffer){
 
 /* jshint -W101, -W098 */
@@ -14424,44 +14469,89 @@ var ProtoBuf = bip70.ProtoBuf;
 var PaymentDetails = ProtoBuf.PaymentDetails;
 var PaymentRequest = ProtoBuf.PaymentRequest;
 var X509Certificates = ProtoBuf.X509Certificates;
+var Output = ProtoBuf.Output;
 
 describe('Protobuf', function() {
-    it('parses a static PaymentRequest', function(cb) {
-        var pkiType = "x509+sha256";
-        var memo = "Payment for 1 shoes";
-        var network = "main";
-        var paymentUrl = "https://example.com/payment";
-        var txOutVal = 500000;
-        var merchantData = Buffer.from("30ae4a789834ed78ed74ff1291689131", "hex");
-        var txOutScript = Buffer.from("76a914ef137c53ddae4dcf04f5a656c42f451c0b99165788ac", "hex");
-        var someRequest = "Egt4NTA5K3NoYTI1NhqQCAqFBDCCAgEwggFqAgkAqnj+xtf3r5MwDQYJKoZIhvcNAQELBQAwRTELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoMGEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDAeFw0xNTA5MjkxMzU2NDBaFw0xNjA5MjgxMzU2NDBaMEUxCzAJBgNVBAYTAkFVMRMwEQYDVQQIDApTb21lLVN0YXRlMSEwHwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALKAUiA22Umgy666aJ9Ka1ilvU/JGfCMN/hmGKCR5kfnfOVaSdhm3ZCvnAwbUwS2j3DZ1jofRG3OV9PelRry8bSMb8zADtdGSVovjbTzlqkNzIS2ZwRglL05gkLPJnNJB/0M/1JNgCKeqA9hw0CMgR5B5ozFmR8OxplFLQDa3S2hAgMBAAEwDQYJKoZIhvcNAQELBQADgYEACwtR35RSKJG8sNYxgfCUwFKxPSxto6FQ9ge59xZ5xPOPLGuS4Otadf0hyKyrRGZGqVe8U8MEzi5Q32C0daB+llTX96winSkxy8T9t28AJLEJGG32qvLZzxkTn0LiwfH0obnCNxcXVlKsANIVKkZxTcd1g8PG5YuTyHNA6GL2rN4KhQQwggIBMIIBagIJAKp4/sbX96+TMA0GCSqGSIb3DQEBCwUAMEUxCzAJBgNVBAYTAkFVMRMwEQYDVQQIDApTb21lLVN0YXRlMSEwHwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwHhcNMTUwOTI5MTM1NjQwWhcNMTYwOTI4MTM1NjQwWjBFMQswCQYDVQQGEwJBVTETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0cyBQdHkgTHRkMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCygFIgNtlJoMuuumifSmtYpb1PyRnwjDf4ZhigkeZH53zlWknYZt2Qr5wMG1MEto9w2dY6H0RtzlfT3pUa8vG0jG/MwA7XRklaL42085apDcyEtmcEYJS9OYJCzyZzSQf9DP9STYAinqgPYcNAjIEeQeaMxZkfDsaZRS0A2t0toQIDAQABMA0GCSqGSIb3DQEBCwUAA4GBAAsLUd+UUiiRvLDWMYHwlMBSsT0sbaOhUPYHufcWecTzjyxrkuDrWnX9Icisq0RmRqlXvFPDBM4uUN9gtHWgfpZU1/esIp0pMcvE/bdvACSxCRht9qry2c8ZE59C4sHx9KG5wjcXF1ZSrADSFSpGcU3HdYPDxuWLk8hzQOhi9qzeInESHwigwh4SGXapFO8TfFPdrk3PBPWmVsQvRRwLmRZXiKwYpayozwUglZCozwUqE1BheW1lbnQgZm9yIDEgc2hvZXMyG2h0dHBzOi8vZXhhbXBsZS5jb20vcGF5bWVudDoQMK5KeJg07XjtdP8SkWiRMSqAARFwvKAuhNc3DiD6yk/SgD41uej9fflYbWvjRN4dD2xeQ/Z6We/H7gKdKPYzTynTj0osZnUcPq/An1opewevdjpPPYBwoTAa+ClYX3g4eMofJseLT/+60r0nS39xbbxxlUBdSmItqqoBEl853r8yBAfLA0aMGW47v1xeo62DI3lb";
-        var rawRequest = Buffer.from(someRequest, 'base64');
+    describe('Output', function() {
+        [
+            [0, new Buffer("")],
+            [1234567890, new Buffer("ascii")]
+        ].map(function(fixture, i) {
+            it("fixture #" + i + " can be encoded and decoded", function(cb) {
+                var amount = fixture[0];
+                var script = fixture[1];
+                var output = Output.create({
+                    amount: amount,
+                    script: script
+                });
 
-        var paymentRequest = PaymentRequest.decode(rawRequest);
-        assert.equal(paymentRequest.pkiType, pkiType);
+                assert.equal(output.amount, amount);
+                assert.ok(output.script.equals(script));
 
-        var paymentDetails = PaymentDetails.decode(paymentRequest.serializedPaymentDetails);
-        assert.equal(paymentDetails.memo, memo);
-        assert.equal(paymentDetails.network, network);
-        assert.equal(paymentDetails.paymentUrl, paymentUrl);
-        assert.equal(paymentDetails.outputs[0].amount, txOutVal);
+                var encoded = new Buffer(Output.encode(output).finish());
+                var decoded = Output.decode(encoded);
 
-        var script = Buffer.from(paymentDetails.outputs[0].script);
-        assert.equal(script.toString('hex'), txOutScript.toString('hex'));
 
-        var m = Buffer.from(paymentDetails.merchantData);
-        assert.equal(m.toString('hex'), merchantData.toString('hex'));
+                assert.equal(decoded.amount, amount);
+                assert.ok(decoded.script.equals(script));
 
-        var x509 = X509Certificates.decode(paymentRequest.pkiData);
-        assert.equal(x509.certificate.length, 2);
+                cb();
+            });
+        });
+    });
 
-        cb();
-    })
+    describe('PaymentDetails', function() {
+        it('set a create time', function(cb) {
+            var time = 1513527325;
 
+            var details = PaymentDetails.create({
+                time: time
+            });
+            var str = PaymentDetails.encode(details).finish();
+            var decoded = PaymentDetails.decode(str);
+
+            assert.equal(decoded.time, time);
+            cb();
+        });
+    });
+
+    describe('PaymentRequest', function() {
+        it('parses a static PaymentRequest', function(cb) {
+            var pkiType = "x509+sha256";
+            var memo = "Payment for 1 shoes";
+            var network = "main";
+            var paymentUrl = "https://example.com/payment";
+            var txOutVal = 500000;
+            var merchantData = Buffer.from("30ae4a789834ed78ed74ff1291689131", "hex");
+            var txOutScript = Buffer.from("76a914ef137c53ddae4dcf04f5a656c42f451c0b99165788ac", "hex");
+            var someRequest = "Egt4NTA5K3NoYTI1NhqQCAqFBDCCAgEwggFqAgkAqnj+xtf3r5MwDQYJKoZIhvcNAQELBQAwRTELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoMGEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDAeFw0xNTA5MjkxMzU2NDBaFw0xNjA5MjgxMzU2NDBaMEUxCzAJBgNVBAYTAkFVMRMwEQYDVQQIDApTb21lLVN0YXRlMSEwHwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALKAUiA22Umgy666aJ9Ka1ilvU/JGfCMN/hmGKCR5kfnfOVaSdhm3ZCvnAwbUwS2j3DZ1jofRG3OV9PelRry8bSMb8zADtdGSVovjbTzlqkNzIS2ZwRglL05gkLPJnNJB/0M/1JNgCKeqA9hw0CMgR5B5ozFmR8OxplFLQDa3S2hAgMBAAEwDQYJKoZIhvcNAQELBQADgYEACwtR35RSKJG8sNYxgfCUwFKxPSxto6FQ9ge59xZ5xPOPLGuS4Otadf0hyKyrRGZGqVe8U8MEzi5Q32C0daB+llTX96winSkxy8T9t28AJLEJGG32qvLZzxkTn0LiwfH0obnCNxcXVlKsANIVKkZxTcd1g8PG5YuTyHNA6GL2rN4KhQQwggIBMIIBagIJAKp4/sbX96+TMA0GCSqGSIb3DQEBCwUAMEUxCzAJBgNVBAYTAkFVMRMwEQYDVQQIDApTb21lLVN0YXRlMSEwHwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwHhcNMTUwOTI5MTM1NjQwWhcNMTYwOTI4MTM1NjQwWjBFMQswCQYDVQQGEwJBVTETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0cyBQdHkgTHRkMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCygFIgNtlJoMuuumifSmtYpb1PyRnwjDf4ZhigkeZH53zlWknYZt2Qr5wMG1MEto9w2dY6H0RtzlfT3pUa8vG0jG/MwA7XRklaL42085apDcyEtmcEYJS9OYJCzyZzSQf9DP9STYAinqgPYcNAjIEeQeaMxZkfDsaZRS0A2t0toQIDAQABMA0GCSqGSIb3DQEBCwUAA4GBAAsLUd+UUiiRvLDWMYHwlMBSsT0sbaOhUPYHufcWecTzjyxrkuDrWnX9Icisq0RmRqlXvFPDBM4uUN9gtHWgfpZU1/esIp0pMcvE/bdvACSxCRht9qry2c8ZE59C4sHx9KG5wjcXF1ZSrADSFSpGcU3HdYPDxuWLk8hzQOhi9qzeInESHwigwh4SGXapFO8TfFPdrk3PBPWmVsQvRRwLmRZXiKwYpayozwUglZCozwUqE1BheW1lbnQgZm9yIDEgc2hvZXMyG2h0dHBzOi8vZXhhbXBsZS5jb20vcGF5bWVudDoQMK5KeJg07XjtdP8SkWiRMSqAARFwvKAuhNc3DiD6yk/SgD41uej9fflYbWvjRN4dD2xeQ/Z6We/H7gKdKPYzTynTj0osZnUcPq/An1opewevdjpPPYBwoTAa+ClYX3g4eMofJseLT/+60r0nS39xbbxxlUBdSmItqqoBEl853r8yBAfLA0aMGW47v1xeo62DI3lb";
+            var rawRequest = Buffer.from(someRequest, 'base64');
+
+            var paymentRequest = PaymentRequest.decode(rawRequest);
+            assert.equal(paymentRequest.pkiType, pkiType);
+
+            var paymentDetails = PaymentDetails.decode(paymentRequest.serializedPaymentDetails);
+            assert.equal(paymentDetails.memo, memo);
+            assert.equal(paymentDetails.network, network);
+            assert.equal(paymentDetails.paymentUrl, paymentUrl);
+            assert.equal(paymentDetails.outputs[0].amount, txOutVal);
+
+            var script = Buffer.from(paymentDetails.outputs[0].script);
+            assert.equal(script.toString('hex'), txOutScript.toString('hex'));
+
+            var m = Buffer.from(paymentDetails.merchantData);
+            assert.equal(m.toString('hex'), merchantData.toString('hex'));
+
+            var x509 = X509Certificates.decode(paymentRequest.pkiData);
+            assert.equal(x509.certificate.length, 2);
+
+            cb();
+        });
+    });
 });
 
 }).call(this,require("buffer").Buffer)
-},{"../main.js":12,"assert":23,"buffer":50}],95:[function(require,module,exports){
+},{"../main.js":12,"assert":23,"buffer":50}],96:[function(require,module,exports){
 (function (Buffer){
 /* jshint -W101, -W098 */
 
@@ -14553,7 +14643,6 @@ describe('RequestBuilder setters', function() {
 
         test(builder);
         test(encodeAndDecode(builder));
-        console.log("FIN")
         cb();
     });
 
@@ -14667,34 +14756,14 @@ describe('RequestBuilder setters', function() {
 });
 
 }).call(this,require("buffer").Buffer)
-},{"../main.js":12,"assert":23,"buffer":50}],96:[function(require,module,exports){
-module.exports={
-  "test_cert": {
-    "chainValidTime": 1510764712,
-    "entityCertificate": "MIIFLTCCBBWgAwIBAgISA/0ST5vsJ4DW51WCJkDCT/vSMA0GCSqGSIb3DQEBCwUAMEoxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MSMwIQYDVQQDExpMZXQncyBFbmNyeXB0IEF1dGhvcml0eSBYMzAeFw0xNzEwMjIxNzE3NDZaFw0xODAxMjAxNzE3NDZaMDAxLjAsBgNVBAMTJXRlc3RuZXQtY2VydC1vbmx5LW5vdC12YWxpZC5iaXA3MC5vcmcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCysse3OtBIXZ/pwhvPVPwlQ5dSiK9DV9ZF1TUyIOSjJqmJyGEHwtj4phRAmHvt9K70l8yJxmBmCr1JFECxlBpn+Cs1ezhUOokTopkshM0aoMIcKFwb3xfejH5rOiLPwdpQ1bf2i5MvWO11AA3SU4db7vnOPxjtIPKj22xBzyZCQ4EZ2FtYPY/0RTFeR1I7xiOLeJi4y8/7oEAGyLm6qVTvHaWRJqW8xPGxU36MLWqgbehaWkbSCt52VSbi+uUlejIkP4oSXQWbmwI4CdIOT3/yL6CCV99Jon/1Fh98HwxqyTRaK8CLwmXtclNP/j8VKjR12QC9FQPNceFKYTP+aMvnAgMBAAGjggIlMIICITAOBgNVHQ8BAf8EBAMCBaAwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMAwGA1UdEwEB/wQCMAAwHQYDVR0OBBYEFE5+6CvvC65MDSEdmUsRB1nIhzXeMB8GA1UdIwQYMBaAFKhKamMEfd265tE5t6ZFZe/zqOyhMG8GCCsGAQUFBwEBBGMwYTAuBggrBgEFBQcwAYYiaHR0cDovL29jc3AuaW50LXgzLmxldHNlbmNyeXB0Lm9yZzAvBggrBgEFBQcwAoYjaHR0cDovL2NlcnQuaW50LXgzLmxldHNlbmNyeXB0Lm9yZy8wMAYDVR0RBCkwJ4IldGVzdG5ldC1jZXJ0LW9ubHktbm90LXZhbGlkLmJpcDcwLm9yZzCB/gYDVR0gBIH2MIHzMAgGBmeBDAECATCB5gYLKwYBBAGC3xMBAQEwgdYwJgYIKwYBBQUHAgEWGmh0dHA6Ly9jcHMubGV0c2VuY3J5cHQub3JnMIGrBggrBgEFBQcCAjCBngyBm1RoaXMgQ2VydGlmaWNhdGUgbWF5IG9ubHkgYmUgcmVsaWVkIHVwb24gYnkgUmVseWluZyBQYXJ0aWVzIGFuZCBvbmx5IGluIGFjY29yZGFuY2Ugd2l0aCB0aGUgQ2VydGlmaWNhdGUgUG9saWN5IGZvdW5kIGF0IGh0dHBzOi8vbGV0c2VuY3J5cHQub3JnL3JlcG9zaXRvcnkvMA0GCSqGSIb3DQEBCwUAA4IBAQCVCp2bfZdrUvsygry0dUwkmj3uHa7psVm8lkvsUuZIgUQExO/n5D8Iu+flY4vYSrW09AcuuR6cieh0sxxSswgTnqUKGrhuMAadRVXHEl9pkqHUQCoBjBppmiHwTTumuV6WuUuV/EUNd/b9kmpYrNQR/vZb7t4xcePqc+sFVqlD7d8zhq5scCE8A9sKmgt+XcmzpDNafUXz4zXP30HYHgkEHPEcvDTzmVNyQmCquXSTYnWWVKnNC7Jn9yJecdIM0xW8hMZ0R/+fPDlgZlmKWnbzoWYTdg+K2dReM5JQ94sX2ZdpfwNzaQPmwxtj75siVmaFhQS0rJJ3ZBoRI32w43Ug",
-    "intermediates": [
-      "MIIEkjCCA3qgAwIBAgIQCgFBQgAAAVOFc2oLheynCDANBgkqhkiG9w0BAQsFADA/MSQwIgYDVQQKExtEaWdpdGFsIFNpZ25hdHVyZSBUcnVzdCBDby4xFzAVBgNVBAMTDkRTVCBSb290IENBIFgzMB4XDTE2MDMxNzE2NDA0NloXDTIxMDMxNzE2NDA0NlowSjELMAkGA1UEBhMCVVMxFjAUBgNVBAoTDUxldCdzIEVuY3J5cHQxIzAhBgNVBAMTGkxldCdzIEVuY3J5cHQgQXV0aG9yaXR5IFgzMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnNMM8FrlLke3cl03g7NoYzDq1zUmGSXhvb418XCSL7e4S0EFq6meNQhY7LEqxGiHC6PjdeTm86dicbp5gWAf15Gan/PQeGdxyGkOlZHP/uaZ6WA8SMx+yk13EiSdRxta67nsHjcAHJyse6cF6s5K671B5TaYucv9bTyWaN8jKkKQDIZ0Z8h/pZq4UmEUEz9l6YKHy9v6Dlb2honzhT+Xhq+w3Brvaw2VFn3EK6BlspkENnWAa6xK8xuQSXgvopZPKiAlKQTGdMDQMc2PMTiVFrqoM7hD8bEfwzB/onkxEz0tNvjj/PIzark5McWvxI0NHWQWM6r6hCm21AvA2H3DkwIDAQABo4IBfTCCAXkwEgYDVR0TAQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAYYwfwYIKwYBBQUHAQEEczBxMDIGCCsGAQUFBzABhiZodHRwOi8vaXNyZy50cnVzdGlkLm9jc3AuaWRlbnRydXN0LmNvbTA7BggrBgEFBQcwAoYvaHR0cDovL2FwcHMuaWRlbnRydXN0LmNvbS9yb290cy9kc3Ryb290Y2F4My5wN2MwHwYDVR0jBBgwFoAUxKexpHsscfrb4UuQdf/EFWCFiRAwVAYDVR0gBE0wSzAIBgZngQwBAgEwPwYLKwYBBAGC3xMBAQEwMDAuBggrBgEFBQcCARYiaHR0cDovL2Nwcy5yb290LXgxLmxldHNlbmNyeXB0Lm9yZzA8BgNVHR8ENTAzMDGgL6AthitodHRwOi8vY3JsLmlkZW50cnVzdC5jb20vRFNUUk9PVENBWDNDUkwuY3JsMB0GA1UdDgQWBBSoSmpjBH3duubRObemRWXv86jsoTANBgkqhkiG9w0BAQsFAAOCAQEA3TPXEfNjWDjdGBX7CVW+dla5cEilaUcne8IkCJLxWh9KEik3JHRRHGJouM2VcGfl96S8TihRzZvoroed6ti6WqEBmtzw3Wodatg+VyOeph4EYpr/1wXKtx8/wApIvJSwtmVi4MFU5aMqrSDE6ea73Mj2tcMyo5jMd6jmeWUHK8so/joWUoHOUgwuX4Po1QYz+3dszkDqMp4fklxBwXRsW10KXzPMTZ+sOPAveyxindmjkW8lGy+QsRlGPfZ+G6Z6h7mjem0Y+iWlkYcV4PIWL1iwBi8saCbGS5jN2p8M+X+Q7UNKEkROb3N6KOqkqm57TH2H3eDJAkSnh6/DNFu0Qg=="
-    ],
-    "rootCertificate": "MIIDSjCCAjKgAwIBAgIQRK+wgNajJ7qJMDmGLvhAazANBgkqhkiG9w0BAQUFADA/MSQwIgYDVQQKExtEaWdpdGFsIFNpZ25hdHVyZSBUcnVzdCBDby4xFzAVBgNVBAMTDkRTVCBSb290IENBIFgzMB4XDTAwMDkzMDIxMTIxOVoXDTIxMDkzMDE0MDExNVowPzEkMCIGA1UEChMbRGlnaXRhbCBTaWduYXR1cmUgVHJ1c3QgQ28uMRcwFQYDVQQDEw5EU1QgUm9vdCBDQSBYMzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAN+v6ZdQCINXtMxiZfaQguzH0yxrMMpb7NnDfcdAwRgUi+DoM3ZJKuM/IUmTrE4Orz5Iy2Xu/NMhD2XSKtkyj4zl93ewEnu1lcCJo6m67XMuegwGMoOifooUMM0RoOEqOLl5CjH9UL2AZd+3UWODyOKIYepLYYHsUmu5ouJLGiifSKOeDNoJjj4XLh7dIN9bxiqKqy69cK3FCxolkHRyxXtqqzTWMIn/5WgTe1QLyNau7Fqckh49ZLOMxt+/yUFw7BZy1SbsOFU5Q9D8/RhcQPGX69Wam40dutolucbY38EVAjqr2m7xPi71XAicPNaDaeQQmxkqtilX4+U9m5/wAl0CAwEAAaNCMEAwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMCAQYwHQYDVR0OBBYEFMSnsaR7LHH62+FLkHX/xBVghYkQMA0GCSqGSIb3DQEBBQUAA4IBAQCjGiybFwBcqR7uKGY3Or+Dxz9LwwmglSBd49lZRNI+DT69ikugdB/OEIKcdBodfpga3csTS7MgROSR6cz8faXbauX+5v3gTt23ADq1cEmv8uXrAvHRAosZy5Q6XkjEGB5YGV8eAlrwDPGxrancWYaLbumR9YbK+rlmM6pZW87ipxZzR8srzJmwN0jP41ZL9c8PDHIyh8bwRLtTcm1D9SZImlJnt1ir/md2cXjbDaJWFBM5JDGFoqgCWjBH4d1QB7wCCZAA62RjYJsWvIjJEubSfZGL+T0yjWW06XyxV3bqxbYoOb8VZRzI9neWagqNdwvYkQsEjgfbKbYK7p2CNTUQ"
-  },
-  "pkijs": {
-    "entityCertificate": "MIIDkTCCAnmgAwIBAgIBEzANBgkqhkiG9w0BAQsFADBFMQswCQYDVQQGEwJVUzEfMB0GA1UEChMWVGVzdCBDZXJ0aWZpY2F0ZXMgMjAxMTEVMBMGA1UEAxMMVHJ1c3QgQW5jaG9yMB4XDTEwMDEwMTA4MzAwMFoXDTMwMTIzMTA4MzAwMFowVTELMAkGA1UEBhMCVVMxHzAdBgNVBAoTFlRlc3QgQ2VydGlmaWNhdGVzIDIwMTExJTAjBgNVBAMTHEJhc2ljIFNlbGYtSXNzdWVkIE5ldyBLZXkgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC5XNHuGz6iZWNrbQQ+XdMzbP1SPooVGGXGj+rqjwsBJMBdapOl0bPLVFAikdp9fDHrH35OtKliNJDYMF8bHIDNAslp4XzXSL5c375aKBwBh45EqqMf5Ny3Hx4rD6T8bGgusQfLpkByPW3vXvJdvMVOxBebK86wjlRzqtkJmR8sUFZb1LvX2lqPV+kAEMRET7EpvYYsEtWK2v4JxwM3AXn4BO6/q4CZnOkdscQ0s0l6wE81TWepi1DQ2gXQdCsRYMT38MhKfUnOC2E3N7YKgR7lvs19p15Zbjzo7yhC+jNvbDdu/IpQFYp7Zx5FXN7VVoYnUL9LtVlDRx8lekzidFo7AgMBAAGjfDB6MB8GA1UdIwQYMBaAFOR9X9FclYYILAWuvnW2ZafZXahmMB0GA1UdDgQWBBSg/MAs61XukgZsqR7pX1+in2IjlTAOBgNVHQ8BAf8EBAMCAQYwFwYDVR0gBBAwDjAMBgpghkgBZQMCATABMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAEVk+zdazhBmjrFGk8gFU/zIFK2usFkMJEJKlrNib05uBQZOb2CImrFQyPnxtBb8ejZRk9d1zlTXQs4G6O4k9Z24Pd9zbTq/rponVyu7VmW1vAkNJg+716lTeH1VtuqTuqX63mBkISHRY7TbO/KpL7cla8EfoH/I8iITinQR6c2jbqtUhuiEPsgvLXJg1MRuLY4fjJavcH156FZER3ctID4Ww0uesZfVsV6sIBkw8S/EbCmGxs0aSph4qPIzSa/ay+HWN+gXR3PucFoLK8Ryx/7FB2JHAUu52idJF2liIhrEeA0Mneiu+RY1RPUel3t/YIVFtqcFJvVz143UM6elH8b=",
-    "intermediates": [
-      "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"
-    ],
-    "rootCertificate": "MIIDRzCCAi+gAwIBAgIBATANBgkqhkiG9w0BAQsFADBFMQswCQYDVQQGEwJVUzEfMB0GA1UEChMWVGVzdCBDZXJ0aWZpY2F0ZXMgMjAxMTEVMBMGA1UEAxMMVHJ1c3QgQW5jaG9yMB4XDTEwMDEwMTA4MzAwMFoXDTMwMTIzMTA4MzAwMFowRTELMAkGA1UEBhMCVVMxHzAdBgNVBAoTFlRlc3QgQ2VydGlmaWNhdGVzIDIwMTExFTATBgNVBAMTDFRydXN0IEFuY2hvcjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALmZUYkRR+DNRbmEJ4ITAhbNRDmqrNsJw97iLE7bpFeflDUoNcJrZPZbC208bG+g5M0ATzV0vOqg88Ds1/FjFDK1oPItqsiDImJIq0xb/et5w72WNPxHVrcsr7Ap6DHfdwLpNMncqtzX92hU/iGVHLE/w/OCWwAIIbTHaxdrGMUG7DkJJ6iI7mzqpcyPvyAAo9O3SHjJr+uw5vSrHRretnV2un0bohvGslN64MY/UIiRnPFwd2gD76byDzoM1ioyLRCllfBJ5sRDz9xrUHNigTAUdlblb6yrnNtNJmkrROYvkh6sLETUh9EYh0Ar+94fZVXfGVi57Sw7x1jyANTlA40CAwEAAaNCMEAwHQYDVR0OBBYEFOR9X9FclYYILAWuvnW2ZafZXahmMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQCYoa9uR55KJTkpwyPihIgXHq7/Z8dx3qZlCJQwE5qQBZXIsf5eC8Va/QjnTHOC4Gt4MwpnqqmoDqyqSW8pBVQgAUFAXqO91nLCQb4+/yfjiiNjzprpxQlcqIZYjJSVtckH1IDWFLFeuGW+OgPPEFgN4hjU5YFIsE2r1i4+ixkeuorxxsK1D/jYbVwQMXLqn1pjJttOPJwuA8+ho1f2c8FrKlqjHgOwxuHhsiGN6MKgs1baalpR/lnNFCIpq+/+3cnhufDjvxMy5lg+cwgMCiGzCxn4n4dBMw41C+4KhNF7ZtKuKSZ1eczztXD9NUkGUGw3LzpLDJazz3JhlZ/9pXzF"
-  }
-}
-
-},{}],97:[function(require,module,exports){
+},{"../main.js":12,"assert":23,"buffer":50}],97:[function(require,module,exports){
 (function (Buffer){
 var jsrsasign = require('jsrsasign');
 var assert = require('assert');
-var bip70 = require('../../main.js');
+var bip70 = require('../main.js');
+var PaymentRequest = bip70.ProtoBuf.PaymentRequest;
 var ChainPathValidator = bip70.X509.ChainPathValidator;
 var ChainPathBuilder = bip70.X509.ChainPathBuilder;
-var Validation = require('../../lib/x509/validation.jsrsasign');
 var certfile = require("./certfile");
 
 
@@ -14717,6 +14786,69 @@ function certFromEncoding(data, encoding) {
     return cert;
 }
 
+describe("GetSignatureAlgorithm", function() {
+    var entityCert = certFromEncoding(certfile.test_cert.entityCertificate, "base64");
+
+    it("Deals with RSA public keys", function(cb) {
+        var sha256 = bip70.X509.GetSignatureAlgorithm(entityCert, bip70.X509.PKIType.X509_SHA256);
+        assert.equal(sha256, "SHA256withRSA");
+
+        var sha1 = bip70.X509.GetSignatureAlgorithm(entityCert, bip70.X509.PKIType.X509_SHA1);
+        assert.equal(sha1, "SHA1withRSA");
+        cb();
+    });
+
+    it("Deals with ECDSA public keys (mocked)", function(cb) {
+        var mockKey = {};
+        mockKey.getPublicKey = function() {
+            return {
+                type: "ECDSA"
+            };
+        };
+
+        var sha256 = bip70.X509.GetSignatureAlgorithm(mockKey, bip70.X509.PKIType.X509_SHA256);
+        assert.equal(sha256, "SHA256withECDSA");
+
+        var sha1 = bip70.X509.GetSignatureAlgorithm(mockKey, bip70.X509.PKIType.X509_SHA1);
+        assert.equal(sha1, "SHA1withECDSA");
+        cb();
+    });
+
+    it("Rejects unknown PKI types", function(cb) {
+        var mockKey = {};
+        mockKey.getPublicKey = function() {
+            return {
+                type: "ECDSA"
+            };
+        };
+
+        assert.throws(function() {
+            bip70.X509.GetSignatureAlgorithm(mockKey, "unknown");
+        });
+
+        assert.throws(function() {
+            bip70.X509.GetSignatureAlgorithm(mockKey, bip70.X509.PKIType.NONE);
+        });
+
+        cb();
+    });
+
+    it("Rejects unknown public key type", function(cb) {
+        var mockKey = {};
+        mockKey.getPublicKey = function() {
+            return {
+                type: "wut"
+            };
+        };
+
+        assert.throws(function() {
+            bip70.X509.GetSignatureAlgorithm(mockKey, "unknown");
+        });
+
+        cb();
+    });
+});
+
 describe('ChainPathBuilder', function() {
     var fixture = certfile.test_cert;
     var entityCert = certFromEncoding(fixture.entityCertificate, "base64");
@@ -14737,7 +14869,9 @@ describe('ChainPathBuilder', function() {
             currentTime: chainValidTime
         }, path);
 
-        validator.validate();
+        assert.doesNotThrow(function() {
+            validator.validate();
+        });
 
         cb();
     });
@@ -14804,6 +14938,68 @@ describe('ChainPathBuilder', function() {
     });
 });
 
+describe("RequestValidator", function() {
+    describe("validateSignature", function() {
+        var i = 0;
+        certfile.test_cert.requests.map(function(request) {
+            it("works with a test fixture " + i, function(cb) {
+                var time = request.time;
+                var request64 = request.request;
+                var req = PaymentRequest.decode(Buffer.from(request64, 'base64'));
+                var root = certFromEncoding(certfile.test_cert.rootCertificate, "base64");
+                var intermediates = certfile.test_cert.intermediates.map(function(cert) {
+                    return certFromEncoding(cert, "base64");
+                });
+                var entityCert = certFromEncoding(certfile.test_cert.entityCertificate, "base64");
+                var validator = new bip70.X509.RequestValidator({
+                    trustStore: [root],
+                    currentTime: time
+                });
+
+                assert.doesNotThrow(function() {
+                    validator.validateCertificateChain(entityCert, intermediates);
+                }, "should validate certificate chain");
+
+                assert.doesNotThrow(function() {
+                    validator.validateSignature(req, entityCert);
+                }, "should validate request signature");
+
+                var path = [];
+                assert.doesNotThrow(function() {
+                    path = validator.verifyX509Details(req);
+                }, "full validation should succeed");
+
+                assert.equal(path.length, 1 + intermediates.length + 1);
+                cb();
+            });
+            i++;
+        });
+
+        var request = certfile.test_cert.requests[0];
+        it("rejects an invalid signature", function(cb) {
+            var time = request.time;
+            var request64 = request.request;
+            var req = PaymentRequest.decode(Buffer.from(request64, 'base64'));
+            var root = certFromEncoding(certfile.test_cert.rootCertificate, "base64");
+            var entityCert = certFromEncoding(certfile.test_cert.entityCertificate, "base64");
+            var validator = new bip70.X509.RequestValidator({
+                trustStore: [root],
+                currentTime: time
+            });
+
+            req.signature = Buffer.from("dZmjw+Tg7ssFmBF3gqbHvyImTEZ6ffMYMBTAFiJs0RnpY9bPCzEILbCX6rBeagffaShqmkyn0iU3+h509Ul8rtPbR+C4c26uFJNLMXWbq7QiiIbpwCaJjtQFXipm7bgVlv+swrMTVu/K+atAsY8INUyuE/CrV53fN7P9gKFqlmlMB2MdrN/oFCx2dDWooXIjvl11hJDkae+r3bC+YCMBfe3MFCDpmF/c3+0xkFrw2R7cZLdUu+kBF3iHL0ezslxKJLtYMb1cuc5DWiGbVOZqu/+Gt3Pul3DS7Tk8QNx7ou1As0EiGWc+BKxUm63lNS/JlIUwvx6A+q0nnu7WDA28Hg==", "base64");
+            assert.ok(false === validator.validateSignature(req, entityCert));
+
+            assert.throws(function() {
+                validator.verifyX509Details(req);
+            });
+
+            cb();
+        });
+    });
+
+});
+
 }).call(this,require("buffer").Buffer)
-},{"../../lib/x509/validation.jsrsasign":11,"../../main.js":12,"./certfile":96,"assert":23,"buffer":50,"jsrsasign":53}]},{},[92])(92)
+},{"../main.js":12,"./certfile":93,"assert":23,"buffer":50,"jsrsasign":53}]},{},[92])(92)
 });

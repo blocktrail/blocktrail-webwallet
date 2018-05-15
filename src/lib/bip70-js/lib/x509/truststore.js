@@ -1,9 +1,8 @@
 var jsrsasign = require('jsrsasign');
 
 function parseCertFrom(string, encoding) {
-    var hex = Buffer.from(string, encoding).toString('hex');
     var cert = new jsrsasign.X509();
-    cert.readCertHex(hex);
+    cert.readCertHex(Buffer.from(string, encoding).toString('hex'));
     return cert;
 }
 

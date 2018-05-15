@@ -1,5 +1,4 @@
 var axios = require('axios');
-var MIMEType = require('./mimetype');
 var PKIType = require('./x509/pkitype');
 var ProtoBuf = require('./protobuf');
 var PaymentRequest = ProtoBuf.PaymentRequest;
@@ -24,28 +23,30 @@ var HttpClient = function() {
  *
  * @param {string} url
  * @param {Validator} validator
+ * @param {NetworkConfig} networkConfig
  * @return Promise of PaymentRequest
  */
-HttpClient.prototype.getRequest = function(url, validator) {
+HttpClient.prototype.getRequest = function(url, validator, networkConfig) {
     return axios({
         method: 'get',
         headers: {
-            "Accept": MIMEType.PAYMENT_REQUEST
+            "Accept": networkConfig.getMimeTypes().PAYMENT_REQUEST
         },
         url: url,
         responseType: 'arraybuffer'
     })
         .then(function(response) {
-            checkContentType(response, MIMEType.PAYMENT_REQUEST);
+            checkContentType(response, networkConfig.getMimeTypes().PAYMENT_REQUEST);
 
             var buf = Buffer.from(response.data);
             var paymentRequest = PaymentRequest.decode(buf);
 
+            var path = null;
             if (paymentRequest.pkiType !== PKIType.NONE) {
-                validator.verifyX509Details(paymentRequest);
+                path = validator.verifyX509Details(paymentRequest);
             }
 
-            return paymentRequest;
+            return [paymentRequest, path];
         });
 };
 
@@ -90,24 +91,25 @@ HttpClient.prototype.preparePayment = function(details, txs, memo) {
  * @param {ProtoBuf.PaymentDetails} details
  * @param {string[]} txs
  * @param {string|null} memo
+ * @param {NetworkConfig} networkConfig
  * @returns Promise of PaymentACK
  */
-HttpClient.prototype.sendPayment = function(details, txs, memo) {
+HttpClient.prototype.sendPayment = function(details, txs, memo, networkConfig) {
     var payment = this.preparePayment(details, txs, memo);
     var paymentData = ProtoBuf.Payment.encode(payment).final();
 
     return axios({
         method: 'post',
         headers: {
-            "Accept": MIMEType.PAYMENT_ACK,
-            "Content-Type": MIMEType.PAYMENT
+            "Accept": networkConfig.getMimeTypes().PAYMENT_ACK,
+            "Content-Type": networkConfig.getMimeTypes().PAYMENT
         },
         url: details.paymentUrl,
         data: paymentData,
         responseType: 'arraybuffer'
     })
         .then(function(response) {
-            checkContentType(response, MIMEType.PAYMENT_ACK);
+            checkContentType(response, networkConfig.getMimeTypes().PAYMENT_ACK);
             var buf = Buffer.from(response.data);
             return ProtoBuf.PaymentACK.decode(buf);
         });

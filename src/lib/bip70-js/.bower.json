@@ -18,14 +18,14 @@
     "test",
     "tests"
   ],
-  "version": "1.0.7",
-  "_release": "1.0.7",
+  "version": "2.0.1",
+  "_release": "2.0.1",
   "_resolution": {
     "type": "version",
-    "tag": "v1.0.7",
-    "commit": "f235fcc9fbd088f593429b62610164837974968d"
+    "tag": "v2.0.1",
+    "commit": "f7a2d812535d344f336b6954c36fe19b08d775c9"
   },
   "_source": "https://github.com/bip70/bip70-js.git",
-  "_target": "1.0.7",
+  "_target": "2.0.1",
   "_originalSource": "bip70-js"
 }
