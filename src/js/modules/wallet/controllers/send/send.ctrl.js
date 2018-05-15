@@ -156,13 +156,23 @@
                                 trustStore: bip70.X509.TrustStore
                             });
 
+                            var networkConfig;
+                            if (walletData.networkType == 'BTC') {
+                                networkConfig = bip70.NetworkConfig.Bitcoin();
+                                // TODO: BCH BIP70 is currently incompatible with BitPay
+                            } else {
+                                throw new Error($translate.instant('MSG_INVALID_RECIPIENT').sentenceCase());
+                            }
+
                             var client = new bip70.HttpClient();
-                            client.getRequest(scheme.paymentUrl, validation)
+                            client.getRequest(scheme.paymentUrl, validation, networkConfig)
                                 .then(function(request) {
                                     var details = bip70.ProtoBuf.PaymentDetails.decode(request.serializedPaymentDetails);
                                     if (details.outputs.length > 1) {
                                         throw new Error("Multiple output payment requests are not supported");
                                     }
+
+                                    $scope.sendInput.referenceMessage = details.memo;
 
                                     var output = details.outputs[0];
                                     var address = bitcoinJS.address.fromOutputScript(output.script, activeWallet.getSdkWallet().sdk.network);
