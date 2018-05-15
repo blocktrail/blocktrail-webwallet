@@ -134,7 +134,7 @@
         blocktrailSDK.prototype.updateMetadata = function (data, cb) {
             var self = this;
 
-            return self.client.post("/metadata", null, data, cb);
+            return self.blocktrailClient.post("/metadata", null, data, cb);
         };
 
         blocktrailSDK.prototype.getAllWallets = function (withbalances) {
@@ -145,97 +145,97 @@
                 params.withbalances = 1;
             }
 
-            return self.client.get("/mywallet/wallets", params);
+            return self.blocktrailClient.get("/mywallet/wallets", params);
         };
 
         blocktrailSDK.prototype.syncContacts = function (data, cb) {
             var self = this;
 
-            return self.client.post("/contacts", null, data, cb);
+            return self.blocktrailClient.post("/contacts", null, data, cb);
         };
 
         blocktrailSDK.prototype.getProfile = function () {
             var self = this;
 
-            return self.client.get("/mywallet/profile");
+            return self.blocktrailClient.get("/mywallet/profile");
         };
 
         blocktrailSDK.prototype.syncProfile = function (data) {
             var self = this;
 
-            return self.client.post("/mywallet/profile", null, data);
+            return self.blocktrailClient.post("/mywallet/profile", null, data);
         };
 
         blocktrailSDK.prototype.getSettings = function (data) {
             var self = this;
 
-            return self.client.get("/mywallet/settings");
+            return self.blocktrailClient.get("/mywallet/settings");
         };
 
         blocktrailSDK.prototype.syncSettings = function (data) {
             var self = this;
 
-            return self.client.post("/mywallet/settings", null, data);
+            return self.blocktrailClient.post("/mywallet/settings", null, data);
         };
 
         blocktrailSDK.prototype.requestVerificationEmail = function (data) {
             var self = this;
 
-            return self.client.post("/mywallet/security/send-verify-email", null, data);
+            return self.blocktrailClient.post("/mywallet/security/send-verify-email", null, data);
         };
 
         blocktrailSDK.prototype.requestContactAddress = function (phoneHash, cb) {
             var self = this;
 
-            return self.client.get("/contact/" + phoneHash + "/new-address", null, false, cb);
+            return self.blocktrailClient.get("/contact/" + phoneHash + "/new-address", null, false, cb);
         };
 
         blocktrailSDK.prototype.updatePhone = function (data, cb) {
             var self = this;
 
-            return self.client.post("/mywallet/phone", null, data, cb);
+            return self.blocktrailClient.post("/mywallet/phone", null, data, cb);
         };
 
         blocktrailSDK.prototype.removePhone = function (cb) {
             var self = this;
 
-            return self.client.delete("/mywallet/phone", null, null, cb);
+            return self.blocktrailClient.delete("/mywallet/phone", null, null, cb);
         };
 
         blocktrailSDK.prototype.verifyPhone = function (token, cb) {
             var self = this;
 
-            return self.client.post("/mywallet/phone/verify", null, {token: token}, cb);
+            return self.blocktrailClient.post("/mywallet/phone/verify", null, {token: token}, cb);
         };
 
         blocktrailSDK.prototype.glideraOauth = function (code, redirect_uri) {
             var self = this;
 
-            return self.client.post("/mywallet/glidera/oauth", {platform: 'web'}, {code: code, redirect_uri: redirect_uri});
+            return self.blocktrailClient.post("/mywallet/glidera/oauth", {platform: 'web'}, {code: code, redirect_uri: redirect_uri});
         };
 
         blocktrailSDK.prototype.glideraBuyPrices = function (qty, fiat) {
             var self = this;
 
-            return self.client.get("/mywallet/glidera/prices/buy", {qty: qty, fiat: fiat, platform: 'web'});
+            return self.blocktrailClient.get("/mywallet/glidera/prices/buy", {qty: qty, fiat: fiat, platform: 'web'});
         };
 
         blocktrailSDK.prototype.simplexBuyPrices = function (data) {
             var self = this;
 
-            return self.client.post("/mywallet/simplex/prices/quote", null, data);
+            return self.blocktrailClient.post("/mywallet/simplex/prices/quote", null, data);
         };
 
         blocktrailSDK.prototype.simplexPaymentRequest = function (data) {
             var self = this;
 
-            return self.client.post("/mywallet/simplex/payment/request", null, data);
+            return self.blocktrailClient.post("/mywallet/simplex/payment/request", null, data);
         };
 
         blocktrailSDK.prototype.passwordChange = function (oldPassword, newPassword, encryptedSecret, twoFactorToken, walletsData) {
             var self = this;
 
-            return self.client.post(
+            return self.blocktrailClient.post(
                 "/mywallet/password-change",
                 null,
                 {
@@ -251,43 +251,43 @@
         blocktrailSDK.prototype.setMainMobileWallet = function (identifier, cb) {
             var self = this;
 
-            return self.client.post("/mywallet/main", null, {identifier: identifier}, cb);
+            return self.blocktrailClient.post("/mywallet/main", null, {identifier: identifier}, cb);
         };
 
         blocktrailSDK.prototype.getSignedBitonicUrl = function (identifier, params) {
             var self = this;
 
-            return self.client.post("/mywallet/" + identifier + "/bitonic/oauth", null, params);
+            return self.blocktrailClient.post("/mywallet/" + identifier + "/bitonic/oauth", null, params);
         };
 
         blocktrailSDK.prototype.setup2FA = function (password, cb) {
             var self = this;
 
-            return self.client.post("/mywallet/2fa/setup", null, {password: password}, cb);
+            return self.blocktrailClient.post("/mywallet/2fa/setup", null, {password: password}, cb);
         };
 
         blocktrailSDK.prototype.enable2FA = function (twoFactorToken, cb) {
             var self = this;
 
-            return self.client.post("/mywallet/2fa/enable", null, {two_factor_token: twoFactorToken}, cb);
+            return self.blocktrailClient.post("/mywallet/2fa/enable", null, {two_factor_token: twoFactorToken}, cb);
         };
 
         blocktrailSDK.prototype.disable2FA = function (twoFactorToken, cb) {
             var self = this;
 
-            return self.client.post("/mywallet/2fa/disable", null, {two_factor_token: twoFactorToken}, cb);
+            return self.blocktrailClient.post("/mywallet/2fa/disable", null, {two_factor_token: twoFactorToken}, cb);
         };
 
         blocktrailSDK.prototype.contacts = function (lastSynced, cb) {
             var self = this;
 
-            return self.client.get("/mywallet/contacts", {last_synced: lastSynced}, cb);
+            return self.blocktrailClient.get("/mywallet/contacts", {last_synced: lastSynced}, cb);
         };
 
         blocktrailSDK.prototype.walletTransaction = function (identifier, txHash) {
             var self = this;
 
-            return self.client.get("/wallet/" + identifier + "/transaction/" + txHash);
+            return self.blocktrailClient.get("/wallet/" + identifier + "/transaction/" + txHash);
         };
 
         /**
@@ -299,7 +299,7 @@
         blocktrailSDK.prototype.sendFeedback = function (data, cb) {
             var self = this;
 
-            return self.client.post("/mywallet/feedback", null, data, cb);
+            return self.blocktrailClient.post("/mywallet/feedback", null, data, cb);
         };
     }
 })();

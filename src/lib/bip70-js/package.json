@@ -1,11 +1,12 @@
 {
   "name": "bip70-js",
-  "version": "1.0.7",
+  "version": "2.0.1",
   "description": "",
   "main": "main.js",
   "scripts": {
     "test": "mocha",
-    "clean": "rm -rf build/* && find lib -name '*.js' -delete"
+    "clean": "rm -rf build/* && find lib -name '*.js' -delete",
+    "coverage-test": "nyc --reporter=html --reporter=text --reporter=clover mocha"
   },
   "repository": {
     "type": "git",
@@ -30,13 +31,14 @@
     "grunt-contrib-connect": "^0.7.1",
     "grunt-contrib-uglify": "^2.0.0",
     "grunt-contrib-watch": "~0.6.1",
-    "grunt-saucelabs": "git://github.com/blocktrail/grunt-saucelabs.git#92615f964444a7f304bfee41cb13627b0457f85d",
     "grunt-exec": "^2.0.0",
     "grunt-notify": "^0.4.5",
+    "grunt-saucelabs": "git://github.com/blocktrail/grunt-saucelabs.git#92615f964444a7f304bfee41cb13627b0457f85d",
     "grunt-template": "^1.0.0",
     "jscs": "~3.0.7",
     "jshint": "~2.9.1",
     "mocha": "*",
+    "nyc": "^11.3.0",
     "watchify": "*"
   }
 }

@@ -992,11 +992,21 @@ function readBech32Address(address, network) {
 function readCashAddress(address, network) {
     var addr;
     var err;
+    address = address.toLowerCase();
     try {
         addr = bitcoin.address.fromCashAddress(address);
         err = null;
     } catch (_err) {
         err = _err;
+    }
+
+    if (err) {
+        try {
+            addr = bitcoin.address.fromCashAddress(network.cashAddrPrefix + ':' + address);
+            err = null;
+        } catch (_err) {
+            err = _err;
+        }
     }
 
     if (!err) {
