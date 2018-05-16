@@ -28,10 +28,24 @@
                             autocomplete="off"
                             required
                             ng-model="sendInput.recipientAddress"
+                            ng-disabled="sendInput.inputDisabled"
                             ng-focus="resetError('recipient')"
                         />
-                        <span title="Paste bitcoin link" class="btn btn-secondary btn-xs input-group-addon" ng-click="openModalBitcoinLink()">
+                        <span
+                            ng-if="!sendInput.inputDisabled"
+                            title="Paste bitcoin link"
+                            class="btn btn-secondary btn-xs input-group-addon"
+                            ng-click="openModalBitcoinLink()"
+                        >
                             <i class="bticon bticon-paste"></i>
+                        </span>
+
+                        <span
+                            ng-if="sendInput.inputDisabled"
+                            class="btn btn-secondary btn-xs input-group-addon"
+                            ng-click="clearRecipient()"
+                        >
+                            <i class="bticon bticon-cancel-circled"></i>
                         </span>
                     </div>
 
@@ -39,6 +53,12 @@
                         {{ errors.recipient | translate }}
                     </span>
                 </div>
+            </div>
+        </div>
+
+        <div class="row" ng-if="sendInput.referenceMessage">
+            <div class="col-xs-12">
+                {{ sendInput.referenceMessage }}
             </div>
         </div>
 
@@ -60,6 +80,7 @@
                             autocomplete="off"
                             required
                             ng-model="sendInput.amount"
+                            ng-disabled="sendInput.inputDisabled"
                             ng-change="setAltCurrency(); fetchFee();"
                             ng-focus="resetError('amount')"
                         />

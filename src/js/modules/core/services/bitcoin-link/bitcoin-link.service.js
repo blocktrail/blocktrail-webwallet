@@ -1,14 +1,13 @@
 (function () {
     "use strict";
 
-    angular.module('blocktrail.wallet')
+    angular.module('blocktrail.core')
         .factory('bitcoinLinkService', bitcoinLinkService);
 
-    function bitcoinLinkService() {
-
+    function bitcoinLinkService($state, bip70, bitcoinJS, $q) {
         // borrowed from bip21, with a modification for optional addresses
         // in urls.
-        function decodeBitcoin (uri) {
+        function decodeBitcoinLink(uri) {
             var qregex = /(bitcoin|bitcoincash):\/?\/?([^?]+)?(\?([^]+))?/.exec(uri);
             if (!qregex) throw new Error('Invalid BIP21 URI: ' + uri);
 
@@ -19,15 +18,75 @@
             var options = parseQuery("?"+query);
             if (options.amount) {
                 options.amount = Number(options.amount);
-                if (!isFinite(options.amount)) throw new Error('INnvalid amount');
+                if (!isFinite(options.amount)) throw new Error('Invalid amount');
                 if (options.amount < 0) throw new Error('Invalid amount');
             }
 
             return { address: address, options: options, protocol: protocol};
         }
 
+        function parse(bitcoinLink) {
+            try {
+                var uri = decodeBitcoinLink(bitcoinLink);
+            } catch (e) {
+                throw new Error('Unable to decode bitcoin link. May be corrupted');
+            }
+
+            var deferred = $q.defer();
+
+            var res = {};
+            res.network = uri.protocol;
+
+            // BIP70
+            if (uri && uri.options && uri.options.r) {
+                var paymentUrl = uri.options.r;
+                // . ..
+                var validation = new bip70.X509.RequestValidator({
+                    trustStore: bip70.X509.TrustStore
+                });
+
+                var client = new bip70.HttpClient();
+
+                var network;
+                var networkConfig;
+                if (uri.protocol == 'bitcoin') {
+                    networkConfig = bip70.NetworkConfig.Bitcoin();
+                    network = bitcoinJS.networks.bitcoin;
+                    // TODO: BCH BIP70 is currently incompatible with BitPay
+                } else {
+                    throw new Error('Unsupported network for BIP70 requests');
+                }
+
+                client.getRequest(paymentUrl, validation, networkConfig)
+                    .then(function(request) {
+                        var details = bip70.ProtoBuf.PaymentDetails.decode(request[0].serializedPaymentDetails);
+                        if (details.outputs.length > 1) {
+                            throw new Error("Multiple output payment requests are not supported");
+                        }
+                        res.recipientAddress = bitcoinJS.address.fromOutputScript(blocktrailSDK.Buffer.from(details.outputs[0].script), network);
+                        res.recipientSource = 'BIP70PaymentURL';
+                        res.referenceMessage = details.memo;
+                        res.amount = parseFloat(blocktrailSDK.toBTC(details.outputs[0].amount));
+                        deferred.resolve(res);
+                    }, function(err) {
+                        console.log("err - abort request");
+                        console.log(err.message);
+                        $state.go('app.wallet.summary');
+                    });
+            } else {
+                res.recipientAddress = uri.address;
+                res.referenceMessage = uri.message;
+                res.recipientSource = 'ScanQR';
+                res.amount = uri.options.amount;
+                deferred.resolve(res);
+            }
+
+            return deferred.promise;
+        }
+
         return {
-            decodeBitcoin: decodeBitcoin
+            parse: parse,
+            decodeBitcoinLink: decodeBitcoinLink
         };
     }
 })();
