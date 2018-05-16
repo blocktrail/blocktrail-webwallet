@@ -44,11 +44,7 @@
                 url: "/send",
                 cache: false,
                 params: {
-                    protocol: null,
-                    uri: null,
-                    paymentUrl: null,
-                    address: null,
-                    amount: null
+                    sendInput : null
                 },
                 views: {
                     "mainView@app.wallet": {
