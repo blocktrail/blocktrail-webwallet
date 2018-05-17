@@ -105,18 +105,26 @@
         }
 
         $scope.openModalBitcoinLink = function () {
-            dialogService.prompt({
+            clearErrors();
+            return dialogService.prompt({
                 body: $translate.instant("BIP70_PASTE_TEXT", { network: CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG }),
                 title: $translate.instant("BIP70_PASTE_TITLE", { network: CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG })
             })
                 .result
                 .then(function(result) {
-                    return bitcoinLinkService.parse(result).then(function (sendInput) {
-                        handleBitcoinPaymentScheme({ sendInput: sendInput });
-                    });
-                }).catch(function () {
-                    // TODO: Show parse error
-            });
+                    return bitcoinLinkService.parse(result)
+                        .then(function (sendInput) {
+                            handleBitcoinPaymentScheme({sendInput: sendInput});
+                        }).catch(function (e) {
+                            return dialogService.alert(
+                                $translate.instant('ERROR_TITLE_3'),
+                                $translate.instant('NOT_A_BITCOIN_LINK', {
+                                    network: CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG
+                                }),
+                                $translate.instant('OK')
+                            ).result;
+                        });
+                })
         };
 
         // Fetch state parameters if provided
@@ -147,21 +155,28 @@
                     .then(function () {
                         $scope.sendInput.inputDisabled = true;
                         $scope.sendInput = Object.assign($scope.sendInput, scheme.sendInput);
-                        setAltCurrency();
                         $scope.fetchFee();
+                        angular.element(document).ready(function () {
+                            // Update fiat price to display - keep fetching for price until available
+                            var interval = setInterval(function () {
+                                Currencies.updatePrices().then(function () {
+                                    $scope.setAltCurrency();
+                                    clearInterval(interval);
+                                });
+                            }, 350);
+                        });
                     })
                     .catch(function (e) {
                         console.error(e);
-                        // Reset
-                        $scope.sendInput = {
-                            recipientAddress: "",
-                            referenceMessage: "",
-                            pin: null,
-                            amount: "",
-                            feeChoice: $scope.OPTIMAL_FEE
-                        };
-                        // TODO: Show err
-                    })
+                        $scope.clearRecipient();
+                        return dialogService.alert(
+                            $translate.instant('ERROR_TITLE_3'),
+                            $translate.instant('NOT_A_BITCOIN_LINK', {
+                                network: CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG
+                            }),
+                            $translate.instant('OK')
+                        ).result;
+                    });
             }
         }
 
@@ -515,6 +530,15 @@
                 return $q.reject();
             }
         }
+
+        $scope.validateAddress = function () {
+            if ($scope.sendInput.recipientAddress) {
+                activeWallet.validateAddress($scope.sendInput.recipientAddress)
+                    .catch(function (e) {
+                        $scope.errors.recipient = "MSG_INVALID_RECIPIENT";
+                    });
+            }
+        };
 
         /**
          * Clear recipient

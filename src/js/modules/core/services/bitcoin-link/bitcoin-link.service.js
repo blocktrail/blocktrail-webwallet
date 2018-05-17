@@ -26,13 +26,14 @@
         }
 
         function parse(bitcoinLink) {
+            var deferred = $q.defer();
+
             try {
                 var uri = decodeBitcoinLink(bitcoinLink);
             } catch (e) {
-                throw new Error('Unable to decode bitcoin link. May be corrupted');
+                deferred.reject('Unable to decode bitcoin link. May be corrupted');
+                return deferred.promise;
             }
-
-            var deferred = $q.defer();
 
             var res = {};
             res.network = uri.protocol;
@@ -54,14 +55,14 @@
                     network = bitcoinJS.networks.bitcoin;
                     // TODO: BCH BIP70 is currently incompatible with BitPay
                 } else {
-                    throw new Error('Unsupported network for BIP70 requests');
+                    deferred.reject('Unsupported network for BIP70 requests');
                 }
 
                 client.getRequest(paymentUrl, validation, networkConfig)
                     .then(function(request) {
                         var details = bip70.ProtoBuf.PaymentDetails.decode(request[0].serializedPaymentDetails);
                         if (details.outputs.length > 1) {
-                            throw new Error("Multiple output payment requests are not supported");
+                            deferred.reject("Multiple output payment requests are not supported");
                         }
                         res.recipientAddress = bitcoinJS.address.fromOutputScript(blocktrailSDK.Buffer.from(details.outputs[0].script), network);
                         res.recipientSource = 'BIP70PaymentURL';
