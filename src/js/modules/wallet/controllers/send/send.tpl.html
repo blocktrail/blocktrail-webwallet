@@ -30,9 +30,10 @@
                             ng-model="sendInput.recipientAddress"
                             ng-disabled="sendInput.inputDisabled"
                             ng-focus="resetError('recipient')"
+                            ng-blur="validateAddress()"
                         />
                         <span
-                            ng-if="!sendInput.inputDisabled"
+                            ng-show="!sendInput.inputDisabled"
                             title="Paste bitcoin link"
                             class="btn btn-secondary btn-xs input-group-addon"
                             ng-click="openModalBitcoinLink()"
@@ -41,7 +42,7 @@
                         </span>
 
                         <span
-                            ng-if="sendInput.inputDisabled"
+                            ng-show="sendInput.inputDisabled"
                             class="btn btn-secondary btn-xs input-group-addon"
                             ng-click="clearRecipient()"
                         >
