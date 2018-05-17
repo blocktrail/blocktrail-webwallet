@@ -4,7 +4,7 @@
     angular.module('blocktrail.core')
         .factory('bitcoinLinkService', bitcoinLinkService);
 
-    function bitcoinLinkService($state, bip70, bitcoinJS, $q) {
+    function bitcoinLinkService(bip70, bitcoinJS, $q) {
         // borrowed from bip21, with a modification for optional addresses
         // in urls.
         function decodeBitcoinLink(uri) {
@@ -41,7 +41,6 @@
             // BIP70
             if (uri && uri.options && uri.options.r) {
                 var paymentUrl = uri.options.r;
-                // . ..
                 var validation = new bip70.X509.RequestValidator({
                     trustStore: bip70.X509.TrustStore
                 });
@@ -73,7 +72,7 @@
                     }, function(err) {
                         console.log("err - abort request");
                         console.log(err.message);
-                        $state.go('app.wallet.summary');
+                        deferred.reject(err);
                     });
             } else {
                 res.recipientAddress = uri.address;
