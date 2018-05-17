@@ -67,6 +67,7 @@
                         res.recipientAddress = bitcoinJS.address.fromOutputScript(blocktrailSDK.Buffer.from(details.outputs[0].script), network);
                         res.recipientSource = 'BIP70PaymentURL';
                         res.referenceMessage = details.memo;
+                        res.inputDisabled = true;
                         res.amount = parseFloat(blocktrailSDK.toBTC(details.outputs[0].amount));
                         deferred.resolve(res);
                     }, function(err) {
@@ -79,6 +80,11 @@
                 res.referenceMessage = uri.message;
                 res.recipientSource = 'ScanQR';
                 res.amount = uri.options.amount;
+
+                if (uri.address && uri.options.amount) {
+                    res.inputDisabled = true;
+                }
+
                 deferred.resolve(res);
             }
 
