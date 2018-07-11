@@ -153,7 +153,6 @@
 
                 activeWallet.validateAddress(scheme.sendInput.recipientAddress)
                     .then(function () {
-                        $scope.sendInput.inputDisabled = true;
                         $scope.sendInput = Object.assign($scope.sendInput, scheme.sendInput);
                         $scope.fetchFee();
                         angular.element(document).ready(function () {
@@ -454,7 +453,8 @@
                                         feeChoice: $scope.sendInput.feeChoice,
                                         recipientAddress: $scope.sendInput.recipientAddress,
                                         amount: sendAmount,
-                                        requires2FA: $scope.requires2FA
+                                        requires2FA: $scope.requires2FA,
+                                        paymentDetails: $scope.sendInput.paymentDetails
                                     };
                                 }
                             }

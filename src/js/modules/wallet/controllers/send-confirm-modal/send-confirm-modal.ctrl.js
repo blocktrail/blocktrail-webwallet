@@ -81,13 +81,19 @@
 
                     $analytics.eventTrack('pre-pay', {category: 'Events'});
 
-                    return $q.when(sdkWallet.pay($scope.pay, false, $scope.useZeroConf, true, $scope.feeStrategy, $scope.form.two_factor_token, {prioboost: $scope.sendData.feeChoice === 'prioboost'})).then(function(txHash) {
-                        sdkWallet.lock();
-                        return $q.when(txHash);
-                    }, function(err) {
-                        sdkWallet.lock();
-                        return $q.reject(err);
-                    });
+                    var payOptions = {
+                        prioboost: $scope.sendData.feeChoice === 'prioboost',
+                        bip70: sendData.paymentDetails ? sendData.paymentDetails.paymentUrl : false
+                    };
+
+                    return $q.when(sdkWallet.pay($scope.pay, false, $scope.useZeroConf, true, $scope.feeStrategy, $scope.form.two_factor_token, payOptions))
+                        .then(function(txHash) {
+                            sdkWallet.lock();
+                            return $q.when(txHash);
+                        }, function(err) {
+                            sdkWallet.lock();
+                            return $q.reject(err);
+                        });
                 })
                 .then(function(txHash) {
                     $analytics.eventTrack('pay', {category: 'Events'});

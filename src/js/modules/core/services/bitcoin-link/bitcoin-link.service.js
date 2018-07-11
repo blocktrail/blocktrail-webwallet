@@ -66,6 +66,7 @@
                         res.recipientAddress = bitcoinJS.address.fromOutputScript(blocktrailSDK.Buffer.from(details.outputs[0].script), network);
                         res.recipientSource = 'BIP70PaymentURL';
                         res.referenceMessage = details.memo;
+                        res.paymentDetails = details;
                         res.inputDisabled = true;
                         res.amount = parseFloat(blocktrailSDK.toBTC(details.outputs[0].amount));
                         deferred.resolve(res);
