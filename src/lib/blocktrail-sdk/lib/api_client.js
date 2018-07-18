@@ -1682,7 +1682,10 @@ APIClient.prototype._createNewWalletV3 = function(options) {
                         var blocktrailPublicKeys = _.mapValues(result.blocktrail_public_keys, function(blocktrailPublicKey) {
                             return bitcoin.HDNode.fromBase58(blocktrailPublicKey[0], self.network);
                         });
-
+                        console.log("Create new wallet result");
+                        console.log(result);
+                        console.log("our options were");
+                        console.log(options);
                         var wallet = new Wallet(
                             self,
                             options.identifier,
