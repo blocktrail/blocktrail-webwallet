@@ -111,7 +111,7 @@ var Wallet = function(
 
     if (!self.bitcoinCash) {
         if (self.segwit) {
-            self.chain = Wallet.CHAIN_BTC_DEFAULT;
+            self.chain = Wallet.CHAIN_BTC_SEGWIT;
             self.changeChain = Wallet.CHAIN_BTC_SEGWIT;
         } else {
             self.chain = Wallet.CHAIN_BTC_DEFAULT;
