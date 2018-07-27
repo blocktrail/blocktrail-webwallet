@@ -83,8 +83,8 @@
 
                     var payOptions = {
                         prioboost: $scope.sendData.feeChoice === 'prioboost',
-                        bip70paymentUrl: sendData.paymentDetails ? sendData.paymentDetails.paymentUrl : false,
-                        bip70merchantData: sendData.paymentDetails ? sendData.paymentDetails.merchantData : false
+                        bip70PaymentUrl: sendData.paymentDetails ? sendData.paymentDetails.paymentUrl : false,
+                        bip70MerchantData: sendData.paymentDetails ? sendData.paymentDetails.merchantData : false
                     };
 
                     return $q.when(sdkWallet.pay($scope.pay, false, $scope.useZeroConf, true, $scope.feeStrategy, $scope.form.two_factor_token, payOptions))

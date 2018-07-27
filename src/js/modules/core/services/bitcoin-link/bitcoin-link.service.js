@@ -53,6 +53,13 @@
                     networkConfig = bip70.NetworkConfig.Bitcoin();
                     network = bitcoinJS.networks.bitcoin;
                     // TODO: BCH BIP70 is currently incompatible with BitPay
+                } else if (uri.protocol == 'bitcoincash') {
+                    networkConfig = new bip70.NetworkConfig({
+                        PAYMENT_REQUEST: "application/bitcoincash-paymentrequest",
+                        PAYMENT: "application/bitcoincash-payment",
+                        PAYMENT_ACK: "application/bitcoincash-paymentack"
+                    });
+                    network = bitcoinJS.networks.bitcoincash;
                 } else {
                     deferred.reject('Unsupported network for BIP70 requests');
                 }
