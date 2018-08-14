@@ -74,6 +74,12 @@
                         res.recipientSource = 'BIP70PaymentURL';
                         res.referenceMessage = details.memo;
                         res.paymentDetails = details;
+
+                        // We need to do this to make angularjs happy, doesn't like Uint8Array's as parameters for state changes
+                        // Converting Uint8Array to base64 string
+                        res.paymentDetails.merchantData = btoa(String.fromCharCode.apply(null, res.paymentDetails.merchantData));
+                        res.paymentDetails.outputs[0].script = btoa(String.fromCharCode.apply(null, res.paymentDetails.outputs[0].script));
+
                         res.inputDisabled = true;
                         res.amount = parseFloat(blocktrailSDK.toBTC(details.outputs[0].amount));
                         deferred.resolve(res);

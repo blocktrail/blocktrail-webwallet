@@ -81,10 +81,20 @@
 
                     $analytics.eventTrack('pre-pay', {category: 'Events'});
 
+                    var optionMerchantData = null;
+                    if (sendData.paymentDetails) {
+                        // Converting base64 string to (Uint8)Array
+                        optionMerchantData
+                            = atob(sendData.paymentDetails.merchantData).split('').map(function (c) { return c.charCodeAt(0); });
+                        optionMerchantData = Uint8Array.from(optionMerchantData);
+                        sendData.paymentDetails.outputs[0].script
+                            = atob(sendData.paymentDetails.outputs[0].script).split('').map(function (c) { return c.charCodeAt(0); });
+                    }
+
                     var payOptions = {
                         prioboost: $scope.sendData.feeChoice === 'prioboost',
-                        bip70PaymentUrl: sendData.paymentDetails ? sendData.paymentDetails.paymentUrl : false,
-                        bip70MerchantData: sendData.paymentDetails ? sendData.paymentDetails.merchantData : false
+                        bip70PaymentUrl: sendData.paymentDetails ? sendData.paymentDetails.paymentUrl : null,
+                        bip70MerchantData: sendData.paymentDetails ? optionMerchantData : null
                     };
 
                     return $q.when(sdkWallet.pay($scope.pay, false, $scope.useZeroConf, true, $scope.feeStrategy, $scope.form.two_factor_token, payOptions))
