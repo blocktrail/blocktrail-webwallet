@@ -6,7 +6,7 @@
 
     function SendCtrl($scope, $state, $rootScope, $translate, $log, $modal, bitcoinJS, CurrencyConverter, Currencies, activeWallet,
                       dialogService, $q, launchService, CONFIG, settingsService, $stateParams, walletsManagerService,
-                      NotificationsService, bitcoinLinkService) {
+                      NotificationsService, bitcoinLinkService, $timeout) {
 
         var walletData = activeWallet.getReadOnlyWalletData();
         var settingsData = settingsService.getReadOnlySettingsData();
@@ -154,15 +154,15 @@
                 activeWallet.validateAddress(scheme.sendInput.recipientAddress)
                     .then(function () {
                         $scope.sendInput = Object.assign($scope.sendInput, scheme.sendInput);
-                        $scope.fetchFee();
-                        angular.element(document).ready(function () {
-                            // Update fiat price to display - keep fetching for price until available
-                            var interval = setInterval(function () {
-                                Currencies.updatePrices().then(function () {
-                                    $scope.setAltCurrency();
-                                    clearInterval(interval);
-                                });
-                            }, 350);
+                        $scope.fetchFee()
+                            .then(function () {
+                                var interval = setInterval(function () {
+                                    Currencies.updatePrices().then(function () {
+                                        $scope.setAltCurrency();
+                                        $timeout(function () { $scope.$apply() }, 180);
+                                        clearInterval(interval);
+                                    });
+                                }, 350);
                         });
                     })
                     .catch(function (e) {
