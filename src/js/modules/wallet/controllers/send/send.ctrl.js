@@ -16,6 +16,9 @@
         var maxSpendable = null;
         var maxSpendablePromise = null;
 
+        var minSpendable = null;
+        var minSpendablePromise = null;
+
         $rootScope.pageTitle = "SEND";
 
         $scope.isLoading = true;
@@ -263,6 +266,79 @@
         }
 
         /**
+         * Get min spendable
+         * @return {*}
+         */
+        function getMinSpendable(payParams) {
+            for (var address in payParams) {
+                if (payParams.hasOwnProperty(address)) {
+                    payParams[address] = blocktrailSDK.DUST + 1;
+                }
+            }
+
+            if (minSpendable !== null) {
+                return $q.when(minSpendable);
+            } else if (minSpendablePromise !== null) {
+                return minSpendablePromise;
+            } else {
+                minSpendablePromise = $q.all([
+                    _resolveFeeByPriority(payParams, blocktrailSDK.Wallet.FEE_STRATEGY_HIGH_PRIORITY),
+                    _resolveFeeByPriority(payParams, blocktrailSDK.Wallet.FEE_STRATEGY_OPTIMAL),
+                    _resolveFeeByPriority(payParams, blocktrailSDK.Wallet.FEE_STRATEGY_LOW_PRIORITY),
+                    _resolveFeeByPriority(payParams, blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE)
+                ]).then(function(results) {
+                    // set the local stored value
+                    minSpendable = {};
+                    minSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_HIGH_PRIORITY] = results[0];
+                    minSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_OPTIMAL] = results[1];
+                    minSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_LOW_PRIORITY] = results[2];
+                    minSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE] = results[3];
+
+                    minSpendablePromise = null; // unset promise, it's done
+                    return minSpendable;
+                });
+
+                return minSpendablePromise;
+            }
+        }
+
+        /**
+         * Fee resolver based on pay parameters, based on priority provided
+         * @param payParams - Pay parameters for coinselection
+         * @param priority - Fee strategy from blocktrailSDK.Wallet
+         * @returns {*}
+         * @private
+         */
+        function _resolveFeeByPriority(payParams, priority) {
+            return activeWallet
+                .getSdkWallet()
+                .coinSelection(payParams, false, $scope.useZeroConf, priority)
+                .spread(function(utxos, fee, change, res) {
+                    return fee;
+                })
+        }
+
+        /**
+         * Applies fee result to scope
+         * @param feeResult
+         * @private
+         */
+        function _applyFeeResult(feeResult) {
+            var lowPriorityFee = feeResult[0];
+            var optimalFee = feeResult[1];
+            var highPriorityFee = feeResult[2];
+            var minRelayFee = feeResult[3];
+
+            $scope.fees.lowPriority = lowPriorityFee;
+            $scope.fees.optimal = optimalFee;
+            $scope.fees.highPriority = highPriorityFee;
+            $scope.fees.minRelayFee = minRelayFee;
+            $scope.displayFee = true;
+
+            return updateFee();
+        }
+
+        /**
          * Fetch fee
          */
         function fetchFee() {
@@ -302,68 +378,9 @@
             }
 
             return $q.all([
-                activeWallet
-                    .getSdkWallet()
-                    .coinSelection(localPay, false, $scope.useZeroConf, blocktrailSDK.Wallet.FEE_STRATEGY_LOW_PRIORITY)
-                    .spread(function(utxos, fee, change, res) {
-                        $log.debug("lowPriority fee: " + fee);
-
-                        return fee;
-                    })
-                    .catch(function(e) {
-                        // when we get a fee error we use maxspendable fee
-                        if (e instanceof blocktrail.WalletFeeError || (e instanceof Error && e.message === "Wallet balance too low")) {
-                            return getMaxSpendable().then(function(maxSpendable) {
-                                var fee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_LOW_PRIORITY].fee;
-                                $log.debug("lowPriority fee MAXSPENDABLE: " + fee);
-                                return fee;
-                            });
-                        } else {
-                            throw e;
-                        }
-                    }),
-                activeWallet
-                    .getSdkWallet()
-                    .coinSelection(localPay, false, $scope.useZeroConf, blocktrailSDK.Wallet.FEE_STRATEGY_OPTIMAL)
-                    .spread(function(utxos, fee, change, res) {
-                        $log.debug("optimal fee: " + fee);
-
-                        return fee;
-                    })
-                    .catch(function(e) {
-                        // when we get a fee error we use maxspendable fee
-                        if (e instanceof blocktrail.WalletFeeError || (e instanceof Error && e.message === "Wallet balance too low")) {
-                            return getMaxSpendable()
-                                .then(function(maxSpendable) {
-                                    var fee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_OPTIMAL].fee;
-                                    $log.debug("optiomal fee MAXSPENDABLE: " + fee);
-                                    return fee;
-                                });
-                        } else {
-                            throw e;
-                        }
-                    }),
-                activeWallet
-                    .getSdkWallet()
-                    .coinSelection(localPay, false, $scope.useZeroConf, blocktrailSDK.Wallet.FEE_STRATEGY_HIGH_PRIORITY)
-                    .spread(function(utxos, fee, change, res) {
-                        $log.debug("high priority fee: " + fee);
-
-                        return fee;
-                    })
-                    .catch(function(e) {
-                        // when we get a fee error we use maxspendable fee
-                        if (e instanceof blocktrail.WalletFeeError || (e instanceof Error && e.message === "Wallet balance too low")) {
-                            return getMaxSpendable()
-                                .then(function(maxSpendable) {
-                                    var fee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_HIGH_PRIORITY].fee;
-                                    $log.debug("optiomal fee MAXSPENDABLE: " + fee);
-                                    return fee;
-                                });
-                        } else {
-                            throw e;
-                        }
-                    }),
+                _resolveFeeByPriority(localPay, blocktrailSDK.Wallet.FEE_STRATEGY_LOW_PRIORITY),
+                _resolveFeeByPriority(localPay, blocktrailSDK.Wallet.FEE_STRATEGY_OPTIMAL),
+                _resolveFeeByPriority(localPay, blocktrailSDK.Wallet.FEE_STRATEGY_HIGH_PRIORITY),
                 activeWallet
                     .getSdkWallet()
                     .coinSelection(localPay, false, $scope.useZeroConf, blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE)
@@ -378,33 +395,41 @@
 
                         return fee;
                     })
-                    .catch(function(e) {
-                        // when we get a fee error we use maxspendable fee
-                        if (e instanceof blocktrail.WalletFeeError || (e instanceof Error && e.message === "Wallet balance too low")) {
-                            return getMaxSpendable()
-                                .then(function(maxSpendable) {
-                                    var fee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE].fee;
-                                    $log.debug("minRelayFee fee MAXSPENDABLE: " + fee);
-                                    return fee;
-                                });
-                        } else {
-                            throw e;
-                        }
-                    })
             ])
-                .then(function(res) {
-                    var lowPriorityFee = res[0];
-                    var optimalFee = res[1];
-                    var highPriorityFee = res[2];
-                    var minRelayFee = res[3];
-
-                    $scope.fees.lowPriority = lowPriorityFee;
-                    $scope.fees.optimal = optimalFee;
-                    $scope.fees.highPriority = highPriorityFee;
-                    $scope.fees.minRelayFee = minRelayFee;
-                    $scope.displayFee = true;
-
-                    return updateFee();
+                .catch(function(e) {
+                    // when we get a fee error we use minspendable or maxspendable fee
+                    if (
+                        e instanceof blocktrail.WalletFeeError ||
+                        (e instanceof Error && e.message === "Wallet balance too low") ||
+                        e instanceof blocktrail.WalletSendError
+                    ) {
+                        return getMinSpendable(localPay)
+                            .then(function(minSpendable) {
+                                var lowPriorityFee = minSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_LOW_PRIORITY];
+                                var optimalFee = minSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_OPTIMAL];
+                                var highPriorityFee = minSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_HIGH_PRIORITY];
+                                var minRelayFee = minSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE];
+                                $log.debug("minRelayFee fee MINSPENDABLE: " + minRelayFee);
+                                return _applyFeeResult([lowPriorityFee, optimalFee, highPriorityFee, minRelayFee]);
+                            });
+                    } else if (
+                        e.message === "Due to additional transaction fee it's not possible to send selected amount"
+                    ) {
+                        return getMaxSpendable()
+                            .then(function(maxSpendable) {
+                                var lowPriorityFee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_LOW_PRIORITY].fee;
+                                var optimalFee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_OPTIMAL].fee;
+                                var highPriorityFee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_HIGH_PRIORITY].fee;
+                                var minRelayFee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE].fee;
+                                $log.debug("minRelayFee fee MAXSPENDABLE: " + minRelayFee);
+                                return _applyFeeResult([lowPriorityFee, optimalFee, highPriorityFee, minRelayFee]);
+                            });
+                    } else {
+                        throw e;
+                    }
+                })
+                .then(function (res) {
+                    return _applyFeeResult(res);
                 }, function(e) {
                     $log.debug("fetchFee ERR " + e);
                 });
