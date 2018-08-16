@@ -400,7 +400,6 @@
                     // when we get a fee error we use minspendable or maxspendable fee
                     if (
                         e instanceof blocktrail.WalletFeeError ||
-                        (e instanceof Error && e.message === "Wallet balance too low") ||
                         e instanceof blocktrail.WalletSendError
                     ) {
                         return getMinSpendable(localPay)
@@ -410,9 +409,13 @@
                                 var highPriorityFee = minSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_HIGH_PRIORITY];
                                 var minRelayFee = minSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE];
                                 $log.debug("minRelayFee fee MINSPENDABLE: " + minRelayFee);
-                                return _applyFeeResult([lowPriorityFee, optimalFee, highPriorityFee, minRelayFee]);
+                                return _applyFeeResult([lowPriorityFee, optimalFee, highPriorityFee, minRelayFee])
+                                    .then(function () {
+                                        throw e;
+                                    });
                             });
                     } else if (
+                        (e instanceof Error && e.message.indexOf("Wallet balance is too low") !== -1) ||
                         e.message === "Due to additional transaction fee it's not possible to send selected amount"
                     ) {
                         return getMaxSpendable()
@@ -422,7 +425,10 @@
                                 var highPriorityFee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_HIGH_PRIORITY].fee;
                                 var minRelayFee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE].fee;
                                 $log.debug("minRelayFee fee MAXSPENDABLE: " + minRelayFee);
-                                return _applyFeeResult([lowPriorityFee, optimalFee, highPriorityFee, minRelayFee]);
+                                return _applyFeeResult([lowPriorityFee, optimalFee, highPriorityFee, minRelayFee])
+                                    .then(function () {
+                                        throw e;
+                                    });
                             });
                     } else {
                         throw e;
