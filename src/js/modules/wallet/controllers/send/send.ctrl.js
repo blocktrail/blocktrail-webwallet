@@ -409,10 +409,8 @@
                                 var highPriorityFee = minSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_HIGH_PRIORITY];
                                 var minRelayFee = minSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE];
                                 $log.debug("minRelayFee fee MINSPENDABLE: " + minRelayFee);
-                                return _applyFeeResult([lowPriorityFee, optimalFee, highPriorityFee, minRelayFee])
-                                    .then(function () {
-                                        throw e;
-                                    });
+                                _applyFeeResult([lowPriorityFee, optimalFee, highPriorityFee, minRelayFee]);
+                                throw e;
                             });
                     } else if (
                         (e instanceof Error && e.message.indexOf("Wallet balance is too low") !== -1) ||
@@ -425,10 +423,8 @@
                                 var highPriorityFee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_HIGH_PRIORITY].fee;
                                 var minRelayFee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE].fee;
                                 $log.debug("minRelayFee fee MAXSPENDABLE: " + minRelayFee);
-                                return _applyFeeResult([lowPriorityFee, optimalFee, highPriorityFee, minRelayFee])
-                                    .then(function () {
-                                        throw e;
-                                    });
+                                _applyFeeResult([lowPriorityFee, optimalFee, highPriorityFee, minRelayFee])
+                                 throw e;
                             });
                     } else {
                         throw e;
@@ -526,6 +522,11 @@
             }
 
             if (parseFloat($scope.sendInput.amount).toFixed(8) === "0.00000000") {
+                $scope.errors.amount = "MSG_INVALID_AMOUNT";
+                isValid = false;
+            }
+
+            if ($scope.sendInput.amount * 1e8 <= blocktrailSDK.DUST) {
                 $scope.errors.amount = "MSG_INVALID_AMOUNT";
                 isValid = false;
             }
