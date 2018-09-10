@@ -323,6 +323,19 @@ a:focus {
         }
     }
 
+    .socialMediaButtons {
+        position: absolute;
+        bottom: 75px;
+        left: 0px;
+        width: 100%;
+        margin: 20px 20px;
+        text-align: left;
+        a {
+            color: $muted;
+            text-decoration: none;
+        }
+    }
+
     .appStoreButtons {
         position: absolute;
         bottom: 0px;
@@ -339,7 +352,7 @@ a:focus {
 
     .securityProgressBar {
         position: absolute;
-        bottom: 70px;
+        bottom: 105px;
         left: 0px;
         width: 100%;
 
