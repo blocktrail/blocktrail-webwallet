@@ -280,7 +280,7 @@
 
         function submitDebugInfo() {
             var sdk = sdkService.getSdkByActiveNetwork();
-            return sdk.client.post("/mywallet/sweeper/submit-debug-info", null, debugInfo);
+            return sdk.blocktrailClient.post("/mywallet/sweeper/submit-debug-info", null, debugInfo);
         }
 
         return {
