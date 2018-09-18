@@ -7944,7 +7944,7 @@ module.exports = {
 }).call(this,require("buffer").Buffer)
 },{"buffer":127}],9:[function(require,module,exports){
 module.exports = exports = {
-    VERSION: '3.7.14'
+    VERSION: '3.7.15'
 };
 
 },{}],10:[function(require,module,exports){
@@ -8050,7 +8050,7 @@ Request.prototype.request = function(method, resource, params, data, fn) {
         self.headers['Content-Length'] = self.payload ? self.payload.length : 0;
     }
 
-    if (self.contentMd5 === true && !_.includes(self.host, 'btc')) {
+    if (self.contentMd5 === true) {
         if (method === 'GET' || method === 'DELETE') {
             self.headers['Content-MD5'] = createHash('md5').update(self.path).digest().toString('hex');
         } else {
@@ -8291,6 +8291,7 @@ RestClient.prototype.create_request = function(options) {
         endpoint: self.endpoint,
         apiKey: self.apiKey,
         apiSecret: self.apiSecret,
+        contentMd5: !self.btccom,
         params: _.defaults({}, self.defaultParams),
         headers: _.defaults({}, self.defaultHeaders)
     });

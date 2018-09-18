@@ -99,7 +99,7 @@ Request.prototype.request = function(method, resource, params, data, fn) {
         self.headers['Content-Length'] = self.payload ? self.payload.length : 0;
     }
 
-    if (self.contentMd5 === true && !_.includes(self.host, 'btc')) {
+    if (self.contentMd5 === true) {
         if (method === 'GET' || method === 'DELETE') {
             self.headers['Content-MD5'] = createHash('md5').update(self.path).digest().toString('hex');
         } else {
