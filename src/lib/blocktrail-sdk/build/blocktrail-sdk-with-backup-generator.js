@@ -584,7 +584,7 @@ APIClient.prototype.address = function(address, cb) {
 
     return callbackify(self.dataClient.get(self.converter.getUrlForAddress(address), null)
         .then(function(data) {
-            return self.converter.handleErros(self, data);
+            return self.converter.handleErrors(self, data);
         })
         .then(function(data) {
             if (data === null) {
@@ -621,7 +621,7 @@ APIClient.prototype.addressTransactions = function(address, params, cb) {
 
     return callbackify(self.dataClient.get(self.converter.getUrlForAddressTransactions(address), self.converter.paginationParams(params))
         .then(function(data) {
-            return self.converter.handleErros(self, data);
+            return self.converter.handleErrors(self, data);
         })
         .then(function(data) {
             return data.data === null ? data : self.converter.convertAddressTxs(data);
@@ -699,7 +699,7 @@ APIClient.prototype.addressUnconfirmedTransactions = function(address, params, c
 
     return callbackify(self.dataClient.get(self.converter.getUrlForAddressTransactions(address), self.converter.paginationParams(params))
         .then(function(data) {
-            return self.converter.handleErros(self, data);
+            return self.converter.handleErrors(self, data);
         })
         .then(function(data) {
             if (data.data === null) {
@@ -733,7 +733,7 @@ APIClient.prototype.addressUnspentOutputs = function(address, params, cb) {
 
     return callbackify(self.dataClient.get(self.converter.getUrlForAddressUnspent(address), self.converter.paginationParams(params))
         .then(function(data) {
-            return self.converter.handleErros(self, data);
+            return self.converter.handleErrors(self, data);
         })
         .then(function(data) {
             return data.data === null ? data : self.converter.convertAddressUnspentOutputs(data, address);
@@ -754,7 +754,7 @@ APIClient.prototype.batchAddressUnspentOutputs = function(addresses, params, cb)
     if (self.converter instanceof BtccomConverter) {
         return callbackify(self.dataClient.get(self.converter.getUrlForBatchAddressUnspent(addresses), self.converter.paginationParams(params))
             .then(function(data) {
-                return self.converter.handleErros(self, data);
+                return self.converter.handleErrors(self, data);
             })
             .then(function(data) {
                 return data.data === null ? data : self.converter.convertBatchAddressUnspentOutputs(data);
@@ -802,7 +802,7 @@ APIClient.prototype.allBlocks = function(params, cb) {
 
     return callbackify(self.dataClient.get(self.converter.getUrlForAllBlocks(), self.converter.paginationParams(params))
             .then(function(data) {
-                return self.converter.handleErros(self, data);
+                return self.converter.handleErrors(self, data);
             })
             .then(function(data) {
                 return data.data === null ? data : self.converter.convertBlocks(data);
@@ -821,7 +821,7 @@ APIClient.prototype.block = function(block, cb) {
 
     return callbackify(self.dataClient.get(self.converter.getUrlForBlock(block), null)
         .then(function(data) {
-            return self.converter.handleErros(self, data);
+            return self.converter.handleErrors(self, data);
         })
         .then(function(data) {
             return data.data === null ? data : self.converter.convertBlock(data.data);
@@ -839,7 +839,7 @@ APIClient.prototype.blockLatest = function(cb) {
 
     return callbackify(self.dataClient.get(self.converter.getUrlForBlock("latest"), null)
         .then(function(data) {
-            return self.converter.handleErros(self, data);
+            return self.converter.handleErrors(self, data);
         })
         .then(function(data) {
             return data.data === null ? data : self.converter.convertBlock(data.data);
@@ -864,7 +864,7 @@ APIClient.prototype.blockTransactions = function(block, params, cb) {
 
     return callbackify(self.dataClient.get(self.converter.getUrlForBlockTransaction(block), self.converter.paginationParams(params))
         .then(function(data) {
-            return self.converter.handleErros(self, data);
+            return self.converter.handleErrors(self, data);
         })
         .then(function(data) {
             return data.data ===  null ? data : self.converter.convertBlockTxs(data);
@@ -883,7 +883,7 @@ APIClient.prototype.transaction = function(tx, cb) {
 
     return callbackify(self.dataClient.get(self.converter.getUrlForTransaction(tx), null)
         .then(function(data) {
-            return self.converter.handleErros(self, data);
+            return self.converter.handleErrors(self, data);
         })
         .then(function(data) {
             if (data.data === null) {
@@ -924,7 +924,7 @@ APIClient.prototype.transactions = function(txs, cb) {
     if (self.converter instanceof BtccomConverter) {
         return callbackify(self.dataClient.get(self.converter.getUrlForTransactions(txs), null)
             .then(function(data) {
-                return self.converter.handleErros(self, data);
+                return self.converter.handleErrors(self, data);
             })
             .then(function(data) {
                 if (data.data === null) {
@@ -2061,10 +2061,11 @@ APIClient.prototype.feePerKB = function(cb) {
  * @param checkFee          bool        when TRUE the API will verify if the fee is 100% correct and otherwise throw an exception
  * @param [twoFactorToken]  string      2FA token
  * @param [prioboost]       bool
+ * @param options           object      Additional options (for Bitpay/BCH right now)
  * @param [cb]              function    callback(err, txHash)
  * @returns {q.Promise}
  */
-APIClient.prototype.sendTransaction = function(identifier, txHex, paths, checkFee, twoFactorToken, prioboost, cb) {
+APIClient.prototype.sendTransaction = function(identifier, txHex, paths, checkFee, twoFactorToken, prioboost, options, cb) {
     var self = this;
 
     if (typeof twoFactorToken === "function") {
@@ -2074,6 +2075,9 @@ APIClient.prototype.sendTransaction = function(identifier, txHex, paths, checkFe
     } else if (typeof prioboost === "function") {
         cb = prioboost;
         prioboost = false;
+    } else if (typeof options === "function") {
+        cb = options;
+        options = {};
     }
 
     var data = {
@@ -2088,12 +2092,28 @@ APIClient.prototype.sendTransaction = function(identifier, txHex, paths, checkFe
         });
     }
 
+    var postOptions = {
+        check_fee: checkFee ? 1 : 0,
+        prioboost: prioboost ? 1 : 0
+    };
+
+    var bip70 = false;
+    if (options.bip70PaymentUrl) {
+        bip70 = true;
+        postOptions.bip70PaymentUrl = options.bip70PaymentUrl;
+
+        if (options.bip70MerchantData && options.bip70MerchantData instanceof Uint8Array) {
+            // Encode merchant data to base64
+            var decoder = new TextDecoder('utf8');
+            var bip70MerchantData = btoa(decoder.decode(options.bip70MerchantData));
+
+            postOptions.bip70MerchantData = bip70MerchantData;
+        }
+    }
+
     return self.blocktrailClient.post(
         "/wallet/" + identifier + "/send",
-        {
-            check_fee: checkFee ? 1 : 0,
-            prioboost: prioboost ? 1 : 0
-        },
+        postOptions,
         data,
         cb
     );
@@ -2376,7 +2396,7 @@ BlocktrailConverter.prototype.getUrlForAllBlocks = function() {
     return "/all-blocks";
 };
 
-BlocktrailConverter.prototype.handleErros = function(self, data) {
+BlocktrailConverter.prototype.handleErrors = function(self, data) {
     return data;
 };
 
@@ -2880,7 +2900,7 @@ BtccomConverter.prototype.getUrlForAllBlocks = function() {
     return "/block/list";
 };
 
-BtccomConverter.prototype.handleErros = function(self, data) {
+BtccomConverter.prototype.handleErrors = function(self, data) {
     if (data.err_no === 0 || data.data !== null) {
         return data;
     } else {
@@ -3333,7 +3353,7 @@ module.exports = {
 }).call(this,require("buffer").Buffer)
 },{"buffer":127}],9:[function(require,module,exports){
 module.exports = exports = {
-    VERSION: '3.7.10'
+    VERSION: '3.7.13'
 };
 
 },{}],10:[function(require,module,exports){
@@ -3439,7 +3459,7 @@ Request.prototype.request = function(method, resource, params, data, fn) {
         self.headers['Content-Length'] = self.payload ? self.payload.length : 0;
     }
 
-    if (self.contentMd5 === true) {
+    if (self.contentMd5 === true && !_.includes(self.host, 'btc')) {
         if (method === 'GET' || method === 'DELETE') {
             self.headers['Content-MD5'] = createHash('md5').update(self.path).digest().toString('hex');
         } else {
@@ -3635,13 +3655,15 @@ var RestClient = function(options) {
 
     self.defaultParams = {};
 
-    if (self.apiKey) {
-        self.defaultParams['api_key'] = self.apiKey;
-    }
+    if (!self.btccom) {
+        if (self.apiKey) {
+            self.defaultParams['api_key'] = self.apiKey;
+        }
 
-    self.defaultHeaders = _.defaults({}, {
-        'X-SDK-Version': 'blocktrail-sdk-nodejs/' + require('./pkginfo').VERSION
-    }, options.defaultHeaders);
+        self.defaultHeaders = _.defaults({}, {
+            'X-SDK-Version': 'blocktrail-sdk-nodejs/' + require('./pkginfo').VERSION
+        }, options.defaultHeaders);
+    }
 };
 
 RestClient.prototype.throttle = function() {
@@ -5362,7 +5384,7 @@ Wallet.prototype.deleteWallet = function(force, cb) {
  * @param [randomizeChangeIdx]  bool        randomize the index of the change output (default TRUE, only disable if you have a good reason to)
  * @param [feeStrategy]         string      defaults to Wallet.FEE_STRATEGY_OPTIMAL
  * @param [twoFactorToken]      string      2FA token
- * @param options
+ * @param options               string      Options for BIP70 broadcast (only for bitpay/BCH currently)
  * @param [cb]                  function    callback(err, txHash)
  * @returns {q.Promise}
  */
@@ -5424,7 +5446,7 @@ Wallet.prototype.pay = function(pay, changeAddress, allowZeroConf, randomizeChan
                     base_transaction: tx.__toBuffer(null, null, false).toString('hex')
                 };
 
-                return self.sendTransaction(data, utxos.map(function(utxo) { return utxo['path']; }), checkFee, twoFactorToken, options.prioboost)
+                return self.sendTransaction(data, utxos.map(function(utxo) { return utxo['path']; }), checkFee, twoFactorToken, options.prioboost, options)
                     .then(function(result) {
                         deferred.notify(Wallet.PAY_PROGRESS_DONE);
 
@@ -5981,10 +6003,11 @@ Wallet.prototype.coinSelection = function(pay, lockUTXO, allowZeroConf, feeStrat
  * @param checkFee          bool        when TRUE the API will verify if the fee is 100% correct and otherwise throw an exception
  * @param [twoFactorToken]  string      2FA token
  * @param prioboost         bool
+ * @param options
  * @param [cb]              function    callback(err, txHash)
  * @returns {q.Promise}
  */
-Wallet.prototype.sendTransaction = function(txHex, paths, checkFee, twoFactorToken, prioboost, cb) {
+Wallet.prototype.sendTransaction = function(txHex, paths, checkFee, twoFactorToken, prioboost, options, cb) {
     var self = this;
 
     if (typeof twoFactorToken === "function") {
@@ -5992,14 +6015,17 @@ Wallet.prototype.sendTransaction = function(txHex, paths, checkFee, twoFactorTok
         twoFactorToken = null;
         prioboost = false;
     } else if (typeof prioboost === "function") {
-        cb = twoFactorToken;
+        cb = prioboost;
         prioboost = false;
+    } else if (typeof options === "function") {
+        cb = options;
+        options = {};
     }
 
     var deferred = q.defer();
     deferred.promise.nodeify(cb);
 
-    self.sdk.sendTransaction(self.identifier, txHex, paths, checkFee, twoFactorToken, prioboost)
+    self.sdk.sendTransaction(self.identifier, txHex, paths, checkFee, twoFactorToken, prioboost, options)
         .then(
             function(result) {
                 deferred.resolve(result);
