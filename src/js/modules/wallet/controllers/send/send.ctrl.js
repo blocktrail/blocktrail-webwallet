@@ -481,7 +481,8 @@
                                         feeChoice: $scope.sendInput.feeChoice,
                                         recipientAddress: $scope.sendInput.recipientAddress,
                                         amount: sendAmount,
-                                        requires2FA: $scope.requires2FA
+                                        requires2FA: $scope.requires2FA,
+                                        paymentDetails: $scope.sendInput.paymentDetails
                                     };
                                 }
                             }
