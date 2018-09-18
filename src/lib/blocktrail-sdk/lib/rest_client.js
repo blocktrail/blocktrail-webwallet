@@ -83,6 +83,7 @@ RestClient.prototype.create_request = function(options) {
         endpoint: self.endpoint,
         apiKey: self.apiKey,
         apiSecret: self.apiSecret,
+        contentMd5: !self.btccom,
         params: _.defaults({}, self.defaultParams),
         headers: _.defaults({}, self.defaultHeaders)
     });
