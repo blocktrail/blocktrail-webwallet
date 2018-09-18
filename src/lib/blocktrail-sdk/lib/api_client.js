@@ -582,7 +582,7 @@ APIClient.prototype.address = function(address, cb) {
 
     return callbackify(self.dataClient.get(self.converter.getUrlForAddress(address), null)
         .then(function(data) {
-            return self.converter.handleErros(self, data);
+            return self.converter.handleErrors(self, data);
         })
         .then(function(data) {
             if (data === null) {
@@ -619,7 +619,7 @@ APIClient.prototype.addressTransactions = function(address, params, cb) {
 
     return callbackify(self.dataClient.get(self.converter.getUrlForAddressTransactions(address), self.converter.paginationParams(params))
         .then(function(data) {
-            return self.converter.handleErros(self, data);
+            return self.converter.handleErrors(self, data);
         })
         .then(function(data) {
             return data.data === null ? data : self.converter.convertAddressTxs(data);
@@ -697,7 +697,7 @@ APIClient.prototype.addressUnconfirmedTransactions = function(address, params, c
 
     return callbackify(self.dataClient.get(self.converter.getUrlForAddressTransactions(address), self.converter.paginationParams(params))
         .then(function(data) {
-            return self.converter.handleErros(self, data);
+            return self.converter.handleErrors(self, data);
         })
         .then(function(data) {
             if (data.data === null) {
@@ -731,7 +731,7 @@ APIClient.prototype.addressUnspentOutputs = function(address, params, cb) {
 
     return callbackify(self.dataClient.get(self.converter.getUrlForAddressUnspent(address), self.converter.paginationParams(params))
         .then(function(data) {
-            return self.converter.handleErros(self, data);
+            return self.converter.handleErrors(self, data);
         })
         .then(function(data) {
             return data.data === null ? data : self.converter.convertAddressUnspentOutputs(data, address);
@@ -752,7 +752,7 @@ APIClient.prototype.batchAddressUnspentOutputs = function(addresses, params, cb)
     if (self.converter instanceof BtccomConverter) {
         return callbackify(self.dataClient.get(self.converter.getUrlForBatchAddressUnspent(addresses), self.converter.paginationParams(params))
             .then(function(data) {
-                return self.converter.handleErros(self, data);
+                return self.converter.handleErrors(self, data);
             })
             .then(function(data) {
                 return data.data === null ? data : self.converter.convertBatchAddressUnspentOutputs(data);
@@ -800,7 +800,7 @@ APIClient.prototype.allBlocks = function(params, cb) {
 
     return callbackify(self.dataClient.get(self.converter.getUrlForAllBlocks(), self.converter.paginationParams(params))
             .then(function(data) {
-                return self.converter.handleErros(self, data);
+                return self.converter.handleErrors(self, data);
             })
             .then(function(data) {
                 return data.data === null ? data : self.converter.convertBlocks(data);
@@ -819,7 +819,7 @@ APIClient.prototype.block = function(block, cb) {
 
     return callbackify(self.dataClient.get(self.converter.getUrlForBlock(block), null)
         .then(function(data) {
-            return self.converter.handleErros(self, data);
+            return self.converter.handleErrors(self, data);
         })
         .then(function(data) {
             return data.data === null ? data : self.converter.convertBlock(data.data);
@@ -837,7 +837,7 @@ APIClient.prototype.blockLatest = function(cb) {
 
     return callbackify(self.dataClient.get(self.converter.getUrlForBlock("latest"), null)
         .then(function(data) {
-            return self.converter.handleErros(self, data);
+            return self.converter.handleErrors(self, data);
         })
         .then(function(data) {
             return data.data === null ? data : self.converter.convertBlock(data.data);
@@ -862,7 +862,7 @@ APIClient.prototype.blockTransactions = function(block, params, cb) {
 
     return callbackify(self.dataClient.get(self.converter.getUrlForBlockTransaction(block), self.converter.paginationParams(params))
         .then(function(data) {
-            return self.converter.handleErros(self, data);
+            return self.converter.handleErrors(self, data);
         })
         .then(function(data) {
             return data.data ===  null ? data : self.converter.convertBlockTxs(data);
@@ -881,7 +881,7 @@ APIClient.prototype.transaction = function(tx, cb) {
 
     return callbackify(self.dataClient.get(self.converter.getUrlForTransaction(tx), null)
         .then(function(data) {
-            return self.converter.handleErros(self, data);
+            return self.converter.handleErrors(self, data);
         })
         .then(function(data) {
             if (data.data === null) {
@@ -922,7 +922,7 @@ APIClient.prototype.transactions = function(txs, cb) {
     if (self.converter instanceof BtccomConverter) {
         return callbackify(self.dataClient.get(self.converter.getUrlForTransactions(txs), null)
             .then(function(data) {
-                return self.converter.handleErros(self, data);
+                return self.converter.handleErrors(self, data);
             })
             .then(function(data) {
                 if (data.data === null) {
@@ -1682,10 +1682,7 @@ APIClient.prototype._createNewWalletV3 = function(options) {
                         var blocktrailPublicKeys = _.mapValues(result.blocktrail_public_keys, function(blocktrailPublicKey) {
                             return bitcoin.HDNode.fromBase58(blocktrailPublicKey[0], self.network);
                         });
-                        console.log("Create new wallet result");
-                        console.log(result);
-                        console.log("our options were");
-                        console.log(options);
+
                         var wallet = new Wallet(
                             self,
                             options.identifier,
@@ -2062,10 +2059,11 @@ APIClient.prototype.feePerKB = function(cb) {
  * @param checkFee          bool        when TRUE the API will verify if the fee is 100% correct and otherwise throw an exception
  * @param [twoFactorToken]  string      2FA token
  * @param [prioboost]       bool
+ * @param options           object      Additional options (for Bitpay/BCH right now)
  * @param [cb]              function    callback(err, txHash)
  * @returns {q.Promise}
  */
-APIClient.prototype.sendTransaction = function(identifier, txHex, paths, checkFee, twoFactorToken, prioboost, cb) {
+APIClient.prototype.sendTransaction = function(identifier, txHex, paths, checkFee, twoFactorToken, prioboost, options, cb) {
     var self = this;
 
     if (typeof twoFactorToken === "function") {
@@ -2075,6 +2073,9 @@ APIClient.prototype.sendTransaction = function(identifier, txHex, paths, checkFe
     } else if (typeof prioboost === "function") {
         cb = prioboost;
         prioboost = false;
+    } else if (typeof options === "function") {
+        cb = options;
+        options = {};
     }
 
     var data = {
@@ -2089,12 +2090,28 @@ APIClient.prototype.sendTransaction = function(identifier, txHex, paths, checkFe
         });
     }
 
+    var postOptions = {
+        check_fee: checkFee ? 1 : 0,
+        prioboost: prioboost ? 1 : 0
+    };
+
+    var bip70 = false;
+    if (options.bip70PaymentUrl) {
+        bip70 = true;
+        postOptions.bip70PaymentUrl = options.bip70PaymentUrl;
+
+        if (options.bip70MerchantData && options.bip70MerchantData instanceof Uint8Array) {
+            // Encode merchant data to base64
+            var decoder = new TextDecoder('utf8');
+            var bip70MerchantData = btoa(decoder.decode(options.bip70MerchantData));
+
+            postOptions.bip70MerchantData = bip70MerchantData;
+        }
+    }
+
     return self.blocktrailClient.post(
         "/wallet/" + identifier + "/send",
-        {
-            check_fee: checkFee ? 1 : 0,
-            prioboost: prioboost ? 1 : 0
-        },
+        postOptions,
         data,
         cb
     );

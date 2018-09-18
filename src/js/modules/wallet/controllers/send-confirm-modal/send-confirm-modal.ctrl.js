@@ -4,7 +4,7 @@
     angular.module("blocktrail.wallet")
         .controller("SendConfirmModalCtrl", SendConfirmModalCtrl);
 
-    function SendConfirmModalCtrl($scope, $modalInstance, $log, $q, $timeout, $state,
+    function SendConfirmModalCtrl($scope, $modalInstance, $log, $q, $timeout, $state, $translate,
                                   CurrencyConverter, sendData, FormHelper, $analytics, launchService,
                                   activeWallet) {
         $scope.sendData = sendData;
@@ -77,11 +77,32 @@
             $q.when(activeWallet.unlockWithPassword($scope.form.password))
                 .then(function(sdkWallet) {
                     $log.info("wallet: unlocked");
+
                     $log.info("wallet: paying", $scope.pay);
+
+                    var optionMerchantData = null;
+                    if ($scope.sendData.paymentDetails) {
+                        try {
+                            // Converting base64 string to (Uint8)Array
+                            optionMerchantData
+                                = atob($scope.sendData.paymentDetails.merchantData).split('').map(function (c) { return c.charCodeAt(0); });
+                            optionMerchantData = Uint8Array.from(optionMerchantData);
+                            $scope.sendData.paymentDetails.outputs[0].script
+                                = atob($scope.sendData.paymentDetails.outputs[0].script).split('').map(function (c) { return c.charCodeAt(0); });
+                        } catch(e) {
+                            throw new Error($translate.instant("MSG_SEND_FAIL_UNKNOWN").sentenceCase());
+                        }
+                    }
+
+                    var payOptions = {
+                        prioboost: $scope.sendData.feeChoice === 'prioboost',
+                        bip70PaymentUrl: $scope.sendData.paymentDetails ? $scope.sendData.paymentDetails.paymentUrl : null,
+                        bip70MerchantData: $scope.sendData.paymentDetails ? optionMerchantData : null
+                    };
 
                     $analytics.eventTrack('pre-pay', {category: 'Events'});
 
-                    return $q.when(sdkWallet.pay($scope.pay, false, $scope.useZeroConf, true, $scope.feeStrategy, $scope.form.two_factor_token, {prioboost: $scope.sendData.feeChoice === 'prioboost'})).then(function(txHash) {
+                    return $q.when(sdkWallet.pay($scope.pay, false, $scope.useZeroConf, true, $scope.feeStrategy, $scope.form.two_factor_token, payOptions)).then(function(txHash) {
                         sdkWallet.lock();
                         return $q.when(txHash);
                     }, function(err) {
