@@ -307,14 +307,22 @@ angular.module('blocktrail.wallet').factory(
             var self = this;
 
             self._backupInfo = null;
-
-            return $q.when(self.storage.get('wallet_backup'))
-                .then(function(doc) {
-                    return self.storage.remove(doc);
-                }, function() {
-                    return true;
-                })
-            ;
+            return $q.all([
+                self.storage.get('wallet_info'),
+                self.storage.get('account_info')
+            ]).then(function (prevStorageEntries) {
+                return storageService.destroy('launch')
+                    .then(function (res) {
+                        return storageService.db('launch')
+                    }).then(function (clearLaunchDoc) {
+                        self.storage = clearLaunchDoc;
+                    }).then(function () {
+                        for (var i = 0; i < prevStorageEntries.length; i++) {
+                            self.storage.put(prevStorageEntries[i]);
+                        }
+                        return true;
+                    });
+            });
         };
 
         return new LaunchService();
