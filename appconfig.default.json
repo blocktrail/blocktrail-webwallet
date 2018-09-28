@@ -56,9 +56,9 @@
         },
         "rBTC": {
             "NETWORK": "rBTC",
-            "NETWORK_LONG": "Bitcoin REGTEST",
+            "NETWORK_LONG": "rBitcoin",
             "TICKER": "rBTC",
-            "TICKER_LONG": "Bitcoin REGTEST",
+            "TICKER_LONG": "rBitcoin",
             "TX_FILTER_MIN_BLOCK_HEIGHT": null,
             "BUYBTC": true,
             "PRIOBOOST": false,
@@ -82,9 +82,9 @@
         },
         "rBCC": {
             "NETWORK": "rBCC",
-            "NETWORK_LONG": "Bitcoin Cash REGTEST",
+            "NETWORK_LONG": "rBitcoin Cash",
             "TICKER": "rBCH",
-            "TICKER_LONG": "Bitcoin Cash REGTEST",
+            "TICKER_LONG": "rBitcoin Cash",
             "TX_FILTER_MIN_BLOCK_HEIGHT": null,
             "BUYBTC": true,
             "PRIOBOOST": false,
