@@ -38,7 +38,7 @@
                 <span ng-if="transaction['wallet_value_change'] <= 0">{{ 'TX_INFO_DATE_SENT' | translate }}</span>
                 <span ng-if="transaction['wallet_value_change'] >  0">{{ 'TX_INFO_DATE_RECEIVED' | translate }}</span>
             </div>
-            <div class="value">{{ transaction.time | amDateFormat:'Do MMMM YYYY, h:mm:ss a' : 'unix' }}</div>
+            <div class="value">{{ transaction.time | amFromUnix | amDateFormat:'Do MMMM YYYY, h:mm:ss a' : 'unix' }}</div>
         </div>
 
         <div class="confirmations">
