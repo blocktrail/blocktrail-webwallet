@@ -1600,20 +1600,21 @@ $display-token-size: 50px;
     }
 }
 
-//Add opacity animation states for everything...ng-animate is active on all elements so meerly adding a transition will activate this animation
-&.ng-enter {
+// Add opacity animation states for everything...ng-animate is active on all elements so meerly adding a transition will activate this animation
+// https://github.com/sass/sass/issues/1873
+#{if(&, "&", "*")}.ng-enter {
     opacity: 0;
 }
 
-&.ng-enter-active {
+#{if(&, "&", "*")}.ng-enter-active {
     opacity: 1;
 }
 
-&.ng-leave {
+#{if(&, "&", "*")}.ng-leave {
     opacity: 1;
 }
 
-&.ng-leave-active {
+#{if(&, "&", "*")}.ng-leave-active {
     opacity: 0;
 }
 
