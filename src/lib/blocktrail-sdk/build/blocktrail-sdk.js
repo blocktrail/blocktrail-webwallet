@@ -1215,6 +1215,18 @@ APIClient.prototype.unsubscribeNewBlocks = function(identifier, cb) {
 };
 
 /**
+ * Returns ['hash' => x, 'height' => y] for wallet API's chain tip
+ *
+ * @param [cb]          function    callback function to call when request is complete
+ * @return q.Promise
+ */
+APIClient.prototype.getWalletLatestBlock = function(cb) {
+    var self = this;
+
+    return self.blocktrailClient.get("/block/latest", null, cb);
+};
+
+/**
  * initialize an existing wallet
  *
  * Either takes two argument:
@@ -3353,7 +3365,7 @@ module.exports = {
 }).call(this,require("buffer").Buffer)
 },{"buffer":107}],9:[function(require,module,exports){
 module.exports = exports = {
-    VERSION: '3.7.15'
+    VERSION: '3.7.16'
 };
 
 },{}],10:[function(require,module,exports){
