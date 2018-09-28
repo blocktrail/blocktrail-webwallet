@@ -46,7 +46,7 @@
                                             <span>{{ 'BUYBTC_PENDING_ORDER_FROM' | translate: {order: buybtcPendingOrder} }}</span>
                                         </div>
                                         <div class="timestamp">
-                                            {{ buybtcPendingOrder.time | amDateFormat: 'h:mm a' : 'unix' }} |
+                                            {{ buybtcPendingOrder.time | amFromUnix | amDateFormat: 'h:mm a' : 'unix' }} |
                                             <span>{{ 'BUYBTC_PENDING_ORDER_SUBTITLE' | translate: {order: buybtcPendingOrder} }}</span>
                                         </div>
                                     </div>
@@ -76,7 +76,7 @@
             >
                 <div class="item-divider">
                     <div class="date-group">
-                        {{ getTransactionHeader() | amCalendar }}
+                        {{ getTransactionHeader() | amFromUnix | amCalendar }}
                     </div>
                 </div>
             </div>
