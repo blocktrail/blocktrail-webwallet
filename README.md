@@ -16,7 +16,7 @@ Access your wallet anywhere, anytime; use the mobile app when you're on the go, 
 - Personalise your account so your friends can quickly identify you
 - QR code scanning with bitcoin URI support
 - Transactions signed locally in your browser
-- Backup document incase the worst happens
+- Backup document in case the worst happens
 - Local currency display using live price updates
 
 ## Mobile Wallet
