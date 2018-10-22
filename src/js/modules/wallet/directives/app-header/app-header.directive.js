@@ -12,7 +12,8 @@
                 pageTitle: '=',
                 walletData: '=',
                 bitcoinPrices: '=',
-                settings: '='
+                settings: '=',
+                displayPrice: '='
             },
             templateUrl: "js/modules/wallet/directives/app-header/app-header.tpl.html"
         };
