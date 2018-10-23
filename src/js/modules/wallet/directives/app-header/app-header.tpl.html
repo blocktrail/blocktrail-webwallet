@@ -8,7 +8,7 @@
             <div class="text-right app-header-right">
                 <h1>
                     {{ (walletData.balance + walletData.uncBalance) | satoshiToCoin : walletData.networkType : 8 : false : 'long' }}
-                    <small>≃ {{ (walletData.balance + walletData.uncBalance) | satoshiToCurrency : settings.localCurrency : bitcoinPrices }}</small>
+                    <small ng-if="!!displayPrice">≃ {{ (walletData.balance + walletData.uncBalance) | satoshiToCurrency : settings.localCurrency : bitcoinPrices }}</small>
                 </h1>
             </div>
         </div>

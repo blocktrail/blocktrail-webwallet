@@ -59,6 +59,7 @@
         });
 
         $scope.isLoadingNewWallet = false;
+        $scope.isDoneFetchingPrice = false;
 
         // track when wallet is activated (first time > 0 balance)
         if (!$scope.settings.walletActivated) {
@@ -121,7 +122,6 @@
             }
 
             $scope.isLoadingNewWallet = true;
-
             walletsManagerService.setActiveWalletByUniqueIdentifier(uniqueIdentifier)
                 .then(function() {
                     $scope.isLoadingNewWallet = false;
@@ -278,7 +278,10 @@
         }, 500);
 
         $timeout(function() {
-            $rootScope.getPrice();
+            $rootScope.getPrice().then(function () {
+                $scope.isDoneFetchingPrice = true;
+                $scope.$apply();
+            });
         }, 1000);
 
         // TODO settings polling move to a settingsService
