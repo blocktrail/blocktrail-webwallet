@@ -154,7 +154,7 @@ gulp.task('js:libs', ['appconfig'], function() {
             .pipe(sourcemaps.init({largeFile: true}))
             .pipe(gulpif(APPCONFIG.MINIFY, uglify({
                 mangle: {
-                    except: DONT_MANGLE
+                    reserved: DONT_MANGLE
                 }
             })))
             .pipe(sourcemaps.write('./'))
@@ -186,7 +186,7 @@ gulp.task('js:app', ['appconfig'], function() {
             .pipe(sourcemaps.init({largeFile: true}))
             .pipe(gulpif(APPCONFIG.MINIFY, uglify({
                 mangle: {
-                    except: DONT_MANGLE
+                    reserved: DONT_MANGLE
                 }
             })))
             .pipe(sourcemaps.write('./'))
@@ -205,7 +205,7 @@ gulp.task('js:sdk', ['appconfig'], function() {
                 .pipe(sourcemaps.init({largeFile: true}))
                 .pipe(gulpif(APPCONFIG.MINIFY, uglify({
                     mangle: {
-                        except: DONT_MANGLE
+                        reserved: DONT_MANGLE
                     }
                 })))
                 .pipe(sourcemaps.write('./'))
