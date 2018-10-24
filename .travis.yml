@@ -18,4 +18,4 @@ before_install:
  - cp appconfig.default.json appconfig.json
 
 script:
- - gulp
+ - ./node_modules/.bin/gulp
