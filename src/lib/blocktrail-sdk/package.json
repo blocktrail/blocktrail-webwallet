@@ -13,7 +13,7 @@
     "multi-signature",
     "transaction"
   ],
-  "version": "3.7.16",
+  "version": "3.7.17",
   "homepage": "https://www.blocktrail.com/api/docs/lang/nodejs",
   "license": "MIT",
   "repository": {
@@ -83,7 +83,7 @@
     }
   ],
   "devDependencies": {
-    "blocktrail-sdk-backup-generator": "0.1.0",
+    "blocktrail-sdk-backup-generator": "0.2.0",
     "brfs": "*",
     "browserify": "*",
     "browserify-versionify": "^1.0.6",
