@@ -17,6 +17,7 @@ var _ = require('lodash'),
     randomBytes = require('randombytes'),
     CryptoJS = require('crypto-js'),
     webworkifier = require('./webworkifier');
+    encoding = require('text-encoding');
 
 /**
  *
@@ -2114,7 +2115,7 @@ APIClient.prototype.sendTransaction = function(identifier, txHex, paths, checkFe
 
         if (options.bip70MerchantData && options.bip70MerchantData instanceof Uint8Array) {
             // Encode merchant data to base64
-            var decoder = new TextDecoder('utf8');
+            var decoder = new encoding.TextDecoder('utf8');
             var bip70MerchantData = btoa(decoder.decode(options.bip70MerchantData));
 
             postOptions.bip70MerchantData = bip70MerchantData;
