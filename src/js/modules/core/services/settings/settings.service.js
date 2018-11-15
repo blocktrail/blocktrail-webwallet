@@ -48,6 +48,7 @@
             latestVersionWeb: null,
             glideraActivationNoticePending: null,
             hideBCCSweepWarning: false,
+            hideBCCForkWarning: false,
 
             simplexLastForward: null,
             simplexLastForwardDelta: 30, // 30 seconds
@@ -100,6 +101,7 @@
             "username",
             "email",
             "hideBCCSweepWarning",
+            "hideBCCForkWarning",
             "walletActivated",
             "knownLanguages",
             "showArchived"
