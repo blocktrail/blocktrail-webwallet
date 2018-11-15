@@ -19,6 +19,7 @@
         $scope.isShowNoMoreTransactions = false;
         $scope.isTwoFactorWarning = false; // display 2FA warning once every day when it's not enabled
         $scope.showBCCSweepWarning = false;
+        $scope.showBCCForkWarning = false;
         $scope.lastDateHeader = lastDateHeader;
         $scope.buybtcPendingOrders = []; // Glidera transactions
         $scope.transactionsListLimit = transactionsListLimitStep;
@@ -39,6 +40,7 @@
         $scope.onShowTransaction = onShowTransaction;
         $scope.onShowMoreTransactions = onShowMoreTransactions;
         $scope.dismissBCCSweepWarning = dismissBCCSweepWarning;
+        $scope.dismissBCCForkWarning = dismissBCCForkWarning;
 
         $scope.$on("$destroy", onDestroy);
 
@@ -46,6 +48,7 @@
 
         if ($scope.walletData.networkType === "BCC") {
             activeWallet.isReady.then(function() {
+                $scope.showBCCForkWarning = !$scope.settings.hideBCCForkWarning;
                 $scope.showBCCSweepWarning = !$scope.walletData.transactions.length && !$scope.settings.hideBCCSweepWarning;
             });
         }
@@ -69,6 +72,13 @@
             $scope.showBCCSweepWarning = false;
             settingsService.updateSettingsUp({
                 hideBCCSweepWarning: true
+            });
+        }
+
+        function dismissBCCForkWarning() {
+            $scope.showBCCForkWarning = false;
+            settingsService.updateSettingsUp({
+                hideBCCForkWarning: true
             });
         }
 
