@@ -49,6 +49,7 @@
             glideraActivationNoticePending: null,
             hideBCCSweepWarning: false,
             hideBCCForkWarning: true,
+            hideBSVReplayWarning: false,
 
             simplexLastForward: null,
             simplexLastForwardDelta: 30, // 30 seconds
