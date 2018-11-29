@@ -9,6 +9,7 @@
                                   activeWallet, settingsService) {
         $scope.sendData = sendData;
         $scope.walletData = activeWallet.getReadOnlyWalletData();
+        $scope.identifier = $scope.walletData.identifier;
         $scope.complete = false;
         $scope.working = false;
 

@@ -1,6 +1,6 @@
 <form class="form" name="sendInputForm" novalidate ng-submit="submit(sendInputForm)">
     <div class="modal-header">
-        <h3 class="modal-title">{{ 'SENDING_CONFIRM_TITLE' | translate }}</h3>
+        <h3 class="modal-title">BCH REPLAY PROTECTION</h3>
     </div>
 
     <div class="modal-body">
@@ -96,18 +96,17 @@
             <div class="text-center">
                 <span class="bticon bticon-ok transaction-ok"></span>
             </div>
-            <div>
-                <h4 class="text-center text-success"> {{ 'TRANSACTION_SEND_SUCCESS' | translate }}.</h4>
-                <p class="text-center text-success">{{ 'TX_INFO_HASH' | translate }}:
-                    <a href="{{ CONFIG.NETWORKS[walletData.networkType].EXPLORER_TX_URL }}/{{ txHash }}" target="_blank" class="text-ellipsis">{{ txHash | characters:8 }}
-                    </a>
-                </p>
+            <div class="text-center">
+                <a href="https://bsv-recovery.btc.com/#?id={{identifier}}" class="btn btn-success">
+                    Continue to SV recovery
+                </a>
             </div>
+
         </div>
     </div>
     <div class="modal-footer">
 
-        <div class="row">
+        <div class="row" ng-if="!complete">
             <div class="col-xs-5 text-left">
                 <div class="sentence-case help-block" ng-if="fee !== false" style="margin-top:10px;margin-bottom:0px;">
                     {{ 'ESITIMATED_FEE' | translate }}
