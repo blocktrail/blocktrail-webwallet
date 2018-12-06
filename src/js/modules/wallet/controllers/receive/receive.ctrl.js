@@ -128,7 +128,14 @@
         function getNewAddress() {
             $scope.newRequest.address = null;
 
-            return $q.when(activeWallet.getNewAddress())
+            var chainIdx = null;
+            if (walletData.networkType === "BCC") {
+                chainIdx = blocktrailSDK.Wallet.CHAIN_BCC_DEFAULT;
+            } else if (walletData.networkType === "BTC") {
+                chainIdx = blocktrailSDK.Wallet.CHAIN_BTC_DEFAULT;
+            }
+
+            return $q.when(activeWallet.getNewAddress(chainIdx))
                 .then(function(address) {
                     $scope.newRequest.address = address;
                 })
