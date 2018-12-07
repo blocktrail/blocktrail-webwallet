@@ -154,8 +154,12 @@
             }
 
             var prefix = CONFIG.NETWORKS[walletData.networkType].URIPREFIX;
+            if (!$scope.useCashAddress) {
+                $scope.newRequest.bitcoinUri = prefix + $scope.newRequest.address;
+            } else {
+                $scope.newRequest.bitcoinUri = $scope.newRequest.address;
+            }
 
-            $scope.newRequest.bitcoinUri = prefix + $scope.newRequest.address;
             $scope.newRequest.qrValue = 0;
 
             if ($scope.currencyType === nativeCurrency) {
