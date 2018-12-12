@@ -142,6 +142,8 @@
                 error.data = error.is_banned;
             } else if (blocktrailSDKError.requires_sha512) {
                 error.type = "SHA_512";
+            } else if (blocktrailSDKError instanceof blocktrailSDK.WalletMissingEmail2FAError) {
+                error.type = "EMAIL_2FA_MISSING";
             } else if (blocktrailSDKError instanceof blocktrailSDK.WalletMissing2FAError) {
                 error.type = "2FA_MISSING";
             } else if (blocktrailSDKError instanceof blocktrailSDK.WalletInvalid2FAError

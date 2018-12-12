@@ -129,6 +129,22 @@
                         );
                     break;
 
+                case "EMAIL_2FA_MISSING":
+                    return dialogService.alert($translate.instant("SETUP_LOGIN"), $translate.instant("MSG_EMAIL_VERIFY"))
+                        .result.then(function() {
+                            return dialogService.prompt($translate.instant("SETUP_LOGIN"), $translate.instant("MSG_MISSING_TWO_FACTOR_TOKEN"))
+                                .result
+                                .then(function(token) {
+                                        twoFactorToken = token;
+                                        return login();
+                                    }, function(e) {
+                                        $scope.isLoading = false;
+                                        throw e;
+                                    }
+                                );
+                        });
+                    break;
+
                 case "2FA_INVALID":
                     return dialogService.prompt($translate.instant("SETUP_LOGIN"), $translate.instant("MSG_INCORRECT_TWO_FACTOR_TOKEN"))
                         .result
