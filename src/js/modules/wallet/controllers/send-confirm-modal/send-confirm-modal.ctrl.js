@@ -152,6 +152,8 @@
 
                     } else if (err instanceof blocktrail.WalletFeeError) {
                         $scope.error = 'MSG_LOW_BALANCE_FOR_FEE';
+                    } else if (err instanceof blocktrail.InvalidAPIKeyError) {
+                        $state.go("app.logout");
                     } else {
                         $log.error(err);
                         // other error
