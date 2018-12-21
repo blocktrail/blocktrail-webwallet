@@ -4,7 +4,7 @@
     angular.module('blocktrail.wallet')
         .factory('sweeperService', SweeperService);
 
-    function SweeperService($q, bitcoinJS, bip39, BlocktrailBitcoinService, sdkService, launchService) {
+    function SweeperService($q, bitcoinJS, bip39, SPVBridgeBitcoinService, sdkService, launchService) {
         var bitcoinDataClient = null;
         var debugInfo = [];
 
@@ -192,9 +192,18 @@
         function getBitcoinDataClient(options) {
             return launchService.getAccountInfo()
                 .then(function(accountInfo) {
-                    bitcoinDataClient = new BlocktrailBitcoinService({
-                        apiKey: accountInfo.api_key,
-                        apiSecret: accountInfo.api_secret,
+                    var hostUrl = null;
+                    switch (options.network.toUpperCase()) {
+                        case "BTC":
+                            hostUrl = "https://btc-recovery-proxy.blocktrail.com/";
+                            break;
+                        case "BCC":
+                            hostUrl = "https://bch-recovery-proxy.blocktrail.com/";
+                            break;
+                    }
+
+                    bitcoinDataClient = new SPVBridgeBitcoinService({
+                        host: hostUrl,
                         network: options.network,
                         testnet: options.testnet
                     });
