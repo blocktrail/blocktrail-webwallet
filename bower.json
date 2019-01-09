@@ -2,7 +2,7 @@
   "name": "blocktrail-wallet",
   "private": "true",
   "dependencies": {
-    "blocktrail-sdk": "3.7.19",
+    "blocktrail-sdk": "3.7.22",
     "bip70-js": "2.0.1",
     "powtcha": "0.1.2",
     "pouchdb": "git@github.com:blocktrail/pouchdb.git#blocktrail",
