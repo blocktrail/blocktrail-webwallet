@@ -1,5 +1,6 @@
 # Blocktrail Web Wallet
 Take back control of your Bitcoin!  
+
 BlockTrail's Bitcoin wallet features unparalleled security through MultiSignature technology, keeping you in full control of your coins at all time. 
 Transactions are signed in your browser so we never see your private keys.
 
