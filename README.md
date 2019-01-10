@@ -62,3 +62,4 @@ with `./scripts/upload_to_oss.sh` statics are pushed to the CDN backend.
 The Blocktrail Wallet source code is released under the GNU Affero General Public License.  
 The Blocktrail Logo and any other images / graphics are not part of this.  
 See [LICENSE.md](LICENSE.md).
+
