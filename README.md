@@ -10,11 +10,11 @@ Access your wallet anywhere, anytime; use the mobile app when you're on the go, 
 
 - 2-of-3 Multisig technology so you always remain in control of your coins
 - HD wallet technology allowing you to create an unlimited number of addresses
-- Send and Receive bitcoin easily
+- Send and Receive Bitcoin easily
 - Live update for new transactions and your balance
 - View your full transaction history with the price at the time of the transaction
 - Personalise your account so your friends can quickly identify you
-- QR code scanning with bitcoin URI support
+- QR code scanning with Bitcoin URI support
 - Transactions signed locally in your browser
 - Backup document in case the worst happens
 - Local currency display using live price updates
