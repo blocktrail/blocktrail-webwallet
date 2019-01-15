@@ -13,3 +13,4 @@ src/fontello/*
 !src/fontello/font
 !src/fontello/config.json
 !src/fontello/css/fontello.scss
+/.idea/
