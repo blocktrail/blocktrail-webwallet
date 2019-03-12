@@ -18,9 +18,39 @@ jobs:
 
     steps:
       - checkout
+      - run:
+          name: pull all
+          command: git submodule update --init --recursive
+      # generate config
+      - run:
+          name: generate config
+          command: |
+                    cat > appconfig.json <<EOF
+                    {
+                      "DEBUG": false,
+                      "MINIFY": true,
+                      "SRI": true,
+                      "SENTRY_TRACKING_URL": "https://e3a146451da34e94b474836f344be82b@sentry.io/215242",
+                      "STATICSDIR": null,
+                      "FBTRACKING_ID": "515808928618053",
+                      "GOOGLEADWORDS_ID": 875536627,
+                      "GOOGLEADWORDS_LABEL": "w2zkCO7L7WkQ88G-oQM",
+                      "GOOGLEANALYTICS_ID": "UA-66176065-16",
+                      "GOOGLEANALYTICS_GLOBAL_ID": "UA-66176065-27",
+                      "QUORA_ID": "24a35e4fe1ce4a189ab99e22d31dd083",
+                      "FALLBACK_LANGUAGE": "en",
+                      "NULL": null
+                    }
+                    EOF
+                    cat appconfig.json
 
       # Download and cache dependencies
-      - run: yarn global install gulp
-
-      # run tests!
+      - run: sudo npm install -g gulp
+      - run: npm install gulp
+      - run: npm install
       - run: gulp
+      - run: sudo apt install python-pip python-dev -y;sudo pip install awscli
+      - run:
+          name: sync to aws
+          command: |
+            aws s3 sync www s3://beta.wallet.btc.com
