@@ -45,7 +45,8 @@
             version: self._CONFIG.VERSION || self._CONFIG.VERSION_REV,
             two_factor_token: data.twoFactorToken,
             device_name: self._navigator.userAgent || "Unknown Browser",
-            browser_fingerprint: null
+            browser_fingerprint: null,
+            captcha : window.captchaToken
         };
 
         var url = self._CONFIG.API_URL + "/v1/" + data.networkType + "/mywallet/enable";
@@ -129,6 +130,7 @@
      * @private
      */
     LoginFormService.prototype._errorHandler = function(response) {
+        window.fetchCaptchaToken();
         var error = {
             type: "MSG_BAD_NETWORK",
             data: null

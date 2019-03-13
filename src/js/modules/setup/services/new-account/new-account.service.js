@@ -43,7 +43,8 @@
             device_name: self._navigator.userAgent || "Unknown Browser",
             super_secret: self._CONFIG.SUPER_SECRET || null,
             powtcha: null,
-            browser_fingerprint: null
+            browser_fingerprint: null,
+            captcha: window.captchaToken
         };
 
         var url = self._CONFIG.API_URL + "/v1/" + data.networkType + "/mywallet/register";
@@ -103,6 +104,7 @@
      * @private
      */
     NewAccountFormService.prototype._errorHandler = function(response) {
+        window.fetchCaptchaToken();
         var error;
 
         if (!response.data.msg) {
