@@ -69,7 +69,6 @@ gulp.task('appconfig:print', ['appconfig'], function() {
 });
 
 gulp.task('templates:index', ['appconfig', 'js', 'sass'], function() {
-
     return appConfig.then(function(APPCONFIG) {
         return buildSRIMap([
             "./www/" + APPCONFIG.STATICSDIR + "/js/app.js",
@@ -88,6 +87,7 @@ gulp.task('templates:index', ['appconfig', 'js', 'sass'], function() {
                     SRI: doSRI && SRI,
                     VERSION: APPCONFIG.VERSION,
                     STATICSDIR: APPCONFIG.STATICSDIR,
+                    GOOGLE_RECAPTCHA_SITE_KEY: APPCONFIG.GOOGLE_RECAPTCHA_SITE_KEY,
                     STATICSURL: APPCONFIG.STATICSURL
                 }))
                 .pipe(gulp.dest("./www"))
