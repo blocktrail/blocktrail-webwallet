@@ -24,7 +24,7 @@ jobs:
               "GOOGLEADWORDS_ID": 875536627,
               "GOOGLEADWORDS_LABEL": "w2zkCO7L7WkQ88G-oQM",
               "API_HOST": "wallet-api.btc.com",
-              "GOOGLE_RECAPTCHA_SITE_KEY": "6LcxxZYUAAAAAKRtpHcbNWeQflByo-5m5psaHhTZ",
+              "GOOGLE_RECAPTCHA_SITE_KEY": "6Lej1ZgUAAAAACLXn4ZqmeqdgEi-tTrZbV2TFeGl",
               "GOOGLEANALYTICS_ID": "UA-66176065-16",
               "GOOGLEANALYTICS_GLOBAL_ID": "UA-66176065-27",
               "QUORA_ID": "24a35e4fe1ce4a189ab99e22d31dd083",
@@ -72,7 +72,7 @@ jobs:
                       "API_HOST": "beta.wallet-api.btc.com",
                       "GOOGLEANALYTICS_ID": "UA-66176065-16",
                       "GOOGLEANALYTICS_GLOBAL_ID": "UA-66176065-27",
-                      "GOOGLE_RECAPTCHA_SITE_KEY": "6Lecj5cUAAAAANBVe79aXT8j803qId0HXZ0atFwh",
+                      "GOOGLE_RECAPTCHA_SITE_KEY": "6Ld51ZgUAAAAAEVY6MQg_rDpeW-ePZUPfBIXxqdG",
                       "QUORA_ID": "24a35e4fe1ce4a189ab99e22d31dd083",
                       "FALLBACK_LANGUAGE": "en",
                       "NULL": null
