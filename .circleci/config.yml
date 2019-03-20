@@ -1,26 +1,109 @@
-# Javascript Node CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-javascript/ for more details
-#
 version: 2
 jobs:
-  build:
+  prod-build:
     docker:
-      # specify the version you desire here
       - image: circleci/node:7.10
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: pull all
+          command: git submodule update --init --recursive
+      # generate config
+      - run:
+          name: generate config
+          command: |
+            cat > appconfig.json <<EOF
+            {
+              "DEBUG": false,
+              "MINIFY": true,
+              "SRI": true,
+              "SENTRY_TRACKING_URL": "https://e3a146451da34e94b474836f344be82b@sentry.io/215242",
+              "STATICSDIR": null,
+              "FBTRACKING_ID": "515808928618053",
+              "GOOGLEADWORDS_ID": 875536627,
+              "GOOGLEADWORDS_LABEL": "w2zkCO7L7WkQ88G-oQM",
+              "API_HOST": "wallet-api.btc.com",
+              "GOOGLE_RECAPTCHA_SITE_KEY": "6LcxxZYUAAAAAKRtpHcbNWeQflByo-5m5psaHhTZ",
+              "GOOGLEANALYTICS_ID": "UA-66176065-16",
+              "GOOGLEANALYTICS_GLOBAL_ID": "UA-66176065-27",
+              "QUORA_ID": "24a35e4fe1ce4a189ab99e22d31dd083",
+              "FALLBACK_LANGUAGE": "en",
+              "NULL": null
+            }
+            EOF
 
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/mongo:3.4.4
+      # Download and cache dependencies
+      - run: sudo npm install -g gulp
+      - run: npm install gulp
+      - run: npm install
+      - run: gulp
+      - run: sudo apt install python-pip python-dev -y;sudo pip install awscli
+      - run:
+          name: sync to aws
+          command: |
+            ## shame on you CircleCi
+            AWS_ACCESS_KEY_ID=$MY_AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$MY_AWS_SECRET_ACCESS_KEY aws s3 sync www s3://$PROD_CDN
 
+  dev-build:
+    docker:
+      - image: circleci/node:7.10
     working_directory: ~/repo
 
     steps:
       - checkout
+      - run:
+          name: pull all
+          command: git submodule update --init --recursive
+      # generate config
+      - run:
+          name: generate config
+          command: |
+                    cat > appconfig.json <<EOF
+                    {
+                      "DEBUG": false,
+                      "MINIFY": true,
+                      "SRI": true,
+                      "SENTRY_TRACKING_URL": "https://e3a146451da34e94b474836f344be82b@sentry.io/215242",
+                      "STATICSDIR": null,
+                      "FBTRACKING_ID": "515808928618053",
+                      "GOOGLEADWORDS_ID": 875536627,
+                      "GOOGLEADWORDS_LABEL": "w2zkCO7L7WkQ88G-oQM",
+                      "API_HOST": "beta.wallet-api.btc.com",
+                      "GOOGLEANALYTICS_ID": "UA-66176065-16",
+                      "GOOGLEANALYTICS_GLOBAL_ID": "UA-66176065-27",
+                      "GOOGLE_RECAPTCHA_SITE_KEY": "6Lecj5cUAAAAANBVe79aXT8j803qId0HXZ0atFwh",
+                      "QUORA_ID": "24a35e4fe1ce4a189ab99e22d31dd083",
+                      "FALLBACK_LANGUAGE": "en",
+                      "NULL": null
+                    }
+                    EOF
+                    cat appconfig.json
 
       # Download and cache dependencies
-      - run: yarn global install gulp
-
-      # run tests!
+      - run: sudo npm install -g gulp
+      - run: npm install gulp
+      - run: npm install
       - run: gulp
+      - run: sudo apt install python-pip python-dev -y;sudo pip install awscli
+      - run:
+          name: sync to aws
+          command: |
+            ## shame on you CircleCi
+            AWS_ACCESS_KEY_ID=$MY_AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$MY_AWS_SECRET_ACCESS_KEY aws s3 sync www s3://$DEV_CDN
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - dev-build:
+          filters:
+            branches:
+              only: dev
+
+      - prod-build:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v\d+\.\d+\.\d+/
