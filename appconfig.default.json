@@ -2,7 +2,6 @@
     "DEBUG": false,
     "MINIFY": true,
     "POUCHDB_DRIVER": null,
-    "API_HOST": "wallet-api.btc.com",
     "API_HTTPS": true,
 
     "FORCE_GLIDERA_ENABLED": false,
