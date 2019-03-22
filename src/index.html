@@ -218,13 +218,18 @@
         <script src="https://www.google.com/recaptcha/api.js?render=<%= GOOGLE_RECAPTCHA_SITE_KEY %>" async></script>
         <script>
             function fetchCaptchaToken() {
-                grecaptcha.execute('<%= GOOGLE_RECAPTCHA_SITE_KEY %>', {action: 'homepage'}).then(function(token) {
-                    window.captchaToken = token;
+                if (grecaptcha) {
+                    grecaptcha.execute('<%= GOOGLE_RECAPTCHA_SITE_KEY %>', {action: 'homepage'}).then(function(token) {
+                        window.captchaToken = token;
+                    });
+                }
+            }
+
+            if (grecaptcha) {
+                grecaptcha.ready(function() {
+                    fetchCaptchaToken()
                 });
             }
-            grecaptcha.ready(function() {
-                fetchCaptchaToken()
-            });
         </script>
     </body>
 </html>
