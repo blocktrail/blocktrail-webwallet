@@ -96,6 +96,25 @@ gulp.task('templates:index', ['appconfig', 'js', 'sass'], function() {
     });
 });
 
+gulp.task('templates:demo', ['appconfig', 'js'], function() {
+    return appConfig.then(function(APPCONFIG) {
+        return buildSRIMap([],
+            "./www/" + APPCONFIG.STATICSDIR + "/").then(function(SRI) {
+            return streamAsPromise(gulp.src("./src/demo.html")
+                .pipe(template({
+                    APPCONFIG: APPCONFIG,
+                    SRI: doSRI && SRI,
+                    VERSION: APPCONFIG.VERSION,
+                    STATICSDIR: APPCONFIG.STATICSDIR,
+                    GOOGLE_RECAPTCHA_SITE_KEY: APPCONFIG.GOOGLE_RECAPTCHA_SITE_KEY,
+                    STATICSURL: APPCONFIG.STATICSURL
+                }))
+                .pipe(gulp.dest("./www"))
+            );
+        });
+    });
+});
+
 gulp.task('templates:rest', ['appconfig'], function() {
     return appConfig.then(function(APPCONFIG) {
         return streamAsPromise(gulp.src([
@@ -448,5 +467,5 @@ gulp.task('copystatics:livereload', ['copystatics'], function() {
 });
 
 gulp.task('js', ['js:libs', 'js:app', 'js:sdk', 'js:sdk:asmcrypto', 'js:zxcvbn', 'js:config']);
-gulp.task('templates', ['templates:index', 'templates:rest']);
+gulp.task('templates', ['templates:index', 'templates:rest', 'templates:demo']);
 gulp.task('default', ['copystatics', 'sass', 'templates', 'js']);
