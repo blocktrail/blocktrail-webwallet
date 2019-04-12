@@ -28,7 +28,8 @@
                     $scope.stepCount = 1;
                     $scope.working = false;
                 }).catch(function (result) {
-                    if (result && result.data && result.data.error && result.data.error === 'v2') {
+                window.fetchCaptchaToken();
+                if (result && result.data && result.data.error && result.data.error === 'v2') {
                         $scope.working = false;
                         return dialogService.alert(
                             $translate.instant("RECOVERY_ERROR"),
