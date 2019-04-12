@@ -7,7 +7,7 @@
     function PasswordRecoveryService($http, CONFIG, dialogService, cryptoJS, $translate) {
 
         function requestRecoveryMail(email) {
-            return $http.post(CONFIG.API_URL + "/v1/" + CONFIG.API_NETWORK + "/recovery/request-link", { email: email } );
+            return $http.post(CONFIG.API_URL + "/v1/" + CONFIG.API_NETWORK + "/recovery/request-link", { email: email, captcha : window.captchaToken} );
         }
 
         function requestRecoverySecret(token) {
