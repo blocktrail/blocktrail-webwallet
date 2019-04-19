@@ -214,7 +214,7 @@
         </script>
         <% } %>
 
-        <script src="https://www.recaptcha.net/recaptcha/api.js?render=<%= GOOGLE_RECAPTCHA_SITE_KEY %>"></script>
+        <script src="https://www.recaptcha.net/recaptcha/api.js?render=<%= GOOGLE_RECAPTCHA_SITE_KEY %>" onload="grecaptcha.ready(function() {fetchCaptchaToken()});" async></script>
         <script>
             function fetchCaptchaToken() {
                 if (grecaptcha) {
@@ -222,12 +222,6 @@
                         window.captchaToken = token;
                     });
                 }
-            }
-
-            if (grecaptcha) {
-                grecaptcha.ready(function() {
-                    fetchCaptchaToken()
-                });
             }
         </script>
     </body>
