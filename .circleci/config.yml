@@ -20,14 +20,12 @@ jobs:
               "SRI": true,
               "SENTRY_TRACKING_URL": "https://a62c2cb63e34460793d068c459b92090@sentry.io/1433278",
               "STATICSDIR": null,
-              "FBTRACKING_ID": "515808928618053",
               "GOOGLEADWORDS_ID": 875536627,
               "GOOGLEADWORDS_LABEL": "w2zkCO7L7WkQ88G-oQM",
               "API_HOST": "wallet-api.btc.com",
               "GOOGLE_RECAPTCHA_SITE_KEY": "6Lej1ZgUAAAAACLXn4ZqmeqdgEi-tTrZbV2TFeGl",
               "GOOGLEANALYTICS_ID": "UA-66176065-16",
               "GOOGLEANALYTICS_GLOBAL_ID": "UA-66176065-27",
-              "QUORA_ID": "24a35e4fe1ce4a189ab99e22d31dd083",
               "FALLBACK_LANGUAGE": "en",
               "NULL": null
             }
@@ -66,14 +64,12 @@ jobs:
                       "SRI": true,
                       "SENTRY_TRACKING_URL": "https://7a25ba8a64804e5584c72cc2da0fd595@sentry.io/1433280",
                       "STATICSDIR": null,
-                      "FBTRACKING_ID": "515808928618053",
                       "GOOGLEADWORDS_ID": 875536627,
                       "GOOGLEADWORDS_LABEL": "w2zkCO7L7WkQ88G-oQM",
                       "API_HOST": "beta.wallet-api.btc.com",
                       "GOOGLEANALYTICS_ID": "UA-66176065-16",
                       "GOOGLEANALYTICS_GLOBAL_ID": "UA-66176065-27",
                       "GOOGLE_RECAPTCHA_SITE_KEY": "6Ld51ZgUAAAAAEVY6MQg_rDpeW-ePZUPfBIXxqdG",
-                      "QUORA_ID": "24a35e4fe1ce4a189ab99e22d31dd083",
                       "FALLBACK_LANGUAGE": "en",
                       "NULL": null
                     }
