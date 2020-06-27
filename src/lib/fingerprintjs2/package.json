@@ -5,7 +5,7 @@
   "main": "dist/fingerprint2.min.js",
   "devDependencies": {
     "gulp": "^3.8.11",
-    "eslint": "^0.14.1",
+    "eslint": "^4.18.2",
     "gulp-eslint": "^0.4.2",
     "gulp-rename": "^1.2.2",
     "gulp-uglify": "^1.1.0"
