@@ -69,7 +69,7 @@ jobs:
                       "API_HOST": "beta.wallet-api.btc.com",
                       "GOOGLEANALYTICS_ID": "UA-66176065-16",
                       "GOOGLEANALYTICS_GLOBAL_ID": "UA-66176065-27",
-                      "GOOGLE_RECAPTCHA_SITE_KEY": "6LfXX8kUAAAAAJue_wsdXIuZmnNz7OrsFg86UlsJ",
+                      "GOOGLE_RECAPTCHA_SITE_KEY": "6Lf6o7YZAAAAAHJu2vwVd-XQKZbTMxh0oA73pIa-",
                       "FALLBACK_LANGUAGE": "en",
                       "NULL": null
                     }
