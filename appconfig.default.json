@@ -40,8 +40,8 @@
             "CASHADDRESS": true,
             "URIPREFIX": "bitcoincash:",
             "DISABLE_SEND":true,
-            "DISABLE_SEND_START":1605166500,
-            "DISABLE_SEND_END":1605252900
+            "DISABLE_SEND_START":1605085200,
+            "DISABLE_SEND_END":1605088800
         },
         "tBTC": {
             "NETWORK": "tBTC",
