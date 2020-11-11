@@ -56,6 +56,15 @@
             return false;
         }
 
+        function disableDateRange() {
+            var start = CONFIG.NETWORKS[walletData.networkType].DISABLE_SEND_START;
+            var end = CONFIG.NETWORKS[walletData.networkType].DISABLE_SEND_END;
+            return {
+                start: start ? moment.unix(start).utc().format('YYYY-MM-DD HH:mm') : '',
+                end: end ? moment.unix(end).utc().format('YYYY-MM-DD HH:mm') : ''
+            }
+        }
+
         $scope.sendInput = {
             recipientAddress: "",
             referenceMessage: "",
@@ -65,6 +74,11 @@
             // inputDisabled: false,// For BCH FORKING---
             inputDisabled: isInitialDisableSendInput(),// For BCH FORKING
             isForking: isInitialDisableSendInput()// For BCH FORKING
+        };
+
+        $scope.downTimes = {
+            start: disableDateRange().start,
+            end: disableDateRange().end
         };
 
         $scope.fees = {
