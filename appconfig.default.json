@@ -9,9 +9,9 @@
 
     // @deprecated
     // until we have a cleaner solution for the API endpoints, should either by BTC or tBTC
-    "API_NETWORK": "tBTC",
+    "API_NETWORK": "BTC",
 
-    "NETWORKS_ENABLED": ["tBTC", "tBCC"],
+    "NETWORKS_ENABLED": ["BTC", "BCC"],
 
     "NETWORKS": {
         "BTC": {
