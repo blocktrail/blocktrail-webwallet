@@ -50,7 +50,7 @@
             var start = CONFIG.NETWORKS[walletData.networkType].DISABLE_SEND_START;
             var end = CONFIG.NETWORKS[walletData.networkType].DISABLE_SEND_END;
             var now = Math.round(new Date().getTime() / 1000);
-            if (isDisable || (now >= start && now <= end)) {
+            if (isDisable && (now >= start && now <= end)) {
                 return true
             }
             return false;
