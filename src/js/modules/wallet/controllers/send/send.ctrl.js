@@ -41,6 +41,21 @@
             zeroConf: false
         };
 
+        function isInitialDisableSendInput() {
+            if (walletData.networkType !== 'BCC') {
+                return false;
+            }
+
+            var isDisable = CONFIG.NETWORKS[walletData.networkType].DISABLE_SEND;
+            var start = CONFIG.NETWORKS[walletData.networkType].DISABLE_SEND_START;
+            var end = CONFIG.NETWORKS[walletData.networkType].DISABLE_SEND_END;
+            var now = Math.round(new Date().getTime() / 1000);
+            if (isDisable || (now >= start && now <= end)) {
+                return true
+            }
+            return false;
+        }
+
         $scope.sendInput = {
             recipientAddress: "",
             referenceMessage: "",
@@ -48,8 +63,8 @@
             amount: "",
             feeChoice: $scope.OPTIMAL_FEE,
             // inputDisabled: false,// For BCH FORKING---
-            inputDisabled: walletData.networkType === 'BCC' ? true : false,// For BCH FORKING
-            isForking: walletData.networkType === 'BCC' ? true : false// For BCH FORKING
+            inputDisabled: isInitialDisableSendInput(),// For BCH FORKING
+            isForking: isInitialDisableSendInput()// For BCH FORKING
         };
 
         $scope.fees = {
@@ -591,7 +606,7 @@
                 amount: "",
                 feeChoice: $scope.OPTIMAL_FEE,
                 // inputDisabled: false,//FOR BCH FORKING---
-                inputDisabled: walletData.networkType === 'BCC' ? true : false,//---FOR BCH FORKING
+                inputDisabled: isInitialDisableSendInput(),//---FOR BCH FORKING
             };
         }
 
