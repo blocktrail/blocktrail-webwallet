@@ -1,0 +1,26 @@
+<html>
+
+<head>
+    <script src="https://www.recaptcha.net/recaptcha/api.js?render=6LfXX8kUAAAAAJue_wsdXIuZmnNz7OrsFg86UlsJ"></script>
+    <script>
+        let l = function (e) {
+            if (e.data.a) {
+                grecaptcha.ready(function () {
+                    grecaptcha.execute('6LfXX8kUAAAAAJue_wsdXIuZmnNz7OrsFg86UlsJ', { action: 'homepage' }).then(function (token) {
+                        console.log('token:' + token);
+                        document.getElementById('token').innerHTML = token;
+                        window.token = token
+                        e.source.postMessage({'token':token}, '*');
+                    });
+                });
+            }
+        }
+        window.addEventListener('message', l, false)
+    </script>
+</head>
+
+<body>
+    <div id='token'></div>
+</body>
+
+</html>
