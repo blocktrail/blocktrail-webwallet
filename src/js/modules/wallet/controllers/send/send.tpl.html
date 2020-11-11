@@ -111,7 +111,7 @@
             </div>
         </div>
 
-        <div class="row">
+        <div class="row" ng-show="!sendInput.isForking">
             <div class="col-xs-12">
                 <div class="form-group form-group-lg form-slim">
                     <label class="control-label">{{ 'TRANSACTION_FEES' | translate }}</label>
@@ -273,6 +273,15 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+         <div class="row" ng-show="sendInput.isForking">
+            <div class="col-xs-12 alert alert-warning">
+                <div>
+                    <b>
+                         <p><i class="bticon bticon-warning-empty"></i> Due to wallet maintenance, deposits and withdrawals of the BCH will be suspended effective immediately for about 2 hours from 15:00, November 11th, 2020—17:00, November 11th, 2020 (UTC+8).If the user uses the wallet address to receive the BCH during maintenance, the change in balance will be shown after the service is restored.We apologize for any inconvenience caused. Your understanding is highly appreciated.</p>
+                    </b>
                 </div>
             </div>
         </div>
