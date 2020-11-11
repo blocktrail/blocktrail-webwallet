@@ -1,12 +1,12 @@
-(function() {
+(function () {
     "use strict";
 
     angular.module("blocktrail.wallet")
         .controller("SendCtrl", SendCtrl);
 
     function SendCtrl($scope, $state, $rootScope, $translate, $log, $modal, bitcoinJS, CurrencyConverter, Currencies, activeWallet,
-                      dialogService, $q, launchService, CONFIG, settingsService, $stateParams, walletsManagerService,
-                      NotificationsService, bitcoinLinkService) {
+        dialogService, $q, launchService, CONFIG, settingsService, $stateParams, walletsManagerService,
+        NotificationsService, bitcoinLinkService) {
 
         var walletData = activeWallet.getReadOnlyWalletData();
         var settingsData = settingsService.getReadOnlySettingsData();
@@ -47,7 +47,9 @@
             pin: null,
             amount: "",
             feeChoice: $scope.OPTIMAL_FEE,
-            inputDisabled: false
+            // inputDisabled: false,// For BCH FORKING---
+            inputDisabled: walletData.networkType === 'BCC' ? true : false,// For BCH FORKING
+            isForking: walletData.networkType === 'BCC' ? true : false// For BCH FORKING
         };
 
         $scope.fees = {
@@ -72,7 +74,7 @@
         $scope.currencyType = null;
         $scope.altCurrency = {};
 
-        $scope.$on("enabled_currency", function() {
+        $scope.$on("enabled_currency", function () {
             updateCurrentType($scope.currencyType);
         });
 
@@ -114,10 +116,10 @@
                 title: $translate.instant("BIP70_PASTE_TITLE", { network: CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG })
             })
                 .result
-                .then(function(result) {
+                .then(function (result) {
                     return bitcoinLinkService.parse(result)
                         .then(function (sendInput) {
-                            handleBitcoinPaymentScheme({sendInput: sendInput});
+                            handleBitcoinPaymentScheme({ sendInput: sendInput });
                         }).catch(function (e) {
                             return dialogService.alert(
                                 $translate.instant('ERROR_TITLE_3'),
@@ -144,7 +146,7 @@
             }
             console.log("handle uri scheme");
 
-            if(scheme.sendInput) {
+            if (scheme.sendInput) {
                 // Open send in correct wallet network
                 if (scheme.sendInput.network === "bitcoin" || scheme.sendInput.network === "bitcoincash") {
                     if (scheme.sendInput.network === "bitcoin" && walletData.networkType === "BCC") {
@@ -207,12 +209,12 @@
             $scope.currencies = Currencies.getCurrencies();
 
             // filter out crypto currencies that are not current
-            $scope.currencies = $scope.currencies.filter(function(currency) {
+            $scope.currencies = $scope.currencies.filter(function (currency) {
                 return currency.isFiat || currency.code === nativeCurrency;
             });
 
             // filter out selected currency
-            $scope.currencies = $scope.currencies.filter(function(currency) {
+            $scope.currencies = $scope.currencies.filter(function (currency) {
                 return currency.code !== currencyType;
             });
 
@@ -249,7 +251,7 @@
                     activeWallet.getSdkWallet().maxSpendable($scope.useZeroConf, blocktrailSDK.Wallet.FEE_STRATEGY_OPTIMAL),
                     activeWallet.getSdkWallet().maxSpendable($scope.useZeroConf, blocktrailSDK.Wallet.FEE_STRATEGY_LOW_PRIORITY),
                     activeWallet.getSdkWallet().maxSpendable($scope.useZeroConf, blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE)
-                ]).then(function(results) {
+                ]).then(function (results) {
                     // set the local stored value
                     maxSpendable = {};
                     maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_HIGH_PRIORITY] = results[0];
@@ -286,7 +288,7 @@
                     _resolveFeeByPriority(payParams, blocktrailSDK.Wallet.FEE_STRATEGY_OPTIMAL),
                     _resolveFeeByPriority(payParams, blocktrailSDK.Wallet.FEE_STRATEGY_LOW_PRIORITY),
                     _resolveFeeByPriority(payParams, blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE)
-                ]).then(function(results) {
+                ]).then(function (results) {
                     // set the local stored value
                     minSpendable = {};
                     minSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_HIGH_PRIORITY] = results[0];
@@ -313,7 +315,7 @@
             return activeWallet
                 .getSdkWallet()
                 .coinSelection(payParams, false, $scope.useZeroConf, priority)
-                .spread(function(utxos, fee, change, res) {
+                .spread(function (utxos, fee, change, res) {
                     return fee;
                 })
         }
@@ -384,7 +386,7 @@
                 activeWallet
                     .getSdkWallet()
                     .coinSelection(localPay, false, $scope.useZeroConf, blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE)
-                    .spread(function(utxos, fee, change, res) {
+                    .spread(function (utxos, fee, change, res) {
                         $log.debug("minRelayFee fee: " + fee);
 
                         $scope.prioboost.estSize = res.size;
@@ -396,14 +398,14 @@
                         return fee;
                     })
             ])
-                .catch(function(e) {
+                .catch(function (e) {
                     // when we get a fee error we use minspendable or maxspendable fee
                     if (
                         e instanceof blocktrail.WalletFeeError ||
                         e instanceof blocktrail.WalletSendError
                     ) {
                         return getMinSpendable(localPay)
-                            .then(function(minSpendable) {
+                            .then(function (minSpendable) {
                                 var lowPriorityFee = minSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_LOW_PRIORITY];
                                 var optimalFee = minSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_OPTIMAL];
                                 var highPriorityFee = minSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_HIGH_PRIORITY];
@@ -417,14 +419,14 @@
                         e.message === "Due to additional transaction fee it's not possible to send selected amount"
                     ) {
                         return getMaxSpendable()
-                            .then(function(maxSpendable) {
+                            .then(function (maxSpendable) {
                                 var lowPriorityFee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_LOW_PRIORITY].fee;
                                 var optimalFee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_OPTIMAL].fee;
                                 var highPriorityFee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_HIGH_PRIORITY].fee;
                                 var minRelayFee = maxSpendable[blocktrailSDK.Wallet.FEE_STRATEGY_MIN_RELAY_FEE].fee;
                                 $log.debug("minRelayFee fee MAXSPENDABLE: " + minRelayFee);
                                 _applyFeeResult([lowPriorityFee, optimalFee, highPriorityFee, minRelayFee])
-                                 throw e;
+                                throw e;
                             });
                     } else {
                         throw e;
@@ -432,7 +434,7 @@
                 })
                 .then(function (res) {
                     return _applyFeeResult(res);
-                }, function(e) {
+                }, function (e) {
                     $log.debug("fetchFee ERR " + e);
                 });
         }
@@ -458,13 +460,18 @@
          * On submit form send
          */
         function onSubmitFormSend() {
+            // For BCH FORKING---
+            if (walletData.networkType === 'BCC') {
+                return false;
+            }
+
             $scope.isLoading = true;
 
             return $scope
                 .fetchFee()
                 .then(validateData)
                 .then(
-                    function(sendAmount) {
+                    function (sendAmount) {
                         $scope.isLoading = false;
 
                         $modal.open({
@@ -473,10 +480,10 @@
                             size: "md",
                             backdrop: "static",
                             resolve: {
-                                activeWallet: function() {
+                                activeWallet: function () {
                                     return activeWallet;
                                 },
-                                sendData: function() {
+                                sendData: function () {
                                     return {
                                         feeChoice: $scope.sendInput.feeChoice,
                                         recipientAddress: $scope.sendInput.recipientAddress,
@@ -488,7 +495,7 @@
                             }
                         });
                     },
-                    function() {
+                    function () {
                         $scope.isLoading = false;
                     });
         }
@@ -552,10 +559,10 @@
             if (isValid) {
                 return activeWallet
                     .validateAddress($scope.sendInput.recipientAddress)
-                    .then(function() {
+                    .then(function () {
                         return sendAmount;
                     })
-                    .catch(function() {
+                    .catch(function () {
                         $scope.errors.recipient = "MSG_INVALID_RECIPIENT";
                         return $q.reject();
                     });
@@ -576,14 +583,15 @@
         /**
          * Clear recipient
          */
-        $scope.clearRecipient = function() {
+        $scope.clearRecipient = function () {
             $scope.sendInput = {
                 recipientAddress: "",
                 referenceMessage: "",
                 pin: null,
                 amount: "",
                 feeChoice: $scope.OPTIMAL_FEE,
-                inputDisabled: false
+                // inputDisabled: false,//FOR BCH FORKING---
+                inputDisabled: walletData.networkType === 'BCC' ? true : false,//---FOR BCH FORKING
             };
         }
 
