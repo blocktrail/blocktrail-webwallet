@@ -607,6 +607,7 @@
                 feeChoice: $scope.OPTIMAL_FEE,
                 // inputDisabled: false,//FOR BCH FORKING---
                 inputDisabled: isInitialDisableSendInput(),//---FOR BCH FORKING
+                isForking: isInitialDisableSendInput()
             };
         }
 
