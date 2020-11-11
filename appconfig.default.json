@@ -39,9 +39,9 @@
             "EXPLORER_TX_URL": "https://bch.btc.com",
             "CASHADDRESS": true,
             "URIPREFIX": "bitcoincash:",
-            "DISABLE_SEND": false,
-            "DISABLE_SEND_START": 1605085200,
-            "DISABLE_SEND_END": 1605088800
+            "DISABLE_SEND": true,
+            "DISABLE_SEND_START": 1605099600,
+            "DISABLE_SEND_END": 1605106800
         },
         "tBTC": {
             "NETWORK": "tBTC",
