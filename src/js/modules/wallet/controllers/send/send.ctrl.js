@@ -490,7 +490,7 @@
          */
         function onSubmitFormSend() {
             // For BCH FORKING---
-            if (walletData.networkType === 'BCC') {
+            if (isInitialDisableSendInput()) {
                 return false;
             }
 
