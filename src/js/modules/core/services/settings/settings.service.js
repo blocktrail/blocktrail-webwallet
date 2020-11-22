@@ -50,6 +50,7 @@
             hideBCCSweepWarning: false,
             hideBCCForkWarning: true,
             hideBSVReplayWarning: false,
+            hideBCHAReplayWarning: false,
 
             simplexLastForward: null,
             simplexLastForwardDelta: 30, // 30 seconds
