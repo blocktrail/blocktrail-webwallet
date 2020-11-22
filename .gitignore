@@ -14,3 +14,5 @@ src/fontello/*
 !src/fontello/config.json
 !src/fontello/css/fontello.scss
 /.idea/
+package-lock.json
+
