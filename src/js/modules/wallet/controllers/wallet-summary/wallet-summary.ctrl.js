@@ -21,6 +21,7 @@
         $scope.showBCCSweepWarning = false;
         $scope.showBCCForkWarning = false;
         $scope.showBSVRecoveryWarning = false;
+        $scope.showBCHARecoveryWarning = false;
         $scope.lastDateHeader = lastDateHeader;
         $scope.buybtcPendingOrders = []; // Glidera transactions
         $scope.transactionsListLimit = transactionsListLimitStep;
@@ -49,6 +50,7 @@
 
         if ($scope.walletData.networkType === "BCC") {
             activeWallet.isReady.then(function() {
+                $scope.showBCHARecoveryWarning = !$scope.settings.hideBCHAReplayWarning;
                 $scope.showBSVRecoveryWarning = !$scope.settings.hideBSVReplayWarning;
                 $scope.showBCCForkWarning = !$scope.settings.hideBCCForkWarning;
                 $scope.showBCCSweepWarning = !$scope.walletData.transactions.length && !$scope.settings.hideBCCSweepWarning;
