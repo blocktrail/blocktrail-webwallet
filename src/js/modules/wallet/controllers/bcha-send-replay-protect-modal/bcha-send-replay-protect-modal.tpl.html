@@ -1,0 +1,125 @@
+<form class="form" name="sendInputForm" novalidate ng-submit="submit(sendInputForm)">
+    <div class="modal-header">
+        <h3 class="modal-title">BCH REPLAY PROTECTION</h3>
+    </div>
+
+    <div class="modal-body">
+
+        <div ng-if="!complete">
+            <div class="alert alert-danger margin-t">
+                <div class="sentence-case">
+                    <b class="uppercase">
+                        Important information:
+                    </b>
+                    <span class="sentence-case">
+                        You are about to send your full BCH wallet balance back to yourself. This is safe, and your funds will remain in your wallet as a new transaction. You should do this in order safely split your BCH and BCHA coins.
+                    </span>
+                    <br/>
+                    <span class="sentence-case">
+                        <b>You only need to do this process once</b>. To read more about this visit our <a href="https://blog.btc.com/btc-com-wallet-offers-replay-protection-and-bcha-extraction-tool-6d7e027bb303" target="_blank">blog</a>.
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div ng-if="error" class="has-error" style="padding-left: 5px;">
+            <div class="help-block sentence-case">
+                {{ error | translate }}
+            </div>
+            <div ng-if="detailedError" class="help-block sentence-case">
+                {{ detailedError | translate }}
+            </div>
+        </div>
+
+        <div class="iit-10" ng-show="!working && !complete">
+
+            <div class="form-group form-group-lg" ng-class="{'has-error': sendInputForm.password.$dirty && sendInputForm.password.$invalid}">
+                <input class="form-control" type="password" placeholder="{{ 'WALLET_PASSWORD' | translate }}"
+                       name="password"
+                       ng-model="form.password"
+                       required="true"
+                       caps-on="passwordCapsLockOn"
+                       autocomplete="off"
+                />
+                <div class="help-block"
+                     ng-if="sendInputForm.password.$dirty && sendInputForm.password.$invalid">
+                    <div ng-if="sendInputForm.password.$error.required">{{ 'MSG_MISSING_PASSWORD' | translate }}</div>
+                    <div ng-if="sendInputForm.password.$error.invalid">
+                        {{ 'MSG_BAD_PASSWORD' | translate }}<span ng-if="passwordCapsLockOn">. {{ 'MSG_INCORRECT_PASSWORD_CAPS_ON' | translate }}</span>
+                    </div>
+                </div>
+
+                <div class="help-block" ng-if="!sendInputForm.password.$dirty && !sendInputForm.password.$invalid">
+                    {{ 'WALLET_PASSWORD' | translate }}
+                </div>
+
+            </div>
+
+            <div ng-show="sendData.requires2FA" class="form-group form-group-lg" ng-class="{'has-error': sendInputForm.two_factor_token.$dirty && sendInputForm.two_factor_token.$invalid}">
+                <label class="control-label">{{ 'TWO_FACTOR_TOKEN' | translate }}</label>
+                <input class="form-control" type="text" placeholder="{{ 'TWO_FACTOR_TOKEN' | translate }}"
+                       name="two_factor_token"
+                       ng-model="form.two_factor_token"
+                       ng-required="sendData.requires2FA"
+                       autocomplete="off"
+                />
+                <div class="help-block"
+                     ng-if="sendInputForm.two_factor_token.$dirty && sendInputForm.two_factor_token.$invalid">
+                    <div ng-if="sendInputForm.two_factor_token.$error.required">{{ 'MSG_MISSING_TWO_FACTOR_TOKEN' | translate }}</div>
+                    <div ng-if="sendInputForm.two_factor_token.$error.invalid">{{ 'MSG_INCORRECT_TWO_FACTOR_TOKEN' | translate }}</div>
+                </div>
+                <div class="help-block"
+                     ng-if="!sendInputForm.two_factor_token.$dirty || !sendInputForm.two_factor_token.$invalid">
+                    {{ 'TWO_FACTOR_TOKEN_DESC' | translate }}
+                </div>
+            </div>
+        </div>
+
+        <div ng-if="working && !complete">
+            <div class="progress">
+                <div class="progress-bar progress-bar-striped active"
+                     ng-class="{
+                         'progress-bar-warning': walletData.networkType == 'BTC',
+                         'progress-bar-success': walletData.networkType != 'BTC'
+                      }"
+                     role="progressbar"
+                     aria-valuenow="0"
+                     aria-valuemin="0"
+                     aria-valuemax="100"
+                     style="width: {{progressWidth}}%;">
+                </div>
+            </div>
+            <h4 class="text-center">{{ 'MSG_SENDING' | translate }}</h4>
+        </div>
+
+        <div ng-if="!working && complete">
+            <div class="text-center">
+                <span class="bticon bticon-ok transaction-ok"></span>
+            </div>
+            <div class="text-center">
+                <a href="https://bcha-recovery.btc.com/#?id={{identifier}}" class="btn btn-success">
+                    Continue to BCHA recovery
+                </a>
+            </div>
+
+        </div>
+    </div>
+    <div class="modal-footer">
+
+        <div class="row" ng-if="!complete">
+            <div class="col-xs-5 text-left">
+                <div class="sentence-case help-block" ng-if="fee !== false" style="margin-top:10px;margin-bottom:0px;">
+                    {{ 'ESITIMATED_FEE' | translate }}
+                    <span ng-if="!fee">
+                        <loading-spinner style="display: inline-block;" ng-if="!fee"></loading-spinner>
+                    </span>
+                    <span ng-if="fee">{{ fee | satoshiToCoin : walletData.networkType }}</span>
+                </div>
+            </div>
+            <div class="col-xs-7">
+                <a ng-if="!complete && !working" class="btn btn-alt btn-danger" ng-click="dismiss()" ng-href>{{ 'CANCEL' | translate }}</a>
+                <input type="submit" class="btn btn-alt" ng-class="{'btn-success': !complete && !working, 'btn-default': !working && complete}" value="{{ 'OK' | translate }}" />
+            </div>
+        </div>
+    </div>
+</form>
