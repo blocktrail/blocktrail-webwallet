@@ -73,14 +73,14 @@
         function decryptSecretMnemonicWithPassword(encryptedSecretMnemonic, password) {
             var eV3;
 
-            /*try {
+            try {
                 return [decryptSecretMnemonicWithPasswordV3(encryptedSecretMnemonic, password), blocktrailSDK.Wallet.WALLET_VERSION_V3];
             } catch (_eV3) {
                 console.log('decryptSecretMnemonicWithPasswordV3 ERR', _eV3);
                 eV3 = _eV3;
-            }*/
+            }
 
-            try {
+            /*try {
                 return [decryptSecretMnemonicWithPasswordV3(encryptedSecretMnemonic, password), blocktrailSDK.Wallet.WALLET_VERSION_V3];
             } catch (_eV3) {
                 console.log('decryptSecretMnemonicWithPasswordV3 ERR', _eV3);
@@ -91,7 +91,7 @@
                 } catch (_eV2) {
                     console.log('decryptSecretMnemonicWithPasswordV2 ERR', _eV2);
                 }
-            }
+            }*/
 
             throw new Error("Failed to decrypt; v3=" + eV3);
         }
