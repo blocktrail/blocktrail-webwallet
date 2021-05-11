@@ -140,6 +140,7 @@
                         $scope.encryptNewERS();
                     });
                 } else {
+                    console.log("before encrypted data, the walletVersion:",walletVersion);
                     // Encrypt secret with new Password, generate mnemonic and password hash
                     var encryptedData = passwordRecoveryService.encryptSecretWithPassword(secret, $scope.form.newPassword, walletVersion);
 
@@ -220,9 +221,13 @@
 
                         // Try decrypting
                         try {
+                            console.log("before decrypt, the walletBersion:",walletVersion);
                             var decrypt = passwordRecoveryService.decryptSecretMnemonicWithPassword(encryptedRecoverySecretMnemonic, recoverySecret, walletVersion);
                             secret = decrypt[0];
                             var decryptVersion = decrypt[1];
+                            walletVersion = decryptVersion;
+                            console.log("decryptSecretMnemonicWithPassword secret:",secret);
+                            console.log("after decrypt, the walletBersion:",walletVersion);
                         } catch (e) {
                             $log.error(e, e.message);
                             $scope.working = false;

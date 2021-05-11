@@ -185,6 +185,7 @@
                             })
                             ;
                     } else if (error.message.match(/password/) || error instanceof blocktrailSDK.WalletDecryptError) {
+                        console.log("wallet init failed, error:",error);
                         // wallet exists but with different password
                         $log.debug("wallet with identifier [" + $scope.setupInfo.identifier + "] already exists, prompting for old password");
 
