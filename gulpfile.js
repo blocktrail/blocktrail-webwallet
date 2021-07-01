@@ -20,6 +20,7 @@ var fontello = require('gulp-fontello');
 var del = require('del');
 var html2js = require('gulp-html2js');
 var KarmaServer = require('karma').Server;
+var babel = require('gulp-babel');
 
 var readAppConfig = require('./gulp/readappconfig');
 var buildAppConfig = require('./gulp/buildappconfig');
@@ -175,6 +176,8 @@ gulp.task('js:libs', ['appconfig'], function() {
                 mangle: {
                     except: DONT_MANGLE
                 }
+            }).on('error', function(e){
+                console.log(e);
             })))
             .pipe(sourcemaps.write('./'))
             .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
@@ -207,6 +210,8 @@ gulp.task('js:app', ['appconfig'], function() {
                 mangle: {
                     except: DONT_MANGLE
                 }
+            }).on('error', function(e){
+                console.log(e);
             })))
             .pipe(sourcemaps.write('./'))
             .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
@@ -221,11 +226,16 @@ gulp.task('js:sdk', ['appconfig'], function() {
                 "./src/lib/blocktrail-sdk/build/blocktrail-sdk-full.js"
             ])
                 .pipe(concat('sdk.js'))
+                .pipe(babel({
+                      presets: ['env']
+                }))
                 .pipe(sourcemaps.init({largeFile: true}))
                 .pipe(gulpif(APPCONFIG.MINIFY, uglify({
                     mangle: {
                         except: DONT_MANGLE
                     }
+                }).on('error', function(e){
+                    console.log(e);
                 })))
                 .pipe(sourcemaps.write('./'))
                 .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
@@ -317,7 +327,9 @@ gulp.task('js:zxcvbn', ['appconfig'], function() {
             "./src/lib/zxcvbn/dist/zxcvbn.js"
         ])
             .pipe(concat('zxcvbn.js'))
-            .pipe(gulpif(APPCONFIG.MINIFY, uglify()))
+            .pipe(gulpif(APPCONFIG.MINIFY, uglify().on('error', function(e){
+                console.log(e);
+            })))
             .pipe(gulp.dest('./www/' + APPCONFIG.STATICSDIR + '/js/'))
         );
     });
