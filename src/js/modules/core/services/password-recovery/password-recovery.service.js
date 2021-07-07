@@ -32,9 +32,6 @@
             var newPasswordHash;
             var newPasswordBuffer = null;
 
-            console.log("encryptSecretWithPassword secret:",secret);
-            console.log("encryptSecretWithPassword password:",password);
-            console.log("Starting encryptSecretWithPassword, the wallet version:",walletVersion);
             if (walletVersion === blocktrailSDK.Wallet.WALLET_VERSION_V2) {
                 newEncryptedSecret = cryptoJS.AES.encrypt(secret.toString(), password).toString(cryptoJS.format.OpenSSL);
                 newEncryptedSecretMnemonic = blocktrailSDK.bip39.entropyToMnemonic(blocktrailSDK.convert(newEncryptedSecret, 'base64', 'hex'));
@@ -42,7 +39,7 @@
                 if (!(typeof password === "string")) {
                     throw new Error('New password must be provided as a string');
                 }
-
+                console.log('try encrypt secret with password...');
                 newPasswordBuffer = new blocktrailSDK.Buffer(password);
                 newEncryptedSecret = blocktrailSDK.Encryption.encrypt(secret, newPasswordBuffer);
                 newEncryptedSecretMnemonic = blocktrailSDK.EncryptionMnemonic.encode(newEncryptedSecret);
@@ -76,23 +73,16 @@
         function decryptSecretMnemonicWithPassword(encryptedSecretMnemonic, password, walletVersion) {
             var eV3;
 
-            /*try {
-                return [decryptSecretMnemonicWithPasswordV3(encryptedSecretMnemonic, password), blocktrailSDK.Wallet.WALLET_VERSION_V3];
-            } catch (_eV3) {
-                console.log('decryptSecretMnemonicWithPasswordV3 ERR', _eV3);
-                eV3 = _eV3;
-            }*/
-
             try {
                 return [decryptSecretMnemonicWithPasswordV3(encryptedSecretMnemonic, password), blocktrailSDK.Wallet.WALLET_VERSION_V3];
             } catch (_eV3) {
-                console.log('decryptSecretMnemonicWithPasswordV3 ERR', _eV3);
+                console.log('Decrypt Secret Mnemonic With Password V3 Failed', _eV3);
                 eV3 = _eV3;
-                console.log('try decryptSecretMnemonicWithPasswordV2...');
+                console.log('Try Decrypt Secret Mnemonic With Password V2...');
                 try {
                     return [decryptSecretMnemonicWithPasswordV2(encryptedSecretMnemonic, password), blocktrailSDK.Wallet.WALLET_VERSION_V2];
                 } catch (_eV2) {
-                    console.log('decryptSecretMnemonicWithPasswordV2 ERR', _eV2);
+                    console.log('Decrypt Secret Mnemonic With Password V2 Failed', _eV2);
                 }
             }
 

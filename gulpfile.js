@@ -227,7 +227,10 @@ gulp.task('js:sdk', ['appconfig'], function() {
             ])
                 .pipe(concat('sdk.js'))
                 .pipe(babel({
-                      presets: ['env']
+                    presets: [
+                        "@babel/preset-env",
+                    ],
+                    compact: false
                 }))
                 .pipe(sourcemaps.init({largeFile: true}))
                 .pipe(gulpif(APPCONFIG.MINIFY, uglify({
