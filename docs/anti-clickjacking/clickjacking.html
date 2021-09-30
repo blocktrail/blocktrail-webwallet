@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ClickJacking Test</title>
+</head>
+<body>
+    <style>
+        iframe {
+            width: 400px;
+            height: 100px;
+            position: absolute;
+            top: 5px;
+            left: -14px;
+            opacity: 0.5;
+            z-index: 1;
+        }
+    </style>
+
+    <div>Test Click now:</div>
+
+    <!-- The url from the our site -->
+    <iframe src="http://localhost:3000/index.html"></iframe>
+
+    <button>Click here!</button>
+
+    <div>...And you're cool (I'm a cool hacker actually)!</div>
+</body>
+</html>
