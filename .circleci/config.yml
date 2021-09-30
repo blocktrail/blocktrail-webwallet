@@ -36,7 +36,7 @@ jobs:
       - run: npm install gulp
       - run: npm install
       - run: gulp
-      - run: sudo apt install python-pip python-dev -y;sudo pip install awscli
+      - run: sudo apt install python-pip python-dev -y;sudo pip install awscli==1.19.46
       - run:
           name: sync to aws
           command: |
@@ -81,7 +81,7 @@ jobs:
       - run: npm install gulp
       - run: npm install
       - run: gulp
-      - run: sudo apt install python-pip python-dev -y;sudo pip install awscli
+      - run: sudo apt install python-pip python-dev -y;sudo pip install awscli==1.19.46
       - run:
           name: sync to aws
           command: |
@@ -95,7 +95,7 @@ workflows:
       - dev-build:
           filters:
             branches:
-              only: dev
+              only: develop
 
       - prod-build:
           filters:
