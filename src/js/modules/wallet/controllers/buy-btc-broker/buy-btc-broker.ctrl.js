@@ -9,8 +9,9 @@
                               $stateParams, $q, $timeout, $interval, $translate, $filter, trackingService, NotificationsService) {
         var walletData = activeWallet.getReadOnlyWalletData();
 
+        $scope.network = CONFIG.NETWORKS[walletData.networkType].TICKER;
         $scope.networkLong = CONFIG.NETWORKS[walletData.networkType.replace("t", "")].NETWORK_LONG;
-        $rootScope.pageTitle = $translate.instant("BUYBTC_NETWORK", { network: $scope.networkLong });
+        $rootScope.pageTitle = $translate.instant("BUYBTC_NETWORK", { network: $scope.network });
 
         $scope.broker = $stateParams.broker;
         $scope.brokerNotExistent = false;
@@ -19,6 +20,7 @@
         $scope.fetchingMainPrice = true;
         $scope.priceBTC = null;
         $scope.fetchingInputPrice = false;
+        $scope.amount = null;
         $scope.fiatFirst = false;
         $scope.buyInput = {
             currencyType: null,
@@ -126,7 +128,16 @@
                 return null;
             }
 
-            return fetchBrokerService().buyPrices(1, null, $scope.buyInput.fiatCurrency, false, true).then(function(result) {
+            switch ($scope.network) {
+                case "BTC":
+                    $scope.amount = 0.1;
+                    break;
+                case "BCH":
+                    $scope.amount = 1;
+                    break;
+            }
+
+            return fetchBrokerService().buyPrices($scope.amount, null, $scope.buyInput.fiatCurrency, false, true).then(function(result) {
                 $scope.priceBTC = result.total;
                 $scope.fetchingMainPrice = false;
             }).catch(function (e) {

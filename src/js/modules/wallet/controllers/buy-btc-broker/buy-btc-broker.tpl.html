@@ -30,7 +30,7 @@
                                         <loading-spinner></loading-spinner>
                                     </div>
                                     <div ng-if="!fetchingMainPrice" class="currentprice-value">
-                                        <b>{{ buyInput.fiatCurrency | toCurrencySymbol }}{{ priceBTC | number:2 }}</b>
+                                        <b>{{ buyInput.fiatCurrency | toCurrencySymbol }}{{ priceBTC | number:2 }}  /  {{ amount }} {{ network }}</b>
                                     </div>
                                 </div>
                             </div>
