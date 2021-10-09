@@ -27,7 +27,7 @@
             });
         });
 
-        $rootScope.pageTitle = $translate.instant("BUYBTC_NETWORK", { network: $scope.networkLong });
+        $rootScope.pageTitle = $translate.instant("BUYBTC_NETWORK", { network: $scope.network });
 
         $scope.goBuyBTCState = function(broker) {
             $state.go("app.wallet.buybtc.buy", {broker: broker});
