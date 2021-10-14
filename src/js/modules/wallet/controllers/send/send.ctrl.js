@@ -25,6 +25,8 @@
 
         $scope.settings = settingsData;
 
+        $scope.networkLong = CONFIG.NETWORKS[walletData.networkType].NETWORK_LONG;
+
         //$scope.fiatFirst = false;
         $scope.HIGH_PRIORITY_FEE = "high_priority";
         $scope.OPTIMAL_FEE = "optimal";
