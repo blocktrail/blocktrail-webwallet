@@ -28,7 +28,7 @@
         $scope.isPageLoading = false;
         $scope.checkOnlyUsed = false;
         $scope.checkOnlyLabeled = false;
-        $scope.searchSortOrder = 'asc';
+        $scope.searchSortOrder = 'desc';
 
         $scope.alert = dialogService.alertSingleton();
 
