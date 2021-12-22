@@ -7,6 +7,9 @@
     "FORCE_GLIDERA_ENABLED": false,
     "FORCE_SIMPLEX_ENABLED": false,
 
+    // buy BTC service brokers
+    "SUPPORTED_BROKERS": ["glidera", "simplex"],
+
     // @deprecated
     // until we have a cleaner solution for the API endpoints, should either by BTC or tBTC
     "API_NETWORK": "BTC",
@@ -20,7 +23,7 @@
             "TICKER": "BTC",
             "TICKER_LONG": "Bitcoin",
             "TX_FILTER_MIN_BLOCK_HEIGHT": null,
-            "BUYBTC": true,
+            "BUYBTC": false,
             "PRIOBOOST": false,
             "EXPLORER_ADDRESS_URL": "https://btc.com",
             "EXPLORER_TX_URL": "https://btc.com",
@@ -33,7 +36,7 @@
             "TICKER": "BCH",
             "TICKER_LONG": "Bitcoin Cash",
             "TX_FILTER_MIN_BLOCK_HEIGHT": 478559,
-            "BUYBTC": true,
+            "BUYBTC": false,
             "PRIOBOOST": false,
             "EXPLORER_ADDRESS_URL": "https://bch.btc.com",
             "EXPLORER_TX_URL": "https://bch.btc.com",
