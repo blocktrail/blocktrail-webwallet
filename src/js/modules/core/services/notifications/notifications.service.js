@@ -79,11 +79,14 @@
         function isChrome() {
             return navigator.userAgent.match(/Chrome\/\d+/) !== null;
         }
-         function announcementPromit(){
+         function announcementPromit(timer){
+           var currentDate = Date.now()
            if(!localStorage.getItem('date')){
-            localStorage.setItem('date',Date.now())
+            localStorage.setItem('date',currentDate)
            }
-           if(Date.now() - localStorage.getItem('date') >= 4*1000*60*60){
+
+           if((currentDate - localStorage.getItem('date') >= 4*1000*60*60) || currentDate===Number(localStorage.getItem('date'))){
+            console.log(4*1000*60*60 - currentDate + localStorage.getItem('date'),2222)
             dialogService.alert(
               {
                 title: $translate.instant('WALL_ANNOUNCEMENT_DIALOG'),
@@ -98,7 +101,10 @@
            })
            }
            else{
-             setTimeout(function(){
+             console.log(4*1000*60*60 -(Date.now() - localStorage.getItem('date')),1111)
+             clearTimeout(localStorage.getItem('timer'))
+             const timer=setTimeout(function(){
+               
               dialogService.alert(
                 {
                   title: $translate.instant('WALL_ANNOUNCEMENT_DIALOG'),
@@ -111,7 +117,8 @@
                 announcementPromit()
              },4*1000*60*60)
              })
-             },Date.now() - localStorage.getItem('date'))
+             }, 4*1000*60*60 -(currentDate - localStorage.getItem('date')))
+             localStorage.setItem('timer',timer)
            }
             
             
