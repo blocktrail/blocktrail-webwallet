@@ -34,6 +34,14 @@
                     preferredLanguage: preferredLanguage
                 }
             })
+            .state("app.announcement", {
+              url: "/announcement",
+              cache: false,
+              templateUrl: "js/modules/setup/controllers/announcement/announcement.tpl.html",
+              resolve: {
+                  preferredLanguage: preferredLanguage
+              }
+            })
             .state("app.setup", {
                 url: "/setup",
                 abstract: true,

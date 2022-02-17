@@ -1,106 +1,134 @@
-<div
-        class="tx-list page-blur"
-        ng-class="{'page-blur-active': isLoading}"
->
-    <div ng-show="CONFIG.FORCE_POLLING_BUTTON"
-         ng-click="forcePolling()"
-         id="forcePolling"
-         style="position: absolute; top: 0px; right: 0px; z-index: 101; cursor: pointer;">
-        <i ng-class="{'animate-spin': isForcePolling}" class="bticon bticon-progress"></i>
-    </div>
-    <div class="wallet-alerts">
-        <app-two-factor-warning ng-show="isTwoFactorWarning"></app-two-factor-warning>
-        <app-bcc-sweep-warning ng-show="showBCCSweepWarning"></app-bcc-sweep-warning>
-        <app-bcc-fork-warning ng-show="showBCCForkWarning"></app-bcc-fork-warning>
-        <app-bsv-recovery-warning ng-show="showBSVRecoveryWarning"></app-bsv-recovery-warning> <!-- TODO cookie or otherwise -->
-        <app-bcha-recovery-warning ng-show="showBCHARecoveryWarning"></app-bcha-recovery-warning> <!-- TODO cookie or otherwise -->
-    </div>
+<div class="tx-list page-blur" ng-class="{'page-blur-active': isLoading}">
+  <div
+    ng-show="CONFIG.FORCE_POLLING_BUTTON"
+    ng-click="forcePolling()"
+    id="forcePolling"
+    style="
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      z-index: 101;
+      cursor: pointer;
+    "
+  >
+    <i
+      ng-class="{'animate-spin': isForcePolling}"
+      class="bticon bticon-progress"
+    ></i>
+  </div>
+  <div class="wallet-alerts">
+    <app-two-factor-warning
+      ng-show="isTwoFactorWarning"
+    ></app-two-factor-warning>
+    <app-bcc-sweep-warning
+      ng-show="showBCCSweepWarning"
+    ></app-bcc-sweep-warning>
+    <app-bcc-fork-warning ng-show="showBCCForkWarning"></app-bcc-fork-warning>
+    <!-- <app-bsv-recovery-warning ng-show="showBSVRecoveryWarning"></app-bsv-recovery-warning> 
+        <app-bcha-recovery-warning ng-show="showBCHARecoveryWarning"></app-bcha-recovery-warning>  -->
+  </div>
 
-    <!-- Transactions with an infinite scroll -->
-    <div infinite-scroll="onShowMoreTransactions()" infinite-scroll-container="'#app-body'" infinite-scroll-distance="0.15">
-        <div ng-if="buybtcPendingOrders.length > 0">
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="item-divider isFirst">
-                        <div class="date-group">
-                            {{ 'BUYBTC_PENDING_ORDERS' | translate }}
-                        </div>
-                    </div>
-                </div>
+  <!-- Transactions with an infinite scroll -->
+  <div
+    infinite-scroll="onShowMoreTransactions()"
+    infinite-scroll-container="'#app-body'"
+    infinite-scroll-distance="0.15"
+  >
+    <div ng-if="buybtcPendingOrders.length > 0">
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="item-divider isFirst">
+            <div class="date-group">
+              {{ 'BUYBTC_PENDING_ORDERS' | translate }}
             </div>
-
-            <div ng-repeat="buybtcPendingOrder in buybtcPendingOrders track by $index">
-                <div class="item-transaction item-buybtc-pending-order">
-                    <div class="row">
-                        <div class="col-xs-6">
-                            <div class="transaction-info">
-                                <div class="media">
-                                    <div class="media-left media-media">
-                                        <div class="display-token received">
-                                            <!-- Display avatar -->
-                                            <span
-                                                    class="avatar"
-                                                    ng-style="{'background-image':'url(data:image/jpeg;base64,{{ buybtcPendingOrder.avatarUrl }})'}"
-                                            ></span>
-                                        </div>
-                                    </div>
-                                    <div class="media-body media-top">
-                                        <div class="tx-type">
-                                            <span>{{ 'BUYBTC_PENDING_ORDER_FROM' | translate: {order: buybtcPendingOrder} }}</span>
-                                        </div>
-                                        <div class="timestamp">
-                                            {{ buybtcPendingOrder.time | amDateFormat: 'h:mm a' : 'unix' }} |
-                                            <span>{{ 'BUYBTC_PENDING_ORDER_SUBTITLE' | translate: {order: buybtcPendingOrder} }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xs-2 text-center">
-                            <div class="pending">
-                                <i class="bticon bticon-clock"></i><br/><em>{{ 'TX_INFO_PENDING' | translate}}</em>
-                            </div>
-                        </div>
-                        <div class="col-xs-4 text-right">
-                            <div class="value received">
-                                {{ buybtcPendingOrder.qty | satoshiToCoin : walletData.networkType }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
-        <!-- Transactions -->
-        <div ng-repeat="transaction in walletData.transactions | limitTo : transactionsListLimit : 0 track by transaction.hash">
-            <!-- Show date header -->
-            <div
-                    ng-if="isHeader(transaction)"
-                    ng-class="{ 'isFirst': $first }"
-            >
-                <div class="item-divider">
-                    <div class="date-group">
-                        {{ getTransactionHeader() | amCalendar }}
-                    </div>
-                </div>
-            </div>
+      </div>
 
-            <!-- Wallet transaction -->
-            <wallet-transaction
-                    wallet-data="walletData"
-                    transaction="transaction"
-                    on-show-transaction="onShowTransaction(transaction)"
-            ></wallet-transaction>
+      <div
+        ng-repeat="buybtcPendingOrder in buybtcPendingOrders track by $index"
+      >
+        <div class="item-transaction item-buybtc-pending-order">
+          <div class="row">
+            <div class="col-xs-6">
+              <div class="transaction-info">
+                <div class="media">
+                  <div class="media-left media-media">
+                    <div class="display-token received">
+                      <!-- Display avatar -->
+                      <span
+                        class="avatar"
+                        ng-style="{'background-image':'url(data:image/jpeg;base64,{{ buybtcPendingOrder.avatarUrl }})'}"
+                      ></span>
+                    </div>
+                  </div>
+                  <div class="media-body media-top">
+                    <div class="tx-type">
+                      <span
+                        >{{ 'BUYBTC_PENDING_ORDER_FROM' | translate: {order:
+                        buybtcPendingOrder} }}</span
+                      >
+                    </div>
+                    <div class="timestamp">
+                      {{ buybtcPendingOrder.time | amDateFormat: 'h:mm a' :
+                      'unix' }} |
+                      <span
+                        >{{ 'BUYBTC_PENDING_ORDER_SUBTITLE' | translate: {order:
+                        buybtcPendingOrder} }}</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-2 text-center">
+              <div class="pending">
+                <i class="bticon bticon-clock"></i><br /><em
+                  >{{ 'TX_INFO_PENDING' | translate}}</em
+                >
+              </div>
+            </div>
+            <div class="col-xs-4 text-right">
+              <div class="value received">
+                {{ buybtcPendingOrder.qty | satoshiToCoin :
+                walletData.networkType }}
+              </div>
+            </div>
+          </div>
         </div>
-        <!-- Wallet no transactions message -->
-        <wallet-no-transactions ng-show="!isLoading && !walletData.transactions.length"></wallet-no-transactions>
-        <!-- Wallet no more transaction message -->
-        <wallet-no-more-transactions ng-class="{ active: isShowNoMoreTransactions }"></wallet-no-more-transactions>
+      </div>
     </div>
-    <!-- Loader overlay -->
+    <!-- Transactions -->
     <div
-            class="page-loader"
-            ng-class="{'active': isLoading}"
+      ng-repeat="transaction in walletData.transactions | limitTo : transactionsListLimit : 0 track by transaction.hash"
     >
-        <loading-spinner></loading-spinner>
+      <!-- Show date header -->
+      <div ng-if="isHeader(transaction)" ng-class="{ 'isFirst': $first }">
+        <div class="item-divider">
+          <div class="date-group">
+            {{ getTransactionHeader() | amCalendar }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Wallet transaction -->
+      <wallet-transaction
+        wallet-data="walletData"
+        transaction="transaction"
+        on-show-transaction="onShowTransaction(transaction)"
+      ></wallet-transaction>
     </div>
+    <!-- Wallet no transactions message -->
+    <wallet-no-transactions
+      ng-show="!isLoading && !walletData.transactions.length"
+    ></wallet-no-transactions>
+    <!-- Wallet no more transaction message -->
+    <wallet-no-more-transactions
+      ng-class="{ active: isShowNoMoreTransactions }"
+    ></wallet-no-more-transactions>
+  </div>
+  <!-- Loader overlay -->
+  <div class="page-loader" ng-class="{'active': isLoading}">
+    <loading-spinner></loading-spinner>
+  </div>
 </div>
