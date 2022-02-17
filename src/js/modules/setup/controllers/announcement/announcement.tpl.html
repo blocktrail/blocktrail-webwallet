@@ -4,12 +4,13 @@
     <div class="announcementWrapper">
       <div class="announcementWrapper-title">{{'WALL_ANNOUNCEMENT_TITLE' | translate }}</div>
       <div class="announcementWrapper-date">{{'WALL_ANNOUNCEMENT_DATE' | translate }}</div>
-      <div style="text-align: left;margin-bottom:24px;">{{'WALL_ANNOUNCEMENT_BEGIN' | translate }}</div>
+      <div style="text-align: left;margin-top:40px;margin-bottom:24px;">{{'WALL_ANNOUNCEMENT_BEGIN' | translate }}</div>
       <p style="text-align: left;line-height:30px" ng-bind-html="'WALL_ANNOUNCEMENT_MAIN' | translate | nl2br"></p>
-      <div style="text-align: right;margin-top:54px;">{{'WALL_ANNOUNCEMENT_END' | translate }}</div>
+      <div style="text-align: right;margin-top:44px;">{{'WALL_ANNOUNCEMENT_END' | translate }}</div>
       <!-- <p>{{'LOGGED_OUT_CONFIRMATION_TEXT' | translate }}</p> -->
     </div>
+    <div ng-include="'templates/common/footer.html'"></div>
   </div>
 
-  <div ng-include="'templates/common/footer.html'"></div>
+ 
 </div>

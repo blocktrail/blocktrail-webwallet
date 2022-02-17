@@ -977,8 +977,10 @@ $display-token-size: 50px;
 
 .announcementWrapper {
     text-align: center;
+    height: 900px;
     margin-top: 38px;
     font-size: 16px;
+    color: #222549;
 
     &-title {
         height: 30px;
@@ -986,7 +988,7 @@ $display-token-size: 50px;
         font-weight: 600;
         color: #222549;
         line-height: 30px;
-        margin-bottom: 24px;
+        margin-bottom: 14px;
     }
 
     &-date {
@@ -994,6 +996,8 @@ $display-token-size: 50px;
         font-size: 16px;
         color: #222549;
         line-height: 16px;
+        padding-bottom: 38px;
+        border-bottom: 1px solid rgba(153, 153, 153, 0.09);
     }
 }
 
