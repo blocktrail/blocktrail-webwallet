@@ -1,80 +1,96 @@
 <app-wrapper title="'SETUP_LOGIN'">
-    <div class="formContainer">
-        <form
-            name="loginForm"
-            class="form page-blur"
-            ng-class="{'page-blur-active': isLoading}"
-            novalidate
+  <div class="formContainer">
+    <form
+      name="loginForm"
+      class="form page-blur"
+      ng-class="{'page-blur-active': isLoading}"
+      novalidate
+    >
+      <div ng-if="error" class="alert alert-danger">
+        {{ error | translate }}
+        <div ng-if="errorDetailed">{{ errorDetailed }}</div>
+      </div>
+
+      <!-- User name/email -->
+      <div
+        class="form-group form-group-lg"
+        ng-class="{'has-error': loginForm.username.$dirty && loginForm.username.$invalid}"
+      >
+        <label class="control-label"
+          >{{ 'SETUP_LOGIN_PLACEHOLDER' | translate }}</label
         >
 
-            <div ng-if="error" class="alert alert-danger">
-                {{ error | translate }}
-                <div ng-if="errorDetailed">
-                    {{ errorDetailed }}
-                </div>
-            </div>
-
-            <!-- User name/email -->
-            <div
-                class="form-group form-group-lg"
-                ng-class="{'has-error': loginForm.username.$dirty && loginForm.username.$invalid}"
-            >
-
-                <label class="control-label">{{ 'SETUP_LOGIN_PLACEHOLDER' | translate }}</label>
-
-                <input class="form-control"
-                       type="text"
-                       placeholder="{{ 'SETUP_LOGIN_PLACEHOLDER' | translate }}"
-                       name="username"
-                       ng-model="form.username"
-                />
-            </div>
-            <!-- Password -->
-            <div class="form-group form-group-lg" ng-class="{'has-error': loginForm.password.$dirty && loginForm.password.$invalid}">
-                <label class="control-label">{{ 'SETUP_PASSWORD_PLACEHOLDER' | translate }}</label>
-                <input class="form-control" type="password" placeholder="{{ 'SETUP_PASSWORD_PLACEHOLDER' | translate }}"
-                       name="password"
-                       ng-model="form.password"
-                       autocomplete="off"
-                       required="true"
-                       required
-                />
-                <div class="help-block"
-                     ng-if="loginForm.password.$dirty && loginForm.password.$invalid">
-                    <div ng-if="loginForm.password.$error.required">{{ 'MSG_MISSING_PASSWORD' | translate }}</div>
-                </div>
-            </div>
-
-            <!-- Debug mode -->
-            <div ng-if="isDebugMode" class="form-group form-group-lg">
-                <div class="checkbox">
-                    <label>
-                        <input
-                            type="checkbox"
-                            ng-model="form.forceNewWallet">
-                        {{ 'SETUP_FORCE_NEW_WALLET' | translate }}
-                    </label>
-                </div>
-            </div>
-
-            <div class="form-group form-group-lg form-group-buttons">
-                <button class="form-control btn btn-primary" ng-click="onSubmitFormLogin(loginForm)">{{ 'SETUP_LOGIN' | translate }}</button>
-            </div>
-
-            <!-- Loader overlay -->
-            <div
-                class="page-loader"
-                ng-class="{'active': isLoading}"
-            >
-                <loading-spinner></loading-spinner>
-            </div>
-        </form>
-    </div>
-
-    <div class="row">
-        <div class="col-xs-12 iit-15 text-center">
-            <a class="sentence-case" ui-sref="app.setup.register">{{ 'LAUNCH_NEW_ACCOUNT' | translate }}</a> <br />
-            <a ui-sref="app.setup.forgotPassword">{{ 'SETUP_FORGOT_PASSWORD_Q' | translate }}</a> | <a href="https://help.pool.btc.com" target="_blank">{{ 'HELP' | translate }}</a>
+        <input
+          class="form-control"
+          type="text"
+          placeholder="{{ 'SETUP_LOGIN_PLACEHOLDER' | translate }}"
+          name="username"
+          ng-model="form.username"
+        />
+      </div>
+      <!-- Password -->
+      <div
+        class="form-group form-group-lg"
+        ng-class="{'has-error': loginForm.password.$dirty && loginForm.password.$invalid}"
+      >
+        <label class="control-label"
+          >{{ 'SETUP_PASSWORD_PLACEHOLDER' | translate }}</label
+        >
+        <input
+          class="form-control"
+          type="password"
+          placeholder="{{ 'SETUP_PASSWORD_PLACEHOLDER' | translate }}"
+          name="password"
+          ng-model="form.password"
+          autocomplete="off"
+          required="true"
+          required
+        />
+        <div
+          class="help-block"
+          ng-if="loginForm.password.$dirty && loginForm.password.$invalid"
+        >
+          <div ng-if="loginForm.password.$error.required">
+            {{ 'MSG_MISSING_PASSWORD' | translate }}
+          </div>
         </div>
+      </div>
+
+      <!-- Debug mode -->
+      <div ng-if="isDebugMode" class="form-group form-group-lg">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="form.forceNewWallet" />
+            {{ 'SETUP_FORCE_NEW_WALLET' | translate }}
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group form-group-lg form-group-buttons">
+        <button
+          class="form-control btn btn-primary"
+          ng-click="onSubmitFormLogin(loginForm)"
+        >
+          {{ 'SETUP_LOGIN' | translate }}
+        </button>
+      </div>
+
+      <!-- Loader overlay -->
+      <div class="page-loader" ng-class="{'active': isLoading}">
+        <loading-spinner></loading-spinner>
+      </div>
+    </form>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-12 iit-15 text-center">
+      <a ui-sref="app.setup.forgotPassword"
+        >{{ 'SETUP_FORGOT_PASSWORD_Q' | translate }}</a
+      >
+      |
+      <a href="https://help.pool.btc.com" target="_blank"
+        >{{ 'HELP' | translate }}</a
+      >
     </div>
+  </div>
 </app-wrapper>
