@@ -13,6 +13,7 @@ html {
 body {
     position: relative;
     min-height: 100%;
+
     $background-color: $body-bg;
 
     &.state-app_wallet {
@@ -45,7 +46,6 @@ body {
     overflow: hidden;
 }
 
-
 a:focus {
     outline: none !important;
 }
@@ -64,14 +64,17 @@ a:focus {
             padding-left: 0px;
             padding-right: 0px;
         }
+
         .col-sm-#{$i} {
             padding-left: 0px;
             padding-right: 0px;
         }
+
         .col-md-#{$i} {
             padding-left: 0px;
             padding-right: 0px;
         }
+
         .col-lg-#{$i} {
             padding-left: 0px;
             padding-right: 0px;
@@ -92,11 +95,11 @@ a:focus {
 }
 
 .flex-container {
-    @include display-flex();
+    @include display-flex;
 }
 
 .fill-height-or-more {
-    @include display-flex();
+    @include display-flex;
     @include flex-direction(column);
 
     min-height: 100%;
@@ -111,13 +114,14 @@ a:focus {
         // flex: 1 1 auto;
         flex: 1;
 
-        @include display-flex();
+        @include display-flex;
         @include flex(1);
         @include flex-direction(column);
         @include justify-content(flex-start);
 
         > div {
             // also flex items
+       
         }
     }
 }
@@ -128,7 +132,7 @@ a:focus {
     padding-top: 28px;
     padding-bottom: 28px;
 
-    @include networkPrimaryDark('background-color');
+    @include networkPrimaryDark("background-color");
 
     clear: both;
     position: absolute;
@@ -136,9 +140,8 @@ a:focus {
     left: 0;
     z-index: 2;
     overflow: hidden;
-
-
     height: $big-footer-height * 2;
+
     @media (min-width: $screen-md-min) {
         height: $big-footer-height;
     }
@@ -147,7 +150,7 @@ a:focus {
         .copyright-logo {
             width: 130px;
             height: 22px;
-            background: url('../img/logo-btc-reverse.png');
+            background: url("../img/logo-btc-reverse.png");
             background-repeat: no-repeat;
             background-size: 130px 22px;
         }
@@ -186,6 +189,7 @@ a:focus {
         font-size: 16px;
         line-height: 22px;
         white-space: nowrap;
+
         .bticon {
             color: #ddd;
             vertical-align: middle;
@@ -205,7 +209,6 @@ a:focus {
     .footer {
         height: $small-footer-height;
         overflow: hidden;
-
         -webkit-transition: height 0.5s ease;
         -moz-transition: height 0.5s ease;
         -o-transition: height 0.5s ease;
@@ -294,7 +297,6 @@ a:focus {
                     padding: 0px;
                     display: inline;
                 }
-
             }
 
             &.sidebar-brand {
@@ -312,12 +314,13 @@ a:focus {
                         border: 1px solid $darkgray-light;
                     }
                 }
-
             }
+
             &.active {
                 a {
                     font-weight: $bold;
-                    @include networkPrimaryBG('background-color');
+
+                    @include networkPrimaryBG("background-color");
                 }
             }
         }
@@ -330,6 +333,7 @@ a:focus {
         width: 100%;
         margin: 20px 20px;
         text-align: left;
+
         a {
             color: $muted;
             text-decoration: none;
@@ -342,6 +346,7 @@ a:focus {
         left: 0px;
         width: 100%;
         margin: 20px 20px;
+
         a {
             color: $muted;
             padding: 4px 6px;
@@ -355,8 +360,8 @@ a:focus {
         bottom: 105px;
         left: 0px;
         width: 100%;
-
         margin: 20px 20px;
+
         a {
             color: $muted;
             padding: 4px 6px;
@@ -411,10 +416,10 @@ $appHeaderHeight: 80px;
             .app-body-container {
                 position: relative;
                 min-height: 100%;
+                padding-bottom: 50px;
 
                 .appPage {
                     padding: 10px 40px 20px 40px;
-
                 }
             }
         }
@@ -462,7 +467,6 @@ $appHeaderHeight: 80px;
     -webkit-filter: blur(3px);
     -moz-filter: blur(3px);
     filter: blur(3px);
-
     transition: filter 0.8s linear;
     -webkit-transition: -webkit-filter 0.8s linear;
 }
@@ -519,7 +523,6 @@ $appHeaderHeight: 80px;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-
 }
 
 .alert-default {
@@ -535,6 +538,7 @@ $appHeaderHeight: 80px;
 //when this is giving issues (like with buttons that have a transition for the active state), add this class to bypass
 .no-animate {
     @include transition(none 0s !important);
+
     &.ng-animate {
         @include transition(none 0s !important);
     }
@@ -602,7 +606,7 @@ $display-token-size: 50px;
         z-index: 100;
         color: $white;
         text-align: center;
-        font-size: round($display-token-size/2.3);
+        font-size: round($display-token-size / 2.3);
         line-height: $display-token-size;
         text-transform: uppercase;
         font-weight: 200;
@@ -646,7 +650,6 @@ $display-token-size: 50px;
             position: relative;
 
             .input-group-addon {
-
                 &.currency {
                     border: 0;
                     border-top: 1px solid inherit;
@@ -669,9 +672,10 @@ $display-token-size: 50px;
                     font-size: 14px;
                     text-align: right;
 
-                    @include networkPrimaryBG('color');
+                    @include networkPrimaryBG("color");
                 }
             }
+
             .dropdown {
                 border-left: none;
 
@@ -687,8 +691,8 @@ $display-token-size: 50px;
         }
 
         .dropdown-scrollable {
-            max-height:350px;
-            overflow:auto;
+            max-height: 350px;
+            overflow: auto;
         }
 
         p {
@@ -696,6 +700,7 @@ $display-token-size: 50px;
             font-size: 16px;
         }
     }
+
     .form-group-buttons {
         margin-top: 20px;
         padding: 0px;
@@ -713,6 +718,7 @@ $display-token-size: 50px;
 
 .password-input {
     position: relative;
+
     .password-check {
         position: absolute;
         right: 0px;
@@ -731,9 +737,11 @@ $display-token-size: 50px;
     &.password-checker-score-1 {
         background-color: $alert-danger-bg;
     }
+
     &.password-checker-score-2 {
         background: $alert-warning-bg;
     }
+
     &.password-checker-score-3,
     &.password-checker-score-4 {
         background-color: $alert-success-bg;
@@ -750,18 +758,22 @@ $display-token-size: 50px;
             font-weight: $normal;
             font-size: 32px;
         }
+
         hr {
             border-color: #ccc;
         }
+
         h4 {
             font-size: 18px;
             font-weight: $semi-bold;
             color: $black-light;
         }
+
         p {
             font-size: 18px;
             font-weight: $normal;
         }
+
         .progress {
             margin-top: 0px;
         }
@@ -827,7 +839,6 @@ $display-token-size: 50px;
                 background: $lightgray-light;
                 cursor: pointer;
             }
-
         }
 
         .custom-select-menu {
@@ -853,7 +864,7 @@ $display-token-size: 50px;
     }
 
     .appWrapper {
-        padding: 40px 0px;
+        padding: 50px 0px;
     }
 
     .pageTitle {
@@ -874,7 +885,8 @@ $display-token-size: 50px;
     }
 
     .smallButtons {
-        margin:20px auto;
+        margin: 20px auto;
+
         a {
             display: block;
             padding: 0px 0px 4px 0px;
@@ -884,7 +896,6 @@ $display-token-size: 50px;
     .extraMarginBottom {
         margin-bottom: 40px;
     }
-
 
     .backupWrapper {
         margin-top: 20px;
@@ -896,15 +907,18 @@ $display-token-size: 50px;
             margin: 0px;
             padding-bottom: 15px;
         }
+
         h2 {
             margin: 0px;
         }
+
         p {
             padding: 0px;
             font-size: 16px;
             font-weight: $normal;
             text-shadow: none;
             margin: 0px;
+
             .label {
                 font-weight: $semi-bold;
                 display: inline-block;
@@ -914,14 +928,17 @@ $display-token-size: 50px;
                 margin-right: 4px;
             }
         }
+
         .downloadBackupBtn {
             margin-top: 20px;
             width: 100%;
         }
+
         form {
             border-top: 1px solid $border-color;
             margin-top: 0px;
             padding: 0px 0px;
+
             .checkbox {
                 font-weight: $semi-bold;
                 font-size: 16px;
@@ -953,10 +970,42 @@ $display-token-size: 50px;
         }
 
         .appstoreimages {
-            margin-bottom:100px;
+            margin-bottom: 100px;
         }
-
     }
+}
+
+.announcementWrapper {
+    text-align: center;
+    height: 900px;
+    margin-top: 38px;
+    font-size: 16px;
+    color: #222549;
+
+    &-title {
+        height: 30px;
+        font-size: 30px;
+        font-weight: 600;
+        color: #222549;
+        line-height: 30px;
+        margin-bottom: 14px;
+    }
+
+    &-date {
+        height: 16px;
+        font-size: 16px;
+        color: #222549;
+        line-height: 16px;
+        padding-bottom: 38px;
+        border-bottom: 1px solid rgba(153, 153, 153, 0.09);
+    }
+}
+
+.announcement {
+    background-color: #EFAD4E;
+    padding: 22px 0;
+
+    div {}
 }
 
 .state-app_wallet {
@@ -991,12 +1040,15 @@ $display-token-size: 50px;
                 line-height: 34px;
                 margin-top: 20px;
             }
+
             .subheading {
                 font-size: 14px;
                 color: #666;
             }
+
             .balance {
                 margin-top: 15px;
+
                 h1 {
                     font-size: 28px;
                     font-weight: $semi-bold;
@@ -1005,10 +1057,10 @@ $display-token-size: 50px;
                     padding: 0px;
                     line-height: 42px;
                 }
+
                 h2 {
                     font-size: 22px;
                     color: #333;
-
                     font-weight: $bluejeans-dark;
                     margin: 0px;
                     padding: 0px;
@@ -1019,21 +1071,20 @@ $display-token-size: 50px;
     }
 
     .summaryControls {
-
         padding: 30px 0px 30px 0px;
 
         .nav-pills {
             padding: 0px 0px 0px 0px;
             margin: 0px;
-            li {
 
+            li {
                 border-radius: 0px;
+
                 a {
                     border: 1px solid #dadada;
                     border-bottom: 2px solid #ccc;
                     background: none;
                     color: $black-light;
-
                     text-transform: capitalize;
                     font-size: 14px;
                     line-height: 18px;
@@ -1046,7 +1097,6 @@ $display-token-size: 50px;
                     a {
                         background-color: $darkgray-dark;
                         color: $white;
-
                     }
                 }
             }
@@ -1068,6 +1118,7 @@ $display-token-size: 50px;
             display: block;
             padding: 60px 0px 100px 0px;
         }
+
         .tx-list {
             .item-transaction {
                 padding: 10px 30px;
@@ -1094,26 +1145,30 @@ $display-token-size: 50px;
                         text-overflow: ellipsis;
                         padding: 8px 0px 0px 0px;
                     }
+
                     .timestamp {
                         font-size: 14px;
                         color: $text-muted;
                         padding: 0px 0px 0px 0px;
                     }
-
                 }
+
                 .pending {
                     font-size: 14px;
                     color: #aaa;
                     padding: 20px 0px;
                 }
+
                 .value {
                     font-size: 18px;
                     line-height: 38px;
                     padding: 20px 0px;
                     font-weight: $normal;
+
                     &.received {
                         color: $green;
                     }
+
                     &.sent {
                         color: $darkgray-light;
                     }
@@ -1129,8 +1184,8 @@ $display-token-size: 50px;
                 &.isFirst {
                     padding-top: 10px;
                 }
-                .date-group {
 
+                .date-group {
                     display: block;
                     width: 100%;
                     padding: 10px 30px;
@@ -1141,11 +1196,9 @@ $display-token-size: 50px;
                 }
             }
         }
-
     }
 
     &.state-app_wallet_receive_address-lookup {
-
         .spinner {
             position: absolute;
             top: 50%;
@@ -1162,7 +1215,7 @@ $display-token-size: 50px;
             right: 0;
             bottom: 0;
             z-index: 2;
-            background-color: rgba(255,255,255,0.6);
+            background-color: rgba(255, 255, 255, 0.6);
         }
 
         .searchBox {
@@ -1171,6 +1224,7 @@ $display-token-size: 50px;
 
             label {
                 font-weight: normal;
+
                 @include user-select(none);
             }
 
@@ -1245,7 +1299,6 @@ $display-token-size: 50px;
 
     //--- send screens ---
     &.state-app_wallet_send, &.state-app_wallet_receive {
-
         form {
             padding: 0px 0px 0px 0px;
         }
@@ -1259,6 +1312,7 @@ $display-token-size: 50px;
             background-color: $white;
             padding: 20px 0;
         }
+
         .qr-code-holder {
             width: 227px;
             height: 227px;
@@ -1269,6 +1323,7 @@ $display-token-size: 50px;
             float: right;
             padding-top: 10px;
             color: #999;
+
             &.text-success {
                 color: $green;
             }
@@ -1284,6 +1339,7 @@ $display-token-size: 50px;
 
         .amount {
             //    font-size: 18px;
+       
         }
 
         .custom-select {
@@ -1344,7 +1400,6 @@ $display-token-size: 50px;
                     background: $lightgray-light;
                     cursor: pointer;
                 }
-
             }
 
             .custom-select-menu {
@@ -1371,6 +1426,7 @@ $display-token-size: 50px;
         .checkbox {
             padding: 20px 0px;
         }
+
         .contact-token {
             width: 60px;
             height: 60px;
@@ -1383,6 +1439,7 @@ $display-token-size: 50px;
             color: #666;
             font-size: 14px;
         }
+
         .spin-me {
             display: inline-block;
             -webkit-transform-origin: 74% 46%;
@@ -1409,22 +1466,22 @@ $display-token-size: 50px;
             margin-top: -1px;
             background: #000;
             z-index: 101;
-            transition: top 1s cubic-bezier(.13, .87, .42, .96);
-            -webkit-transition: top 1s cubic-bezier(.13, .87, .42, .96);
+            transition: top 1s cubic-bezier(0.13, 0.87, 0.42, 0.96);
+            -webkit-transition: top 1s cubic-bezier(0.13, 0.87, 0.42, 0.96);
             text-align: center;
 
             &.displayed {
                 top: 0 !important;
-                transition: top 0.8s cubic-bezier(.4, .1, .11, .98);
-                -webkit-transition: top 0.8s cubic-bezier(.4, .1, .11, .98);
+                transition: top 0.8s cubic-bezier(0.4, 0.1, 0.11, 0.98);
+                -webkit-transition: top 0.8s cubic-bezier(0.4, 0.1, 0.11, 0.98);
             }
 
             .confirm-button {
                 @include squareButton(#666, rgba(255, 255, 255, 0.5));
+
                 transition: none;
                 -webkit-transition: none;
                 min-width: 8rem;
-
                 position: absolute;
                 bottom: 1.5rem;
                 margin: 0 auto;
@@ -1438,6 +1495,7 @@ $display-token-size: 50px;
                 background: #000;
                 box-shadow: $app-default-shadow;
             }
+
             .loading {
                 color: $white;
                 position: absolute;
@@ -1447,6 +1505,7 @@ $display-token-size: 50px;
                 h3 {
                     color: $white;
                 }
+
                 .spinner svg {
                     color: $white;
                     width: 60px;
@@ -1465,15 +1524,20 @@ $display-token-size: 50px;
                     padding-right: 8px;
                 }
             }
+
             .tabs {
                 background-image: none; //for some reason they've used a gradient to create a thin line instead of border....very annoying to discover and remove >:(
+           
             }
+
             .country-code {
                 padding: 0 0 5px 0;
+
                 p {
                     padding-top: 8px;
                 }
             }
+
             .country-select-screen {
                 margin-top: 0;
                 padding: 0;
@@ -1511,19 +1575,21 @@ $display-token-size: 50px;
 
     &.state-app_wallet_feedback {
         background: $lightgray-dark;
+
         .msg {
             &.item-input {
                 -webkit-align-items: baseline;
                 -moz-align-items: baseline;
                 align-items: baseline;
-
                 padding-left: 0px;
             }
+
             i {
                 margin-top: -6px;
                 font-size: 20px;
             }
         }
+
         .email {
             i {
                 margin-top: 3px;
@@ -1532,9 +1598,9 @@ $display-token-size: 50px;
         }
 
         .send-button-group {
-
             .button {
                 @include squareButton($darkgray-light);
+
                 border-width: 1px;
             }
         }
@@ -1561,7 +1627,6 @@ $display-token-size: 50px;
         }
 
         .buybtc-list {
-
             .list-group-item {
                 cursor: pointer;
             }
@@ -1643,18 +1708,17 @@ $display-token-size: 50px;
     padding-top: 50%;
     background: $app-default-color;
     z-index: 101;
-    transition: top 1s cubic-bezier(.13, .87, .42, .96);
-    -webkit-transition: top 1s cubic-bezier(.13, .87, .42, .96);
+    transition: top 1s cubic-bezier(0.13, 0.87, 0.42, 0.96);
+    -webkit-transition: top 1s cubic-bezier(0.13, 0.87, 0.42, 0.96);
 
     &.ng-leave {
-
         top: 100%;
     }
 
     &.displayed, &.ng-enter {
         top: 0 !important;
-        transition: top 0.8s cubic-bezier(.4, .1, .11, .98);
-        -webkit-transition: top 0.8s cubic-bezier(.4, .1, .11, .98);
+        transition: top 0.8s cubic-bezier(0.4, 0.1, 0.11, 0.98);
+        -webkit-transition: top 0.8s cubic-bezier(0.4, 0.1, 0.11, 0.98);
     }
 
     .confirm-button {
@@ -1668,22 +1732,18 @@ $display-token-size: 50px;
 
 .animate-spin {
     display: block;
-
     -webkit-animation-name: spin;
     -webkit-animation-duration: 1000ms;
     -webkit-animation-iteration-count: infinite;
     -webkit-animation-timing-function: linear;
-
     -moz-animation-name: spin;
     -moz-animation-duration: 1000ms;
     -moz-animation-iteration-count: infinite;
     -moz-animation-timing-function: linear;
-
     -ms-animation-name: spin;
     -ms-animation-duration: 1000ms;
     -ms-animation-iteration-count: infinite;
     -ms-animation-timing-function: linear;
-
     animation-name: spin;
     animation-duration: 1000ms;
     animation-iteration-count: infinite;
@@ -1691,16 +1751,33 @@ $display-token-size: 50px;
 }
 
 @-moz-keyframes spin {
-    from { -moz-transform: rotate(0deg); }
-    to { -moz-transform: rotate(360deg); }
+    from {
+        -moz-transform: rotate(0deg);
+    }
+
+    to {
+        -moz-transform: rotate(360deg);
+    }
 }
+
 @-webkit-keyframes spin {
-    from { -webkit-transform: rotate(0deg); }
-    to { -webkit-transform: rotate(360deg); }
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+
+    to {
+        -webkit-transform: rotate(360deg);
+    }
 }
+
 @keyframes spin {
-    from {transform:rotate(0deg);}
-    to {transform:rotate(360deg);}
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .loading-page {
@@ -1742,6 +1819,7 @@ $display-token-size: 50px;
         animation: bounce 1s 0.0s infinite;
         background: #009DC6;
     }
+
     .loading-1 {
         -webkit-animation: bounce 1s 0.2s infinite;
         -moz-animation: bounce 1s 0.2s infinite;
@@ -1749,6 +1827,7 @@ $display-token-size: 50px;
         animation: bounce 1s 0.2s infinite;
         background: #e8b440;
     }
+
     .loading-2 {
         -webkit-animation: bounce 1s 0.4s infinite;
         -moz-animation: bounce 1s 0.4s infinite;
@@ -1758,25 +1837,26 @@ $display-token-size: 50px;
     }
 }
 
-
-
 .modal-open {
     .content {
         @extend .blur-me;
     }
 }
-.modal {
 
+.modal {
     .modal-dialog {
         margin-top: 100px;
+
         button.close {
-            margin:6px 10px;
+            margin: 6px 10px;
         }
+
         .modal-content {
-            border-radius:10px;
+            border-radius: 10px;
         }
+
         .modal-header {
-            @include networkPrimaryBG('background-color');
+            @include networkPrimaryBG("background-color");
 
             padding: 15px 20px;
             -webkit-border-top-left-radius: 6px;
@@ -1792,12 +1872,15 @@ $display-token-size: 50px;
                 color: $white;
             }
         }
+
         .modal-body {
             padding: 20px 25px;
+
             .alert-default {
                 padding: 10px;
                 margin: 0px;
             }
+
             .title {
                 font-size: 18px;
                 font-weight: $normal;
@@ -1822,6 +1905,7 @@ $display-token-size: 50px;
                 font-size: 14px;
                 text-align: left;
             }
+
             .label {
                 color: $black-light;
                 font-weight: $semi-bold;
@@ -1831,23 +1915,28 @@ $display-token-size: 50px;
                 margin: 0px;
                 padding: 10px 0px 0px 0px;
             }
+
             .transaction-ok {
                 color: $good-green;
                 font-size: 80px;
             }
         }
+
         .modal-footer {
             padding: 20px 25px;
             background-color: $lightgray-light;
         }
+
         .table {
             background-color: $lightgray-light;
             margin: 0px;
             border-bottom: 1px solid $muted;
+
             tr {
                 th {
                     font-weight: $bold;
                 }
+
                 td, th {
                     border: 0px;
                     padding: 15px 30px;
@@ -1857,6 +1946,7 @@ $display-token-size: 50px;
         }
     }
 }
+
 /*--- Cool Buttons ---*/
 
 /*--- Cool Buttons ---*/
@@ -1877,7 +1967,6 @@ $display-token-size: 50px;
     display: inline-block;
     text-shadow: -1px 1px $muted;
     border-radius: 0px;
-
     background: -moz-linear-gradient(top, $white 0%, #dadada 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, $white), color-stop(100%, #dadada)); /* Chrome,Safari4+ */
     background: -webkit-linear-gradient(top, $white 0%, #dadada 100%); /* Chrome10+,Safari5.1+ */
@@ -1887,13 +1976,16 @@ $display-token-size: 50px;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$white', endColorstr='#dadada', GradientType=0); /* IE6-9 */
 
     box-shadow: 2px 2px 2px -1px #999;
+
     &:hover, &:active, &:focus, &.active {
         background: none;
         background-color: #dadada;
+
         //box-shadow: inset 0 0px 6px 0px #999;
         color: $black-light;
         text-decoration: none;
     }
+
     &.active {
         box-shadow: none;
         border-bottom: 2px solid $dark-green;
@@ -1944,6 +2036,7 @@ $display-token-size: 50px;
     0%, 100% {
         opacity: 0.0;
     }
+
     60% {
         opacity: 1;
     }
@@ -1953,6 +2046,7 @@ $display-token-size: 50px;
     0%, 100% {
         opacity: 0.0;
     }
+
     60% {
         opacity: 1;
     }
@@ -1962,6 +2056,7 @@ $display-token-size: 50px;
     0%, 100% {
         opacity: 0.0;
     }
+
     60% {
         opacity: 1;
     }
@@ -1971,6 +2066,7 @@ $display-token-size: 50px;
     0%, 100% {
         opacity: 0.0;
     }
+
     60% {
         opacity: 1;
     }
@@ -1981,6 +2077,7 @@ $display-token-size: 50px;
     0% {
         -moz-transform: rotate(0deg);
     }
+
     100% {
         -moz-transform: rotate(359deg);
     }
@@ -1990,6 +2087,7 @@ $display-token-size: 50px;
     0% {
         -webkit-transform: rotate(0deg);
     }
+
     100% {
         -webkit-transform: rotate(359deg);
     }
@@ -1999,6 +2097,7 @@ $display-token-size: 50px;
     0% {
         -o-transform: rotate(0deg);
     }
+
     100% {
         -o-transform: rotate(359deg);
     }
@@ -2008,6 +2107,7 @@ $display-token-size: 50px;
     0% {
         -ms-transform: rotate(0deg);
     }
+
     100% {
         -ms-transform: rotate(359deg);
     }
@@ -2017,6 +2117,7 @@ $display-token-size: 50px;
     0% {
         transform: rotate(0deg);
     }
+
     100% {
         transform: rotate(359deg);
     }

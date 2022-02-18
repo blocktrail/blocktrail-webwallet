@@ -4,7 +4,7 @@
     angular.module('blocktrail.core')
         .factory('NotificationsService', NotificationsService);
 
-    function NotificationsService(CONFIG, dialogService, settingsService, $translate, $log) {
+    function NotificationsService(CONFIG, dialogService, settingsService, $translate, $log,$sce) {
 
         var settingsData = settingsService.getReadOnlySettingsData();
 
@@ -79,11 +79,56 @@
         function isChrome() {
             return navigator.userAgent.match(/Chrome\/\d+/) !== null;
         }
+         function announcementPromit(timer){
+           var currentDate = Date.now()
+           if(!localStorage.getItem('date')){
+            localStorage.setItem('date',currentDate)
+           }
+
+           if((currentDate - localStorage.getItem('date') >= 4*1000*60*60) || currentDate===Number(localStorage.getItem('date'))){
+            console.log(4*1000*60*60 - currentDate + localStorage.getItem('date'),2222)
+            dialogService.alert(
+              {
+                title: $translate.instant('WALL_ANNOUNCEMENT_DIALOG'),
+                bodyHtml: $sce.trustAsHtml($translate.instant('WALL_ANNOUNCEMENT_INFO')+'<a href="/#/announcement" target="_blank">'+$translate.instant('WALL_ANNOUNCEMENT_VIEW')+'</a>'),
+                ok: $translate.instant('OK')
+            }
+           ).result.then(function(){
+              localStorage.setItem('date',Date.now())
+              setTimeout(function(){
+              announcementPromit()
+           },4*1000*60*60)
+           })
+           }
+           else{
+             console.log(4*1000*60*60 -(Date.now() - localStorage.getItem('date')),1111)
+             clearTimeout(localStorage.getItem('timer'))
+             const timer=setTimeout(function(){
+               
+              dialogService.alert(
+                {
+                  title: $translate.instant('WALL_ANNOUNCEMENT_DIALOG'),
+                  bodyHtml: $sce.trustAsHtml($translate.instant('WALL_ANNOUNCEMENT_INFO')+'<a href="/#/announcement" target="_blank">'+$translate.instant('WALL_ANNOUNCEMENT_VIEW')+'</a>'),
+                  ok: $translate.instant('OK')
+              }
+             ).result.then(function(){
+                localStorage.setItem('date',Date.now())
+                setTimeout(function(){
+                announcementPromit()
+             },4*1000*60*60)
+             })
+             }, 4*1000*60*60 -(currentDate - localStorage.getItem('date')))
+             localStorage.setItem('timer',timer)
+           }
+            
+            
+        }
 
         return {
             checkAndPromptSimplex: checkAndPromptSimplex,
             checkAndPromptBitcoinURIHandler: checkAndPromptBitcoinURIHandler,
-            promptBitcoinURIHandler: promptBitcoinURIHandler
+            promptBitcoinURIHandler: promptBitcoinURIHandler,
+            announcementPromit:announcementPromit 
         };
     }
 

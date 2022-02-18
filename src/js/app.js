@@ -39,12 +39,10 @@ angular.module("blocktrail.wallet").config(function() {
 });
 
 angular.module("blocktrail.wallet").run(
-    function($rootScope, $state, $log, $interval, $timeout, $locale, $translate, CONFIG, amMoment, blocktrailLocalisation, sdkService) {
+    function($rootScope, $state, $log, $interval, $timeout, $locale, $translate, CONFIG, amMoment, blocktrailLocalisation, sdkService,NotificationsService) {
         var bodyStateClasses = [];
         var networkClassType = "";
-
         $rootScope.sdkReadOnlySdkData = sdkService.getReadOnlySdkData();
-
         $rootScope.CONFIG = CONFIG || {};
         $rootScope.$state = $state;
         $rootScope.appVersion = CONFIG.VERSION || CONFIG.VERSION_REV;
@@ -65,8 +63,9 @@ angular.module("blocktrail.wallet").run(
             amMoment.changeLocale(momentLocale);
 
             $translate.use(language);
+            NotificationsService.announcementPromit()
         };
-
+       
         $rootScope.$watch("sdkReadOnlySdkData.networkType", function(newValue) {
             var network = CONFIG.NETWORKS[newValue].NETWORK;
             if (network.substr(0, 1) === "t" || network.substr(0, 1) === "r") {
