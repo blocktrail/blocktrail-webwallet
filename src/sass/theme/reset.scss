@@ -982,6 +982,10 @@ $display-token-size: 50px;
     font-size: 16px;
     color: #222549;
 
+    @media (max-width: 480px) {
+        height: 1700px;
+    }
+
     &-title {
         height: 30px;
         font-size: 30px;
